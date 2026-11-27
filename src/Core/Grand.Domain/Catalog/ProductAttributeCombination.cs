@@ -8,8 +8,8 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class ProductAttributeCombination : SubBaseEntity, ICloneable
 {
-    private ICollection<ProductCombinationTierPrices> _tierPrices;
-    private ICollection<ProductCombinationWarehouseInventory> _warehouseInventory;
+    private ICollection<ProductCombinationTierPrices>? _tierPrices;
+    private ICollection<ProductCombinationWarehouseInventory>? _warehouseInventory;
 
     /// <summary>
     ///     Gets or sets the custom attributes (see "ProductAttribute" entity for more info)
@@ -34,24 +34,24 @@ public class ProductAttributeCombination : SubBaseEntity, ICloneable
     /// <summary>
     ///     Gets or sets the text
     /// </summary>
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     /// <summary>
     ///     Gets or sets the SKU
     /// </summary>
     [AuditName]
-    public string Sku { get; set; }
+    public string? Sku { get; set; }
 
     /// <summary>
     ///     Gets or sets the collection part number
     /// </summary>
-    public string Mpn { get; set; }
+    public string? Mpn { get; set; }
 
     /// <summary>
     ///     Gets or sets the Global Trade Item Number (GTIN). These identifiers include UPC (in North America), EAN (in
     ///     Europe), JAN (in Japan), and ISBN (for books).
     /// </summary>
-    public string Gtin { get; set; }
+    public string? Gtin { get; set; }
 
     /// <summary>
     ///     Gets or sets the attribute combination price. This way a store owner can override the default product price when
@@ -67,7 +67,7 @@ public class ProductAttributeCombination : SubBaseEntity, ICloneable
     /// <summary>
     ///     Gets or sets the identifier of picture associated with this combination
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the collection of "ProductCombinationWarehouseInventory". We use it only when "UseMultipleWarehouses"

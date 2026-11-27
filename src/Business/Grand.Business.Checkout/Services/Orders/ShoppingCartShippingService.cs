@@ -162,16 +162,13 @@ public class ShoppingCartShippingService : IShoppingCartShippingService
     public virtual async Task<bool> IsFreeShipping(IList<ShoppingCartItem> cart, CalculationContext context)
     {
         var customer = context.Customer;
-        if (customer != null)
-        {
-            //check whether customer has a free shipping
-            if (customer.FreeShipping)
-                return true;
+        //check whether customer has a free shipping
+        if (customer.FreeShipping)
+            return true;
 
-            //check whether customer is in a customer group with free shipping applied
-            var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
-            if (customerGroups.Any(customerGroup => customerGroup.FreeShipping)) return true;
-        }
+        //check whether customer is in a customer group with free shipping applied
+        var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
+        if (customerGroups.Any(customerGroup => customerGroup.FreeShipping)) return true;
 
         var shoppingCartRequiresShipping = cart.RequiresShipping();
         if (!shoppingCartRequiresShipping)
@@ -265,11 +262,9 @@ public class ShoppingCartShippingService : IShoppingCartShippingService
         if (isFreeShipping)
             return new ShoppingCartShippingTotal(0, taxRate, appliedDiscounts);
 
-        ShippingOption shippingOption = null;
-        if (customer != null)
-            shippingOption =
-                customer.GetUserFieldFromEntity<ShippingOption>(SystemCustomerFieldNames.SelectedShippingOption,
-                    context.Store.Id);
+        var shippingOption =
+            customer.GetUserFieldFromEntity<ShippingOption>(SystemCustomerFieldNames.SelectedShippingOption,
+                context.Store.Id);
 
         if (shippingOption != null)
         {
@@ -281,9 +276,7 @@ public class ShoppingCartShippingService : IShoppingCartShippingService
         else
         {
             //use fixed rate (if possible)
-            Address shippingAddress = null;
-            if (customer != null)
-                shippingAddress = customer.ShippingAddress;
+            var shippingAddress = customer.ShippingAddress;
 
             var shippingRateMethods =
                 await _shippingService.LoadActiveShippingRateCalculationProviders(context.Customer,

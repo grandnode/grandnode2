@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Events.Customers;
 /// </summary>
 public class CustomerRegisteredEvent : INotification
 {
-    public CustomerRegisteredEvent(Customer customer, Language language)
+    public CustomerRegisteredEvent(Customer customer, Language? language)
     {
         Customer = customer;
         Language = language;
@@ -27,5 +27,5 @@ public class CustomerRegisteredEvent : INotification
     ///     Working language of the request the customer registered through; null when the account was registered
     ///     without one (from an access token)
     /// </summary>
-    public Language Language { get; }
+    public Language? Language { get; }
 }

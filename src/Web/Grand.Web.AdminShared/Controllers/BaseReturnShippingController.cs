@@ -31,7 +31,7 @@ public abstract class BaseReturnShippingController(
     /// <summary>
     ///     The link to the provider's configuration screen in this panel, or null when there is none
     /// </summary>
-    protected virtual string ConfigurationUrl(IReturnShippingProvider provider)
+    protected virtual string? ConfigurationUrl(IReturnShippingProvider provider)
     {
         return provider.ConfigurationUrl;
     }

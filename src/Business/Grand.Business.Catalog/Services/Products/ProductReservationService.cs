@@ -106,7 +106,7 @@ public class ProductReservationService : IProductReservationService
     /// </summary>
     /// <param name="id">Product ident</param>
     /// <returns>Product reservation</returns>
-    public virtual Task<ProductReservation> GetProductReservation(string id)
+    public virtual Task<ProductReservation?> GetProductReservation(string? id)
     {
         return _productReservationRepository.GetByIdAsync(id);
     }
@@ -156,7 +156,7 @@ public class ProductReservationService : IProductReservationService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>CustomerReservationsHelper</returns>
-    public virtual Task<CustomerReservationsHelper> GetCustomerReservationsHelperById(string id)
+    public virtual Task<CustomerReservationsHelper?> GetCustomerReservationsHelperById(string id)
     {
         return _customerReservationsHelperRepository.GetByIdAsync(id);
     }

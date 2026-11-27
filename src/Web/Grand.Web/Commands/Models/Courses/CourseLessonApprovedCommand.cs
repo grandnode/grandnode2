@@ -6,7 +6,7 @@ namespace Grand.Web.Commands.Models.Courses;
 
 public class CourseLessonApprovedCommand : IRequest<bool>
 {
-    public Course Course { get; set; }
-    public CourseLesson Lesson { get; set; }
-    public Customer Customer { get; set; }
+    public required Course Course { get; set; }
+    public required CourseLesson Lesson { get; set; }
+    public required Customer Customer { get; set; }
 }

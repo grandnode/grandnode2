@@ -125,7 +125,7 @@ public class CustomerAttributeParser : ICustomerAttributeParser
             {
                 if (a1.Id != a2.Id) continue;
                 var valuesStr = customAttributes.Where(x => x.Key == a1.Id).Select(x => x.Value);
-                if (valuesStr.Any(str1 => !string.IsNullOrEmpty(str1.Trim()))) found = true;
+                if (valuesStr.Any(str1 => !string.IsNullOrEmpty(str1?.Trim()))) found = true;
             }
 
             //if not found

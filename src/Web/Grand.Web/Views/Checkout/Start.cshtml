@@ -94,7 +94,7 @@
                                     </validation-observer>
                                     <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-buttons-container">
                                         <input type="button" class="btn btn-info new-address-next-step-button" title="@Loc["Common.Continue"]"
-                                               @if (Model.ShippingAddress.ExistingAddresses.Any())
+                                               @if (Model.ShippingAddress?.ExistingAddresses.Any() == true)
                                                {
                                                    <text>@@click="vmorder.saveStep('vShipping', 'shippingSubmit', vm.$refs.shippingSelect.value === '')"</text>
                                                }
@@ -134,7 +134,7 @@
                                         <a class="btn btn-secondary" id="back-billing" href="#" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
                                     }
                                     <input type="button" title="@Loc["Common.Continue"]" class="btn btn-info new-address-next-step-button"
-                                           @if (Model.BillingAddress.ExistingAddresses.Any())
+                                           @if (Model.BillingAddress?.ExistingAddresses.Any() == true)
                                            {
                                                <text>@@click="vmorder.saveStep('vBilling', 'billingSubmit', vm.$refs.billingSelect.value === '')"</text>
                                            }

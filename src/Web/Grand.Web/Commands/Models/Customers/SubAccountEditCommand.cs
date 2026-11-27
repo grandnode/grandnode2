@@ -6,7 +6,7 @@ namespace Grand.Web.Commands.Models.Customers;
 
 public class SubAccountEditCommand : IRequest<bool>
 {
-    public Customer CurrentCustomer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public SubAccountEditModel EditModel { get; set; }
+    public required Customer CurrentCustomer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required SubAccountEditModel EditModel { get; set; }
 }

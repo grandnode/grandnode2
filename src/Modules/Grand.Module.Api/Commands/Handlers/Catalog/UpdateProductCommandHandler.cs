@@ -12,7 +12,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
-public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto>
+public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto?>
 {
     private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
@@ -36,10 +36,12 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         _seNameService = seNameService;
     }
 
-    public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+    public async Task<ProductDto?> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         //product
         var product = await _productService.GetProductById(request.Model.Id);
+        if (product == null)
+            return null;
         var prevStockQuantity = product.StockQuantity;
         var prevReservedQuantity = product.ReservedQuantity;
         var prevPublished = product.Published;
@@ -61,7 +63,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
                 new StockChange([], "", stockChanged ? product.StockQuantity : 0, stockChanged,
                     InventoryMovementType.Api,
                     new StockSource("Api", product.Id, Reference: product.Sku ?? "",
-                        CustomerId: _contextAccessor.WorkContext?.CurrentCustomer?.Id ?? "")) {
+                        CustomerId: _contextAccessor.WorkContext.CurrentCustomer.Id ?? "")) {
                     ReservedQuantity = reservedChanged ? product.ReservedQuantity : null
                 }
             ]);

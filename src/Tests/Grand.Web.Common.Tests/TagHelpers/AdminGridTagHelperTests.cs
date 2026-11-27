@@ -43,6 +43,7 @@ public class AdminGridTagHelperTests
         workContextMock.Setup(x => x.WorkingLanguage).Returns(() => _workingLanguage);
         _contextAccessorMock = new Mock<IContextAccessor>();
         _contextAccessorMock.Setup(x => x.WorkContext).Returns(workContextMock.Object);
+        _contextAccessorMock.Setup(x => x.CurrentWorkContext).Returns(workContextMock.Object);
         _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => $"[{key}]");
         _translationServiceMock

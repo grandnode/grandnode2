@@ -80,11 +80,26 @@ switch (cartItem.ShoppingCartTypeId)
 
 ## Nullable Reference Types
 
-The project has nullable reference types enabled. Follow these conventions:
+Nullable reference types are enabled, with nullable warnings as errors, in every project except the plugins
+(`src/Plugins`) and the test projects (`src/Tests`), which come in a later step. Each enabled project sets
+`<Nullable>enable</Nullable>` and `<WarningsAsErrors>nullable</WarningsAsErrors>` in its own `.csproj`; there are
+no `#nullable` directives. Razor views compile under their project's setting.
 
-- `string` — the property/parameter is never null; calling code must not pass null.
-- `string?` — explicitly nullable; caller or callee handles null.
-- Do not suppress warnings with `!` unless you are certain the value cannot be null at that point.
+- `string` — never null; calling code must not pass null.
+- `string?` — may be null; the callee copes with it.
+- Domain entity strings are `string?`; a field every validator requires and every creation site sets is
+  `string X { get; set; } = null!`. Do not use `= string.Empty` (it changes what MongoDB stores) or `required` on
+  entities (System.Text.Json enforces it).
+- Mediator requests: a property every creation site sets is `required`. A handler that can return null declares it
+  in the request (`IRequest<X?>`); never annotate `IRequestHandler.Handle` itself.
+- A lookup by id takes `string?` and returns `T?`. A value-or-error result is read through its value
+  (`x is { Outcome: Ok, User: { } user }`), not by testing the error.
+- Use `[NotNullWhen]`, `[MemberNotNullWhen]` and `[NotNullIfNotNull]` to say what a check or a mapper guarantees.
+  `[NotNullWhen]` does nothing on `Task<bool>`: write `x == null || !await Check(x)` instead.
+- A field a validator requires gets `ArgumentException.ThrowIfNullOrEmpty(model.X)` where it is used, with a comment
+  naming the validator.
+- Do not suppress warnings: no `#pragma`, no `NoWarn`, no `<Nullable>warnings</Nullable>`. A `!` is allowed only
+  with a comment that names the invariant the compiler cannot see.
 
 ---
 

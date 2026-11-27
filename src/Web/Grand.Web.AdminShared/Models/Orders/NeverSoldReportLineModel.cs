@@ -5,8 +5,8 @@ namespace Grand.Web.AdminShared.Models.Orders;
 
 public class NeverSoldReportLineModel : BaseModel
 {
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.NeverSold.Fields.Name")]
-    public string ProductName { get; set; }
+    public string? ProductName { get; set; }
 }

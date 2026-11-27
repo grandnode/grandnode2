@@ -12,5 +12,5 @@ public class RecurringReportResult
     /// <summary>
     ///     The recurring payment as read under the lock, or as saved; null when it is unknown
     /// </summary>
-    public RecurringPayment RecurringPayment { get; init; }
+    public RecurringPayment? RecurringPayment { get; init; }
 }

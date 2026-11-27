@@ -33,7 +33,7 @@ public class BaseOrderControllerTests
         : BaseOrderController(orderViewModelService, orderService, translationService,
             contextAccessor, pdfService, scope)
     {
-        public Task<(Order order, IActionResult denied)> LoadAuthorizedOrderPublic(string id) =>
+        public Task<Access<Order>> LoadAuthorizedOrderPublic(string id) =>
             LoadAuthorizedOrder(id);
     }
 
@@ -155,7 +155,7 @@ public class BaseOrderControllerTests
     {
         _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order)null);
 
-        var (order, denied) = await _controller.LoadAuthorizedOrderPublic("missing");
+        (await _controller.LoadAuthorizedOrderPublic("missing")).TryGet(out var order, out var denied);
 
         Assert.IsNull(order);
         var redirect = denied as RedirectToActionResult;
@@ -171,7 +171,7 @@ public class BaseOrderControllerTests
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
 
-        var (resultOrder, denied) = await _controller.LoadAuthorizedOrderPublic("o1");
+        (await _controller.LoadAuthorizedOrderPublic("o1")).TryGet(out var resultOrder, out var denied);
 
         Assert.IsNull(resultOrder);
         var redirect = denied as RedirectToActionResult;
@@ -186,7 +186,7 @@ public class BaseOrderControllerTests
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
 
-        var (resultOrder, denied) = await _controller.LoadAuthorizedOrderPublic("o1");
+        (await _controller.LoadAuthorizedOrderPublic("o1")).TryGet(out var resultOrder, out var denied);
 
         Assert.AreSame(order, resultOrder);
         Assert.IsNull(denied);

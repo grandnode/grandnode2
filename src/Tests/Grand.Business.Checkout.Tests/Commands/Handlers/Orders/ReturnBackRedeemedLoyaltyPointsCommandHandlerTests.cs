@@ -38,7 +38,7 @@ public class ReturnBackRedeemedLoyaltyPointsCommandHandlerTests
     {
         //Arrange
         var command = new ReturnBackRedeemedLoyaltyPointsCommand {
-            Order = new Order { RedeemedLoyaltyPoints = 10, CustomerLanguageId = "lang1" }
+            Order = new Order { CustomerId = "c1", RedeemedLoyaltyPoints = 10, CustomerLanguageId = "lang1" }
         };
         //the message is written in the language the order was placed in
         _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>(), "lang1", It.IsAny<string>(),
@@ -56,7 +56,7 @@ public class ReturnBackRedeemedLoyaltyPointsCommandHandlerTests
     {
         //Arrange
         var command = new ReturnBackRedeemedLoyaltyPointsCommand {
-            Order = new Order { RedeemedLoyaltyPoints = 10, StoreId = "store1", CustomerLanguageId = null }
+            Order = new Order { CustomerId = "c1", RedeemedLoyaltyPoints = 10, StoreId = "store1", CustomerLanguageId = null }
         };
         _storeServiceMock.Setup(c => c.GetStoreById("store1"))
             .ReturnsAsync(new Store { Id = "store1", DefaultLanguageId = "store-lang" });

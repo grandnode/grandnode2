@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class UpdateProductCollectionCommand : IRequest<bool>
 {
-    public ProductDto Product { get; set; }
-    public ProductCollectionDto Model { get; set; }
+    public required ProductDto Product { get; set; }
+    public required ProductCollectionDto Model { get; set; }
 }

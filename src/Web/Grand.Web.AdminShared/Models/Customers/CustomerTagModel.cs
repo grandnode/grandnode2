@@ -7,5 +7,5 @@ public class CustomerTagModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerTags.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }

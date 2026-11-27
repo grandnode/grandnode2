@@ -47,13 +47,17 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
 
     private async Task<ContactUsModel> SendContactUs(ContactUsSendCommand request)
     {
+        //the validator requires them
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.Email);
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.FullName);
+
         var subject = _commonSettings.SubjectFieldOnContactUsForm ? request.Model.Subject : null;
         var body = FormatText.ConvertText(request.Model.Enquiry);
 
         await _customerMessageProviderService.SendContactUsMessage
         (request.Customer, request.Store, request.Language.Id, request.Model.Email.Trim(),
-            request.Model.FullName, subject,
-            body, request.Model.ContactAttributeInfo, request.Model.ContactAttribute, request.IpAddress,
+            request.Model.FullName, subject ?? "",
+            body, request.Model.ContactAttributeInfo ?? "", request.Model.ContactAttribute, request.IpAddress ?? "",
             host: request.Host);
 
         request.Model.SuccessfullySent = true;

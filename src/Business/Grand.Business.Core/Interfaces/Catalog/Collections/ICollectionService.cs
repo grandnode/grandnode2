@@ -17,7 +17,7 @@ public interface ICollectionService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Collections</returns>
-    Task<IPagedList<Collection>> GetAllCollections(string collectionName,
+    Task<IPagedList<Collection>> GetAllCollections(string? collectionName,
         CatalogAccess access,
         int pageIndex = 0,
         int pageSize = int.MaxValue);
@@ -34,7 +34,7 @@ public interface ICollectionService
     /// </summary>
     /// <param name="collectionId">Collection identifier</param>
     /// <returns>Collection</returns>
-    Task<Collection> GetCollectionById(string collectionId);
+    Task<Collection?> GetCollectionById(string? collectionId);
 
     /// <summary>
     ///     Inserts a new collection

@@ -9,13 +9,13 @@ namespace Grand.Web.AdminShared.Models.Discounts;
 public class DiscountModel : BaseEntityModel, IStoreLinkModel
 {
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.DiscountType")]
     public int DiscountTypeId { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.DiscountType")]
-    public string DiscountTypeName { get; set; }
+    public string? DiscountTypeName { get; set; }
 
     //used for the list page
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.TimesUsed")]
@@ -31,7 +31,7 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
     public double DiscountAmount { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.CurrencyCode")]
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     public IList<SelectListItem> AvailableCurrencies { get; set; } = new List<SelectListItem>();
 
@@ -39,7 +39,7 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
     public bool CalculateByPlugin { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.DiscountPluginName")]
-    public string DiscountPluginName { get; set; }
+    public string? DiscountPluginName { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.MaximumDiscountAmount")]
     [UIHint("DoubleNullable")]
@@ -73,7 +73,7 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
     public int? MaximumDiscountedQuantity { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Requirements.DiscountRequirementType")]
-    public string AddDiscountRequirement { get; set; }
+    public string? AddDiscountRequirement { get; set; }
 
     public IList<SelectListItem> AvailableDiscountRequirementRules { get; set; } = new List<SelectListItem>();
 
@@ -88,29 +88,29 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
     //Store acl
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     #region Nested classes
 
     public class DiscountRequirementMetaInfo : BaseModel
     {
-        public string DiscountRequirementId { get; set; }
-        public string RuleName { get; set; }
-        public string ConfigurationUrl { get; set; }
+        public string? DiscountRequirementId { get; set; }
+        public string? RuleName { get; set; }
+        public string? ConfigurationUrl { get; set; }
     }
 
     public class DiscountUsageHistoryModel : BaseEntityModel
     {
-        public string DiscountId { get; set; }
+        public string? DiscountId { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Discounts.History.Order")]
-        public string OrderId { get; set; }
+        public string? OrderId { get; set; }
 
         public int OrderNumber { get; set; }
-        public string OrderCode { get; set; }
+        public string? OrderCode { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Discounts.History.OrderTotal")]
-        public string OrderTotal { get; set; }
+        public string? OrderTotal { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Discounts.History.CreatedOn")]
         public DateTime CreatedOn { get; set; }
@@ -118,72 +118,72 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
 
     public class AppliedToCategoryModel : BaseModel
     {
-        public string CategoryId { get; set; }
+        public string? CategoryId { get; set; }
 
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
     }
 
     public class AddCategoryToDiscountModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Categories.List.SearchCategoryName")]
 
-        public string SearchCategoryName { get; set; }
+        public string? SearchCategoryName { get; set; }
 
-        public string DiscountId { get; set; }
+        public string? DiscountId { get; set; }
 
-        public string[] SelectedCategoryIds { get; set; }
+        public string[] SelectedCategoryIds { get; set; } = [];
     }
 
 
     public class AppliedToCollectionModel : BaseModel
     {
-        public string CollectionId { get; set; }
+        public string? CollectionId { get; set; }
 
-        public string CollectionName { get; set; }
+        public string? CollectionName { get; set; }
     }
 
     public class AddCollectionToDiscountModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Collections.List.SearchCollectionName")]
 
-        public string SearchCollectionName { get; set; }
+        public string? SearchCollectionName { get; set; }
 
-        public string DiscountId { get; set; }
+        public string? DiscountId { get; set; }
 
-        public string[] SelectedCollectionIds { get; set; }
+        public string[] SelectedCollectionIds { get; set; } = [];
     }
 
 
     public class AppliedToProductModel : BaseModel
     {
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
     }
 
     public class AddProductToDiscountModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
 
-        public string SearchProductName { get; set; }
+        public string? SearchProductName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
         [UIHint("Category")]
-        public string SearchCategoryId { get; set; }
+        public string? SearchCategoryId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
         [UIHint("Brand")]
-        public string SearchBrandId { get; set; }
+        public string? SearchBrandId { get; set; }
 
         [UIHint("Collection")]
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-        public string SearchCollectionId { get; set; }
+        public string? SearchCollectionId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-        public string SearchStoreId { get; set; }
+        public string? SearchStoreId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-        public string SearchVendorId { get; set; }
+        public string? SearchVendorId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
@@ -192,71 +192,71 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
         public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
         public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
 
-        public string DiscountId { get; set; }
+        public string? DiscountId { get; set; }
 
-        public string[] SelectedProductIds { get; set; }
+        public string[] SelectedProductIds { get; set; } = [];
     }
 
     public class AppliedToBrandModel : BaseModel
     {
-        public string BrandId { get; set; }
+        public string? BrandId { get; set; }
 
-        public string BrandName { get; set; }
+        public string? BrandName { get; set; }
     }
 
     public class AddBrandToDiscountModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Brands.List.SearchBrandName")]
 
-        public string SearchBrandName { get; set; }
+        public string? SearchBrandName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Vendors.List.SearchVendorEmail")]
 
-        public string DiscountId { get; set; }
+        public string? DiscountId { get; set; }
 
-        public string[] SelectedBrandIds { get; set; }
+        public string[] SelectedBrandIds { get; set; } = [];
     }
 
 
     public class AppliedToVendorModel : BaseModel
     {
-        public string VendorId { get; set; }
+        public string? VendorId { get; set; }
 
-        public string VendorName { get; set; }
+        public string? VendorName { get; set; }
     }
 
     public class AddVendorToDiscountModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Vendors.List.SearchVendorName")]
 
-        public string SearchVendorName { get; set; }
+        public string? SearchVendorName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Vendors.List.SearchVendorEmail")]
 
-        public string SearchVendorEmail { get; set; }
+        public string? SearchVendorEmail { get; set; }
 
-        public string DiscountId { get; set; }
+        public string? DiscountId { get; set; }
 
-        public string[] SelectedVendorIds { get; set; }
+        public string[] SelectedVendorIds { get; set; } = [];
     }
 
 
     public class AppliedToStoreModel : BaseModel
     {
-        public string StoreId { get; set; }
+        public string? StoreId { get; set; }
 
-        public string StoreName { get; set; }
+        public string? StoreName { get; set; }
     }
 
     public class AddStoreToDiscountModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Stores.List.SearchStoreName")]
 
-        public string SearchStoreName { get; set; }
+        public string? SearchStoreName { get; set; }
 
-        public string DiscountId { get; set; }
+        public string? DiscountId { get; set; }
 
-        public string[] SelectedStoreIds { get; set; }
+        public string[] SelectedStoreIds { get; set; } = [];
     }
 
     #endregion

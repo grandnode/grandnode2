@@ -18,7 +18,7 @@ public class KnowledgebaseCategory : BaseEntity, ITreeNode, ITranslationEntity, 
     /// <summary>
     ///     Gets or sets description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     Gets or sets published
@@ -28,17 +28,17 @@ public class KnowledgebaseCategory : BaseEntity, ITreeNode, ITranslationEntity, 
     /// <summary>
     ///     Gets or sets meta keywords
     /// </summary>
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     /// <summary>
     ///     Gets or sets meta description
     /// </summary>
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets meta title
     /// </summary>
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is subject to ACL
@@ -51,7 +51,7 @@ public class KnowledgebaseCategory : BaseEntity, ITreeNode, ITranslationEntity, 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores
@@ -69,11 +69,11 @@ public class KnowledgebaseCategory : BaseEntity, ITreeNode, ITranslationEntity, 
     /// <summary>
     ///     Gets or sets name of the category
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets parent category Id
     /// </summary>
     [AuditReference(typeof(KnowledgebaseCategory))]
-    public string ParentCategoryId { get; set; }
+    public string? ParentCategoryId { get; set; }
 }

@@ -93,7 +93,9 @@ public class
             if (orderItem == null)
                 continue;
 
-            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            //archived products are kept, so a missing one is a broken record
+            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId)
+                          ?? throw new InvalidOperationException($"Product {orderItem.ProductId} of order item {orderItem.Id} is missing");
 
             var unitPrice = _priceFormatter.FormatPrice(
                 request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax
@@ -174,7 +176,7 @@ public class
             model.Timeline.Add(entry);
     }
 
-    private async Task<MerchandiseReturnDetailsModel.ReturnShippingModel> PrepareReturnShipping(
+    private async Task<MerchandiseReturnDetailsModel.ReturnShippingModel?> PrepareReturnShipping(
         GetMerchandiseReturnDetails request)
     {
         var merchandiseReturn = request.MerchandiseReturn;
@@ -221,7 +223,7 @@ public class
         MerchandiseReturnDetailsModel.ReturnShippingModel model)
     {
         var tracker = _returnShippingService.LoadProviderBySystemName(shipping.ProviderSystemName)?.ShipmentTracker;
-        if (tracker == null)
+        if (tracker == null || string.IsNullOrEmpty(shipping.TrackingNumber))
             return;
 
         try

@@ -15,5 +15,5 @@ public interface IProductsReportService
     /// <param name="storeId">Store identifier</param>
     /// <returns>Result</returns>
     Task<(IList<Product> products, IList<ProductsAttributeCombination> combinations)> LowStockProducts(
-        string vendorId = "", string storeId = "");
+        string vendorId = "", string? storeId = "");
 }

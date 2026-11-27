@@ -20,16 +20,16 @@ internal sealed class PluginLoadSnapshot
     private sealed record FileStamp(long Length, DateTime LastWriteTimeUtc, int Count);
 
     private readonly string _pluginsFolder;
-    private readonly IPluginStateStore _stateStore;
-    private readonly string _skipPattern;
+    private readonly IPluginStateStore? _stateStore;
+    private readonly string? _skipPattern;
     private readonly HashSet<string> _installed;
     private readonly Dictionary<string, FileStamp> _otherFolders;
     private readonly Dictionary<string, LoadedFolder> _plugins;
-    private readonly ILogger _logger;
+    private readonly ILogger? _logger;
 
-    private PluginLoadSnapshot(string pluginsFolder, IPluginStateStore stateStore, string skipPattern,
+    private PluginLoadSnapshot(string pluginsFolder, IPluginStateStore? stateStore, string? skipPattern,
         HashSet<string> installed, Dictionary<string, FileStamp> otherFolders, Dictionary<string, LoadedFolder> plugins,
-        ILogger logger)
+        ILogger? logger)
     {
         _pluginsFolder = pluginsFolder;
         _stateStore = stateStore;
@@ -49,8 +49,8 @@ internal sealed class PluginLoadSnapshot
     /// </param>
     /// <param name="logger">Told when the database cannot be read while comparing</param>
     internal static PluginLoadSnapshot Capture(DirectoryInfo pluginsFolder, PluginScanResult scan,
-        IEnumerable<string> installedSystemNames, IPluginStateStore stateStore, string skipPattern,
-        ILogger logger = null)
+        IEnumerable<string> installedSystemNames, IPluginStateStore? stateStore, string? skipPattern,
+        ILogger? logger = null)
     {
         var plugins = new Dictionary<string, LoadedFolder>(StringComparer.OrdinalIgnoreCase);
         foreach (var candidate in scan.Plugins)
@@ -145,7 +145,7 @@ internal sealed class PluginLoadSnapshot
     /// <summary>
     ///     The first plugin manifest among the folder's top-level assemblies, read from metadata
     /// </summary>
-    private PluginManifest ReadManifest(string folder)
+    private PluginManifest? ReadManifest(string folder)
     {
         foreach (var file in Files(folder))
         {
@@ -192,7 +192,7 @@ internal sealed class PluginLoadSnapshot
     /// <summary>
     ///     The plugin folder names; null when the Plugins folder cannot be listed
     /// </summary>
-    private static List<string> Folders(string pluginsFolder)
+    private static List<string>? Folders(string pluginsFolder)
     {
         try
         {

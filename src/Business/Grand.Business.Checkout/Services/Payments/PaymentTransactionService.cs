@@ -73,7 +73,7 @@ public class PaymentTransactionService : IPaymentTransactionService
     /// </summary>
     /// <param name="id">The identifier</param>
     /// <returns>PaymentTransaction</returns>
-    public virtual Task<PaymentTransaction> GetById(string id)
+    public virtual Task<PaymentTransaction?> GetById(string id)
     {
         return _repositoryPaymentTransaction.GetByIdAsync(id);
     }
@@ -94,7 +94,7 @@ public class PaymentTransactionService : IPaymentTransactionService
     /// </summary>
     /// <param name="orderGuid">The order guid</param>
     /// <returns>PaymentTransaction</returns>
-    public virtual async Task<PaymentTransaction> GetOrderByGuid(Guid orderGuid)
+    public virtual async Task<PaymentTransaction?> GetOrderByGuid(Guid orderGuid)
     {
         return await _repositoryPaymentTransaction.FirstOrDefaultAsync(
             _repositoryPaymentTransaction.Table.Where(x => x.OrderGuid == orderGuid));

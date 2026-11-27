@@ -115,7 +115,8 @@ public class MigrationInventoryUnits : IMigration
         var configuration =
             await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Configuration"));
         var shipping = configuration?.ChildNodes.FirstOrDefault(x => x.SystemName == "Shipping");
-        if (shipping == null || shipping.ChildNodes.Any(x => x.SystemName == "Warehouse locations"))
+        if (configuration == null || shipping == null ||
+            shipping.ChildNodes.Any(x => x.SystemName == "Warehouse locations"))
             return;
 
         shipping.ChildNodes.Add(new AdminSiteMap {

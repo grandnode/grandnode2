@@ -21,39 +21,39 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
     }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.BottomDescription")]
-    public string BottomDescription { get; set; }
+    public string? BottomDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.CollectionLayout")]
-    public string CollectionLayoutId { get; set; }
+    public string? CollectionLayoutId { get; set; }
 
     public IList<SelectListItem> AvailableCollectionLayouts { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [UIHint("Picture")]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Picture")]
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.PageSize")]
     public int PageSize { get; set; }
@@ -62,7 +62,7 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
     public bool AllowCustomersToSelectPageSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.PageSizeOptions")]
-    public string PageSizeOptions { get; set; }
+    public string? PageSizeOptions { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.ShowOnHomePage")]
     public bool ShowOnHomePage { get; set; }
@@ -74,7 +74,7 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
     public bool IncludeInMenu { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Icon")]
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.DefaultSort")]
     public int DefaultSort { get; set; }
@@ -88,35 +88,35 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
     public int DisplayOrder { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.ExternalId")]
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     //discounts
-    public List<DiscountModel> AvailableDiscounts { get; set; }
-    public string[] SelectedDiscountIds { get; set; }
+    public List<DiscountModel>? AvailableDiscounts { get; set; }
+    public string[] SelectedDiscountIds { get; set; } = [];
 
     //ACL
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.LimitedToGroups")]
-    public string[] CustomerGroups { get; set; }
+    public string[]? CustomerGroups { get; set; }
 
     public IList<CollectionLocalizedModel> Locales { get; set; }
 
     //Store acl
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
 
     #region Nested classes
 
     public class CollectionProductModel : BaseEntityModel
     {
-        public string CollectionId { get; set; }
+        public string? CollectionId { get; set; }
 
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Collections.Products.Fields.Product")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Collections.Products.Fields.IsFeaturedProduct")]
         public bool IsFeaturedProduct { get; set; }
@@ -128,25 +128,25 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
     public class AddCollectionProductModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-        public string SearchProductName { get; set; }
+        public string? SearchProductName { get; set; }
 
         [UIHint("Category")]
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-        public string SearchCategoryId { get; set; }
+        public string? SearchCategoryId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
         [UIHint("Brand")]
-        public string SearchBrandId { get; set; }
+        public string? SearchBrandId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
         [UIHint("Collection")]
-        public string SearchCollectionId { get; set; }
+        public string? SearchCollectionId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-        public string SearchStoreId { get; set; }
+        public string? SearchStoreId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-        public string SearchVendorId { get; set; }
+        public string? SearchVendorId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
@@ -156,9 +156,9 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
         public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
         public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
 
-        public string CollectionId { get; set; }
+        public string? CollectionId { get; set; }
 
-        public string[] SelectedProductIds { get; set; }
+        public string[] SelectedProductIds { get; set; } = [];
     }
 
     #endregion
@@ -167,30 +167,30 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
 public class CollectionLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 {
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.BottomDescription")]
-    public string BottomDescription { get; set; }
+    public string? BottomDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

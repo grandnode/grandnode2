@@ -13,7 +13,7 @@ public class GetGiftVoucherQuery : IRequest<IPagedList<GiftVoucher>>
     public string Code { get; set; } = "";
     public DateTime? CreatedFromUtc { get; set; } = null;
     public DateTime? CreatedToUtc { get; set; } = null;
-    public string RecipientName { get; set; } = null;
+    public string? RecipientName { get; set; } = null;
     public int PageIndex { get; set; } = 0;
     public int PageSize { get; set; } = int.MaxValue;
 }

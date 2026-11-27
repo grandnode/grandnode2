@@ -209,7 +209,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
                         cancellationToken));
                 }
 
-                collectionId = request.Model.mid;
+                collectionId = request.Model.mid ?? "";
 
                 //min price
                 if (!string.IsNullOrEmpty(request.Model.pf))
@@ -224,14 +224,14 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
 
                 searchInDescriptions = request.Model.sid;
                 if (request.Model.asv)
-                    vendorId = request.Model.vid;
+                    vendorId = request.Model.vid ?? "";
             }
 
             var searchInProductTags = searchInDescriptions;
 
             IList<string> alreadyFilteredSpecOptionIds =
                 await request.Model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                    (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
+                    (_httpContextAccessor.HttpContext?.Request.Query, _specificationAttributeService);
 
             //products
             var searchproducts = await _mediator.Send(new GetSearchProductsQuery {
@@ -249,7 +249,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
                 SearchProductTags = searchInProductTags,
                 FilteredSpecs = alreadyFilteredSpecOptionIds,
                 LanguageId = request.Language.Id,
-                OrderBy = (ProductSortingEnum)request.Command.OrderBy,
+                OrderBy = (ProductSortingEnum)(request.Command.OrderBy ?? 0),
                 Rating = request.Command.Rating,
                 PageIndex = request.Command.PageNumber - 1,
                 PageSize = request.Command.PageSize,
@@ -267,7 +267,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
             await request.Model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(
                 alreadyFilteredSpecOptionIds,
                 searchproducts.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(),
+                _specificationAttributeService, _httpContextAccessor.HttpContext?.Request.GetDisplayUrl(),
                 request.Language.Id);
 
             request.Model.NoResults = !request.Model.Products.Any();

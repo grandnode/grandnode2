@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class AddProductCategoryCommand : IRequest<bool>
 {
-    public ProductDto Product { get; set; }
-    public ProductCategoryDto Model { get; set; }
+    public required ProductDto Product { get; set; }
+    public required ProductCategoryDto Model { get; set; }
 }

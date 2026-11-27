@@ -47,7 +47,7 @@ public class AffiliateService : IAffiliateService
     /// </summary>
     /// <param name="affiliateId">Affiliate identifier</param>
     /// <returns>Affiliate</returns>
-    public virtual Task<Affiliate> GetAffiliateById(string affiliateId)
+    public virtual Task<Affiliate?> GetAffiliateById(string? affiliateId)
     {
         return _affiliateRepository.GetByIdAsync(affiliateId);
     }
@@ -57,7 +57,7 @@ public class AffiliateService : IAffiliateService
     /// </summary>
     /// <param name="friendlyUrlName">Friendly url name</param>
     /// <returns>Affiliate</returns>
-    public virtual async Task<Affiliate> GetAffiliateByFriendlyUrlName(string friendlyUrlName)
+    public virtual async Task<Affiliate?> GetAffiliateByFriendlyUrlName(string friendlyUrlName)
     {
         var query = from a in _affiliateRepository.Table
             where a.FriendlyUrlName != null && a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant())
@@ -70,8 +70,8 @@ public class AffiliateService : IAffiliateService
     ///     Gets all affiliates
     /// </summary>
     /// <returns>Affiliates</returns>
-    public virtual async Task<IPagedList<Affiliate>> GetAllAffiliates(string friendlyUrlName = null,
-        string firstName = null, string lastName = null,
+    public virtual async Task<IPagedList<Affiliate>> GetAllAffiliates(string? friendlyUrlName = null,
+        string? firstName = null, string? lastName = null,
         bool loadOnlyWithOrders = false,
         DateTime? ordersCreatedFromUtc = null, DateTime? ordersCreatedToUtc = null,
         int pageIndex = 0, int pageSize = int.MaxValue,
@@ -85,10 +85,10 @@ public class AffiliateService : IAffiliateService
                 a.FriendlyUrlName != null && a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant()));
         if (!string.IsNullOrWhiteSpace(firstName))
             query = query.Where(a =>
-                a.Address.FirstName != null && a.Address.FirstName.ToLower().Contains(firstName.ToLower()));
+                a.Address != null && a.Address.FirstName != null && a.Address.FirstName.ToLower().Contains(firstName.ToLower()));
         if (!string.IsNullOrWhiteSpace(lastName))
             query = query.Where(a =>
-                a.Address.LastName != null && a.Address.LastName.ToLower().Contains(lastName.ToLower()));
+                a.Address != null && a.Address.LastName != null && a.Address.LastName.ToLower().Contains(lastName.ToLower()));
         if (!showHidden)
             query = query.Where(a => a.Active);
 

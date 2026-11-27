@@ -11,11 +11,11 @@ namespace Grand.Infrastructure.Validators;
 [AttributeUsage(AttributeTargets.Property)]
 public class NoHtmlAttribute() : ValidationAttribute("{0} must be plain text and cannot contain HTML markup.")
 {
-    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value is not string text || string.IsNullOrWhiteSpace(text)) return ValidationResult.Success;
 
-        var sanitizationService = (IHtmlSanitizationService)validationContext
+        var sanitizationService = (IHtmlSanitizationService?)validationContext
             .GetService(typeof(IHtmlSanitizationService));
 
         if (sanitizationService is null)

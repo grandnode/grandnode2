@@ -7,7 +7,7 @@ namespace Grand.Infrastructure.Plugins;
 
 public sealed class PluginInfo
 {
-    private Assembly _referencedAssembly;
+    private Assembly? _referencedAssembly;
 
     public PluginInfo(
         FileInfo originalAssemblyFile,
@@ -31,12 +31,12 @@ public sealed class PluginInfo
     /// <summary>
     ///     Plugin type
     /// </summary>
-    public string PluginFileName { get; set; }
+    public string? PluginFileName { get; set; }
 
     /// <summary>
     ///     Plugin type
     /// </summary>
-    public Type PluginType { get; set; }
+    public Type? PluginType { get; set; }
 
     /// <summary>
     ///     The plugin's main assembly once it is loaded: at startup for an installed plugin, on demand
@@ -45,7 +45,7 @@ public sealed class PluginInfo
     /// <remarks>
     ///     Set last when a plugin loads on demand, so a request that sees it also sees <see cref="PluginType" />
     /// </remarks>
-    public Assembly ReferencedAssembly
+    public Assembly? ReferencedAssembly
     {
         get => Volatile.Read(ref _referencedAssembly);
         internal set => Volatile.Write(ref _referencedAssembly, value);
@@ -55,54 +55,54 @@ public sealed class PluginInfo
     ///     The scanned folder <see cref="PluginManager.LoadForInstall" /> loads; null when there is nothing to load
     ///     on demand (the plugin loaded at startup, is built for another version, or was not found by a scan)
     /// </summary>
-    internal PluginCandidate Candidate { get; set; }
+    internal PluginCandidate? Candidate { get; set; }
 
     /// <summary>
     ///     The plugin's own load context, once loading it began; it holds the plugin's assemblies, also those of
     ///     a plugin that failed to load. Null for a plugin that was not loaded.
     /// </summary>
-    internal AssemblyLoadContext LoadContext { get; set; }
+    internal AssemblyLoadContext? LoadContext { get; set; }
 
     /// <summary>
     ///     The original assembly file that a shadow copy was made from it
     /// </summary>
-    public FileInfo OriginalAssemblyFile { get; internal set; }
+    public FileInfo? OriginalAssemblyFile { get; internal set; }
 
     /// <summary>
     ///     The plugin's folder in Plugins; together with <see cref="SystemName" /> it tells apart two folders
     ///     declaring the same system name, and it is known also for a folder whose plugin could not be identified
     /// </summary>
-    public string FolderName { get; internal set; }
+    public string? FolderName { get; internal set; }
 
     /// <summary>
     ///     Gets or sets the plugin group
     /// </summary>
-    public string Group { get; set; }
+    public string? Group { get; set; }
 
     /// <summary>
     ///     Gets or sets the friendly name
     /// </summary>
-    public string FriendlyName { get; set; }
+    public string? FriendlyName { get; set; }
 
     /// <summary>
     ///     Gets or sets the system name
     /// </summary>
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the version
     /// </summary>
-    public string Version { get; set; }
+    public string? Version { get; set; }
 
     /// <summary>
     ///     Gets or sets the supported version
     /// </summary>
-    public string SupportedVersion { get; set; }
+    public string? SupportedVersion { get; set; }
 
     /// <summary>
     ///     Gets or sets the author
     /// </summary>
-    public string Author { get; set; }
+    public string? Author { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order
@@ -117,7 +117,7 @@ public sealed class PluginInfo
     /// <summary>
     ///     Why the plugin could not be loaded; null when it loaded
     /// </summary>
-    public string LoadError { get; internal set; }
+    public string? LoadError { get; internal set; }
 
     /// <summary>
     ///     Simple names of the plugin's assemblies, compared case-insensitively. Taken from the plugin
@@ -137,7 +137,7 @@ public sealed class PluginInfo
     ///     so it is created with its constructor dependencies taken from <paramref name="serviceProvider" />.
     /// </summary>
     /// <exception cref="GrandException">The plugin cannot be loaded or created</exception>
-    public T Instance<T>(IServiceProvider serviceProvider) where T : class, IPlugin
+    public T? Instance<T>(IServiceProvider serviceProvider) where T : class, IPlugin
     {
         if (ReferencedAssembly == null && LoadError == null)
             PluginManager.LoadForInstall(this);
@@ -168,7 +168,7 @@ public sealed class PluginInfo
         return typedInstance;
     }
 
-    public IPlugin Instance(IServiceProvider serviceProvider)
+    public IPlugin? Instance(IServiceProvider serviceProvider)
     {
         return Instance<IPlugin>(serviceProvider);
     }

@@ -15,15 +15,15 @@ public class LiquidShoppingCart : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string Email => _customer.Email;
+    public string? Email => _customer.Email;
 
-    public string Username => _customer.Username;
+    public string? Username => _customer.Username;
 
     public string FullName => _customer.GetFullName();
 
-    public string FirstName => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName);
+    public string? FirstName => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName);
 
-    public string LastName => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName);
+    public string? LastName => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName);
 
     public ICollection<LiquidShoppingCartItem> Items { get; }
 

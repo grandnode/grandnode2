@@ -11,7 +11,7 @@ public class OidcResourceServerConfig
     /// <summary>
     ///     Issuer of the identity provider; discovery document at {Authority}/.well-known/openid-configuration
     /// </summary>
-    public string Authority { get; set; }
+    public string? Authority { get; set; }
 
     public bool RequireHttpsMetadata { get; set; } = true;
     public int ClockSkewSeconds { get; set; } = 60;

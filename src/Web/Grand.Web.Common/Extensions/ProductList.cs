@@ -8,9 +8,9 @@ namespace Grand.Web.Common.Extensions;
 public static class ProductList
 {
     public static async Task<IPagedList<Product>> PrepareProductList(this IProductService productService,
-        string searchCategoryId,
-        string searchBrandId, string searchCollectionId, string searchStoreId, string searchVendorId, int productTypeId,
-        string searchProductName, int pageIndex, int pageSize)
+        string? searchCategoryId,
+        string? searchBrandId, string? searchCollectionId, string? searchStoreId, string? searchVendorId, int productTypeId,
+        string? searchProductName, int pageIndex, int pageSize)
     {
         var searchCategoryIds = new List<string>();
         if (!string.IsNullOrEmpty(searchCategoryId))

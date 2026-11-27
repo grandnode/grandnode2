@@ -6,18 +6,18 @@ namespace Grand.Web.AdminShared.Models.ShoppingCart;
 public class ShoppingCartItemModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.CurrentCarts.Store")]
-    public string Store { get; set; }
+    public string? Store { get; set; }
 
     [GrandResourceDisplayName("Admin.CurrentCarts.Product")]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     [GrandResourceDisplayName("Admin.CurrentCarts.Product")]
-    public string ProductName { get; set; }
+    public string? ProductName { get; set; }
 
-    public string AttributeInfo { get; set; }
+    public string? AttributeInfo { get; set; }
 
     [GrandResourceDisplayName("Admin.CurrentCarts.UnitPrice")]
-    public string UnitPrice { get; set; }
+    public string? UnitPrice { get; set; }
 
     public double UnitPriceValue { get; set; }
 
@@ -25,7 +25,7 @@ public class ShoppingCartItemModel : BaseEntityModel
     public int Quantity { get; set; }
 
     [GrandResourceDisplayName("Admin.CurrentCarts.Total")]
-    public string Total { get; set; }
+    public string? Total { get; set; }
 
     [GrandResourceDisplayName("Admin.CurrentCarts.UpdatedOn")]
     public DateTime UpdatedOn { get; set; }

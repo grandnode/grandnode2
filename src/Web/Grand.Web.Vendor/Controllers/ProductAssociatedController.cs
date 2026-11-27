@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Localization;
@@ -26,5 +27,5 @@ public class ProductAssociatedController(
     // Vendor's original passed CurrentVendor.Id into GetAssociatedProducts(vendorId:) so a vendor only
     // sees the subset of a grouped product's associated products that they themselves own. Overriding
     // the base's empty default, per BaseProductAssociatedController.AssociatedProductVendorId's own doc comment.
-    protected override string AssociatedProductVendorId => contextAccessor.WorkContext.CurrentVendor.Id;
+    protected override string AssociatedProductVendorId => contextAccessor.WorkContext.PanelVendor().Id;
 }

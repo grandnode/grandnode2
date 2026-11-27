@@ -11,6 +11,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Interfaces;
@@ -54,9 +55,12 @@ public class OrderProductViewModelService(
     public virtual async Task<OrderModel.AddOrderProductModel.ProductDetailsModel> PrepareAddProductToOrderModel(
         Order order, Product product)
     {
-        var customer = await customerService.GetCustomerById(order.CustomerId);
-        var currency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
-        var store = await storeService.GetStoreById(order.StoreId);
+        var customer = await customerService.GetCustomerById(order.CustomerId)
+                       ?? throw new InvalidOperationException($"No customer found for order {order.Id}");
+        //priced as AddProductToOrderDetails prices it
+        var currency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode) ??
+                       contextAccessor.WorkContext.WorkingCurrency;
+        var store = await storeService.GetStoreById(order.StoreId) ?? contextAccessor.StoreContext.CurrentStore;
         var presetQty = 1;
         var presetPrice = (await pricingService.GetFinalPrice(product, customer, store, currency, 0, true, presetQty))
             .finalPrice;
@@ -86,7 +90,7 @@ public class OrderProductViewModelService(
             var attributeModel = new OrderModel.AddOrderProductModel.ProductAttributeModel {
                 Id = attribute.Id,
                 ProductAttributeId = attribute.ProductAttributeId,
-                Name = productAttribute.Name,
+                Name = productAttribute?.Name,
                 TextPrompt = attribute.TextPrompt,
                 IsRequired = attribute.IsRequired,
                 AttributeControlType = attribute.AttributeControlTypeId
@@ -123,7 +127,8 @@ public class OrderProductViewModelService(
         if (model.Quantity <= 0)
             return [translationService.GetResource("ShoppingCart.QuantityShouldPositive")];
 
-        var customer = await customerService.GetCustomerById(order.CustomerId);
+        var customer = await customerService.GetCustomerById(order.CustomerId)
+                       ?? throw new InvalidOperationException($"No customer found for order {order.Id}");
 
         var warnings = new List<string>();
         var customattributes = new List<CustomAttribute>();
@@ -228,7 +233,7 @@ public class OrderProductViewModelService(
                            contextAccessor.WorkContext.WorkingCurrency;
             var language = await languageService.GetLanguageById(order.CustomerLanguageId) ??
                            contextAccessor.WorkContext.WorkingLanguage;
-            var host = store.Domains.FirstOrDefault(x => x.Primary) ?? store.Domains.FirstOrDefault();
+            var host = store.PrimaryHost();
             var attributeDescription =
                 await productAttributeFormatter.FormatAttributes(product, customattributes,
                     new CalculationContext(customer, store, currency, order.CustomerTaxDisplayTypeId),

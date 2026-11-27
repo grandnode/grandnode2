@@ -132,8 +132,7 @@ public class BlogViewModelService : IBlogViewModelService
         if (!string.IsNullOrEmpty(filterByBlogPostId))
         {
             //filter comments by blog
-            var blogPost = await _blogService.GetBlogPostById(filterByBlogPostId);
-            comments = await _blogService.GetBlogCommentsByBlogPostId(blogPost.Id);
+            comments = await _blogService.GetBlogCommentsByBlogPostId(filterByBlogPostId);
         }
         else
         {
@@ -151,7 +150,7 @@ public class BlogViewModelService : IBlogViewModelService
                 CustomerId = blogComment.CustomerId
             };
             var customer = await _customerService.GetCustomerById(blogComment.CustomerId);
-            commentModel.CustomerInfo = !string.IsNullOrEmpty(customer.Email)
+            commentModel.CustomerInfo = !string.IsNullOrEmpty(customer?.Email)
                 ? customer.Email
                 : _translationService.GetResource("Admin.Customers.Guest");
             commentModel.CreatedOn = _dateTimeService.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc);
@@ -232,14 +231,16 @@ public class BlogViewModelService : IBlogViewModelService
 
     public virtual async Task UpdateProductModel(BlogProductModel model)
     {
-        var bp = await _blogService.GetBlogProductById(model.Id);
+        var bp = await _blogService.GetBlogProductById(model.Id)
+                 ?? throw new ArgumentException("No blog product found with the specified id");
         bp.DisplayOrder = model.DisplayOrder;
         await _blogService.UpdateBlogProduct(bp);
     }
 
     public virtual async Task DeleteProductModel(string id)
     {
-        var bp = await _blogService.GetBlogProductById(id);
+        var bp = await _blogService.GetBlogProductById(id)
+                 ?? throw new ArgumentException("No blog product found with the specified id");
         await _blogService.DeleteBlogProduct(bp);
     }
 }

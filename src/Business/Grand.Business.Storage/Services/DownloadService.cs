@@ -45,13 +45,14 @@ public class DownloadService : IDownloadService
     /// </summary>
     /// <param name="downloadId">Download identifier</param>
     /// <returns>Download</returns>
-    public virtual async Task<Download> GetDownloadById(string downloadId)
+    public virtual async Task<Download?> GetDownloadById(string? downloadId)
     {
         if (string.IsNullOrEmpty(downloadId))
             return null;
 
         var download = await _downloadRepository.GetByIdAsync(downloadId);
-        if (download is { UseDownloadUrl: false })
+        //a download kept in the database without a stored file has no binary to read
+        if (download is { UseDownloadUrl: false, DownloadObjectId: not null })
             download.DownloadBinary = await DownloadAsBytes(download.DownloadObjectId);
 
         return download;
@@ -68,7 +69,7 @@ public class DownloadService : IDownloadService
     /// </summary>
     /// <param name="downloadGuid">Download GUID</param>
     /// <returns>Download</returns>
-    public virtual async Task<Download> GetDownloadByGuid(Guid downloadGuid)
+    public virtual async Task<Download?> GetDownloadByGuid(Guid downloadGuid)
     {
         if (downloadGuid == Guid.Empty)
             return null;
@@ -78,7 +79,7 @@ public class DownloadService : IDownloadService
             select o;
 
         var order = query.FirstOrDefault();
-        if (order is { UseDownloadUrl: false })
+        if (order is { UseDownloadUrl: false, DownloadObjectId: not null })
             order.DownloadBinary = await DownloadAsBytes(order.DownloadObjectId);
 
         return await Task.FromResult(order);
@@ -93,7 +94,7 @@ public class DownloadService : IDownloadService
         ArgumentNullException.ThrowIfNull(download);
         if (!download.UseDownloadUrl)
             download.DownloadObjectId =
-                await _storeFilesContext.BucketUploadFromBytes(download.Filename, download.DownloadBinary);
+                await _storeFilesContext.BucketUploadFromBytes(download.Filename ?? string.Empty, download.DownloadBinary ?? []);
 
         download.DownloadBinary = null;
         await _downloadRepository.InsertAsync(download);
@@ -135,7 +136,7 @@ public class DownloadService : IDownloadService
     ///     Deletes a download by identifier, without loading its file. Does nothing when it no longer exists
     /// </summary>
     /// <param name="downloadId">Download identifier</param>
-    public virtual async Task DeleteDownloadById(string downloadId)
+    public virtual async Task DeleteDownloadById(string? downloadId)
     {
         if (string.IsNullOrEmpty(downloadId))
             return;

@@ -46,7 +46,7 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
         if (!canCapture)
             throw new GrandException("Cannot do capture for order.");
 
-        CapturePaymentResult result = null;
+        CapturePaymentResult? result = null;
         try
         {
             result = await _paymentService.Capture(paymentTransaction);
@@ -56,7 +56,8 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
 
             if (result.Success)
             {
-                paymentTransaction = await _paymentTransaction.GetById(paymentTransaction.Id);
+                paymentTransaction = await _paymentTransaction.GetById(paymentTransaction.Id) ??
+                                     throw new GrandException("The payment transaction was deleted while it was processed");
                 //a capture the gateway settles later is not money in yet: it is paid, and recorded, when it is
                 var captured = result.NewPaymentStatus == TransactionStatus.Paid
                     ? paymentTransaction.AmountLeftToPay()

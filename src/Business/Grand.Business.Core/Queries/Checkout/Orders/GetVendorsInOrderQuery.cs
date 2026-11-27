@@ -6,5 +6,5 @@ namespace Grand.Business.Core.Queries.Checkout.Orders;
 
 public class GetVendorsInOrderQuery : IRequest<IList<Vendor>>
 {
-    public Order Order { get; set; }
+    public required Order Order { get; set; }
 }

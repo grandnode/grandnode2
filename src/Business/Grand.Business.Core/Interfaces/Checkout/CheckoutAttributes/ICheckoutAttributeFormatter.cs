@@ -22,7 +22,7 @@ public interface ICheckoutAttributeFormatter
     /// <param name="renderPrices">A value indicating whether to render prices</param>
     /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
     /// <returns>Attributes</returns>
-    Task<string> FormatAttributes(IList<CustomAttribute> customAttributes,
+    Task<string> FormatAttributes(IList<CustomAttribute>? customAttributes,
         CalculationContext context,
         Language language,
         DomainHost host,

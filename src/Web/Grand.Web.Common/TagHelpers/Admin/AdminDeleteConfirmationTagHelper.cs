@@ -22,13 +22,14 @@ public class AdminDeleteConfirmationTagHelper : TagHelper
         _translationService = translationService;
     }
 
-    [ViewContext] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] public ViewContext ViewContext { get; set; } = null!;
 
-    [HtmlAttributeName("action-name")] public string Action { get; set; }
+    [HtmlAttributeName("action-name")] public string? Action { get; set; }
 
-    [HtmlAttributeName("button-id")] public string ButtonId { get; set; }
+    [HtmlAttributeName("button-id")] public string? ButtonId { get; set; }
 
-    [HtmlAttributeName("id")] public string ModelId { get; set; }
+    [HtmlAttributeName("id")] public string? ModelId { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext tagHelperContext, TagHelperOutput output)
     {

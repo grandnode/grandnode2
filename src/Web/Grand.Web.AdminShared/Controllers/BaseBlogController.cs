@@ -490,7 +490,7 @@ public abstract class BaseBlogController(
     public async Task<IActionResult> Products(string blogPostId, DataSourceRequest command)
     {
         var blogPost = await blogService.GetBlogPostById(blogPostId);
-        if (!await postScope.HasAccess(blogPost)) return ErrorForKendoGridJson(NoAccessToBlogPostMessage);
+        if (blogPost == null || !await postScope.HasAccess(blogPost)) return ErrorForKendoGridJson(NoAccessToBlogPostMessage);
 
         var model = await blogViewModelService.PrepareBlogProductsModel(blogPostId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
@@ -504,7 +504,7 @@ public abstract class BaseBlogController(
     public async Task<IActionResult> ProductAddPopup(string blogPostId)
     {
         var blogPost = await blogService.GetBlogPostById(blogPostId);
-        if (!await postScope.HasAccess(blogPost)) return Content(NoAccessToBlogPostMessage);
+        if (blogPost == null || !await postScope.HasAccess(blogPost)) return Content(NoAccessToBlogPostMessage);
 
         var model = await blogViewModelService.PrepareBlogModelAddProductModel(blogPostId);
         return View(model);
@@ -529,7 +529,7 @@ public abstract class BaseBlogController(
     public async Task<IActionResult> ProductAddPopup(string blogPostId, BlogProductModel.AddProductModel model)
     {
         var blogPost = await blogService.GetBlogPostById(blogPostId);
-        if (!await postScope.HasAccess(blogPost)) return Content(NoAccessToBlogPostMessage);
+        if (blogPost == null || !await postScope.HasAccess(blogPost)) return Content(NoAccessToBlogPostMessage);
 
         if (model.SelectedProductIds != null) await blogViewModelService.InsertProductModel(blogPostId, model);
         return Content("");
@@ -539,7 +539,7 @@ public abstract class BaseBlogController(
     public async Task<IActionResult> UpdateProduct(string blogPostId, BlogProductModel model)
     {
         var blogPost = await blogService.GetBlogPostById(blogPostId);
-        if (!await postScope.HasAccess(blogPost)) ModelState.AddModelError("Blog", NoAccessToBlogPostMessage);
+        if (blogPost == null || !await postScope.HasAccess(blogPost)) ModelState.AddModelError("Blog", NoAccessToBlogPostMessage);
 
         if (ModelState.IsValid)
         {
@@ -555,7 +555,7 @@ public abstract class BaseBlogController(
     {
         var bp = await blogService.GetBlogProductById(id) ?? throw new ArgumentException("No blog product found with the specified id");
         var blogPost = await blogService.GetBlogPostById(bp.BlogPostId);
-        if (!await postScope.HasAccess(blogPost)) ModelState.AddModelError("Blog", NoAccessToBlogPostMessage);
+        if (blogPost == null || !await postScope.HasAccess(blogPost)) ModelState.AddModelError("Blog", NoAccessToBlogPostMessage);
 
         if (ModelState.IsValid)
         {

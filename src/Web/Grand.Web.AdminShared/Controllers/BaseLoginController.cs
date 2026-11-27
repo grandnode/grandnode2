@@ -63,7 +63,7 @@ public abstract class BaseLoginController : BaseController
 
     public async Task<IActionResult> Index([FromServices] IExternalAuthenticationService externalAuthenticationService,
         [FromServices] OidcLoginConfig oidcLoginConfig, [FromServices] IGroupService groupService,
-        string password = null)
+        string? password = null)
     {
         var model = new LoginModel {
             UsernamesEnabled = _customerSettings.UsernamesEnabled,
@@ -91,7 +91,7 @@ public abstract class BaseLoginController : BaseController
     }
 
     //?password=1 (as documented) or ?password=true; a bool parameter would not bind "1"
-    private static bool PasswordRequested(string password) =>
+    private static bool PasswordRequested(string? password) =>
         password == "1" || string.Equals(password, "true", StringComparison.OrdinalIgnoreCase);
 
     private bool KeepsPasswordForm() => PanelSignInSurface.FromArea(GetCurrentArea()) == SignInSurface.AdminPanel;
@@ -112,9 +112,10 @@ public abstract class BaseLoginController : BaseController
             {
                 case CustomerLoginResults.Successful:
                     {
-                        var customer = _customerSettings.UsernamesEnabled
-                            ? await _customerService.GetCustomerByUsername(model.Username)
-                            : await _customerService.GetCustomerByEmail(model.Email);
+                        var customer = (_customerSettings.UsernamesEnabled
+                                           ? await _customerService.GetCustomerByUsername(model.Username)
+                                           : await _customerService.GetCustomerByEmail(model.Email))
+                                       ?? throw new InvalidOperationException("The customer who signed in could not be loaded");
                         //sign in
                         return await SignInAction(customer, model.RememberMe);
                     }
@@ -204,6 +205,8 @@ public abstract class BaseLoginController : BaseController
     {
         if (!ModelState.IsValid)
             return View(model);
+        //the validator requires the new password
+        ArgumentException.ThrowIfNullOrEmpty(model.NewPassword);
 
         var error = await passwordRecoveryService.ResetPassword(model.Email, model.Token, GetCurrentArea(),
             model.NewPassword);

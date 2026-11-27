@@ -17,23 +17,23 @@ public class ProductSpecificationAttribute : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(SpecificationAttribute))]
     [AuditName]
-    public string SpecificationAttributeId { get; set; }
+    public string? SpecificationAttributeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the specification attribute identifier
     /// </summary>
     [AuditReference(typeof(SpecificationAttribute), nameof(SpecificationAttribute.SpecificationAttributeOptions), Owner = nameof(SpecificationAttributeId))]
-    public string SpecificationAttributeOptionId { get; set; }
+    public string? SpecificationAttributeOptionId { get; set; }
 
     /// <summary>
     ///     Gets or sets the custom name
     /// </summary>
-    public string CustomName { get; set; }
+    public string? CustomName { get; set; }
 
     /// <summary>
     ///     Gets or sets the custom value
     /// </summary>
-    public string CustomValue { get; set; }
+    public string? CustomValue { get; set; }
 
     /// <summary>
     ///     Gets or sets whether the attribute can be filtered by

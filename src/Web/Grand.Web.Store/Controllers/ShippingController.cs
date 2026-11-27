@@ -10,6 +10,7 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Extensions.Mapping.Settings;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Directory;
 using Grand.Web.AdminShared.Models.Shipping;
@@ -33,7 +34,7 @@ public class ShippingController(
     ISettingService settingService,
     IContextAccessor contextAccessor) : BaseStoreController
 {
-    private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => contextAccessor.WorkContext.PanelStoreId();
 
     #region Providers
 

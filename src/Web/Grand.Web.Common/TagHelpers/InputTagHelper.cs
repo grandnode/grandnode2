@@ -12,7 +12,7 @@ public class InputTagHelper : Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper
     {
     }
 
-    [HtmlAttributeName("asp-disabled")] public string IsDisabled { set; get; }
+    [HtmlAttributeName("asp-disabled")] public string? IsDisabled { set; get; }
 
     [HtmlAttributeName("asp-readonly")] public bool IsReadonly { set; get; }
 

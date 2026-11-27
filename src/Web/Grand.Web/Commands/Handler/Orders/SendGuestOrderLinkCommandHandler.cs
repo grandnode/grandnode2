@@ -33,7 +33,7 @@ public class SendGuestOrderLinkCommandHandler(
             candidates.Add(byNumber);
 
         //a value can be one order's code and another's number: the first that is a guest's order of the address
-        Domain.Orders.Order order = null;
+        Domain.Orders.Order? order = null;
         foreach (var candidate in candidates.Where(x => EmailMatches(x, request.Email)))
             if (await guestOrderGrantService.GuestOfOrder(candidate, request.Store.Id) != null)
             {
@@ -79,7 +79,7 @@ public class SendGuestOrderLinkCommandHandler(
     ///     Whether the address is the one the order was placed with: a guest's is kept in the billing address only,
     ///     where the order's e-mails go
     /// </summary>
-    private static bool EmailMatches(Domain.Orders.Order order, string email)
+    private static bool EmailMatches(Domain.Orders.Order order, string? email)
     {
         var orderEmail = string.IsNullOrEmpty(order.CustomerEmail) ? order.BillingAddress?.Email : order.CustomerEmail;
         return !string.IsNullOrEmpty(orderEmail) &&

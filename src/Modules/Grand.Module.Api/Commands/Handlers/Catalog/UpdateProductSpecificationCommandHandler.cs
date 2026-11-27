@@ -20,7 +20,8 @@ public class UpdateProductSpecificationCommandHandler : IRequestHandler<UpdatePr
 
     public async Task<bool> Handle(UpdateProductSpecificationCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productService.GetProductById(request.Product.Id, true);
+        var product = await _productService.GetProductById(request.Product.Id, true) ??
+            throw new ArgumentException("No product has the id", nameof(request));
         var psa = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == request.Model.Id);
         if (psa != null)
         {

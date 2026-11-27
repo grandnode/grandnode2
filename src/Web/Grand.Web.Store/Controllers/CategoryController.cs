@@ -29,7 +29,7 @@ public class CategoryController(
     protected override void EditWarningCheck(Category category)
     {
         if (!category.LimitedToStores ||
-            (category.Stores.Contains(Scope.DefaultStoreId) &&
+            (Scope.DefaultStoreId is { } defaultStoreId && category.Stores.Contains(defaultStoreId) &&
              category.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Catalog.Categories.Permissions"));
     }

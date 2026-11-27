@@ -17,7 +17,7 @@ public interface IDiscountService
     /// </summary>
     /// <param name="discountId">Discount id</param>
     /// <returns>Discount</returns>
-    Task<Discount> GetDiscountById(string discountId);
+    Task<Discount?> GetDiscountById(string? discountId);
 
     /// <summary>
     ///     Gets active discounts by context
@@ -30,8 +30,8 @@ public interface IDiscountService
     ///     Gets discounts query
     /// </summary>
     /// <returns>Discounts</returns>
-    Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string storeId = "", string currencyCode = "",
-        string couponCode = "", string discountName = "");
+    Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string? storeId = "", string? currencyCode = "",
+        string? couponCode = "", string? discountName = "");
 
     /// <summary>
     ///     Inserts a new discount
@@ -57,14 +57,14 @@ public interface IDiscountService
     /// <param name="couponCode">CouponCode</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Discount</returns>
-    Task<Discount> GetDiscountByCouponCode(string couponCode, bool showHidden = false);
+    Task<Discount?> GetDiscountByCouponCode(string couponCode, bool showHidden = false);
 
     /// <summary>
     ///     Gets a discount usage history item
     /// </summary>
     /// <param name="discountUsageHistoryId">Discount usage history item id</param>
     /// <returns>Discount usage history</returns>
-    Task<DiscountUsageHistory> GetDiscountUsageHistoryById(string discountUsageHistoryId);
+    Task<DiscountUsageHistory?> GetDiscountUsageHistoryById(string discountUsageHistoryId);
 
     /// <summary>
     ///     Inserts discount usage history item
@@ -113,14 +113,14 @@ public interface IDiscountService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<DiscountCoupon> GetDiscountCodeById(string id);
+    Task<DiscountCoupon?> GetDiscountCodeById(string id);
 
     /// <summary>
     ///     Gets the discount code by code
     /// </summary>
     /// <param name="couponCode"></param>
     /// <returns></returns>
-    Task<DiscountCoupon> GetDiscountCodeByCode(string couponCode);
+    Task<DiscountCoupon?> GetDiscountCodeByCode(string couponCode);
 
     /// <summary>
     ///     Deletes discount code

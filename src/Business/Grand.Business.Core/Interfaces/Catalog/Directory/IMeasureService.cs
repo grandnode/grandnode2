@@ -12,14 +12,14 @@ public interface IMeasureService
     /// </summary>
     /// <param name="measureDimensionId">Measure dimension identifier</param>
     /// <returns>Measure dimension</returns>
-    Task<MeasureDimension> GetMeasureDimensionById(string measureDimensionId);
+    Task<MeasureDimension?> GetMeasureDimensionById(string? measureDimensionId);
 
     /// <summary>
     ///     Gets a measure dimension by system keyword
     /// </summary>
     /// <param name="systemKeyword">The system keyword</param>
     /// <returns>Measure dimension</returns>
-    Task<MeasureDimension> GetMeasureDimensionBySystemKeyword(string systemKeyword);
+    Task<MeasureDimension?> GetMeasureDimensionBySystemKeyword(string systemKeyword);
 
     /// <summary>
     ///     Gets all measure dimensions
@@ -80,14 +80,14 @@ public interface IMeasureService
     /// </summary>
     /// <param name="measureWeightId">Measure weight identifier</param>
     /// <returns>Measure weight</returns>
-    Task<MeasureWeight> GetMeasureWeightById(string measureWeightId);
+    Task<MeasureWeight?> GetMeasureWeightById(string? measureWeightId);
 
     /// <summary>
     ///     Gets a measure weight by system keyword
     /// </summary>
     /// <param name="systemKeyword">The system keyword</param>
     /// <returns>Measure weight</returns>
-    Task<MeasureWeight> GetMeasureWeightBySystemKeyword(string systemKeyword);
+    Task<MeasureWeight?> GetMeasureWeightBySystemKeyword(string systemKeyword);
 
     /// <summary>
     ///     Gets all measure weights
@@ -146,7 +146,7 @@ public interface IMeasureService
     /// </summary>
     /// <param name="measureUnitId">Measure unit identifier</param>
     /// <returns>Measure dimension</returns>
-    Task<MeasureUnit> GetMeasureUnitById(string measureUnitId);
+    Task<MeasureUnit?> GetMeasureUnitById(string? measureUnitId);
 
     /// <summary>
     ///     Gets all measure units

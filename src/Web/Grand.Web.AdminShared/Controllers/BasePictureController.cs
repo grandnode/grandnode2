@@ -90,7 +90,7 @@ public abstract class BasePictureController(
             });
         fileName = fileName.Replace(" ", "");
         var filepath = mediaFileStore.GetDirectoryInfo("");
-        if (filepath == null)
+        if (filepath?.PhysicalPath == null)
             return Json(new {
                 success = false,
                 message = "Physical path not exist"

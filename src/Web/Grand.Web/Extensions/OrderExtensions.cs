@@ -1,12 +1,13 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Web.Extensions;
 
 public static class OrderExtensions
 {
-    public static async Task<bool> Access(this Order order, Customer customer, IGroupService groupService)
+    public static async Task<bool> Access(this Order? order, Customer customer, IGroupService groupService)
     {
         if (order == null || order.Deleted)
             return false;
@@ -38,7 +39,7 @@ public static class OrderExtensions
     ///     Whether the customer prints the return document: it tells where to send the items, so only while they are
     ///     still to be sent, not once the return is received, rejected or cancelled
     /// </summary>
-    public static bool CustomerPrintsDocument(this MerchandiseReturn merchandiseReturn)
+    public static bool CustomerPrintsDocument([NotNullWhen(true)] this MerchandiseReturn? merchandiseReturn)
     {
         return merchandiseReturn?.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
             or MerchandiseReturnStatus.Accepted;

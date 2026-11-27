@@ -2,5 +2,5 @@
 
 public class ProductCollectionDeleteDto
 {
-    public string CollectionId { get; set; }
+    public string? CollectionId { get; set; }
 }

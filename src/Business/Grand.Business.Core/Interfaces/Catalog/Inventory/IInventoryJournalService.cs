@@ -16,8 +16,8 @@ namespace Grand.Business.Core.Interfaces.Catalog.Inventory;
 /// <param name="Available">false when the date is before the bucket's history starts</param>
 public sealed record StockAtDateRow(
     string ProductId,
-    string ProductName,
-    string Sku,
+    string? ProductName,
+    string? Sku,
     string CombinationId,
     IList<CustomAttribute> Attributes,
     int Stock,
@@ -39,7 +39,7 @@ public interface IInventoryJournalService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     Task<IPagedList<InventoryJournal>> GetProductHistory(string productId, string warehouseId, DateTime? fromUtc,
-        DateTime? toUtc, IList<string> storeIds, int pageIndex, int pageSize);
+        DateTime? toUtc, IList<string>? storeIds, int pageIndex, int pageSize);
 
     /// <summary>
     ///     The stock at a date of every bucket a page of products keeps in the warehouse: the stored stock less what
@@ -52,5 +52,5 @@ public interface IInventoryJournalService
     /// <param name="pageSize">Page size, in products</param>
     /// <returns>The buckets of the page's products, and how many products the warehouse keeps</returns>
     Task<(IList<StockAtDateRow> Rows, int ProductCount)> GetStockAtDate(string warehouseId, DateTime atUtc,
-        string storeId, int pageIndex, int pageSize);
+        string? storeId, int pageIndex, int pageSize);
 }

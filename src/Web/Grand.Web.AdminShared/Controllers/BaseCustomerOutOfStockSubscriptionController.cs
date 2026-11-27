@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
@@ -22,8 +20,7 @@ public abstract class BaseCustomerOutOfStockSubscriptionController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+            if ((await LoadAuthorizedCustomer(customerId)).IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
 
         var (outOfStockSubscriptionModels, totalCount) =

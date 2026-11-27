@@ -20,25 +20,25 @@ public class GetCustomerQuery : IRequest<IPagedList<Customer>>
     public string StoreId { get; set; } = "";
     public string OwnerId { get; set; } = "";
     public string SalesEmployeeId { get; set; } = "";
-    public string[] CustomerGroupIds { get; set; } = null;
-    public string[] CustomerTagIds { get; set; } = null;
+    public string[]? CustomerGroupIds { get; set; } = null;
+    public string[]? CustomerTagIds { get; set; } = null;
 
     /// <summary>Customers in any of these groups are left out</summary>
-    public string[] ExcludedCustomerGroupIds { get; set; } = null;
+    public string[]? ExcludedCustomerGroupIds { get; set; } = null;
 
     /// <summary>Leaves out accounts tied to a vendor or a staff store</summary>
     public bool ExcludeVendorAndStaffAccounts { get; set; } = false;
 
-    public string Email { get; set; } = null;
-    public string Username { get; set; } = null;
-    public string FirstName { get; set; } = null;
-    public string LastName { get; set; } = null;
-    public string Company { get; set; } = null;
-    public string Phone { get; set; } = null;
-    public string ZipPostalCode { get; set; } = null;
+    public string? Email { get; set; } = null;
+    public string? Username { get; set; } = null;
+    public string? FirstName { get; set; } = null;
+    public string? LastName { get; set; } = null;
+    public string? Company { get; set; } = null;
+    public string? Phone { get; set; } = null;
+    public string? ZipPostalCode { get; set; } = null;
     public bool LoadOnlyWithShoppingCart { get; set; } = false;
     public ShoppingCartType? Sct { get; set; } = null;
     public int PageIndex { get; set; } = 0;
     public int PageSize { get; set; } = int.MaxValue;
-    public Expression<Func<Customer, object>> OrderBySelector { get; set; } = null;
+    public Expression<Func<Customer, object?>>? OrderBySelector { get; set; } = null;
 }

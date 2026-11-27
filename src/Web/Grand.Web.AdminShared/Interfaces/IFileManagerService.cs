@@ -10,7 +10,7 @@ public interface IFileManagerService
 {
     FileManagerListing List(string path);
     Task<FileManagerUploadResult> Upload(string path, IReadOnlyList<FileManagerUpload> files);
-    Task<FileManagerResult> CreateFolder(string path, string name);
-    Task<FileManagerResult> Rename(string path, string name);
+    Task<FileManagerResult> CreateFolder(string path, string? name);
+    Task<FileManagerResult> Rename(string path, string? name);
     Task<FileManagerResult> Delete(string path);
 }

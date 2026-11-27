@@ -28,8 +28,12 @@ public class GetMerchandiseReturnShippingOffersHandler(
             CustomerId = request.Customer.Id,
             LanguageId = request.Language.Id,
             PickupAddress = request.PickupAddress,
-            Items = request.Model.Items.Select(x => new MerchandiseReturnSubmitItem(x.Id, x.Quantity,
-                x.MerchandiseReturnReasonId, x.MerchandiseReturnActionId)).ToList()
+            //an item posted without its order item cannot be returned
+            Items = request.Model.Items.Select(x => x.Id is { } orderItemId
+                    ? new MerchandiseReturnSubmitItem(orderItemId, x.Quantity, x.MerchandiseReturnReasonId,
+                        x.MerchandiseReturnActionId)
+                    : null)
+                .OfType<MerchandiseReturnSubmitItem>().ToList()
         });
 
         //shown as the details page shows the saved cost: in the order's currency, at the order's rate
@@ -57,7 +61,7 @@ public class GetMerchandiseReturnShippingOffersHandler(
     }
 
     private string CostText(ReturnShippingOffer offer, GetMerchandiseReturnShippingOffers request,
-        Currency orderCurrency)
+        Currency? orderCurrency)
     {
         var cost = priceFormatter.FormatPrice(offer.Cost * request.Order.CurrencyRate, orderCurrency);
         if (offer.CostVaries)
@@ -89,9 +93,9 @@ public class GetMerchandiseReturnShippingOffersHandler(
     ///     this return is free whatever is chosen in it. Only for showing: the cost saved with the return is worked out
     ///     again by the submit, never read from what the form was loaded with
     /// </summary>
-    private static Dictionary<string, object> FormValues(ReturnShippingOffer offer, Order order)
+    private static Dictionary<string, object?> FormValues(ReturnShippingOffer offer, Order order)
     {
-        var values = new Dictionary<string, object> { ["orderId"] = order.Id };
+        var values = new Dictionary<string, object?> { ["orderId"] = order.Id };
         if (offer.Cost == 0 && !offer.CostVaries)
             values["free"] = true;
         return values;

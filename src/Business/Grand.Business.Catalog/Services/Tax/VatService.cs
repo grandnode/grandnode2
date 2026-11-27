@@ -19,8 +19,8 @@ public class VatService : IVatService
     /// </summary>
     /// <param name="fullVatNumber">Two letter ISO code of a country and VAT number (e.g. GB 111 1111 111)</param>
     /// <returns>VAT Number status</returns>
-    public virtual async Task<(VatNumberStatus status, string name, string address, Exception exception)>
-        GetVatNumberStatus(string fullVatNumber)
+    public virtual async Task<(VatNumberStatus status, string? name, string? address, Exception? exception)>
+        GetVatNumberStatus(string? fullVatNumber)
     {
         var name = string.Empty;
         var address = string.Empty;
@@ -48,7 +48,7 @@ public class VatService : IVatService
     /// <param name="twoLetterIsoCode">Two letter ISO code of a country</param>
     /// <param name="vatNumber">VAT number</param>
     /// <returns>VAT Number status</returns>
-    public virtual async Task<(VatNumberStatus status, string name, string address, Exception exception)>
+    public virtual async Task<(VatNumberStatus status, string? name, string? address, Exception? exception)>
         GetVatNumberStatus(string twoLetterIsoCode, string vatNumber)
     {
         var name = string.Empty;
@@ -75,7 +75,7 @@ public class VatService : IVatService
     /// <param name="twoLetterIsoCode">Two letter ISO code of a country</param>
     /// <param name="vatNumber">VAT number</param>
     /// <returns>VAT number status</returns>
-    public virtual async Task<(VatNumberStatus status, string name, string address, Exception exception)>
+    public virtual async Task<(VatNumberStatus status, string? name, string? address, Exception? exception)>
         DoVatCheck(string twoLetterIsoCode, string vatNumber)
     {
         vatNumber ??= string.Empty;

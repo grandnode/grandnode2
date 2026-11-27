@@ -5,6 +5,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
 using Grand.SharedKernel.Extensions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Business.Core.Extensions;
 
@@ -18,7 +19,7 @@ public static class SeoExtensions
     /// <param name="productTag">Product tag</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Product tag SE (search engine) name</returns>
-    public static string GetSeName(this ProductTag productTag, string languageId)
+    public static string? GetSeName(this ProductTag productTag, string languageId)
     {
         ArgumentNullException.ThrowIfNull(productTag);
         var seName = GenerateSlug(productTag.GetTranslation(x => x.Name, languageId), false, false, false);
@@ -29,7 +30,7 @@ public static class SeoExtensions
 
     #region Fields
 
-    private static Dictionary<string, string> _seoCharacterTable;
+    private static Dictionary<string, string>? _seoCharacterTable;
     private static readonly Lock SLock = new();
 
     #endregion
@@ -47,7 +48,7 @@ public static class SeoExtensions
     ///     found)
     /// </param>
     /// <returns>Search engine  name (slug)</returns>
-    public static string GetSeName<T>(this T entity, string languageId, bool returnDefaultValue = true)
+    public static string? GetSeName<T>(this T entity, string languageId, bool returnDefaultValue = true)
         where T : BaseEntity, ISlugEntity, ITranslationEntity
     {
         ArgumentNullException.ThrowIfNull(entity);
@@ -116,12 +117,12 @@ public static class SeoExtensions
             //check whether such slug already exists (and that is not the current entity)
             var entityUrl = await slugService.GetBySlug(tempSeName);
             var reserved1 = entityUrl != null && !(entityUrl.EntityId == entity.Id &&
-                                                   entityUrl.EntityName.Equals(entityName,
+                                                   string.Equals(entityUrl.EntityName, entityName,
                                                        StringComparison.OrdinalIgnoreCase));
             //and it's not in the list of reserved slugs
             var reserved2 = seoSettings.ReservedEntityUrlSlugs.Contains(tempSeName, StringComparer.OrdinalIgnoreCase);
             var reserved3 = (await languageService.GetAllLanguages(true)).Any(language =>
-                language.UniqueSeoCode.Equals(tempSeName, StringComparison.OrdinalIgnoreCase));
+                string.Equals(language.UniqueSeoCode, tempSeName, StringComparison.OrdinalIgnoreCase));
             if (!reserved1 && !reserved2 && !reserved3)
                 break;
 
@@ -137,7 +138,8 @@ public static class SeoExtensions
         return seName;
     }
     
-    private static string GetSeName(string name, SeoSettings seoSettings)
+    [return: NotNullIfNotNull(nameof(name))]
+    private static string? GetSeName(string? name, SeoSettings seoSettings)
     {
         return SeoExtensions.GenerateSlug(name, seoSettings.ConvertNonWesternChars, seoSettings.AllowUnicodeCharsInUrls,
             seoSettings.AllowSlashChar, seoSettings.SeoCharConversion);
@@ -152,7 +154,7 @@ public static class SeoExtensions
     /// <param name="charConversions"></param>
     /// <returns>Result</returns>
     public static string GetSeName(string name, bool convertNonWesternChars, bool allowUnicodeCharsInUrls,
-        string charConversions = null)
+        string? charConversions = null)
     {
         return GenerateSlug(name, convertNonWesternChars, allowUnicodeCharsInUrls, false, charConversions);
     }
@@ -166,8 +168,9 @@ public static class SeoExtensions
     /// <param name="allowSlashChar"></param>
     /// <param name="charConversions"></param>
     /// <returns>Result</returns>
-    public static string GenerateSlug(string name, bool convertNonWesternChars, bool allowUnicodeCharsInUrls,
-        bool allowSlashChar, string charConversions = null)
+    [return: NotNullIfNotNull(nameof(name))]
+    public static string? GenerateSlug(string? name, bool convertNonWesternChars, bool allowUnicodeCharsInUrls,
+        bool allowSlashChar, string? charConversions = null)
     {
         if (string.IsNullOrEmpty(name))
             return name;
@@ -219,10 +222,12 @@ public static class SeoExtensions
 
             foreach (var conversion in charConversions.Split(";"))
             {
-                var strLeft = conversion.Split(":").FirstOrDefault();
-                var strRight = conversion.Split(":").LastOrDefault();
+                //Split always returns at least one part
+                var parts = conversion.Split(":");
+                var strLeft = parts[0];
+                var strRight = parts[^1];
                 if (!string.IsNullOrEmpty(strLeft) && !_seoCharacterTable.ContainsKey(strLeft))
-                    _seoCharacterTable.Add(strLeft.Trim(), strRight?.Trim());
+                    _seoCharacterTable.Add(strLeft.Trim(), strRight.Trim());
             }
         }
     }

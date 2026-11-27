@@ -39,7 +39,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                 var userapi = await userApiService.GetUserByEmail(x.Email.ToLowerInvariant());
                 if (userapi is { IsActive: true })
                 {
-                    var base64EncodedBytes = Convert.FromBase64String(x.Password);
+                    var base64EncodedBytes = Convert.FromBase64String(x.Password ?? "");
                     var password = Encoding.UTF8.GetString(base64EncodedBytes);
                     //detect the format from the stored password itself: modern records are PBKDF2 hashes, legacy
                     //records are reversibly encrypted with the per-user PrivateKey (verified in constant time)

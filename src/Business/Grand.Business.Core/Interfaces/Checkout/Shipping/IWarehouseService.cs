@@ -10,7 +10,7 @@ public interface IWarehouseService
     /// </summary>
     /// <param name="warehouseId">The warehouse identifier</param>
     /// <returns>Warehouse</returns>
-    Task<Warehouse> GetWarehouseById(string warehouseId);
+    Task<Warehouse?> GetWarehouseById(string? warehouseId);
 
     /// <summary>
     ///     Gets all warehouses
@@ -19,7 +19,7 @@ public interface IWarehouseService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Warehouses</returns>
-    Task<IPagedList<Warehouse>> GetAllWarehouses(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<Warehouse>> GetAllWarehouses(string? storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Inserts a warehouse

@@ -14,8 +14,8 @@ public interface ICmsMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string languageId,
-        DomainHost host = null);
+    Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string? languageId,
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends an article comment notification message to a store owner
@@ -28,7 +28,7 @@ public interface ICmsMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendArticleCommentMessage(KnowledgebaseArticle article, KnowledgebaseArticleComment articleComment,
-        string languageId, DomainHost host = null);
+        string? languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends a news comment notification message to a store owner
@@ -40,6 +40,6 @@ public interface ICmsMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string languageId,
-        DomainHost host = null);
+    Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string? languageId,
+        DomainHost? host = null);
 }

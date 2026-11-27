@@ -49,13 +49,13 @@ public interface ICustomerService
     Task<IPagedList<Customer>> GetAllCustomers(DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, string affiliateId = "", string vendorId = "", string storeId = "",
         string ownerId = "",
-        string salesEmployeeId = "", string[] customerGroupIds = null, string[] customerTagIds = null,
-        string email = null, string username = null,
-        string firstName = null, string lastName = null,
-        string company = null, string phone = null, string zipPostalCode = null,
+        string? salesEmployeeId = "", string[]? customerGroupIds = null, string[]? customerTagIds = null,
+        string? email = null, string? username = null,
+        string? firstName = null, string? lastName = null,
+        string? company = null, string? phone = null, string? zipPostalCode = null,
         bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-        int pageIndex = 0, int pageSize = int.MaxValue, Expression<Func<Customer, object>> orderBySelector = null,
-        string[] excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false);
+        int pageIndex = 0, int pageSize = int.MaxValue, Expression<Func<Customer, object?>>? orderBySelector = null,
+        string[]? excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false);
 
 
     /// <summary>
@@ -72,7 +72,7 @@ public interface ICustomerService
     /// <param name="pageSize">Page size</param>
     /// <returns>Customers</returns>
     Task<IPagedList<Customer>> GetOnlineCustomers(DateTime lastActivityFromUtc,
-        string[] customerGroupIds, string storeId = "", string salesEmployeeId = "", int pageIndex = 0,
+        string[]? customerGroupIds, string? storeId = "", string? salesEmployeeId = "", int pageIndex = 0,
         int pageSize = int.MaxValue);
 
     /// <summary>
@@ -82,15 +82,15 @@ public interface ICustomerService
     /// <param name="storeId">Store ident</param>
     /// <param name="salesEmployeeId">Sales employee ident</param>
     /// <returns>Int</returns>
-    Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string storeId = "",
-        string salesEmployeeId = "");
+    Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string? storeId = "",
+        string? salesEmployeeId = "");
 
     /// <summary>
     ///     Gets a customer
     /// </summary>
     /// <param name="customerId">Customer identifier</param>
     /// <returns>A customer</returns>
-    Task<Customer> GetCustomerById(string customerId);
+    Task<Customer?> GetCustomerById(string? customerId);
 
     /// <summary>
     ///     Get customers by identifiers
@@ -104,7 +104,7 @@ public interface ICustomerService
     /// </summary>
     /// <param name="customerGuid">Customer GUID</param>
     /// <returns>A customer</returns>
-    Task<Customer> GetCustomerByGuid(Guid customerGuid);
+    Task<Customer?> GetCustomerByGuid(Guid customerGuid);
 
     /// <summary>
     ///     Get customer by email.
@@ -114,14 +114,14 @@ public interface ICustomerService
     /// <param name="email">Email</param>
     /// <param name="storeId">Store identifier (optional)</param>
     /// <returns>Customer</returns>
-    Task<Customer> GetCustomerByEmail(string email, string storeId = "");
+    Task<Customer?> GetCustomerByEmail(string? email, string? storeId = "");
 
     /// <summary>
     ///     Get customer by system group
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Customer</returns>
-    Task<Customer> GetCustomerBySystemName(string systemName);
+    Task<Customer?> GetCustomerBySystemName(string systemName);
 
     /// <summary>
     ///     Get customer by username.
@@ -131,7 +131,7 @@ public interface ICustomerService
     /// <param name="username">Username</param>
     /// <param name="storeId">Store identifier (optional)</param>
     /// <returns>Customer</returns>
-    Task<Customer> GetCustomerByUsername(string username, string storeId = "");
+    Task<Customer?> GetCustomerByUsername(string? username, string? storeId = "");
 
     /// <summary>
     ///     Insert a guest customer
@@ -160,7 +160,7 @@ public interface ICustomerService
     /// <param name="storeId"></param>
     /// <typeparam name="TPropType"></typeparam>
     /// <returns></returns>
-    Task UpdateUserField<TPropType>(Customer customer, string key, TPropType value, string storeId = "");
+    Task UpdateUserField<TPropType>(Customer customer, string key, TPropType? value, string? storeId = "");
     
     /// <summary>
     ///     Delete a customer
@@ -184,7 +184,7 @@ public interface ICustomerService
     /// <param name="customerId">Customer ident</param>
     /// <param name="expression"></param>
     /// <param name="value"></param>
-    Task UpdateCustomerField<T>(string customerId,
+    Task UpdateCustomerField<T>(string? customerId,
         Expression<Func<Customer, T>> expression, T value);
 
     /// <summary>
@@ -233,7 +233,7 @@ public interface ICustomerService
     /// <param name="clearLoyaltyPoints">A value indicating whether to clear "Use loyalty points" flag</param>
     /// <param name="clearShipping">A value indicating whether to clear selected shipping method</param>
     /// <param name="clearPayment">A value indicating whether to clear selected payment method</param>
-    Task ResetCheckoutData(Customer customer, string storeId,
+    Task ResetCheckoutData(Customer customer, string? storeId,
         bool clearCouponCodes = false, bool clearCheckoutAttributes = false,
         bool clearLoyaltyPoints = true, bool clearShipping = true, bool clearPayment = true);
 

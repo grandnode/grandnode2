@@ -23,7 +23,7 @@ public static class ModuleLoader
     private const string LOGGER_NAME = "ModuleManager";
 
     //the contexts of modules that failed to load; their assemblies stay loaded, so scans must skip them
-    private static readonly ConditionalWeakTable<AssemblyLoadContext, object> FailedContexts = new();
+    private static readonly ConditionalWeakTable<AssemblyLoadContext, object?> FailedContexts = new();
 
     private static List<(string FeatureName, bool IsEnabled)> GetFeatureList(IConfiguration configuration)
     {
@@ -105,7 +105,7 @@ public static class ModuleLoader
     }
 
     /// <returns>The reason the module could not be loaded; null when it is loaded, or has no files to load</returns>
-    private static string LoadModule(string moduleName, IWebHostEnvironment hostingEnvironment,
+    private static string? LoadModule(string moduleName, IWebHostEnvironment hostingEnvironment,
         IMvcCoreBuilder mvcCoreBuilder, ILogger logger, Func<string, AssemblyLoadContext> createContext)
     {
         var modulePath = GetModulePath(hostingEnvironment, moduleName);
@@ -118,7 +118,7 @@ public static class ModuleLoader
             return null;
         }
 
-        AssemblyLoadContext context = null;
+        AssemblyLoadContext? context = null;
         try
         {
             context = createContext(moduleFile);
@@ -155,7 +155,7 @@ public static class ModuleLoader
     ///     is reported here: it would fail only once a request reached the member it lacks.
     /// </summary>
     /// <returns>The reason the module cannot use its references; null when it can</returns>
-    private static string ResolveReferences(Assembly assembly, AssemblyLoadContext context)
+    private static string? ResolveReferences(Assembly assembly, AssemblyLoadContext context)
     {
         foreach (var reference in assembly.GetReferencedAssemblies())
         {

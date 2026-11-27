@@ -6,7 +6,7 @@ using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Commands.Handler.Newsletter;
 
-public class SubscriptionActivationHandler : IRequestHandler<SubscriptionActivationCommand, SubscriptionActivationModel>
+public class SubscriptionActivationHandler : IRequestHandler<SubscriptionActivationCommand, SubscriptionActivationModel?>
 {
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly IRequestTranslationService _translationService;
@@ -18,7 +18,7 @@ public class SubscriptionActivationHandler : IRequestHandler<SubscriptionActivat
         _translationService = translationService;
     }
 
-    public async Task<SubscriptionActivationModel> Handle(SubscriptionActivationCommand request,
+    public async Task<SubscriptionActivationModel?> Handle(SubscriptionActivationCommand request,
         CancellationToken cancellationToken)
     {
         var subscription = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByGuid(request.Token);

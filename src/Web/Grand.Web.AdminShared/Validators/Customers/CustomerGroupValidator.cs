@@ -27,7 +27,7 @@ public class CustomerGroupValidator : BaseGrandValidator<CustomerGroupModel>
                             "Admin.Customers.CustomerGroups.Fields.Active.CantEditSystem"));
 
                 if (customerGroup.IsSystem &&
-                    !customerGroup.SystemName.Equals(x.SystemName, StringComparison.OrdinalIgnoreCase))
+                    !string.Equals(customerGroup.SystemName, x.SystemName, StringComparison.OrdinalIgnoreCase))
                     context.AddFailure(
                         translationService.GetResource(
                             "Admin.Customers.CustomerGroups.Fields.SystemName.CantEditSystem"));

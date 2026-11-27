@@ -61,13 +61,13 @@ public abstract class BaseProductPictureController(
 
         var product = await productService.GetProductById(objectId);
 
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Json(new {
                 success = false,
                 message = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions")
             });
 
-        var values = new List<(string pictureUrl, string pictureId)>();
+        var values = new List<(string? pictureUrl, string pictureId)>();
         foreach (var file in files)
         {
             var fileName = Path.GetFileName(file.FileName);
@@ -106,7 +106,7 @@ public abstract class BaseProductPictureController(
         // also lacked the unused `DataSourceRequest command` parameter that Admin/Store both bind (Kendo
         // posts it, but no host ever reads it) - kept here to match the two-of-three shape; harmless for
         // Vendor since an unused extra bound parameter changes nothing about the response.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productPicturesModel = await productPictureViewModelService.PrepareProductPicturesModel(product);
@@ -185,7 +185,7 @@ public abstract class BaseProductPictureController(
         // ProductPictureDelete had no check at all, letting any vendor delete another vendor's product
         // picture by posting its productId/model.Id - closed here the same way as ProductPicturePopup(POST)
         // above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)

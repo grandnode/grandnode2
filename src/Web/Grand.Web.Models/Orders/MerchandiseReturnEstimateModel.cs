@@ -6,9 +6,9 @@ namespace Grand.Web.Models.Orders;
 /// </summary>
 public class MerchandiseReturnEstimateModel
 {
-    public string ItemsAmount { get; set; }
-    public string ReturnShippingCost { get; set; }
-    public string Amount { get; set; }
+    public string? ItemsAmount { get; set; }
+    public string? ReturnShippingCost { get; set; }
+    public string? Amount { get; set; }
 
     /// <summary>
     ///     Whether the money goes back through the payment of the order; otherwise the store gives it back another way

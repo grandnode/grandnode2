@@ -5,7 +5,7 @@ namespace Grand.Web.AdminShared.Models.Orders;
 /// </summary>
 public class OrderApprovalDecisionModel
 {
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
     public int OrderNumber { get; set; }
     public IList<string> Reasons { get; set; } = new List<string>();
 }

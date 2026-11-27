@@ -46,7 +46,7 @@ public class DeliveryCommandHandler : IRequestHandler<DeliveryCommand, bool>
         request.Shipment.DeliveryDateUtc = request.DeliveryDateUtc ?? DateTime.UtcNow;
         await _shipmentService.UpdateShipment(request.Shipment);
 
-        var shipments = await _shipmentService.GetShipmentsByOrder(request.Shipment.OrderId);
+        var shipments = await _shipmentService.GetShipmentsByOrder(order.Id);
         if (!order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
         {
             order.ShippingStatusId = ShippingStatus.Delivered;

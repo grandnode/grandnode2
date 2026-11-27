@@ -19,21 +19,21 @@ public class AdminPageTagHelper : TagHelper
 
     /// <summary>The page title. Localized by the view, like every other text.</summary>
     [HtmlAttributeName("title")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>A bootstrap-icons name ("bi-boxes") shown before the title.</summary>
     [HtmlAttributeName("icon")]
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     /// <summary>What the screen is about: the entity being edited, a count, a store name.</summary>
     [HtmlAttributeName("meta")]
-    public string Meta { get; set; }
+    public string? Meta { get; set; }
 
     /// <summary>Href of the back link; the view builds it with Url.Action.</summary>
     [HtmlAttributeName("back-url")]
-    public string BackUrl { get; set; }
+    public string? BackUrl { get; set; }
 
-    [HtmlAttributeName("back-text")] public string BackText { get; set; }
+    [HtmlAttributeName("back-text")] public string? BackText { get; set; }
 
     /// <summary>
     ///     Keeps the header and the tab strip in view while a long tab scrolls, so the one primary

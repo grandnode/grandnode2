@@ -8,12 +8,12 @@ public class ApplyDiscount
     /// <summary>
     ///     Gets or sets the discount Id
     /// </summary>
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
 
     /// <summary>
     ///     Gets or sets the discount
     /// </summary>
-    public string CouponCode { get; set; }
+    public string? CouponCode { get; set; }
 
 
     /// <summary>

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Module.Api.Infrastructure;
 
@@ -37,7 +38,7 @@ public class ApiSecurityStartup : IStartupApplication
         Validate("FrontendAPI", frontend.Enabled, frontend.SecretKey, webHostEnvironment, logger);
     }
 
-    private static void Validate(string section, bool enabled, string secret, IWebHostEnvironment env, ILogger logger)
+    private static void Validate(string section, bool enabled, string? secret, IWebHostEnvironment env, ILogger logger)
     {
         if (!enabled)
             return;
@@ -57,7 +58,7 @@ public class ApiSecurityStartup : IStartupApplication
             throw new InvalidOperationException(message);
     }
 
-    private static bool IsStrong(string secret)
+    private static bool IsStrong([NotNullWhen(true)] string? secret)
     {
         return !string.IsNullOrWhiteSpace(secret)
                && secret.Length >= MinSecretLength

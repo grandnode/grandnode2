@@ -15,7 +15,7 @@ public static class RecurringCycleOrder
     ///     back to the total.
     /// </summary>
     /// <param name="giftVouchersAmount">The gift voucher amount redeemed on the initial order</param>
-    public static Order Copy(Order initialOrder, string orderId, int cycleNumber, string orderCode,
+    public static Order Copy(Order initialOrder, string? orderId, int cycleNumber, string orderCode,
         DateTime createdOnUtc, double giftVouchersAmount)
     {
         var order = new Order {
@@ -148,12 +148,12 @@ public static class RecurringCycleOrder
         };
     }
 
-    private static IList<CustomAttribute> CopyAttributes(IList<CustomAttribute> attributes)
+    private static IList<CustomAttribute> CopyAttributes(IList<CustomAttribute>? attributes)
     {
-        return attributes?.Select(x => new CustomAttribute { Key = x.Key, Value = x.Value }).ToList();
+        return attributes?.Select(x => new CustomAttribute { Key = x.Key, Value = x.Value }).ToList() ?? [];
     }
 
-    private static Address CopyAddress(Address address)
+    private static Address? CopyAddress(Address? address)
     {
         if (address == null) return null;
         return new Address {
@@ -178,12 +178,12 @@ public static class RecurringCycleOrder
         };
     }
 
-    private static PickupPoint CopyPickupPoint(PickupPoint point)
+    private static PickupPoint? CopyPickupPoint(PickupPoint? point)
     {
         if (point == null) return null;
         return new PickupPoint {
             Id = point.Id,
-            UserFields = point.UserFields?.Select(x => new UserField { Key = x.Key, Value = x.Value }).ToList(),
+            UserFields = point.UserFields?.Select(x => new UserField { Key = x.Key, Value = x.Value }).ToList() ?? [],
             CreatedOnUtc = point.CreatedOnUtc,
             CreatedBy = point.CreatedBy,
             UpdatedOnUtc = point.UpdatedOnUtc,

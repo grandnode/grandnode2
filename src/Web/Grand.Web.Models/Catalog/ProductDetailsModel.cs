@@ -15,23 +15,23 @@ public class ProductDetailsModel : BaseEntityModel
     public PictureModel DefaultPictureModel { get; set; } = new();
     public IList<PictureModel> PictureModels { get; set; } = new List<PictureModel>();
     public ProductType ProductType { get; set; }
-    public string Name { get; set; }
-    public string ShortDescription { get; set; }
-    public string FullDescription { get; set; }
-    public string MetaKeywords { get; set; }
-    public string MetaDescription { get; set; }
-    public string MetaTitle { get; set; }
-    public string SeName { get; set; }
+    public string? Name { get; set; }
+    public string? ShortDescription { get; set; }
+    public string? FullDescription { get; set; }
+    public string? MetaKeywords { get; set; }
+    public string? MetaDescription { get; set; }
+    public string? MetaTitle { get; set; }
+    public string? SeName { get; set; }
     public bool ShowSku { get; set; }
-    public string Sku { get; set; }
-    public string Flag { get; set; }
+    public string? Sku { get; set; }
+    public string? Flag { get; set; }
     public bool ShowMpn { get; set; }
-    public string Mpn { get; set; }
+    public string? Mpn { get; set; }
     public bool ShowGtin { get; set; }
-    public string Gtin { get; set; }
-    public BrandBriefInfoModel BrandModel { get; set; } = new();
+    public string? Gtin { get; set; }
+    public BrandBriefInfoModel? BrandModel { get; set; }
     public bool ShowVendor { get; set; }
-    public VendorBriefInfoModel VendorModel { get; set; } = new();
+    public VendorBriefInfoModel? VendorModel { get; set; }
     public bool HasSampleDownload { get; set; }
     public GiftVoucherModel GiftVoucher { get; set; } = new();
     public bool IsShipEnabled { get; set; }
@@ -40,10 +40,10 @@ public class ProductDetailsModel : BaseEntityModel
     public bool AllowToSelectWarehouse { get; set; }
     public IList<ProductWarehouseModel> ProductWarehouses { get; set; } = new List<ProductWarehouseModel>();
     public double AdditionalShippingCharge { get; set; }
-    public string AdditionalShippingChargeStr { get; set; }
+    public string? AdditionalShippingChargeStr { get; set; }
     public bool FreeShippingNotificationEnabled { get; set; }
-    public string DeliveryDate { get; set; }
-    public string DeliveryColorSquaresRgb { get; set; }
+    public string? DeliveryDate { get; set; }
+    public string? DeliveryColorSquaresRgb { get; set; }
     public int Interval { get; set; }
     public IntervalUnit IntervalUnit { get; set; }
     public bool IncBothDate { get; set; }
@@ -51,8 +51,8 @@ public class ProductDetailsModel : BaseEntityModel
     public DateTime StartDate { get; set; }
     public DateTime? RentalStartDateUtc { get; set; }
     public DateTime? RentalEndDateUtc { get; set; }
-    public string RentalReservationId { get; set; }
-    public string StockAvailability { get; set; }
+    public string? RentalReservationId { get; set; }
+    public string? StockAvailability { get; set; }
 
     /// <summary>
     ///     The state StockAvailability describes; null when it cannot be stated
@@ -62,9 +62,9 @@ public class ProductDetailsModel : BaseEntityModel
     public bool DisplayOutOfStockSubscription { get; set; }
     public bool EmailAFriendEnabled { get; set; }
     public bool AskQuestionOnProduct { get; set; }
-    public ProductAskQuestionSimpleModel ProductAskQuestion { get; set; }
+    public ProductAskQuestionSimpleModel ProductAskQuestion { get; set; } = new();
     public bool CompareProductsEnabled { get; set; }
-    public string PageShareCode { get; set; }
+    public string? PageShareCode { get; set; }
     public ProductPriceModel ProductPrice { get; set; } = new();
     public AddToCartModel AddToCart { get; set; } = new();
     public ProductBreadcrumbModel Breadcrumb { get; set; } = new();
@@ -83,7 +83,7 @@ public class ProductDetailsModel : BaseEntityModel
     //bundle product 
     public IList<ProductBundleModel> ProductBundleModels { get; set; } = new List<ProductBundleModel>();
     public bool DisplayDiscontinuedMessage { get; set; }
-    public string CurrentStoreName { get; set; }
+    public string? CurrentStoreName { get; set; }
     public double StartPrice { get; set; }
     public double HighestBidValue { get; set; }
     public DateTime? EndTime { get; set; }
@@ -97,21 +97,21 @@ public class ProductDetailsModel : BaseEntityModel
     {
         public int Id { get; set; }
         public bool Enabled { get; set; }
-        public string ProductId { get; set; }
-        public string ProductName { get; set; }
-        public string ProductSeName { get; set; }
+        public string? ProductId { get; set; }
+        public string? ProductName { get; set; }
+        public string? ProductSeName { get; set; }
         public IList<CategorySimpleModel> CategoryBreadcrumb { get; set; } = new List<CategorySimpleModel>();
     }
 
     public class AddToCartModel : BaseModel
     {
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
         //qty
         [GrandResourceDisplayName("Products.Qty")]
         public int EnteredQuantity { get; set; }
 
-        public string MinimumQuantityNotification { get; set; }
+        public string? MinimumQuantityNotification { get; set; }
         public List<SelectListItem> AllowedQuantities { get; set; } = new();
 
         //price entered by customers
@@ -121,7 +121,7 @@ public class ProductDetailsModel : BaseEntityModel
         [GrandResourceDisplayName("Products.EnterProductPrice")]
         public double CustomerEnteredPrice { get; set; }
 
-        public string CustomerEnteredPriceRange { get; set; }
+        public string? CustomerEnteredPriceRange { get; set; }
         public bool DisableBuyButton { get; set; }
 
         public bool DisableWishlistButton { get; set; }
@@ -132,7 +132,7 @@ public class ProductDetailsModel : BaseEntityModel
         //auction
         public bool IsAuction { get; set; }
 
-        public string MeasureUnit { get; set; }
+        public string? MeasureUnit { get; set; }
 
         //pre-order
         public bool AvailableForPreOrder { get; set; }
@@ -140,7 +140,7 @@ public class ProductDetailsModel : BaseEntityModel
         public DateTime? PreOrderDateTimeUtc { get; set; }
 
         //updating existing shopping cart or wishlist item?
-        public string UpdatedShoppingCartItemId { get; set; }
+        public string? UpdatedShoppingCartItemId { get; set; }
         public ShoppingCartType? UpdateShoppingCartItemType { get; set; }
     }
 
@@ -149,7 +149,7 @@ public class ProductDetailsModel : BaseEntityModel
         /// <summary>
         ///     The currency (in 3-letter ISO 4217 format) of the offer price
         /// </summary>
-        public string CurrencyCode { get; set; }
+        public string? CurrencyCode { get; set; }
 
         /// <summary>
         ///     The offer's availability - the same value as ProductDetailsModel.Availability,
@@ -157,34 +157,34 @@ public class ProductDetailsModel : BaseEntityModel
         /// </summary>
         public ProductAvailability? Availability { get; set; }
 
-        public string OldPrice { get; set; }
-        public string CatalogPrice { get; set; }
-        public string Price { get; set; }
-        public string PriceWithDiscount { get; set; }
+        public string? OldPrice { get; set; }
+        public string? CatalogPrice { get; set; }
+        public string? Price { get; set; }
+        public string? PriceWithDiscount { get; set; }
         public double PriceValue { get; set; }
         public bool EnteredPrice { get; set; }
         public bool CallForPrice { get; set; }
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
         public bool HidePrices { get; set; }
 
         //Reservation
         public bool IsReservation { get; set; }
 
-        public string ReservationPrice { get; set; }
+        public string? ReservationPrice { get; set; }
 
         //Auction
         public bool IsAuction { get; set; }
-        public string HighestBid { get; set; }
+        public string? HighestBid { get; set; }
         public double HighestBidValue { get; set; }
-        public string StartPrice { get; set; }
+        public string? StartPrice { get; set; }
         public double StartPriceValue { get; set; }
         public bool DisableBuyButton { get; set; }
 
-        public string BasePricePAngV { get; set; }
+        public string? BasePricePAngV { get; set; }
 
         public List<ApplyDiscount> AppliedDiscounts { get; set; } = new();
-        public TierPrice PreferredTierPrice { get; set; }
+        public TierPrice? PreferredTierPrice { get; set; }
     }
 
     public class GiftVoucherModel : BaseModel
@@ -192,43 +192,43 @@ public class ProductDetailsModel : BaseEntityModel
         public bool IsGiftVoucher { get; set; }
 
         [GrandResourceDisplayName("Products.GiftVoucher.RecipientName")]
-        public string RecipientName { get; set; }
+        public string? RecipientName { get; set; }
 
         [GrandResourceDisplayName("Products.GiftVoucher.RecipientEmail")]
-        public string RecipientEmail { get; set; }
+        public string? RecipientEmail { get; set; }
 
         [GrandResourceDisplayName("Products.GiftVoucher.SenderName")]
-        public string SenderName { get; set; }
+        public string? SenderName { get; set; }
 
         [GrandResourceDisplayName("Products.GiftVoucher.SenderEmail")]
-        public string SenderEmail { get; set; }
+        public string? SenderEmail { get; set; }
 
         [GrandResourceDisplayName("Products.GiftVoucher.Message")]
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         public GiftVoucherType GiftVoucherType { get; set; }
     }
 
     public class TierPriceModel : BaseModel
     {
-        public string Price { get; set; }
+        public string? Price { get; set; }
 
         public int Quantity { get; set; }
     }
 
     public class ProductAttributeModel : BaseEntityModel
     {
-        public string ProductId { get; set; }
-        public string ProductAttributeId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string TextPrompt { get; set; }
+        public string? ProductId { get; set; }
+        public string? ProductAttributeId { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? TextPrompt { get; set; }
         public bool IsRequired { get; set; }
 
         /// <summary>
         ///     Default value for textboxes
         /// </summary>
-        public string DefaultValue { get; set; }
+        public string? DefaultValue { get; set; }
 
         /// <summary>
         ///     Selected day value for datepicker
@@ -261,15 +261,15 @@ public class ProductDetailsModel : BaseEntityModel
 
     public class ProductAttributeValueModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public string ColorSquaresRgb { get; set; }
+        public string? ColorSquaresRgb { get; set; }
 
         //picture model is used with "image square" attribute type
         public PictureModel ImageSquaresPictureModel { get; set; } = new();
-        public string PriceAdjustment { get; set; }
+        public string? PriceAdjustment { get; set; }
         public double PriceAdjustmentValue { get; set; }
-        public string StockAvailability { get; set; }
+        public string? StockAvailability { get; set; }
 
         public bool IsPreSelected { get; set; }
 
@@ -279,26 +279,26 @@ public class ProductDetailsModel : BaseEntityModel
 
     public class ProductBundleModel : BaseModel
     {
-        public string ProductId { get; set; }
-        public string Name { get; set; }
-        public string SeName { get; set; }
-        public string ShortDescription { get; set; }
-        public string Sku { get; set; }
-        public string Mpn { get; set; }
-        public string Gtin { get; set; }
+        public string? ProductId { get; set; }
+        public string? Name { get; set; }
+        public string? SeName { get; set; }
+        public string? ShortDescription { get; set; }
+        public string? Sku { get; set; }
+        public string? Mpn { get; set; }
+        public string? Gtin { get; set; }
         public int Quantity { get; set; }
-        public string Price { get; set; }
+        public string? Price { get; set; }
         public double PriceValue { get; set; }
-        public PictureModel DefaultPictureModel { get; set; }
+        public PictureModel? DefaultPictureModel { get; set; }
         public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
     }
 
     public class ProductWarehouseModel : BaseModel
     {
         public bool Use { get; set; }
-        public string WarehouseId { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
+        public string? WarehouseId { get; set; }
+        public string? Code { get; set; }
+        public string? Name { get; set; }
         public int StockQuantity { get; set; }
         public int ReservedQuantity { get; set; }
         public bool Selected { get; set; }

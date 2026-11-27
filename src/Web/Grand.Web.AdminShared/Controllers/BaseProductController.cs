@@ -253,7 +253,7 @@ public abstract class BaseProductController(
             // CanView, not HasAccess: Store's original CopyProduct denies only when LimitedToStores is
             // true AND the staff member's store isn't among them — the same looser rule as Edit(GET)
             // above, not the strict mutation rule. See IAdminDataScope<TEntity>.CanView.
-            if (!await scope.CanView(originalProduct)) return RedirectToAction("List");
+            if (originalProduct == null || !await scope.CanView(originalProduct)) return RedirectToAction("List");
 
             if (scope.DefaultStoreId is not null)
             {
@@ -280,8 +280,12 @@ public abstract class BaseProductController(
         foreach (var productPicture in originalProduct.ProductPictures)
         {
             var picture = await pictureService.GetPictureById(productPicture.PictureId);
+            //a picture deleted meanwhile is not copied
+            if (picture == null) continue;
+            //a picture whose file is gone is not copied either
+            if (await pictureService.LoadPictureBinary(picture) is not { } pictureBinary) continue;
             var pictureCopy = await pictureService.InsertPicture(
-                await pictureService.LoadPictureBinary(picture),
+                pictureBinary,
                 picture.MimeType,
                 pictureService.GetPictureSeName(newProduct.Name),
                 picture.AltAttribute,
@@ -399,7 +403,7 @@ public abstract class BaseProductController(
         // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Admin's original had
         // no check at all - GlobalAdminDataScope.HasAccess is a no-op there, so this closes that gap the
         // same way as every other row in this task.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var model = new OrderListModel {
@@ -435,7 +439,7 @@ public abstract class BaseProductController(
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
         // this action on both hosts. Admin's original had no check at all - GlobalAdminDataScope.HasAccess
         // is a no-op there, so this closes that gap the same way as every other row in this task.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         // DefaultStoreId is the staff member's store for Store (matches its original storeId argument,
@@ -677,10 +681,10 @@ public abstract class BaseProductController(
     {
         if (products == null) return [];
 
-        var byId = products
-            .Where(x => !string.IsNullOrEmpty(x.Id))
-            .GroupBy(x => x.Id)
-            .ToDictionary(g => g.Key, g => g.First());
+        var byId = new Dictionary<string, BulkEditProductModel>();
+        foreach (var product in products)
+            if (!string.IsNullOrEmpty(product.Id))
+                byId.TryAdd(product.Id, product);
         if (byId.Count == 0) return [];
 
         var loadedProducts = await productService.GetProductsByIds(byId.Keys.ToArray(),

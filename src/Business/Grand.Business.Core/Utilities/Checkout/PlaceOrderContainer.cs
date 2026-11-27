@@ -17,34 +17,37 @@ public class PlaceOrderContainer
     ///     The identifier the order is inserted with, known before the payment so what the order spends can be claimed
     ///     for it
     /// </summary>
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     /// <summary>
     ///     Customer, store, working currency and tax display the order totals are calculated for
     /// </summary>
-    public CalculationContext Context { get; set; }
+    public required CalculationContext Context { get; set; }
 
-    public Customer Customer { get; set; }
-    public Store Store { get; set; }
-    public Language Language { get; set; }
+    public required Customer Customer { get; set; }
+    public required Store Store { get; set; }
+
+    //set by PreparePlaceOrderDetails, the one place a container is filled, before anything reads it
+    public Language Language { get; set; } = null!;
 
     /// <summary>
     ///     Language of the request placing the order, used for the attribute descriptions
     /// </summary>
-    public Language WorkingLanguage { get; set; }
+    public required Language WorkingLanguage { get; set; }
 
     /// <summary>
     ///     Store address used for file download links in the attribute descriptions
     /// </summary>
-    public DomainHost Host { get; set; }
+    public required DomainHost Host { get; set; }
 
-    public Currency Currency { get; set; }
-    public string AffiliateId { get; set; }
+    //set by PreparePlaceOrderDetails, the one place a container is filled, before anything reads it
+    public Currency Currency { get; set; } = null!;
+    public string? AffiliateId { get; set; }
     public TaxDisplayType TaxDisplayType { get; set; }
     public double CurrencyRate { get; set; }
-    public string PrimaryCurrencyCode { get; set; }
-    public string PaymentMethodSystemName { get; set; }
-    public string PurchaseOrderNumber { get; set; }
+    public string? PrimaryCurrencyCode { get; set; }
+    public string? PaymentMethodSystemName { get; set; }
+    public string? PurchaseOrderNumber { get; set; }
 
     /// <summary>
     ///     An order placement rule requires an approval, so the order is placed awaiting one
@@ -61,14 +64,14 @@ public class PlaceOrderContainer
     /// </summary>
     public bool ApprovalStoreDecides { get; set; }
 
-    public Address BillingAddress { get; set; }
-    public Address ShippingAddress { get; set; }
+    public Address? BillingAddress { get; set; }
+    public Address? ShippingAddress { get; set; }
     public ShippingStatus ShippingStatus { get; set; }
-    public string ShippingMethodName { get; set; }
-    public string ShippingRateProviderSystemName { get; set; }
+    public string? ShippingMethodName { get; set; }
+    public string? ShippingRateProviderSystemName { get; set; }
     public bool PickUpInStore { get; set; }
-    public PickupPoint PickupPoint { get; set; }
-    public string CheckoutAttributeDescription { get; set; }
+    public PickupPoint? PickupPoint { get; set; }
+    public string? CheckoutAttributeDescription { get; set; }
     public IList<CustomAttribute> CheckoutAttributes { get; set; } = new List<CustomAttribute>();
     public IList<ShoppingCartItem> Cart { get; set; } = new List<ShoppingCartItem>();
     public IList<OrderTax> Taxes { get; set; } = new List<OrderTax>();

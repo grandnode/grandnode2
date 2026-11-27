@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;

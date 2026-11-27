@@ -29,7 +29,7 @@ public class GetDiscountAmountProviderHandler : IRequestHandler<GetDiscountAmoun
     /// <param name="amount"></param>
     /// <param name="customer"></param>
     /// <returns></returns>
-    private async Task<double> GetDiscountAmountProvider(Discount discount, Customer customer, Product product,
+    private async Task<double> GetDiscountAmountProvider(Discount discount, Customer customer, Product? product,
         double amount)
     {
         var discountAmountProvider =

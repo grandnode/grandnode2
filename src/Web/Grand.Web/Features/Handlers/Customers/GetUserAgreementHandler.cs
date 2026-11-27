@@ -6,7 +6,7 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Customers;
 
-public class GetUserAgreementHandler : IRequestHandler<GetUserAgreement, UserAgreementModel>
+public class GetUserAgreementHandler : IRequestHandler<GetUserAgreement, UserAgreementModel?>
 {
     private readonly IOrderService _orderService;
     private readonly IProductService _productService;
@@ -18,7 +18,7 @@ public class GetUserAgreementHandler : IRequestHandler<GetUserAgreement, UserAgr
         _productService = productService;
     }
 
-    public async Task<UserAgreementModel> Handle(GetUserAgreement request, CancellationToken cancellationToken)
+    public async Task<UserAgreementModel?> Handle(GetUserAgreement request, CancellationToken cancellationToken)
     {
         var orderItem = await _orderService.GetOrderItemByGuid(request.OrderItemId);
         if (orderItem == null)

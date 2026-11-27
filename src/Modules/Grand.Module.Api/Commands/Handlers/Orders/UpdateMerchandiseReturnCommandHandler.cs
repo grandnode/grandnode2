@@ -10,7 +10,7 @@ using Grand.Module.Api.Extensions;
 
 namespace Grand.Module.Api.Commands.Handlers.Orders;
 
-public class UpdateMerchandiseReturnCommandHandler : IRequestHandler<UpdateMerchandiseReturnCommand, string>
+public class UpdateMerchandiseReturnCommandHandler : IRequestHandler<UpdateMerchandiseReturnCommand, string?>
 {
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
@@ -24,7 +24,7 @@ public class UpdateMerchandiseReturnCommandHandler : IRequestHandler<UpdateMerch
         _settingService = settingService;
     }
 
-    public async Task<string> Handle(UpdateMerchandiseReturnCommand request, CancellationToken cancellationToken)
+    public async Task<string?> Handle(UpdateMerchandiseReturnCommand request, CancellationToken cancellationToken)
     {
         //a field the client did not send stays as stored: a PUT of the staff notes alone keeps the customer's comment
         //and the pickup address; an empty string clears a text, an address with no field filled in clears it
@@ -64,7 +64,7 @@ public class UpdateMerchandiseReturnCommandHandler : IRequestHandler<UpdateMerch
         });
     }
 
-    private static bool SameAddress(AddressDto sent, Address stored)
+    private static bool SameAddress(AddressDto sent, Address? stored)
     {
         return stored == null
             ? IsEmpty(sent)

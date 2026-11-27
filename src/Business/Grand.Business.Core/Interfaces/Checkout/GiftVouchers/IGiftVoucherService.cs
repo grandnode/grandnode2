@@ -13,7 +13,7 @@ public interface IGiftVoucherService
     /// </summary>
     /// <param name="giftVoucherId">Gift voucher identifier</param>
     /// <returns>Gift voucher entry</returns>
-    Task<GiftVoucher> GetGiftVoucherById(string giftVoucherId);
+    Task<GiftVoucher?> GetGiftVoucherById(string? giftVoucherId);
 
     /// <summary>
     ///     Gets all gift vouchers
@@ -30,8 +30,8 @@ public interface IGiftVoucherService
     /// <returns>Gift vouchers</returns>
     Task<IPagedList<GiftVoucher>> GetAllGiftVouchers(string purchasedWithOrderItemId = "",
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
-        bool? isGiftVoucherActivated = null, string giftVoucherCouponCode = null,
-        string recipientName = null,
+        bool? isGiftVoucherActivated = null, string? giftVoucherCouponCode = null,
+        string? recipientName = null,
         int pageIndex = 0, int pageSize = int.MaxValue, string storeId = "");
 
 

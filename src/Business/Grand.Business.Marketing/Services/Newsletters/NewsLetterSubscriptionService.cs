@@ -39,9 +39,10 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// <param name="email">The email.</param>
     /// <param name="isSubscribe">if set to <c>true</c> [is subscribe].</param>
     /// <param name="publishSubscriptionEvents">if set to <c>true</c> [publish subscription events].</param>
-    private async Task PublishSubscriptionEvent(string email, bool isSubscribe, bool publishSubscriptionEvents)
+    private async Task PublishSubscriptionEvent(string? email, bool isSubscribe, bool publishSubscriptionEvents)
     {
-        if (publishSubscriptionEvents)
+        //a subscription without an e-mail has nobody to announce
+        if (publishSubscriptionEvents && email != null)
         {
             if (isSubscribe)
                 await _mediator.PublishNewsletterSubscribe(email);
@@ -151,7 +152,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// </summary>
     /// <param name="newsLetterSubscriptionId">The newsletter subscription identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    public virtual Task<NewsLetterSubscription> GetNewsLetterSubscriptionById(string newsLetterSubscriptionId)
+    public virtual Task<NewsLetterSubscription?> GetNewsLetterSubscriptionById(string? newsLetterSubscriptionId)
     {
         return _subscriptionRepository.GetByIdAsync(newsLetterSubscriptionId);
     }
@@ -161,7 +162,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// </summary>
     /// <param name="newsLetterSubscriptionGuid">The newsletter subscription GUID</param>
     /// <returns>NewsLetter subscription</returns>
-    public virtual async Task<NewsLetterSubscription> GetNewsLetterSubscriptionByGuid(Guid newsLetterSubscriptionGuid)
+    public virtual async Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByGuid(Guid newsLetterSubscriptionGuid)
     {
         if (newsLetterSubscriptionGuid == Guid.Empty) return null;
 
@@ -178,7 +179,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// <param name="email">The newsletter subscription email</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    public virtual async Task<NewsLetterSubscription> GetNewsLetterSubscriptionByEmailAndStoreId(string email,
+    public virtual async Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByEmailAndStoreId(string? email,
         string storeId)
     {
         if (!CommonHelper.IsValidEmail(email))
@@ -198,7 +199,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// </summary>
     /// <param name="customerId">Customer identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    public virtual async Task<NewsLetterSubscription> GetNewsLetterSubscriptionByCustomerId(string customerId)
+    public virtual async Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByCustomerId(string customerId)
     {
         if (string.IsNullOrEmpty(customerId))
             return null;
@@ -220,8 +221,8 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>NewsLetterSubscription entities</returns>
-    public virtual async Task<IPagedList<NewsLetterSubscription>> GetAllNewsLetterSubscriptions(string email = null,
-        string storeId = "", bool? isActive = null, string[] categoryIds = null,
+    public virtual async Task<IPagedList<NewsLetterSubscription>> GetAllNewsLetterSubscriptions(string? email = null,
+        string? storeId = "", bool? isActive = null, string[]? categoryIds = null,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
         //do not filter by customer group
@@ -279,7 +280,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     {
         var count = 0;
         using var reader = new StreamReader(stream);
-        string line;
+        string? line;
         while ((line = await reader.ReadLineAsync()) is not null)
         {
             if (string.IsNullOrWhiteSpace(line))

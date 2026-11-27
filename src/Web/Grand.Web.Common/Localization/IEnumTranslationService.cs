@@ -8,13 +8,13 @@ namespace Grand.Web.Common.Localization;
 
 public interface IEnumTranslationService
 {
-    SelectList ToSelectList<TEnum>(TEnum enumObj, bool markCurrentAsSelected = true, int[] valuesToExclude = null) where TEnum : struct;
+    SelectList ToSelectList<TEnum>(TEnum enumObj, bool markCurrentAsSelected = true, int[]? valuesToExclude = null) where TEnum : struct;
     string GetTranslationEnum<T>(T enumValue) where T : struct;
 }
 
 public class EnumTranslationService(ITranslationService translationService, IContextAccessor contextAccessor) : IEnumTranslationService
 {
-    public SelectList ToSelectList<TEnum>(TEnum enumObj, bool markCurrentAsSelected = true, int[] valuesToExclude = null)
+    public SelectList ToSelectList<TEnum>(TEnum enumObj, bool markCurrentAsSelected = true, int[]? valuesToExclude = null)
         where TEnum : struct
     {
         if (!typeof(TEnum).GetTypeInfo().IsEnum)
@@ -28,7 +28,7 @@ public class EnumTranslationService(ITranslationService translationService, ICon
                 Name = GetTranslationEnum(enumValue)
             };
 
-        object selectedValue = null;
+        object? selectedValue = null;
         if (markCurrentAsSelected)
             selectedValue = Convert.ToInt32(enumObj);
 

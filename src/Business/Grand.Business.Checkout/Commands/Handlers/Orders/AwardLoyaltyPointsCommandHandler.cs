@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Orders;
 using Grand.Mediator;
+using Grand.SharedKernel;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 
@@ -46,13 +47,14 @@ public class AwardLoyaltyPointsCommandHandler : IRequestHandler<AwardLoyaltyPoin
         ArgumentNullException.ThrowIfNull(request.Order);
 
         var customer = await _customerService.GetCustomerById(request.Order.CustomerId);
-        var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
+        var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode) ??
+                       throw new GrandException($"The currency {request.Order.CustomerCurrencyCode} of order {request.Order.OrderNumber} does not exist");
         var amount =
             await _currencyService.ConvertToPrimaryStoreCurrency(
                 request.Order.OrderTotal - request.Order.OrderShippingInclTax, currency);
         var points = await _mediator.Send(new CalculateLoyaltyPointsCommand { Customer = customer, Amount = amount },
             cancellationToken);
-        if (points <= 0)
+        if (customer == null || points <= 0)
             return false;
 
         //add loyalty points

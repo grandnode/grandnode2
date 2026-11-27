@@ -12,7 +12,7 @@ public static class DateTimeServiceExtensions
     ///     resolves but is not listed - a Windows id on Linux, or the reverse - keeps an option of its own.
     /// </summary>
     public static IList<SelectListItem> GetStoreTimeZoneOptions(this IDateTimeService dateTimeService,
-        string configuredTimeZoneId, string serverTimeZoneLabel)
+        string? configuredTimeZoneId, string serverTimeZoneLabel)
     {
         var options = new List<SelectListItem> {
             new() { Text = $"{serverTimeZoneLabel}: {DisplayName(TimeZoneInfo.Local)}", Value = "" }
@@ -28,7 +28,7 @@ public static class DateTimeServiceExtensions
         return options;
     }
 
-    private static SelectListItem AddUnlistedZone(IDateTimeService dateTimeService, string timeZoneId,
+    private static SelectListItem? AddUnlistedZone(IDateTimeService dateTimeService, string? timeZoneId,
         List<SelectListItem> options)
     {
         if (string.IsNullOrEmpty(timeZoneId)) return null;

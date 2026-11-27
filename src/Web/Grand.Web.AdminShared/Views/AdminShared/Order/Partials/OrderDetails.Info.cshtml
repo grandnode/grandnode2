@@ -20,7 +20,7 @@
     {
         var tag = orderTags[i];
         orderTagsSB.Append("'");
-        orderTagsSB.Append(JavaScriptEncoder.Default.Encode(tag.Name));
+        orderTagsSB.Append(JavaScriptEncoder.Default.Encode(tag.Name ?? ""));
         orderTagsSB.Append("'");
         if (i != orderTags.Count - 1)
         {

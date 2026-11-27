@@ -12,7 +12,7 @@ public class RecurringPaymentListModel : BaseModel
     {
         public DateTime CreatedOn { get; set; }
         public int StatusId { get; set; }
-        public string Status { get; set; }
+        public string? Status { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the customer may cancel it: Pending, Active or PastDue
@@ -27,19 +27,19 @@ public class RecurringPaymentListModel : BaseModel
         /// <summary>
         ///     Gets or sets the cycle, e.g. "Every month"
         /// </summary>
-        public string Cycle { get; set; }
+        public string? Cycle { get; set; }
 
         /// <summary>
         ///     Gets or sets the paid cycles, e.g. "3 of 12"
         /// </summary>
-        public string CyclesPaid { get; set; }
+        public string? CyclesPaid { get; set; }
 
         /// <summary>
         ///     Gets or sets the next payment date reported by the provider, while it still charges
         /// </summary>
         public DateTime? NextPaymentDate { get; set; }
 
-        public string InitialOrderId { get; set; }
+        public string? InitialOrderId { get; set; }
         public int InitialOrderNumber { get; set; }
 
         /// <summary>

@@ -47,7 +47,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     private readonly IStockMovementService _stockMovementService;
     private readonly ISettingService _settingService;
     private readonly ILogger<ProductImportDataObject> _logger;
-    private readonly Func<string, CancellationToken, Task<DownloadedImage>> _downloadImage;
+    private readonly Func<string, CancellationToken, Task<DownloadedImage?>> _downloadImage;
 
     /// <param name="downloadImage">Test seam; the default downloads through <see cref="DownloadUrl.DownloadImage" /></param>
     public ProductImportDataObject(
@@ -71,7 +71,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         IStockMovementService stockMovementService,
         ISettingService settingService,
         ILogger<ProductImportDataObject> logger,
-        Func<string, CancellationToken, Task<DownloadedImage>> downloadImage = null)
+        Func<string, CancellationToken, Task<DownloadedImage?>>? downloadImage = null)
     {
         _productService = productService;
         _pictureService = pictureService;
@@ -140,14 +140,14 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     }
 
     private async Task<ImportRowResult> ImportRow(int row, ProductDto dto, bool dryRun, ImportMode mode,
-        PictureBudget budget, ICollection<string> externallyManagedWarehouseIds,
+        PictureBudget? budget, ICollection<string> externallyManagedWarehouseIds,
         CancellationToken cancellationToken)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
         var key = Key(dto);
 
-        Product existing = null;
+        Product? existing = null;
         if (!string.IsNullOrEmpty(dto.Id))
             existing = await _productService.GetProductById(dto.Id);
         if (existing == null && (string.IsNullOrEmpty(dto.Id) || mode == ImportMode.Panel))
@@ -334,7 +334,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         return new References(brandMissing, categoryIds, collectionIds);
     }
 
-    private static IEnumerable<string> SplitIds(string ids)
+    private static IEnumerable<string> SplitIds(string? ids)
     {
         return string.IsNullOrEmpty(ids)
             ? []
@@ -453,13 +453,13 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         }
     }
 
-    private async Task<List<DownloadedImage>> DownloadProductPictures(ProductDto productDto, PictureBudget budget,
+    private async Task<List<DownloadedImage>> DownloadProductPictures(ProductDto productDto, PictureBudget? budget,
         List<string> warnings, CancellationToken cancellationToken)
     {
         //PictureUrls, when sent, replaces Picture1..3
-        IEnumerable<string> urls = productDto.PictureUrls is { Count: > 0 }
-            ? productDto.PictureUrls
-            : new[] { productDto.Picture1, productDto.Picture2, productDto.Picture3 };
+        IEnumerable<string?> urls = productDto.PictureUrls is { Count: > 0 }
+            ? (IEnumerable<string?>)productDto.PictureUrls
+            : new string?[] { productDto.Picture1, productDto.Picture2, productDto.Picture3 };
 
         var images = new List<DownloadedImage>();
         foreach (var pictureUrl in urls)

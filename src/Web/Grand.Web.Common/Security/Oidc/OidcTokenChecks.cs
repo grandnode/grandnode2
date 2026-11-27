@@ -12,9 +12,11 @@ public static class OidcTokenChecks
     /// <summary>
     ///     RFC 8707: the token must name this resource (or a configured alternative) in "aud"
     /// </summary>
-    public static bool HasAudience(ClaimsPrincipal principal, string canonicalResource, IEnumerable<string> audiences)
+    public static bool HasAudience(ClaimsPrincipal principal, string? canonicalResource, IEnumerable<string> audiences)
     {
-        var accepted = (audiences ?? []).Where(a => !string.IsNullOrWhiteSpace(a)).Append(canonicalResource).ToList();
+        var accepted = (audiences ?? []).Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
+        if (canonicalResource != null)
+            accepted.Add(canonicalResource);
         return principal.FindAll("aud").Any(aud => accepted.Any(a => OidcCanonicalUri.Equal(aud.Value, a)));
     }
 
@@ -59,7 +61,7 @@ public static class OidcTokenChecks
     /// <summary>
     ///     Scopes that may be advertised or required: distinct, non-empty, never offline_access
     /// </summary>
-    public static string[] PublicScopes(IEnumerable<string> scopes) =>
-        (scopes ?? []).Select(s => s?.Trim()).Where(s => !string.IsNullOrEmpty(s) && s != OfflineAccess)
+    public static string[] PublicScopes(IEnumerable<string?>? scopes) =>
+        (scopes ?? []).Select(s => s?.Trim()).OfType<string>().Where(s => s.Length > 0 && s != OfflineAccess)
             .Distinct(StringComparer.Ordinal).ToArray();
 }

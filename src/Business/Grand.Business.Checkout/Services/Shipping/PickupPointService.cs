@@ -43,7 +43,7 @@ public class PickupPointService : IPickupPointService
     /// </summary>
     /// <param name="pickupPointId">The pickup point identifier</param>
     /// <returns>Delivery date</returns>
-    public virtual Task<PickupPoint> GetPickupPointById(string pickupPointId)
+    public virtual Task<PickupPoint?> GetPickupPointById(string? pickupPointId)
     {
         var key = string.Format(CacheKey.PICKUPPOINTS_BY_ID_KEY, pickupPointId);
         return _cacheBase.GetAsync(key, () => _pickupPointsRepository.GetByIdAsync(pickupPointId));
@@ -71,7 +71,7 @@ public class PickupPointService : IPickupPointService
     ///     Gets all pickup points
     /// </summary>
     /// <returns>Warehouses</returns>
-    public virtual async Task<IList<PickupPoint>> LoadActivePickupPoints(string storeId = "")
+    public virtual async Task<IList<PickupPoint>> LoadActivePickupPoints(string? storeId = "")
     {
         var pickupPoints = await GetAllPickupPoints();
         return pickupPoints.Where(pp => pp.StoreId == storeId || string.IsNullOrEmpty(pp.StoreId)).ToList();

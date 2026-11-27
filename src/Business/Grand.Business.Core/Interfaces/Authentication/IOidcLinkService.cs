@@ -31,7 +31,7 @@ public interface IOidcLinkService
 /// <param name="ConfiguredAuthority">OidcResourceServer:Authority</param>
 /// <param name="LinkedAuthority">The provider the links were made with (empty before the first use)</param>
 /// <param name="LinkCount">Stored OpenID Connect links</param>
-public sealed record OidcLinkState(string ConfiguredAuthority, string LinkedAuthority, long LinkCount)
+public sealed record OidcLinkState(string? ConfiguredAuthority, string? LinkedAuthority, long LinkCount)
 {
     /// <summary>Links exist and their provider differs from the configured one, or was never recorded</summary>
     public bool ProviderChanged => LinkCount > 0 &&
@@ -44,8 +44,8 @@ public sealed record OidcLinkState(string ConfiguredAuthority, string LinkedAuth
 public static class OidcAuthority
 {
     /// <summary>Authorities compared without a trailing slash and without regard to case</summary>
-    public static bool SameProvider(string a, string b) =>
+    public static bool SameProvider(string? a, string? b) =>
         string.Equals(Normalize(a), Normalize(b), StringComparison.OrdinalIgnoreCase);
 
-    public static string Normalize(string authority) => (authority ?? "").Trim().TrimEnd('/');
+    public static string Normalize(string? authority) => (authority ?? "").Trim().TrimEnd('/');
 }

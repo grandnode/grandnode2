@@ -59,8 +59,8 @@ public class LiquidObjectBuilder
         return this;
     }
 
-    public LiquidObjectBuilder AddOrderTokens(Order order, Customer customer, Store store, DomainHost host,
-        OrderNote orderNote = null, Vendor vendor = null, double refundedAmount = 0)
+    public LiquidObjectBuilder AddOrderTokens(Order order, Customer? customer, Store store, DomainHost host,
+        OrderNote? orderNote = null, Vendor? vendor = null, double refundedAmount = 0)
     {
         _chain.Add(async liquidObject =>
         {
@@ -80,7 +80,7 @@ public class LiquidObjectBuilder
     }
 
     public LiquidObjectBuilder AddOrderApprovalTokens(OrderApproval approval, Customer buyer, Store store,
-        DomainHost host, Language language, string panelArea = null)
+        DomainHost host, Language language, string? panelArea = null)
     {
         _chain.Add(async liquidObject =>
         {
@@ -121,8 +121,8 @@ public class LiquidObjectBuilder
     }
 
     public LiquidObjectBuilder AddMerchandiseReturnTokens(MerchandiseReturn merchandiseReturn, Store store,
-        DomainHost host, Order order, Language language, MerchandiseReturnNote merchandiseReturnNote = null,
-        string statusNote = null)
+        DomainHost host, Order order, Language language, MerchandiseReturnNote? merchandiseReturnNote = null,
+        string? statusNote = null)
     {
         _chain.Add(async liquidObject =>
         {
@@ -149,7 +149,7 @@ public class LiquidObjectBuilder
     }
 
     public LiquidObjectBuilder AddCustomerTokens(Customer customer, Store store, DomainHost host, Language language,
-        CustomerNote customerNote = null)
+        CustomerNote? customerNote = null)
     {
         _chain.Add(async liquidObject =>
         {

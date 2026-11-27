@@ -14,17 +14,17 @@ namespace Grand.Web.Common.TagHelpers.Admin.Extend;
 
 internal class TemplateBuilder
 {
-    private readonly object _additionalViewData;
+    private readonly object? _additionalViewData;
     private readonly IViewBufferScope _bufferScope;
-    private readonly string _htmlFieldName;
+    private readonly string? _htmlFieldName;
     private readonly ModelMetadata _metadata;
     private readonly ModelExplorer _modelExplorer;
     private readonly bool _readOnly;
-    private readonly string _templateName;
+    private readonly string? _templateName;
     private readonly ViewContext _viewContext;
     private readonly ViewDataDictionary _viewData;
     private readonly IViewEngine _viewEngine;
-    private object _model;
+    private object? _model;
 
     public TemplateBuilder(
         IViewEngine viewEngine,
@@ -32,10 +32,10 @@ internal class TemplateBuilder
         ViewContext viewContext,
         ViewDataDictionary viewData,
         ModelExplorer modelExplorer,
-        string htmlFieldName,
-        string templateName,
+        string? htmlFieldName,
+        string? templateName,
         bool readOnly,
-        object additionalViewData)
+        object? additionalViewData)
     {
         ArgumentNullException.ThrowIfNull(viewEngine);
         ArgumentNullException.ThrowIfNull(bufferScope);

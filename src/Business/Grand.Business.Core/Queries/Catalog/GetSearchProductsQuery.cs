@@ -8,18 +8,18 @@ namespace Grand.Business.Core.Queries.Catalog;
 public class GetSearchProductsQuery : IRequest<(IPagedList<Product> products, IList<string>
     filterableSpecificationAttributeOptionIds)>
 {
-    public Customer Customer { get; set; }
+    public required Customer? Customer { get; set; }
 
     /// <summary>
     ///     Customer groups the ACL filter uses instead of the groups of <see cref="Customer" />;
     ///     lets callers without a customer (e.g. scheduled tasks) search as a given audience
     /// </summary>
-    public IList<string> CustomerGroupIds { get; set; }
+    public IList<string>? CustomerGroupIds { get; set; }
 
     public bool LoadFilterableSpecificationAttributeOptionIds { get; set; } = false;
     public int PageIndex { get; set; } = 0;
     public int PageSize { get; set; } = int.MaxValue;
-    public IList<string> CategoryIds { get; set; }
+    public IList<string>? CategoryIds { get; set; }
     public string BrandId { get; set; } = "";
     public string CollectionId { get; set; } = "";
     public string StoreId { get; set; } = "";
@@ -34,13 +34,13 @@ public class GetSearchProductsQuery : IRequest<(IPagedList<Product> products, IL
     public double? PriceMax { get; set; }
     public double? Rating { get; set; }
     public string ProductTag { get; set; } = "";
-    public string Keywords { get; set; }
+    public string? Keywords { get; set; }
     public bool SearchDescriptions { get; set; }
     public bool SearchSku { get; set; } = true;
     public bool SearchProductTags { get; set; }
     public string LanguageId { get; set; } = "";
-    public IList<string> FilteredSpecs { get; set; }
-    public IList<string> SpecificationOptions { get; set; }
+    public IList<string>? FilteredSpecs { get; set; }
+    public IList<string>? SpecificationOptions { get; set; }
     public ProductSortingEnum OrderBy { get; set; } = ProductSortingEnum.Position;
     public bool ShowHidden { get; set; }
     public bool? OverridePublished { get; set; }

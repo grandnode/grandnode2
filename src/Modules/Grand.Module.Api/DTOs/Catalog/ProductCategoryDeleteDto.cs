@@ -2,5 +2,5 @@
 
 public class ProductCategoryDeleteDto
 {
-    public string CategoryId { get; set; }
+    public string? CategoryId { get; set; }
 }

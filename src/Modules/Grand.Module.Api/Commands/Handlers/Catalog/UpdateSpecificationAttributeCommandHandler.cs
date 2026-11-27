@@ -6,9 +6,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
-public class
-    UpdateSpecificationAttributeCommandHandler : IRequestHandler<UpdateSpecificationAttributeCommand,
-    SpecificationAttributeDto>
+public class UpdateSpecificationAttributeCommandHandler : IRequestHandler<UpdateSpecificationAttributeCommand, SpecificationAttributeDto?>
 {
     private readonly ISpecificationAttributeService _specificationAttributeService;
 
@@ -17,11 +15,13 @@ public class
         _specificationAttributeService = specificationAttributeService;
     }
 
-    public async Task<SpecificationAttributeDto> Handle(UpdateSpecificationAttributeCommand request,
+    public async Task<SpecificationAttributeDto?> Handle(UpdateSpecificationAttributeCommand request,
         CancellationToken cancellationToken)
     {
         var specificationAttribute =
             await _specificationAttributeService.GetSpecificationAttributeById(request.Model.Id);
+        if (specificationAttribute == null)
+            return null;
         foreach (var option in specificationAttribute.SpecificationAttributeOptions)
             if (request.Model.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == option.Id) == null)
                 await _specificationAttributeService.DeleteSpecificationAttributeOption(option);
@@ -29,4 +29,4 @@ public class
         await _specificationAttributeService.UpdateSpecificationAttribute(specificationAttribute);
         return specificationAttribute.ToModel();
     }
-}
+}

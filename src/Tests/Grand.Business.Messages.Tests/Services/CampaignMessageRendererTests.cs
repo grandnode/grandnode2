@@ -58,7 +58,8 @@ public class CampaignMessageRendererTests
         };
 
         var result = await _renderer.Render(campaign, new CampaignRecipient {
-            Store = _store, Language = new Language(), EmailAccount = new EmailAccount(), Host = _host
+            Store = _store, Language = new Language(), EmailAccount = new EmailAccount(), Host = _host,
+            Currency = new Currency()
         });
 
         Assert.AreEqual("Subject", result.Subject);

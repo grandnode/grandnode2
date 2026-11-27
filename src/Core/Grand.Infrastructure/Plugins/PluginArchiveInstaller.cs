@@ -229,7 +229,7 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
         var manifests = new List<PluginManifest>();
         foreach (var dll in Directory.GetFiles(folder, "*.dll", SearchOption.TopDirectoryOnly))
         {
-            PluginManifest manifest;
+            PluginManifest? manifest;
             try
             {
                 manifest = PluginManifestReader.Read(dll);
@@ -257,12 +257,12 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
     ///     The exact name of the plugin folder that <paramref name="folderName" /> names, compared case-insensitively
     ///     on every platform; the folder with exactly that name wins when several match. Null when there is none.
     /// </summary>
-    private string ExistingFolderName(string folderName)
+    private string? ExistingFolderName(string folderName)
     {
         if (!Directory.Exists(pluginsPath))
             return null;
 
-        var matches = Directory.GetDirectories(pluginsPath).Select(Path.GetFileName)
+        var matches = Directory.GetDirectories(pluginsPath).Select(x => Path.GetFileName(x))
             .Where(x => !IsReservedFolder(x) && string.Equals(x, folderName, StringComparison.OrdinalIgnoreCase))
             .Order(StringComparer.Ordinal)
             .ToList();

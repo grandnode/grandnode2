@@ -56,7 +56,7 @@ public class SendYourselfReturnProviderTests
     [TestMethod]
     public async Task SendYourself_CostFromStoreSettings()
     {
-        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { StoreId = "s1", LanguageId = "l1" });
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { Order = new Order(), VendorId = "", StoreId = "s1", LanguageId = "l1" });
 
         Assert.AreEqual(1, options.Count);
         Assert.AreEqual("send", options[0].Code);
@@ -162,7 +162,7 @@ public class SendYourselfReturnProviderTests
     [TestMethod]
     public async Task SendYourself_Option_DescribesTheReturnAddressWithRecipient()
     {
-        var options = await _provider.GetReturnOptions(new ReturnShippingRequest {
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { Order = new Order(), VendorId = "",
             StoreId = "s1", LanguageId = "l1",
             ReturnAddress = new Address {
                 Company = "Shop Ltd", Address1 = "Main 1", ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl"
@@ -180,7 +180,7 @@ public class SendYourselfReturnProviderTests
             Address = new Address { Address1 = "Main 1", ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl" }
         });
 
-        var options = await _provider.GetReturnOptions(new ReturnShippingRequest {
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { Order = new Order(),
             StoreId = "s1", LanguageId = "l1", VendorId = "v1",
             ReturnAddress = new Address
                 { Address1 = "Main 1", ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl" }
@@ -192,7 +192,7 @@ public class SendYourselfReturnProviderTests
     [TestMethod]
     public async Task SendYourself_Option_NoReturnAddress_NoDescription()
     {
-        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { StoreId = "s1", LanguageId = "l1" });
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { Order = new Order(), VendorId = "", StoreId = "s1", LanguageId = "l1" });
 
         Assert.AreEqual("", options[0].Description);
     }

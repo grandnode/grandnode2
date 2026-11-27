@@ -65,7 +65,7 @@ public class CategoryService : ICategoryService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IPagedList<Category>> GetAllCategories(string parentId, string categoryName,
+    public virtual async Task<IPagedList<Category>> GetAllCategories(string? parentId, string? categoryName,
         CatalogAccess access, int pageIndex = 0, int pageSize = int.MaxValue)
     {
         ArgumentNullException.ThrowIfNull(access);
@@ -200,7 +200,7 @@ public class CategoryService : ICategoryService
     /// <param name="category">Category</param>
     /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Category breadcrumb </returns>
-    public virtual async Task<IList<Category>> GetCategoryBreadCrumb(Category category, CatalogAccess access)
+    public virtual async Task<IList<Category>> GetCategoryBreadCrumb(Category? category, CatalogAccess access)
     {
         ArgumentNullException.ThrowIfNull(access);
 
@@ -231,7 +231,7 @@ public class CategoryService : ICategoryService
     /// <param name="allCategories">All categories</param>
     /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Category breadcrumb </returns>
-    public virtual IList<Category> GetCategoryBreadCrumb(Category category, IList<Category> allCategories,
+    public virtual IList<Category> GetCategoryBreadCrumb(Category? category, IList<Category> allCategories,
         CatalogAccess access)
     {
         ArgumentNullException.ThrowIfNull(access);
@@ -266,7 +266,7 @@ public class CategoryService : ICategoryService
     /// <param name="separator">Separator</param>
     /// <param name="languageId">Language ID</param>
     /// <returns>Formatted breadcrumb</returns>
-    public virtual async Task<string> GetFormattedBreadCrumb(Category category, string separator = ">>",
+    public virtual async Task<string?> GetFormattedBreadCrumb(Category? category, string separator = ">>",
         string languageId = "")
     {
         var result = string.Empty;
@@ -292,7 +292,7 @@ public class CategoryService : ICategoryService
     /// <param name="separator">Separator</param>
     /// <param name="languageId">Language ID</param>
     /// <returns>Formatted breadcrumb</returns>
-    public virtual string GetFormattedBreadCrumb(Category category,
+    public virtual string? GetFormattedBreadCrumb(Category category,
         IList<Category> allCategories, string separator = ">>", string languageId = "")
     {
         var result = string.Empty;
@@ -327,7 +327,7 @@ public class CategoryService : ICategoryService
     /// </summary>
     /// <param name="categoryId">Category identifier</param>
     /// <returns>Category</returns>
-    public virtual async Task<Category> GetCategoryById(string categoryId)
+    public virtual async Task<Category?> GetCategoryById(string? categoryId)
     {
         var key = string.Format(CacheKey.CATEGORIES_BY_ID_KEY, categoryId);
         return await _cacheBase.GetAsync(key, () => _categoryRepository.GetByIdAsync(categoryId));

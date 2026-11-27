@@ -8,28 +8,28 @@ namespace Grand.Web.Models.Catalog;
 
 public class ProductOverviewModel : BaseEntityModel
 {
-    public string Name { get; set; }
-    public string ShortDescription { get; set; }
-    public string FullDescription { get; set; }
-    public string SeName { get; set; }
-    public string Url { get; set; }
+    public string? Name { get; set; }
+    public string? ShortDescription { get; set; }
+    public string? FullDescription { get; set; }
+    public string? SeName { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>
     ///     Endpoints for the catalog buttons. They are built server-side because the
     ///     views used to repeat the same branching twice: once in Razor and again as
     ///     string concatenation inside the Vue templates that render product boxes.
     /// </summary>
-    public string AddToCartUrl { get; set; }
+    public string? AddToCartUrl { get; set; }
 
-    public string AddToWishlistUrl { get; set; }
-    public string QuickViewUrl { get; set; }
+    public string? AddToWishlistUrl { get; set; }
+    public string? QuickViewUrl { get; set; }
     public ProductType ProductType { get; set; }
     public bool MarkAsNew { get; set; }
-    public string Sku { get; set; }
-    public string Flag { get; set; }
-    public string Gtin { get; set; }
-    public string Mpn { get; set; }
-    public string BrandName { get; set; }
+    public string? Sku { get; set; }
+    public string? Flag { get; set; }
+    public string? Gtin { get; set; }
+    public string? Mpn { get; set; }
+    public string? BrandName { get; set; }
     public bool IsFreeShipping { get; set; }
     public bool ShowSku { get; set; }
     public bool ShowQty { get; set; }
@@ -63,18 +63,18 @@ public class ProductOverviewModel : BaseEntityModel
 
     public class ProductPriceModel : BaseModel
     {
-        public string OldPrice { get; set; }
+        public string? OldPrice { get; set; }
         public double OldPriceValue { get; set; }
-        public string CatalogPrice { get; set; }
-        public string Price { get; set; }
+        public string? CatalogPrice { get; set; }
+        public string? Price { get; set; }
         public bool CallForPrice { get; set; }
         public double PriceValue { get; set; }
         public bool PriceIncludesTax { get; set; }
-        public string StartPrice { get; set; }
+        public string? StartPrice { get; set; }
         public double StartPriceValue { get; set; }
-        public string HighestBid { get; set; }
+        public string? HighestBid { get; set; }
         public double HighestBidValue { get; set; }
-        public string BasePricePAngV { get; set; }
+        public string? BasePricePAngV { get; set; }
         public bool DisableBuyButton { get; set; }
         public bool DisableWishlistButton { get; set; }
         public bool DisableAddToCompareListButton { get; set; }
@@ -83,14 +83,14 @@ public class ProductOverviewModel : BaseEntityModel
         public bool ForceRedirectionAfterAddingToCart { get; set; }
 
         public List<ApplyDiscount> AppliedDiscounts { get; set; } = new();
-        public TierPrice PreferredTierPrice { get; set; }
+        public TierPrice? PreferredTierPrice { get; set; }
     }
 
     public class ProductAttributeModel : BaseModel
     {
-        public string Name { get; set; }
-        public string SeName { get; set; }
-        public string TextPrompt { get; set; }
+        public string? Name { get; set; }
+        public string? SeName { get; set; }
+        public string? TextPrompt { get; set; }
         public bool IsRequired { get; set; }
         public AttributeControlType AttributeControlType { get; set; }
         public IList<ProductAttributeValueModel> Values { get; set; } = new List<ProductAttributeValueModel>();
@@ -98,9 +98,9 @@ public class ProductOverviewModel : BaseEntityModel
 
     public class ProductAttributeValueModel : BaseModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public string ColorSquaresRgb { get; set; }
+        public string? ColorSquaresRgb { get; set; }
 
         //picture model is used with "image square" attribute type
         public PictureModel ImageSquaresPictureModel { get; set; } = new();

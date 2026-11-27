@@ -8,7 +8,7 @@ public class OrderByCountryReportLine
     /// <summary>
     ///     Country identifier; null for un know country
     /// </summary>
-    public string CountryId { get; set; }
+    public string? CountryId { get; set; }
 
     /// <summary>
     ///     Gets or sets the number of orders

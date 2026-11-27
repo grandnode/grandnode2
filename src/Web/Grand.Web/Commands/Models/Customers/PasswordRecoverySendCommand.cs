@@ -7,9 +7,9 @@ namespace Grand.Web.Commands.Models.Customers;
 
 public class PasswordRecoverySendCommand : IRequest<bool>
 {
-    public PasswordRecoveryModel Model { get; set; }
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Domain.Stores.DomainHost Host { get; set; }
-    public Language Language { get; set; }
+    public required PasswordRecoveryModel Model { get; set; }
+    public Customer? Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Domain.Stores.DomainHost Host { get; set; }
+    public required Language Language { get; set; }
 }

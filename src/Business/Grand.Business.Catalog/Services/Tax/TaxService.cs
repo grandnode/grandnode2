@@ -66,7 +66,7 @@ public class TaxService : ITaxService
     {
         ArgumentNullException.ThrowIfNull(customer);
 
-        Country country = null;
+        Country? country = null;
 
         //get country from billing address
         if (_addressSettings.CountryEnabled && customer.BillingAddress != null)
@@ -96,7 +96,7 @@ public class TaxService : ITaxService
     /// <param name="customer">Customer</param>
     /// <param name="price">Price</param>
     /// <returns>Package for tax calculation</returns>
-    protected virtual async Task<TaxRequest> CreateCalculateTaxRequest(Product product, string taxCategoryId, Customer customer, Store store, double price)
+    protected virtual async Task<TaxRequest> CreateCalculateTaxRequest(Product? product, string? taxCategoryId, Customer customer, Store? store, double price)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -130,7 +130,7 @@ public class TaxService : ITaxService
         if (basedOn == TaxBasedOn.ShippingAddress && customer.ShippingAddress == null)
             basedOn = TaxBasedOn.DefaultAddress;
 
-        Address address;
+        Address? address;
 
         switch (basedOn)
         {
@@ -183,7 +183,7 @@ public class TaxService : ITaxService
     /// <param name="taxCategoryId">Tax category identifier</param>
     /// <param name="customer">Customer</param>
     /// <param name="price">Price (taxable value)</param>
-    protected virtual async Task<(double taxRate, bool isTaxable)> GetTaxRate(Product product, string taxCategoryId, Customer customer, Store store, double price)
+    protected virtual async Task<(double taxRate, bool isTaxable)> GetTaxRate(Product? product, string? taxCategoryId, Customer customer, Store? store, double price)
     {
         double taxRate = 0;
         var isTaxable = true;
@@ -234,7 +234,7 @@ public class TaxService : ITaxService
     /// <param name="customer">Customer whose groups limit the fallback providers</param>
     /// <param name="storeId">Store whose providers are the fallback</param>
     /// <returns>Active tax provider</returns>
-    public virtual ITaxProvider LoadActiveTaxProvider(Customer customer, string storeId)
+    public virtual ITaxProvider? LoadActiveTaxProvider(Customer customer, string? storeId)
     {
         var taxProvider = LoadTaxProviderBySystemName(_taxProviderSettings.ActiveTaxProviderSystemName) ??
                           LoadAllTaxProviders(customer, storeId)
@@ -247,7 +247,7 @@ public class TaxService : ITaxService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found tax provider</returns>
-    public virtual ITaxProvider LoadTaxProviderBySystemName(string systemName)
+    public virtual ITaxProvider? LoadTaxProviderBySystemName(string? systemName)
     {
         return _taxProviders.FirstOrDefault(x => x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
     }
@@ -258,7 +258,7 @@ public class TaxService : ITaxService
     /// <param name="customer">Customer</param>
     /// <param name="storeId">Store ident</param>
     /// <returns>Tax providers</returns>
-    public virtual IList<ITaxProvider> LoadAllTaxProviders(Customer customer = null, string storeId = "")
+    public virtual IList<ITaxProvider> LoadAllTaxProviders(Customer? customer = null, string? storeId = "")
     {
         return _taxProviders
             .Where(x =>
@@ -295,8 +295,8 @@ public class TaxService : ITaxService
     /// <param name="store">Store</param>
     /// <param name="priceIncludesTax">A value indicating whether price already includes tax</param>
     /// <returns>Price</returns>
-    public virtual async Task<(double productprice, double taxRate)> GetProductPrice(Product product,
-        string taxCategoryId,
+    public virtual async Task<(double productprice, double taxRate)> GetProductPrice(Product? product,
+        string? taxCategoryId,
         double price, bool includingTax, Customer customer,
         Store store, bool priceIncludesTax)
     {
@@ -502,7 +502,7 @@ public class TaxService : ITaxService
     /// <param name="product">Product</param>
     /// <param name="customer">Customer</param>
     /// <returns>A value indicating whether a product is tax exempt</returns>
-    public virtual async Task<bool> IsTaxExempt(Product product, Customer customer)
+    public virtual async Task<bool> IsTaxExempt(Product? product, Customer? customer)
     {
         if (customer == null) return product is { IsTaxExempt: true };
         if (customer.IsTaxExempt)
@@ -521,7 +521,7 @@ public class TaxService : ITaxService
     /// <param name="address">Address</param>
     /// <param name="customer">Customer</param>
     /// <returns>Result</returns>
-    public virtual async Task<bool> IsVatExempt(Address address, Customer customer)
+    public virtual async Task<bool> IsVatExempt(Address? address, Customer? customer)
     {
         if (!_taxSettings.EuVatEnabled)
             return false;
@@ -530,6 +530,10 @@ public class TaxService : ITaxService
             return false;
 
         var country = await _countryService.GetCountryById(address.CountryId);
+        //a country that no longer exists gives no exemption
+        if (country == null)
+            return false;
+
         if (!country.SubjectToVat)
             // VAT not chargeable if shipping outside VAT zone
             return true;

@@ -35,9 +35,9 @@ public class ProductReviewService : IProductReviewService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Reviews</returns>
-    public virtual async Task<IPagedList<ProductReview>> GetAllProductReviews(string customerId, bool? approved,
+    public virtual async Task<IPagedList<ProductReview>> GetAllProductReviews(string? customerId, bool? approved,
         DateTime? fromUtc = null, DateTime? toUtc = null,
-        string message = null, string storeId = "", string productId = "", int pageIndex = 0,
+        string? message = null, string? storeId = "", string? productId = "", int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var query = from p in _productReviewRepository.Table
@@ -117,7 +117,7 @@ public class ProductReviewService : IProductReviewService
     /// </summary>
     /// <param name="productReviewId">Product review identifier</param>
     /// <returns>Product review</returns>
-    public virtual Task<ProductReview> GetProductReviewById(string productReviewId)
+    public virtual Task<ProductReview?> GetProductReviewById(string? productReviewId)
     {
         return _productReviewRepository.GetByIdAsync(productReviewId);
     }

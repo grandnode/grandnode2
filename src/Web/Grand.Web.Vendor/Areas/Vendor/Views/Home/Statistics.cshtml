@@ -1,4 +1,5 @@
-﻿@inject IContextAccessor contextAccessor
+﻿@using Grand.Web.AdminShared.Extensions
+@inject IContextAccessor contextAccessor
 @{
     //page title
     ViewBag.Title = Loc["Vendor.Dashboard.Statistics"];
@@ -10,7 +11,7 @@
             <h1 class="grand-dashboard__title">@Loc["Vendor.Dashboard.Statistics"]</h1>
             <p class="grand-dashboard__subtitle">
                 <i class="bi bi-person-badge" aria-hidden="true"></i>
-                <span>@contextAccessor.WorkContext.CurrentVendor.Name</span>
+                <span>@contextAccessor.WorkContext.PanelVendor().Name</span>
             </p>
         </div>
     </header>

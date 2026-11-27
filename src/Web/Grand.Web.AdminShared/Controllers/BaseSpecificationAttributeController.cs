@@ -186,7 +186,7 @@ public abstract class BaseSpecificationAttributeController(
     public async Task<IActionResult> OptionList(string specificationAttributeId, DataSourceRequest command)
     {
         var specificationAttribute = await specificationAttributeService.GetSpecificationAttributeById(specificationAttributeId);
-        if (!await scope.CanView(specificationAttribute))
+        if (specificationAttribute == null || !await scope.CanView(specificationAttribute))
             return Json("");
 
         var options = specificationAttribute.SpecificationAttributeOptions.OrderBy(x => x.DisplayOrder);
@@ -260,7 +260,7 @@ public abstract class BaseSpecificationAttributeController(
     public async Task<IActionResult> OptionEditPopup(SpecificationAttributeOptionModel model)
     {
         var specificationAttribute = await specificationAttributeService.GetSpecificationAttributeByOptionId(model.Id);
-        if (!await scope.HasAccess(specificationAttribute))
+        if (specificationAttribute == null || !await scope.HasAccess(specificationAttribute))
             return View("AccessDenied", translationService.GetResource("admin.catalog.attributes.specificationattributes.permissions"));
 
         var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == model.Id);
@@ -286,7 +286,7 @@ public abstract class BaseSpecificationAttributeController(
     public async Task<IActionResult> OptionDelete(string id)
     {
         var specificationAttribute = await specificationAttributeService.GetSpecificationAttributeByOptionId(id);
-        if (!await scope.HasAccess(specificationAttribute))
+        if (specificationAttribute == null || !await scope.HasAccess(specificationAttribute))
             return View("AccessDenied", translationService.GetResource("admin.catalog.attributes.specificationattributes.permissions"));
 
         if (ModelState.IsValid)

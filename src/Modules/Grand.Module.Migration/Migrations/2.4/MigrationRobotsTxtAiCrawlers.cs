@@ -54,7 +54,7 @@ public class MigrationRobotsTxtAiCrawlers : IMigration
         return true;
     }
 
-    public static string AddAiCrawlers(string text)
+    public static string? AddAiCrawlers(string? text)
     {
         if (string.IsNullOrEmpty(text)) return text;
 

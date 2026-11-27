@@ -281,7 +281,7 @@ public abstract class BaseCategoryController(
     public async Task<IActionResult> ProductList(DataSourceRequest command, string categoryId)
     {
         var category = await categoryService.GetCategoryById(categoryId);
-        if (!await scope.CanView(category)) return ErrorForKendoGridJson("This is not your category");
+        if (category == null || !await scope.CanView(category)) return ErrorForKendoGridJson("This is not your category");
 
         var productCategories = await categoryViewModelService.PrepareCategoryProductModel(categoryId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {

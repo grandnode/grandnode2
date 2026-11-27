@@ -35,7 +35,7 @@ public class LiquidShoppingCartItem : Drop
 
     public ShoppingCartType ShoppingCartType => _shoppingCartItem.ShoppingCartTypeId;
 
-    public string ProductName {
+    public string? ProductName {
         get {
             var name = "";
 
@@ -46,7 +46,7 @@ public class LiquidShoppingCartItem : Drop
         }
     }
 
-    public string ProductSeName {
+    public string? ProductSeName {
         get {
             var name = "";
 
@@ -56,7 +56,7 @@ public class LiquidShoppingCartItem : Drop
         }
     }
 
-    public string ProductShortDescription {
+    public string? ProductShortDescription {
         get {
             var desc = "";
 
@@ -67,7 +67,7 @@ public class LiquidShoppingCartItem : Drop
         }
     }
 
-    public string ProductFullDescription {
+    public string? ProductFullDescription {
         get {
             var desc = "";
 

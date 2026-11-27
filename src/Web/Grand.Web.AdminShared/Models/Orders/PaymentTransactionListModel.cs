@@ -8,13 +8,13 @@ namespace Grand.Web.AdminShared.Models.Orders;
 public class PaymentTransactionListModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.SearchCustomerEmail")]
-    public string SearchCustomerEmail { get; set; }
+    public string? SearchCustomerEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.SearchTransactionStatus")]
     public int SearchTransactionStatus { get; set; } = -1;
 
     [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.OrderNumber")]
-    public string OrderNumber { get; set; }
+    public string? OrderNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.StartDate")]
     [UIHint("DateNullable")]
@@ -25,10 +25,10 @@ public class PaymentTransactionListModel : BaseModel
     public DateTime? EndDate { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.PaymentMethod")]
-    public string PaymentMethodSystemName { get; set; }
+    public string? PaymentMethodSystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.PurchaseOrderNumber")]
-    public string PurchaseOrderNumber { get; set; }
+    public string? PurchaseOrderNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.OverdueOnly")]
     public bool OverdueOnly { get; set; }
@@ -36,7 +36,7 @@ public class PaymentTransactionListModel : BaseModel
     [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.ShowAbandoned")]
     public bool ShowAbandoned { get; set; }
 
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> PaymentTransactionStatus { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailablePaymentMethods { get; set; } = new List<SelectListItem>();

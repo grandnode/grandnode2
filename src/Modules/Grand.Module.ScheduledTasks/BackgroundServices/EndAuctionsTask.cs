@@ -71,7 +71,15 @@ public class EndAuctionsTask : IScheduleTask
                 continue;
             }
 
-            var warnings = (await _shoppingCartService.AddToCart(await _customerService.GetCustomerById(bid.CustomerId),
+            var bidder = await _customerService.GetCustomerById(bid.CustomerId);
+            if (bidder == null)
+            {
+                _logger.LogWarning("EndAuctionTask - Product {Name} - the customer of the highest bid does not exist",
+                    auctionToEnd.Name);
+                continue;
+            }
+
+            var warnings = (await _shoppingCartService.AddToCart(bidder,
                 language,
                 bid.ProductId, ShoppingCartType.Auctions,
                 bid.StoreId, bid.WarehouseId, customerEnteredPrice: bid.Amount,

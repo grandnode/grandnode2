@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Catalog;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +36,7 @@ public class RoutedReportDataScope(
         }
     }
 
-    public string StoreId => Resolved.StoreId;
+    public string? StoreId => Resolved.StoreId;
     public string VendorId => Resolved.VendorId;
     public bool ShowStoreSelector => Resolved.ShowStoreSelector;
     public bool ShowVendorSelector => Resolved.ShowVendorSelector;

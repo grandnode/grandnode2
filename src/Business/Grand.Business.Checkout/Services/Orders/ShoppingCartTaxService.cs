@@ -76,11 +76,9 @@ public class ShoppingCartTaxService : IShoppingCartTaxService
         var customer = context.Customer;
         var store = context.Store;
 
-        var paymentMethodSystemName = "";
-        if (customer != null)
-            paymentMethodSystemName = customer.GetUserFieldFromEntity<string>(
-                SystemCustomerFieldNames.SelectedPaymentMethod,
-                context.Store.Id);
+        var paymentMethodSystemName = customer.GetUserFieldFromEntity<string>(
+            SystemCustomerFieldNames.SelectedPaymentMethod,
+            context.Store.Id) ?? "";
 
         //order sub total (items + checkout attributes)
         double subTotalTaxTotal = 0;

@@ -32,7 +32,7 @@ public class TokenController : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var claims = new Dictionary<string, string> {
+        var claims = new Dictionary<string, string?> {
             { "Email", model.Email }
         };
         var user = await _userApiService.GetUserByEmail(model.Email);

@@ -80,7 +80,7 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
         string customerAttributeId)
     {
         var values = (await _customerAttributeService.GetCustomerAttributeById(customerAttributeId))
-            .CustomerAttributeValues;
+            ?.CustomerAttributeValues ?? [];
         return values.Select(x => new CustomerAttributeValueModel {
             Id = x.Id,
             CustomerAttributeId = x.CustomerAttributeId,
@@ -111,13 +111,15 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
 
     public virtual async Task DeleteCustomerAttribute(string id)
     {
-        var customerAttribute = await _customerAttributeService.GetCustomerAttributeById(id);
+        var customerAttribute = await _customerAttributeService.GetCustomerAttributeById(id)
+                                ?? throw new ArgumentException("No customer attribute found with the specified id");
         await _customerAttributeService.DeleteCustomerAttribute(customerAttribute);
     }
 
     public virtual async Task DeleteCustomerAttributeValue(CustomerAttributeValueModel model)
     {
-        var av = await _customerAttributeService.GetCustomerAttributeById(model.CustomerAttributeId);
+        var av = await _customerAttributeService.GetCustomerAttributeById(model.CustomerAttributeId)
+                 ?? throw new ArgumentException("No customer attribute found with the specified id");
         var cav = av.CustomerAttributeValues.FirstOrDefault(x => x.Id == model.Id);
         if (cav == null)
             throw new ArgumentException("No customer attribute value found with the specified id");

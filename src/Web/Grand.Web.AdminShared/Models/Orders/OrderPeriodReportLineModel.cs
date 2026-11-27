@@ -6,7 +6,7 @@ namespace Grand.Web.AdminShared.Models.Orders;
 public class OrderPeriodReportLineModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Reports.Period.Name")]
-    public string Period { get; set; }
+    public string? Period { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.Period.Count")]
     public int Count { get; set; }

@@ -16,6 +16,7 @@ public class AddProductSpecificationCommandHandler : IRequestHandler<AddProductS
 
     public async Task<bool> Handle(AddProductSpecificationCommand request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
         //we allow filtering only for "Option" attribute type
         if (request.Model.AttributeTypeId != SpecificationAttributeType.Option)
         {

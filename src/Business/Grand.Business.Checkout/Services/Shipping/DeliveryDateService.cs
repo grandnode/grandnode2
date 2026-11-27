@@ -43,7 +43,7 @@ public class DeliveryDateService : IDeliveryDateService
     /// </summary>
     /// <param name="deliveryDateId">The delivery date identifier</param>
     /// <returns>Delivery date</returns>
-    public virtual Task<DeliveryDate> GetDeliveryDateById(string deliveryDateId)
+    public virtual Task<DeliveryDate?> GetDeliveryDateById(string? deliveryDateId)
     {
         var key = string.Format(CacheKey.DELIVERYDATE_BY_ID_KEY, deliveryDateId);
         return _cacheBase.GetAsync(key, () => _deliveryDateRepository.GetByIdAsync(deliveryDateId));
@@ -56,7 +56,7 @@ public class DeliveryDateService : IDeliveryDateService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Delivery dates</returns>
-    public virtual async Task<IPagedList<DeliveryDate>> GetAllDeliveryDates(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
+    public virtual async Task<IPagedList<DeliveryDate>> GetAllDeliveryDates(string? storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = _deliveryDateRepository.Table;
         

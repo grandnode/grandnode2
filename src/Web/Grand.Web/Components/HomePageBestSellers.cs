@@ -58,7 +58,7 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
                         storeId: _contextAccessor.StoreContext.CurrentStore.Id,
                         pageSize: _catalogSettings.NumberOfBestsellersOnHomepage));
 
-            productIds = report.Select(x => x.ProductId).ToList();
+            productIds = report.Select(x => x.ProductId).OfType<string>().ToList();
         }
         else
         {

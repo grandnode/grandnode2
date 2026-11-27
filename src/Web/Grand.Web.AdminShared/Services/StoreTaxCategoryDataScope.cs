@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;

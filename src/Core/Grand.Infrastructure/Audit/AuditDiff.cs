@@ -1,5 +1,6 @@
 using Grand.Data.Audit;
 using Grand.Domain.Audit;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Grand.Infrastructure.Audit;
@@ -26,8 +27,8 @@ public static partial class AuditDiff
     ///     Lists the changed fields. <paramref name="before" /> is null for an insert, <paramref name="after" />
     ///     is null for a delete (which lists nothing).
     /// </summary>
-    public static IList<AuditChange> Compare(string entityType, IDictionary<string, string> before,
-        IDictionary<string, string> after, ISet<string> ignoredPaths)
+    public static IList<AuditChange> Compare(string entityType, IDictionary<string, string>? before,
+        IDictionary<string, string>? after, ISet<string> ignoredPaths)
     {
         var changes = new List<AuditChange>();
         if (after == null)
@@ -52,7 +53,7 @@ public static partial class AuditDiff
         return changes;
     }
 
-    private static string ValueOf(IDictionary<string, string> snapshot, string path)
+    private static string? ValueOf(IDictionary<string, string> snapshot, string path)
     {
         return snapshot.TryGetValue(path, out var value) && !string.IsNullOrEmpty(value) ? value : null;
     }
@@ -67,7 +68,7 @@ public static partial class AuditDiff
     /// <summary>
     ///     A change of one path, its values cut to <see cref="MaxValueLength" /> and marked when they were
     /// </summary>
-    public static AuditChange Change(string path, string oldValue, string newValue)
+    public static AuditChange Change(string path, string? oldValue, string? newValue)
     {
         var change = new AuditChange {
             Path = path,
@@ -78,9 +79,10 @@ public static partial class AuditDiff
         return change;
     }
 
-    private static string Truncate(string value, out bool truncated)
+    [return: NotNullIfNotNull(nameof(value))]
+    private static string? Truncate(string? value, out bool truncated)
     {
         truncated = value is { Length: > MaxValueLength };
-        return truncated ? value[..MaxValueLength] : value;
+        return value is { Length: > MaxValueLength } ? value[..MaxValueLength] : value;
     }
 }

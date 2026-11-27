@@ -38,7 +38,7 @@ public class CourseLessonService : ICourseLessonService
         return await _courseLessonRepository.ToListAsync(query);
     }
 
-    public virtual Task<CourseLesson> GetById(string id)
+    public virtual Task<CourseLesson?> GetById(string? id)
     {
         return _courseLessonRepository.GetByIdAsync(id);
     }

@@ -44,7 +44,7 @@ public class PluginController(
         if (PluginInfo.IsActive)
         {
             var pluginInstance = PluginInfo.Instance(serviceProvider);
-            pluginModel.ConfigurationUrl = pluginInstance.ConfigurationUrl();
+            pluginModel.ConfigurationUrl = pluginInstance?.ConfigurationUrl();
         }
 
         return pluginModel;
@@ -145,7 +145,7 @@ public class PluginController(
     [HttpPost]
     public IActionResult ListSelect(DataSourceRequest command, PluginListModel model)
     {
-        var pluginInfos = PluginManager.ReferencedPlugins.ToList();
+        var pluginInfos = PluginManager.ReferencedPlugins?.ToList() ?? [];
         var loadMode = (LoadPluginsStatus)model.SearchLoadModeId;
         switch (loadMode)
         {
@@ -175,7 +175,7 @@ public class PluginController(
 
         try
         {
-            var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
+            var pluginInfo = PluginManager.ReferencedPlugins?.FirstOrDefault(x => x.SystemName == systemName);
             if (pluginInfo == null)
                 //No plugin found with the specified id
                 return RedirectToAction("List");
@@ -194,7 +194,8 @@ public class PluginController(
                 return RedirectToAction("List");
 
             //install plugin
-            var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
+            var plugin = pluginInfo.Instance<IPlugin>(serviceProvider)
+                         ?? throw new InvalidOperationException($"Plugin {systemName} could not be created");
             await plugin.Install();
             await auditEventRecorder.Plugin(systemName, "installed");
 
@@ -219,7 +220,7 @@ public class PluginController(
 
         try
         {
-            var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
+            var pluginInfo = PluginManager.ReferencedPlugins?.FirstOrDefault(x => x.SystemName == systemName);
             if (pluginInfo == null)
                 //No plugin found with the specified id
                 return RedirectToAction("List");
@@ -237,7 +238,7 @@ public class PluginController(
             PluginManager.LoadForInstall(pluginInfo);
             if (pluginInfo.LoadError != null)
             {
-                await Grand.Infrastructure.Plugins.PluginExtensions.MarkPluginAsUninstalled(pluginInfo.SystemName);
+                await Grand.Infrastructure.Plugins.PluginExtensions.MarkPluginAsUninstalled(systemName);
                 //it never ran: the list shows it uninstalled, and removable, right away
                 pluginInfo.Installed = false;
                 await auditEventRecorder.Plugin(systemName, "uninstalled");
@@ -246,7 +247,8 @@ public class PluginController(
             }
             else
             {
-                var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
+                var plugin = pluginInfo.Instance<IPlugin>(serviceProvider)
+                             ?? throw new InvalidOperationException($"Plugin {systemName} could not be created");
                 await plugin.Uninstall();
                 await auditEventRecorder.Plugin(systemName, "uninstalled");
 
@@ -276,9 +278,9 @@ public class PluginController(
         try
         {
             //by folder too: two folders may declare one system name, and only the chosen one is removed
-            var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName
+            var pluginInfo = PluginManager.ReferencedPlugins?.FirstOrDefault(x => x.SystemName == systemName
                 && x.FolderName != null && string.Equals(x.FolderName, folderName, StringComparison.OrdinalIgnoreCase));
-            if (pluginInfo == null)
+            if (pluginInfo?.FolderName is not { } pluginFolder)
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
@@ -289,7 +291,7 @@ public class PluginController(
                 return RedirectToAction("List");
             }
 
-            DeleteDirectory(Path.Combine(PluginsPath, pluginInfo.FolderName));
+            DeleteDirectory(Path.Combine(PluginsPath, pluginFolder));
             await auditEventRecorder.Plugin(systemName, "removed");
 
             Success(translationService.GetResource("Admin.Plugins.Removed.AfterRestart"));

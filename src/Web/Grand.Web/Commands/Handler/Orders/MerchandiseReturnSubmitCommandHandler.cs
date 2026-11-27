@@ -107,11 +107,12 @@ public class MerchandiseReturnSubmitCommandHandler
         if (request.Photos == null || !_orderSettings.MerchandiseReturns_AllowToUploadFiles)
             return;
 
-        foreach (var item in merchandiseReturn.MerchandiseReturnItems.Where(x =>
-                     request.Photos.ContainsKey(x.OrderItemId)))
+        foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
-            string productName = null;
-            foreach (var photo in request.Photos[item.OrderItemId])
+            if (!request.Photos.TryGetValue(item.OrderItemId, out var photos))
+                continue;
+            string? productName = null;
+            foreach (var photo in photos)
                 try
                 {
                     productName ??= await ProductName(request.Order, item.OrderItemId);

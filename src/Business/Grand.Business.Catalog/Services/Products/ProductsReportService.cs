@@ -32,7 +32,7 @@ public class ProductsReportService : IProductsReportService
     /// <param name="storeId">Store identifier</param>
     /// <returns>Result</returns>
     public virtual async Task<(IList<Product> products, IList<ProductsAttributeCombination> combinations)>
-        LowStockProducts(string vendorId = "", string storeId = "")
+        LowStockProducts(string vendorId = "", string? storeId = "")
     {
         //Track inventory for product
         //simple products
@@ -55,7 +55,7 @@ public class ProductsReportService : IProductsReportService
             where
                 p.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes &&
                 (vendorId == "" || p.VendorId == vendorId) &&
-                (storeId == "" || p.Stores.Contains(storeId))
+                (storeId == "" || storeId != null && p.Stores.Contains(storeId))
             from c in p.ProductAttributeCombinations
             select new ProductsAttributeCombination {
                 ProductId = p.Id,

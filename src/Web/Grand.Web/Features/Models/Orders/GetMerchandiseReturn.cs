@@ -9,12 +9,12 @@ namespace Grand.Web.Features.Models.Orders;
 
 public class GetMerchandiseReturn : IRequest<MerchandiseReturnModel>
 {
-    public Order Order { get; set; }
-    public Language Language { get; set; }
-    public Domain.Stores.Store Store { get; set; }
+    public required Order Order { get; set; }
+    public required Language Language { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
 
     /// <summary>
     ///     The customer returning the items, whose addresses are offered for the pickup
     /// </summary>
-    public Customer Customer { get; set; }
+    public required Customer Customer { get; set; }
 }

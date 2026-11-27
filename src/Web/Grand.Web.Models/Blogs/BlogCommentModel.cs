@@ -4,11 +4,11 @@ namespace Grand.Web.Models.Blogs;
 
 public class BlogCommentModel : BaseEntityModel
 {
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
-    public string CustomerName { get; set; }
+    public string? CustomerName { get; set; }
 
-    public string CommentText { get; set; }
+    public string? CommentText { get; set; }
 
     public DateTime CreatedOn { get; set; }
 }

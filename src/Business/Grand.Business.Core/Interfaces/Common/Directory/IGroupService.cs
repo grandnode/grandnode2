@@ -91,14 +91,14 @@ public interface IGroupService
     /// </summary>
     /// <param name="customerGroupId">Customer group identifier</param>
     /// <returns>Customer group</returns>
-    Task<CustomerGroup> GetCustomerGroupById(string customerGroupId);
+    Task<CustomerGroup?> GetCustomerGroupById(string? customerGroupId);
 
     /// <summary>
     ///     Gets a customer group
     /// </summary>
     /// <param name="systemName">Customer group system name</param>
     /// <returns>Customer group</returns>
-    Task<CustomerGroup> GetCustomerGroupBySystemName(string systemName);
+    Task<CustomerGroup?> GetCustomerGroupBySystemName(string systemName);
 
     /// <summary>
     ///     Gets all customer groups
@@ -111,6 +111,6 @@ public interface IGroupService
     ///     Gets all customer groups
     /// </summary>
     /// <returns>Customer groups</returns>
-    Task<IPagedList<CustomerGroup>> GetAllCustomerGroups(string name = "", int pageIndex = 0,
+    Task<IPagedList<CustomerGroup>> GetAllCustomerGroups(string? name = "", int pageIndex = 0,
         int pageSize = int.MaxValue, bool showHidden = false);
 }

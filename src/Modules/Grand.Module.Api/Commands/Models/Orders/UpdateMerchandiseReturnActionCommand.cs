@@ -3,7 +3,7 @@ using Grand.Module.Api.DTOs.Orders;
 
 namespace Grand.Module.Api.Commands.Models.Orders;
 
-public class UpdateMerchandiseReturnActionCommand : IRequest<MerchandiseReturnActionDto>
+public class UpdateMerchandiseReturnActionCommand : IRequest<MerchandiseReturnActionDto?>
 {
-    public MerchandiseReturnActionDto Model { get; set; }
+    public required MerchandiseReturnActionDto Model { get; set; }
 }

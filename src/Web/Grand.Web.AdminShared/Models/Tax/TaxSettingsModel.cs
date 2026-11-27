@@ -7,7 +7,7 @@ namespace Grand.Web.AdminShared.Models.Tax;
 
 public class TaxSettingsModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.PricesIncludeTax")]
@@ -19,7 +19,7 @@ public class TaxSettingsModel : BaseModel
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.TaxDisplayType")]
     public int TaxDisplayType { get; set; }
 
-    public SelectList TaxDisplayTypeValues { get; set; }
+    public SelectList? TaxDisplayTypeValues { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.DisplayTaxRates")]
     public bool DisplayTaxRates { get; set; }
@@ -36,13 +36,13 @@ public class TaxSettingsModel : BaseModel
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.TaxBasedOn")]
     public int TaxBasedOn { get; set; }
 
-    public SelectList TaxBasedOnValues { get; set; }
+    public SelectList? TaxBasedOnValues { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.DefaultTaxAddress")]
     public AddressModel DefaultTaxAddress { get; set; } = new();
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.DefaultTaxCategory")]
-    public string DefaultTaxCategoryId { get; set; }
+    public string? DefaultTaxCategoryId { get; set; }
 
     public IList<SelectListItem> TaxCategories { get; set; } = new List<SelectListItem>();
 
@@ -53,7 +53,7 @@ public class TaxSettingsModel : BaseModel
     public bool ShippingPriceIncludesTax { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.ShippingTaxCategory")]
-    public string ShippingTaxCategoryId { get; set; }
+    public string? ShippingTaxCategoryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.PaymentMethodAdditionalFeeIsTaxable")]
     public bool PaymentMethodAdditionalFeeIsTaxable { get; set; }
@@ -62,13 +62,13 @@ public class TaxSettingsModel : BaseModel
     public bool PaymentMethodAdditionalFeeIncludesTax { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.PaymentMethodAdditionalFeeTaxCategory")]
-    public string PaymentMethodAdditionalFeeTaxCategoryId { get; set; }
+    public string? PaymentMethodAdditionalFeeTaxCategoryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.EuVatEnabled")]
     public bool EuVatEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.EuVatShopCountry")]
-    public string EuVatShopCountryId { get; set; }
+    public string? EuVatShopCountryId { get; set; }
 
     public IList<SelectListItem> EuVatShopCountries { get; set; } = new List<SelectListItem>();
 

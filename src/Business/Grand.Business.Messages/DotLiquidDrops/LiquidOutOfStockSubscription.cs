@@ -7,7 +7,7 @@ namespace Grand.Business.Messages.DotLiquidDrops;
 
 public class LiquidOutOfStockSubscription : Drop
 {
-    private readonly DomainHost _host;
+    private readonly DomainHost? _host;
     private readonly Language _language;
     private readonly OutOfStockSubscription _outOfStockSubscription;
     private readonly Product _product;
@@ -28,9 +28,9 @@ public class LiquidOutOfStockSubscription : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string ProductName => _product.Name;
+    public string? ProductName => _product.Name;
 
-    public string AttributeInfo => _outOfStockSubscription.AttributeInfo;
+    public string? AttributeInfo => _outOfStockSubscription.AttributeInfo;
 
     public string ProductUrl => $"{url}/{_product.SeName}";
 

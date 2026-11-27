@@ -11,7 +11,7 @@ public class InventoryJournalService(
     IRepository<Product> productRepository) : IInventoryJournalService
 {
     public Task<IPagedList<InventoryJournal>> GetProductHistory(string productId, string warehouseId,
-        DateTime? fromUtc, DateTime? toUtc, IList<string> storeIds, int pageIndex, int pageSize)
+        DateTime? fromUtc, DateTime? toUtc, IList<string>? storeIds, int pageIndex, int pageSize)
     {
         var query = inventoryJournalRepository.Table.Where(x => x.ProductId == productId);
         if (!string.IsNullOrEmpty(warehouseId))
@@ -23,8 +23,8 @@ public class InventoryJournalService(
         //an entry written before entries named their store belongs to no store, like a shared warehouse
         if (storeIds != null)
             query = storeIds.Contains("")
-                ? query.Where(x => storeIds.Contains(x.StoreId) || x.StoreId == null)
-                : query.Where(x => storeIds.Contains(x.StoreId));
+                ? query.Where(x => x.StoreId != null && storeIds.Contains(x.StoreId) || x.StoreId == null)
+                : query.Where(x => x.StoreId != null && storeIds.Contains(x.StoreId));
 
         return inventoryJournalRepository.PagedAsync(
             query.OrderByDescending(x => x.CreateDateUtc).ThenByDescending(x => x.StockRevision), pageIndex,
@@ -32,7 +32,7 @@ public class InventoryJournalService(
     }
 
     public async Task<(IList<StockAtDateRow> Rows, int ProductCount)> GetStockAtDate(string warehouseId,
-        DateTime atUtc, string storeId, int pageIndex, int pageSize)
+        DateTime atUtc, string? storeId, int pageIndex, int pageSize)
     {
         ArgumentException.ThrowIfNullOrEmpty(warehouseId);
 

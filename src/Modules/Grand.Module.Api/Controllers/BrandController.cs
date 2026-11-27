@@ -47,10 +47,10 @@ public class BrandController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
 
-        var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
-        if (!brand.Any()) return NotFound();
+        var brand = (await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key))).FirstOrDefault();
+        if (brand == null) return NotFound();
 
-        return Ok(brand.FirstOrDefault());
+        return Ok(brand);
     }
 
     [EndpointDescription("Add new entity to Brand")]
@@ -73,12 +73,16 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] BrandDto model)
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        model = await _mediator.Send(new UpdateBrandCommand { Model = model });
-        return Ok(model);
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
+        var updated = await _mediator.Send(new UpdateBrandCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Partially update entity in Brand")]
@@ -102,10 +106,10 @@ public class BrandController : BaseApiController
 
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
-        if (!brand.Any()) return NotFound();
+        var brand = (await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key))).FirstOrDefault();
+        if (brand == null) return NotFound();
 
-        var man = brand.FirstOrDefault();
+        var man = brand;
         model.ApplyTo(man);
         await _mediator.Send(new UpdateBrandCommand { Model = man });
         return Ok();
@@ -121,10 +125,10 @@ public class BrandController : BaseApiController
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
-        if (!brand.Any()) return NotFound();
+        var brand = (await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key))).FirstOrDefault();
+        if (brand == null) return NotFound();
 
-        await _mediator.Send(new DeleteBrandCommand { Model = brand.FirstOrDefault() });
+        await _mediator.Send(new DeleteBrandCommand { Model = brand });
         return Ok();
     }
 }

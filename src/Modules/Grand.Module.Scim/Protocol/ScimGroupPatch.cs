@@ -15,10 +15,10 @@ public class ScimGroupChanges
     public bool MembersChanged { get; set; }
 
     /// <summary>New name; null keeps it</summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 
     /// <summary>New externalId; null keeps it</summary>
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 }
 
 /// <summary>
@@ -30,7 +30,7 @@ public static partial class ScimGroupPatch
     [GeneratedRegex("""^members\[value eq "((?:[^"\\]|\\.)*)"\]$""", RegexOptions.IgnoreCase)]
     private static partial Regex MemberPath();
 
-    public static bool TryApply(IList<ScimPatchOperation> operations, out ScimGroupChanges changes, out string error)
+    public static bool TryApply(IList<ScimPatchOperation> operations, out ScimGroupChanges changes, out string? error)
     {
         changes = new ScimGroupChanges();
         error = null;
@@ -176,7 +176,8 @@ public static partial class ScimGroupPatch
             .Where(x => x.ValueKind == JsonValueKind.Object && x.TryGetProperty("value", out var v) &&
                         v.ValueKind == JsonValueKind.String)
             .Select(x => x.GetProperty("value").GetString())
-            .Where(x => !string.IsNullOrEmpty(x))
+            .OfType<string>()
+            .Where(x => x.Length > 0)
             .ToList();
     }
 }

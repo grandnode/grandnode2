@@ -10,7 +10,7 @@ public class CountryModel : BaseEntityModel, ILocalizedModel<CountryLocalizedMod
 {
     [GrandResourceDisplayName("Admin.Configuration.Countries.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Countries.Fields.AllowsBilling")]
     public bool AllowsBilling { get; set; }
@@ -20,11 +20,11 @@ public class CountryModel : BaseEntityModel, ILocalizedModel<CountryLocalizedMod
 
     [GrandResourceDisplayName("Admin.Configuration.Countries.Fields.TwoLetterIsoCode")]
 
-    public string TwoLetterIsoCode { get; set; }
+    public string? TwoLetterIsoCode { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Countries.Fields.ThreeLetterIsoCode")]
 
-    public string ThreeLetterIsoCode { get; set; }
+    public string? ThreeLetterIsoCode { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Countries.Fields.NumericIsoCode")]
     public int NumericIsoCode { get; set; }
@@ -47,14 +47,14 @@ public class CountryModel : BaseEntityModel, ILocalizedModel<CountryLocalizedMod
     //Store acl
     [GrandResourceDisplayName("Admin.Configuration.Countries.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }
 
 public class CountryLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Configuration.Countries.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

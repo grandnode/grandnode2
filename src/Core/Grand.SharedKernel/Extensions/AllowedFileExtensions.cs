@@ -2,7 +2,7 @@
 
 public static class FileExtensions
 {
-    public static IList<string> GetAllowedMediaFileTypes(string allowedFileTypes)
+    public static IList<string> GetAllowedMediaFileTypes(string? allowedFileTypes)
     {
         if (string.IsNullOrEmpty(allowedFileTypes))
             return new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
@@ -10,7 +10,7 @@ public static class FileExtensions
         return allowedFileTypes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(x => x.ToLowerInvariant()).ToList();
     }
-    public static bool IsAllowedMediaFileType(this IEnumerable<string> allowedFileTypes, string fileExtension)
+    public static bool IsAllowedMediaFileType(this IEnumerable<string> allowedFileTypes, string? fileExtension)
     {
         return !string.IsNullOrEmpty(fileExtension) &&
                allowedFileTypes.Any(ft => ft.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));

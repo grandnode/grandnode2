@@ -15,7 +15,7 @@ public interface IMerchandiseReturnLabelService
     ///     note for the staff, and is not an error of the call
     /// </summary>
     /// <returns>null when done or there is nothing to do, else a key of MerchandiseReturnErrors</returns>
-    Task<string> CreateLabel(string merchandiseReturnId);
+    Task<string?> CreateLabel(string merchandiseReturnId);
 
     /// <summary>
     ///     Cancels a created label once the return is rejected or cancelled; best effort: a label the provider did
@@ -34,6 +34,6 @@ public interface IMerchandiseReturnLabelService
     ///     number typed in while the staff marked the return received
     /// </param>
     /// <returns>null when saved, else a key of MerchandiseReturnErrors (ShippingChangeNotAllowed when not allowed)</returns>
-    Task<string> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply,
-        Func<MerchandiseReturn, bool> allowed = null);
+    Task<string?> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply,
+        Func<MerchandiseReturn, bool>? allowed = null);
 }

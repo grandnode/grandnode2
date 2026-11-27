@@ -31,7 +31,7 @@ public class ContactAttributeViewModelService(
         });
     }
 
-    public virtual async Task PrepareConditionAttributes(ContactAttributeModel model, ContactAttribute contactAttribute)
+    public virtual async Task PrepareConditionAttributes(ContactAttributeModel model, ContactAttribute? contactAttribute)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -154,7 +154,7 @@ public class ContactAttributeViewModelService(
                         var selectedAttribute = model.ConditionModel.ConditionAttributes
                             .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
                         var selectedValues = selectedAttribute?.Values.Where(x => x.Selected).Select(x => x.Value);
-                        if (selectedValues.Any())
+                        if (selectedValues != null && selectedValues.Any())
                             foreach (var value in selectedValues)
                                 customattributes = contactAttributeParser
                                     .AddContactAttribute(customattributes, attribute, value).ToList();

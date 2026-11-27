@@ -21,7 +21,7 @@ public interface IPushNotificationsService
     ///     Gets push receiver
     /// </summary>
     /// <param name="customerId"></param>
-    Task<PushRegistration> GetPushReceiverByCustomerId(string customerId);
+    Task<PushRegistration?> GetPushReceiverByCustomerId(string customerId);
 
     /// <summary>
     ///     Gets all push receivers
@@ -32,7 +32,7 @@ public interface IPushNotificationsService
     ///     Gets all push receivers
     /// </summary>
     /// <param name="id"></param>
-    Task<PushRegistration> GetPushReceiver(string id);
+    Task<PushRegistration?> GetPushReceiver(string id);
 
     /// <summary>
     ///     Gets number of customers that accepted push notifications permission popup
@@ -76,8 +76,8 @@ public interface IPushNotificationsService
     /// <param name="clickUrl"></param>
     /// <param name="cancellationToken">Cancels the request to the push service</param>
     /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
-    Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl, string clickUrl,
-        List<string> registrationIds = null, CancellationToken cancellationToken = default);
+    Task<(bool, string)> SendPushNotification(string? title, string? text, string? pictureUrl, string? clickUrl,
+        List<string>? registrationIds = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Sends push notification to all receivers

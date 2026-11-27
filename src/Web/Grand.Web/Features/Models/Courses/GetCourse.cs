@@ -8,7 +8,7 @@ namespace Grand.Web.Features.Models.Courses;
 
 public class GetCourse : IRequest<CourseModel>
 {
-    public Customer Customer { get; set; }
-    public Language Language { get; set; }
-    public Course Course { get; set; }
+    public required Customer Customer { get; set; }
+    public required Language Language { get; set; }
+    public required Course Course { get; set; }
 }

@@ -5,7 +5,7 @@ namespace Grand.Web.AdminShared.Models.Customers;
 
 public class CustomerAddressModel : BaseModel
 {
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
-    public AddressModel Address { get; set; }
+    public AddressModel Address { get; set; } = new();
 }

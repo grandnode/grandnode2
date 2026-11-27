@@ -12,11 +12,11 @@ namespace Grand.Web.Features.Models.Orders;
 /// </summary>
 public class GetMerchandiseReturnEstimate : IRequest<MerchandiseReturnEstimateModel>
 {
-    public Order Order { get; set; }
-    public MerchandiseReturnModel Model { get; set; }
-    public Address PickupAddress { get; set; }
-    public Customer Customer { get; set; }
-    public Language Language { get; set; }
+    public required Order Order { get; set; }
+    public required MerchandiseReturnModel Model { get; set; }
+    public Address? PickupAddress { get; set; }
+    public required Customer Customer { get; set; }
+    public required Language Language { get; set; }
 
     /// <summary>
     ///     The fields posted with the form; those of the chosen return method's form go under the "returnshipping."

@@ -25,7 +25,7 @@ public abstract class BaseApiController : ControllerBase
     ///     Customer of the current request
     /// </summary>
     protected Customer CurrentCustomer =>
-        HttpContext.RequestServices.GetRequiredService<IContextAccessor>().WorkContext?.CurrentCustomer;
+        HttpContext.RequestServices.GetRequiredService<IContextAccessor>().WorkContext.CurrentCustomer;
 
     public override ForbidResult Forbid()
     {

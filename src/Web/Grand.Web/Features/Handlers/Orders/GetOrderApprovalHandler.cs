@@ -10,7 +10,7 @@ using Grand.Web.Models.Orders;
 
 namespace Grand.Web.Features.Handlers.Orders;
 
-public class GetOrderApprovalHandler : IRequestHandler<GetOrderApproval, OrderApprovalModel>
+public class GetOrderApprovalHandler : IRequestHandler<GetOrderApproval, OrderApprovalModel?>
 {
     private readonly ICustomerService _customerService;
     private readonly IDateTimeService _dateTimeService;
@@ -28,7 +28,7 @@ public class GetOrderApprovalHandler : IRequestHandler<GetOrderApproval, OrderAp
         _enumTranslationService = enumTranslationService;
     }
 
-    public async Task<OrderApprovalModel> Handle(GetOrderApproval request, CancellationToken cancellationToken)
+    public async Task<OrderApprovalModel?> Handle(GetOrderApproval request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request.Customer);
         ArgumentNullException.ThrowIfNull(request.Store);

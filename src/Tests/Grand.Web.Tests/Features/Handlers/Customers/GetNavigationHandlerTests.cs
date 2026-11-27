@@ -40,7 +40,7 @@ public class GetNavigationHandlerTests
     {
         var handler = new GetNavigationHandler(new CustomerSettings(), new LoyaltyPointsSettings(),
             new OrderSettings(), new VendorSettings(), config, CustomerServiceWith(0).Object, RecurringPaymentsWith(0).Object);
-        var model = await handler.Handle(new GetNavigation { Customer = new Customer() }, CancellationToken.None);
+        var model = await handler.Handle(new GetNavigation { Language = new Grand.Domain.Localization.Language(), Store = new Grand.Domain.Stores.Store(), Customer = new Customer() }, CancellationToken.None);
         return model.HideChangePassword;
     }
 
@@ -63,7 +63,7 @@ public class GetNavigationHandlerTests
         var handler = new GetNavigationHandler(new CustomerSettings { HideSubAccountsTab = featureOff },
             new LoyaltyPointsSettings(), new OrderSettings(), new VendorSettings(), new OidcLoginConfig(),
             customers.Object, RecurringPaymentsWith(0).Object);
-        var model = await handler.Handle(new GetNavigation { Customer = customer }, CancellationToken.None);
+        var model = await handler.Handle(new GetNavigation { Language = new Grand.Domain.Localization.Language(), Store = new Grand.Domain.Stores.Store(), Customer = customer }, CancellationToken.None);
         return model.HideOrderApprovals;
     }
 
@@ -97,7 +97,7 @@ public class GetNavigationHandlerTests
         var handler = new GetNavigationHandler(new CustomerSettings { HideRecurringPaymentsTab = featureOff },
             new LoyaltyPointsSettings(), new OrderSettings(), new VendorSettings(), new OidcLoginConfig(),
             CustomerServiceWith(0).Object, RecurringPaymentsWith(recurringPayments).Object);
-        var model = await handler.Handle(new GetNavigation {
+        var model = await handler.Handle(new GetNavigation { Language = new Grand.Domain.Localization.Language(),
             Customer = new Customer { Id = "c1" },
             Store = withStore ? new Grand.Domain.Stores.Store { Id = "s1" } : null
         }, CancellationToken.None);

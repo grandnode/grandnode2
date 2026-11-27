@@ -7,9 +7,9 @@ namespace Grand.Web.Models.Orders;
 
 public class MerchandiseReturnModel : BaseModel
 {
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
     public int OrderNumber { get; set; }
-    public string OrderCode { get; set; }
+    public string? OrderCode { get; set; }
     public IList<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
 
     public IList<MerchandiseReturnReasonModel> AvailableReturnReasons { get; set; } =
@@ -19,20 +19,20 @@ public class MerchandiseReturnModel : BaseModel
         new List<MerchandiseReturnActionModel>();
 
     [GrandResourceDisplayName("MerchandiseReturns.Comments")]
-    public string Comments { get; set; }
+    public string? Comments { get; set; }
 
     public DateTime? PickupDate { get; set; }
 
-    public string Result { get; set; }
+    public string? Result { get; set; }
 
-    public string Error { get; set; }
+    public string? Error { get; set; }
 
     public IList<AddressModel> ExistingAddresses { get; set; } = new List<AddressModel>();
 
     public bool NewAddressPreselected { get; set; }
 
     public AddressModel MerchandiseReturnNewAddress { get; set; } = new();
-    public string PickupAddressId { get; set; }
+    public string? PickupAddressId { get; set; }
     public bool ShowPickupAddress { get; set; }
 
     public bool ShowPickupDate { get; set; }
@@ -70,42 +70,42 @@ public class MerchandiseReturnModel : BaseModel
     /// <summary>
     ///     The return method chosen: the system name of its provider
     /// </summary>
-    public string ReturnShippingProvider { get; set; }
+    public string? ReturnShippingProvider { get; set; }
 
     /// <summary>
     ///     The return method chosen: the code of the provider's option
     /// </summary>
-    public string ReturnShippingOption { get; set; }
+    public string? ReturnShippingOption { get; set; }
 
     #region Nested classes
 
     public class OrderItemModel : BaseEntityModel
     {
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
-        public string VendorId { get; set; }
-        public string VendorName { get; set; }
+        public string? VendorId { get; set; }
+        public string? VendorName { get; set; }
 
-        public string ProductSeName { get; set; }
+        public string? ProductSeName { get; set; }
 
-        public string AttributeInfo { get; set; }
+        public string? AttributeInfo { get; set; }
 
-        public string UnitPrice { get; set; }
+        public string? UnitPrice { get; set; }
         public bool IncludingTax { get; set; }
         public int Quantity { get; set; }
 
         [GrandResourceDisplayName("MerchandiseReturns.ReturnReason")]
-        public string MerchandiseReturnReasonId { get; set; }
+        public string? MerchandiseReturnReasonId { get; set; }
 
         [GrandResourceDisplayName("MerchandiseReturns.ReturnAction")]
-        public string MerchandiseReturnActionId { get; set; }
+        public string? MerchandiseReturnActionId { get; set; }
     }
 
     public class MerchandiseReturnReasonModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         ///     Whether an item returned for the reason needs a photo
@@ -115,7 +115,7 @@ public class MerchandiseReturnModel : BaseModel
 
     public class MerchandiseReturnActionModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     #endregion

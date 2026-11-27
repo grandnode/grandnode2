@@ -55,10 +55,10 @@ public interface IPluginStateStore
 /// <param name="LoadError">Why the plugin was rejected; null when it was not</param>
 public sealed record PluginState(
     string SystemName,
-    string FriendlyName,
-    string Version,
-    string FolderName,
-    string LoadError,
+    string? FriendlyName,
+    string? Version,
+    string? FolderName,
+    string? LoadError,
     DateTime LoadedOnUtc);
 
 /// <summary>

@@ -38,7 +38,7 @@ public abstract class BaseProductBundleController(
         // same kind of gap found in those two regions: Vendor's original BundleProductUpdate/Delete/
         // AddPopup(GET/POST) (below) had no ownership check at all - only List checked (via
         // CheckAccessToProduct) - letting any vendor mutate another vendor's bundle-product mappings by id.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var bundleProducts = product.BundleProducts.OrderBy(x => x.DisplayOrder);
@@ -65,7 +65,7 @@ public abstract class BaseProductBundleController(
     public async Task<IActionResult> BundleProductUpdate(ProductModel.BundleProductModel model)
     {
         var product = await productService.GetProductById(model.ProductBundleId);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -82,7 +82,7 @@ public abstract class BaseProductBundleController(
     public async Task<IActionResult> BundleProductDelete(ProductModel.BundleProductModel model)
     {
         var product = await productService.GetProductById(model.ProductBundleId);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -132,7 +132,7 @@ public abstract class BaseProductBundleController(
         // BundleProductAddPopup(POST) had no check at all, letting any vendor add bundle-product mappings
         // onto another vendor's product by posting its id - closed here the same way as the
         // List/Update/Delete gap above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)

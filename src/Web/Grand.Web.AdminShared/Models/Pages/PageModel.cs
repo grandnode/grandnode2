@@ -11,7 +11,7 @@ namespace Grand.Web.AdminShared.Models.Pages;
 public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, IGroupLinkModel, IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.SystemName")]
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.IncludeInSitemap")]
     public bool IncludeInSitemap { get; set; }
@@ -42,40 +42,40 @@ public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, I
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.Password")]
     [DataType(DataType.Password)]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.URL")]
 
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.Title")]
 
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.Body")]
     [SanitizeHtml]
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.PageLayout")]
-    public string PageLayoutId { get; set; }
+    public string? PageLayoutId { get; set; }
 
     public IList<SelectListItem> AvailablePageLayouts { get; set; } = new List<SelectListItem>();
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaKeywords")]
     [NoHtml]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaDescription")]
     [NoHtml]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaTitle")]
     [NoHtml]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.SeName")]
 
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.StartDate")]
     [UIHint("DateTimeNullable")]
@@ -88,14 +88,14 @@ public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, I
     //ACL
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToGroups")]
-    public string[] CustomerGroups { get; set; }
+    public string[]? CustomerGroups { get; set; }
 
     public IList<PageLocalizedModel> Locales { get; set; } = new List<PageLocalizedModel>();
 
     //Store acl
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     /// <summary>
     /// True when the page is global or shared with more than one store, so a store manager may copy it
@@ -108,27 +108,27 @@ public class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 {
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.Title")]
 
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.Body")]
     [SanitizeHtml]
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaKeywords")]
     [NoHtml]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaDescription")]
     [NoHtml]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaTitle")]
     [NoHtml]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.SeName")]
 
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

@@ -43,7 +43,7 @@ public class NewsService : INewsService
     /// </summary>
     /// <param name="newsId">The news identifier</param>
     /// <returns>News</returns>
-    public virtual Task<NewsItem> GetNewsById(string newsId)
+    public virtual Task<NewsItem?> GetNewsById(string? newsId)
     {
         return _newsItemRepository.GetByIdAsync(newsId);
     }
@@ -61,7 +61,7 @@ public class NewsService : INewsService
     /// <param name="newsTitle">News title</param>
     /// <returns>News items</returns>
     public virtual async Task<IPagedList<NewsItem>> GetAllNews(CatalogAccess access,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool includeUnpublished = false, string newsTitle = "")
+        int pageIndex = 0, int pageSize = int.MaxValue, bool includeUnpublished = false, string? newsTitle = "")
     {
         ArgumentNullException.ThrowIfNull(access);
 

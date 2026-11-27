@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
@@ -50,8 +48,7 @@ public abstract class BaseCustomerManagementController(
     [HttpPost]
     public async Task<IActionResult> Impersonate(string id, [FromServices] IAuditEventRecorder auditEventRecorder)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        if (!(await LoadAuthorizedCustomer(id)).TryGet(out var customer, out var denied)) return denied;
 
         if (!await permissionService.Authorize(StandardPermission.AllowCustomerImpersonation))
         {
@@ -75,8 +72,7 @@ public abstract class BaseCustomerManagementController(
     [HttpPost]
     public async Task<IActionResult> RemoveAffiliate(string id)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        if (!(await LoadAuthorizedCustomer(id)).TryGet(out var customer, out var denied)) return denied;
 
         customer.AffiliateId = "";
         await CustomerService.UpdateCustomerField(customer.Id, x => x.AffiliateId, customer.AffiliateId);

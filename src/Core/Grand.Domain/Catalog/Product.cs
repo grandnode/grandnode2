@@ -19,22 +19,22 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEntity, IStoreLinkEntity
 {
-    private ICollection<string> _appliedDiscounts;
-    private ICollection<BundleProduct> _bundleProduct;
-    private ICollection<string> _crossSellProduct;
-    private ICollection<ProductAttributeCombination> _productAttributeCombinations;
-    private ICollection<ProductAttributeMapping> _productAttributeMappings;
-    private ICollection<ProductCategory> _productCategories;
-    private ICollection<ProductCollection> _productCollections;
-    private ICollection<ProductPicture> _productPictures;
-    private ICollection<ProductPrice> _productPrices;
-    private ICollection<ProductSpecificationAttribute> _productSpecificationAttributes;
-    private ICollection<string> _productTags;
-    private ICollection<ProductWarehouseInventory> _productWarehouseInventory;
-    private ICollection<string> _recommendedProduct;
-    private ICollection<RelatedProduct> _relatedProduct;
-    private ICollection<SimilarProduct> _similarProduct;
-    private ICollection<TierPrice> _tierPrices;
+    private ICollection<string>? _appliedDiscounts;
+    private ICollection<BundleProduct>? _bundleProduct;
+    private ICollection<string>? _crossSellProduct;
+    private ICollection<ProductAttributeCombination>? _productAttributeCombinations;
+    private ICollection<ProductAttributeMapping>? _productAttributeMappings;
+    private ICollection<ProductCategory>? _productCategories;
+    private ICollection<ProductCollection>? _productCollections;
+    private ICollection<ProductPicture>? _productPictures;
+    private ICollection<ProductPrice>? _productPrices;
+    private ICollection<ProductSpecificationAttribute>? _productSpecificationAttributes;
+    private ICollection<string>? _productTags;
+    private ICollection<ProductWarehouseInventory>? _productWarehouseInventory;
+    private ICollection<string>? _recommendedProduct;
+    private ICollection<RelatedProduct>? _relatedProduct;
+    private ICollection<SimilarProduct>? _similarProduct;
+    private ICollection<TierPrice>? _tierPrices;
 
     /// <summary>
     ///     Gets or sets the product type identifier
@@ -46,7 +46,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     ///     products)
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string ParentGroupedProductId { get; set; }
+    public string? ParentGroupedProductId { get; set; }
 
     /// <summary>
     ///     Gets or sets the values indicating whether this product is visible in catalog or search results.
@@ -58,40 +58,40 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the short description
     /// </summary>
-    public string ShortDescription { get; set; }
+    public string? ShortDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the full description
     /// </summary>
-    public string FullDescription { get; set; }
+    public string? FullDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the admin comment
     /// </summary>
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of used product layout identifier
     /// </summary>
     [AuditReference(typeof(ProductLayout))]
-    public string ProductLayoutId { get; set; }
+    public string? ProductLayoutId { get; set; }
 
     /// <summary>
     ///     Gets or sets a brand identifier
     /// </summary>
     [AuditReference(typeof(Brand))]
-    public string BrandId { get; set; }
+    public string? BrandId { get; set; }
 
     /// <summary>
     ///     Gets or sets a vendor identifier
     /// </summary>
     [AuditReference(typeof(Vendor))]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to show the product on home page
@@ -106,17 +106,17 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the meta keywords
     /// </summary>
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta description
     /// </summary>
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta title
     /// </summary>
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the product allows customer reviews
@@ -151,23 +151,23 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the ExternalId
     /// </summary>
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     /// <summary>
     ///     Gets or sets the SKU
     /// </summary>
-    public string Sku { get; set; }
+    public string? Sku { get; set; }
 
     /// <summary>
     ///     Gets or sets the collection part number
     /// </summary>
-    public string Mpn { get; set; }
+    public string? Mpn { get; set; }
 
     /// <summary>
     ///     Gets or sets the Global Trade Item Number (GTIN). These identifiers include UPC (in North America), EAN (in
     ///     Europe), JAN (in Japan), and ISBN (for books).
     /// </summary>
-    public string Gtin { get; set; }
+    public string? Gtin { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the product is gift voucher
@@ -194,7 +194,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets a required product identifiers (comma separated)
     /// </summary>
-    public string RequiredProductIds { get; set; }
+    public string? RequiredProductIds { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether required products are automatically added to the cart
@@ -209,7 +209,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the download identifier
     /// </summary>
-    public string DownloadId { get; set; }
+    public string? DownloadId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this downloadable product can be downloaded unlimited number of times
@@ -239,7 +239,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the sample download identifier
     /// </summary>
-    public string SampleDownloadId { get; set; }
+    public string? SampleDownloadId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the product has user agreement
@@ -249,7 +249,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the text of license agreement
     /// </summary>
-    public string UserAgreementText { get; set; }
+    public string? UserAgreementText { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the product is recurring
@@ -310,7 +310,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     ///     Gets or sets a delivery date identifier
     /// </summary>
     [AuditReference(typeof(DeliveryDate))]
-    public string DeliveryDateId { get; set; }
+    public string? DeliveryDateId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the product is marked as tax exempt
@@ -321,7 +321,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     ///     Gets or sets the tax category identifier
     /// </summary>
     [AuditReference(typeof(TaxCategory))]
-    public string TaxCategoryId { get; set; }
+    public string? TaxCategoryId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the product is telecommunications or broadcasting or electronic services
@@ -342,7 +342,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     ///     Gets or sets a warehouse identifier
     /// </summary>
     [AuditReference(typeof(Warehouse))]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the stock quantity
@@ -427,7 +427,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the comma seperated list of allowed quantities. null or empty if any quantity is allowed
     /// </summary>
-    public string AllowedQuantities { get; set; }
+    public string? AllowedQuantities { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this product is returnable (a customer is allowed to submit merchandise
@@ -509,7 +509,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     ///     Gets or sets a unit of product for PAngV (MeasureWeight entity)
     /// </summary>
     [AuditReference(typeof(MeasureWeight))]
-    public string BasepriceUnitId { get; set; }
+    public string? BasepriceUnitId { get; set; }
 
     /// <summary>
     ///     Gets or sets a reference amount for PAngV
@@ -520,19 +520,19 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     ///     Gets or sets a reference unit for PAngV (MeasureWeight entity)
     /// </summary>
     [AuditReference(typeof(MeasureWeight))]
-    public string BasepriceBaseUnitId { get; set; }
+    public string? BasepriceBaseUnitId { get; set; }
 
     /// <summary>
     ///     Gets or sets a unit of product
     /// </summary>
     [AuditReference(typeof(MeasureUnit))]
-    public string UnitId { get; set; }
+    public string? UnitId { get; set; }
 
     /// <summary>
     ///     Gets or sets a course ident
     /// </summary>
     [AuditReference(typeof(Course))]
-    public string CourseId { get; set; }
+    public string? CourseId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this product is marked as new
@@ -594,7 +594,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets current highest bidder customer id
     /// </summary>
-    public string HighestBidder { get; set; }
+    public string? HighestBidder { get; set; }
 
     /// <summary>
     ///     Gets or sets auction ended
@@ -649,7 +649,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the flag
     /// </summary>
-    public string Flag { get; set; }
+    public string? Flag { get; set; }
 
     /// <summary>
     ///     Gets or sets the ticks
@@ -659,7 +659,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the coordinates
     /// </summary>
-    public GeoCoordinates Coordinates { get; set; }
+    public GeoCoordinates? Coordinates { get; set; }
 
     /// <summary>
     ///     Gets or sets the collection of ProductCategory
@@ -787,7 +787,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the sename
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores

@@ -6,7 +6,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Queries.Handlers.Customers;
 
-public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, CustomerDto>
+public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, CustomerDto?>
 {
     private readonly ICustomerService _customerService;
 
@@ -15,8 +15,9 @@ public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, Custome
         _customerService = customerService;
     }
 
-    public async Task<CustomerDto> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
+    public async Task<CustomerDto?> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
     {
-        return (await _customerService.GetCustomerByEmail(request.Email)).ToModel();
+        var customer = await _customerService.GetCustomerByEmail(request.Email);
+        return customer?.ToModel();
     }
 }

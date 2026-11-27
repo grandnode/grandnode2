@@ -13,7 +13,7 @@ public class PluginInfoAttribute : Attribute
     ///     it is then resolved from the assembly's Grand.Infrastructure reference by
     ///     <see cref="PluginVersionResolver" />.
     /// </summary>
-    public string SupportedVersion { get; set; }
+    public string? SupportedVersion { get; set; }
 
-    public string Version { get; set; }
+    public string? Version { get; set; }
 }

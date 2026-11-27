@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.AspNetCore.Html;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Encodings.Web;
 
 namespace Grand.Web.Common.TagHelpers.Admin.Extend;
 
 internal class ViewBufferTextWriter : TextWriter
 {
-    private readonly HtmlEncoder _htmlEncoder;
-    private readonly TextWriter _inner;
+    private readonly HtmlEncoder? _htmlEncoder;
+    private readonly TextWriter? _inner;
 
     /// <summary>
     ///     Creates a new instance of <see cref="ViewBufferTextWriter" />.
@@ -51,6 +52,8 @@ internal class ViewBufferTextWriter : TextWriter
     public override Encoding Encoding { get; }
 
     /// <inheritdoc />
+    //stops only in Flush, once the inner writer and its encoder, set together, are known to exist
+    [MemberNotNullWhen(false, nameof(_inner), nameof(_htmlEncoder))]
     public bool IsBuffering { get; private set; } = true;
 
     /// <summary>
@@ -83,7 +86,7 @@ internal class ViewBufferTextWriter : TextWriter
     }
 
     /// <inheritdoc />
-    public override void Write(string value)
+    public override void Write(string? value)
     {
         if (string.IsNullOrEmpty(value)) return;
 
@@ -94,7 +97,7 @@ internal class ViewBufferTextWriter : TextWriter
     }
 
     /// <inheritdoc />
-    public override void Write(object value)
+    public override void Write(object? value)
     {
         if (value == null) return;
 
@@ -135,7 +138,7 @@ internal class ViewBufferTextWriter : TextWriter
     }
 
     /// <inheritdoc />
-    public override void WriteLine(object value)
+    public override void WriteLine(object? value)
     {
         if (value == null) return;
 
@@ -186,7 +189,7 @@ internal class ViewBufferTextWriter : TextWriter
     }
 
     /// <inheritdoc />
-    public override Task WriteAsync(string value)
+    public override Task WriteAsync(string? value)
     {
         if (IsBuffering)
         {
@@ -207,7 +210,7 @@ internal class ViewBufferTextWriter : TextWriter
     }
 
     /// <inheritdoc />
-    public override void WriteLine(string value)
+    public override void WriteLine(string? value)
     {
         if (IsBuffering)
         {
@@ -247,7 +250,7 @@ internal class ViewBufferTextWriter : TextWriter
     }
 
     /// <inheritdoc />
-    public override Task WriteLineAsync(string value)
+    public override Task WriteLineAsync(string? value)
     {
         if (IsBuffering)
         {
@@ -278,7 +281,7 @@ internal class ViewBufferTextWriter : TextWriter
     /// </summary>
     public override void Flush()
     {
-        if (_inner == null || _inner is ViewBufferTextWriter) return;
+        if (_inner == null || _htmlEncoder == null || _inner is ViewBufferTextWriter) return;
 
         if (IsBuffering)
         {
@@ -298,7 +301,7 @@ internal class ViewBufferTextWriter : TextWriter
     /// <returns>A <see cref="Task" /> that represents the asynchronous copy and flush operations.</returns>
     public override async Task FlushAsync()
     {
-        if (_inner == null || _inner is ViewBufferTextWriter) return;
+        if (_inner == null || _htmlEncoder == null || _inner is ViewBufferTextWriter) return;
 
         if (IsBuffering)
         {

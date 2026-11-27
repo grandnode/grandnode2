@@ -17,13 +17,13 @@ public class ProductReviewListModel : BaseModel
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.List.SearchText")]
 
-    public string SearchText { get; set; }
+    public string? SearchText { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.List.SearchStore")]
-    public string SearchStoreId { get; set; }
+    public string? SearchStoreId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.List.SearchProduct")]
-    public string SearchProductId { get; set; }
+    public string? SearchProductId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 }

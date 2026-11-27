@@ -64,7 +64,7 @@ public static class StartupBase
         var dbConfig = new DatabaseConfig();
         configuration.GetSection("Database").Bind(dbConfig);
 
-        static string ConnectionString() => DataSettingsManager.Instance.LoadSettings().ConnectionString;
+        static string? ConnectionString() => DataSettingsManager.Instance.LoadSettings().ConnectionString;
 
         return dbConfig.UseLiteDb
             ? new LiteDBPluginStateStore(ConnectionString)
@@ -83,8 +83,9 @@ public static class StartupBase
         //create and sort instances of mapper configurations
         var instances = mapperConfigurations
             .Where(PluginExtensions.OnlyInstalledPlugins)
-            .Select(mapperConfiguration => (IAutoMapperProfile)Activator.CreateInstance(mapperConfiguration))
-            .OrderBy(mapperConfiguration => mapperConfiguration!.Order);
+            .Select(mapperConfiguration => Activator.CreateInstance(mapperConfiguration))
+            .OfType<IAutoMapperProfile>()
+            .OrderBy(mapperConfiguration => mapperConfiguration.Order);
 
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
@@ -107,8 +108,9 @@ public static class StartupBase
 
         //create and sort instances of typeConverter 
         var instances = converters
-            .Select(converter => (ITypeConverter)Activator.CreateInstance(converter))
-            .OrderBy(converter => converter!.Order);
+            .Select(converter => Activator.CreateInstance(converter))
+            .OfType<ITypeConverter>()
+            .OrderBy(converter => converter.Order);
 
         foreach (var item in instances)
             item.Register();
@@ -205,6 +207,9 @@ public static class StartupBase
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {
             options.Filters.AddService<ValidationFilter>();
+            //validation rules live in FluentValidation validators - a non-nullable reference property
+            //must not become an implicit [Required] just because its project has nullable enabled
+            options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
             var frontConfig = new FrontendAPIConfig();
             configuration.GetSection("FrontendAPI").Bind(frontConfig);
             if (frontConfig.JsonContentType)
@@ -279,8 +284,9 @@ public static class StartupBase
         //instantiate once - the same instances serve both configuration passes
         var startupInstances = typeSearcher.ClassesOfType<IStartupApplication>()
             .Where(PluginExtensions.OnlyInstalledPlugins)
-            .Select(startup => (IStartupApplication)Activator.CreateInstance(startup))
-            .OrderBy(startup => startup!.Priority)
+            .Select(startup => Activator.CreateInstance(startup))
+            .OfType<IStartupApplication>()
+            .OrderBy(startup => startup.Priority)
             .ToList();
 
         //configure services
@@ -335,8 +341,9 @@ public static class StartupBase
         //create and sort instances of startup configurations
         var instances = startupConfigurations
             .Where(PluginExtensions.OnlyInstalledPlugins)
-            .Select(startup => (IStartupApplication)Activator.CreateInstance(startup))
-            .OrderBy(startup => startup!.Priority);
+            .Select(startup => Activator.CreateInstance(startup))
+            .OfType<IStartupApplication>()
+            .OrderBy(startup => startup.Priority);
 
         //configure request pipeline
         foreach (var instance in instances)
@@ -349,8 +356,9 @@ public static class StartupBase
 
         //create and sort instances of startup configurations
         var instances = startupBaseConfigurations
-            .Select(startup => (IStartupBase)Activator.CreateInstance(startup))
-            .OrderBy(startup => startup!.Priority);
+            .Select(startup => Activator.CreateInstance(startup))
+            .OfType<IStartupBase>()
+            .OrderBy(startup => startup.Priority);
 
         //execute
         foreach (var instance in instances)

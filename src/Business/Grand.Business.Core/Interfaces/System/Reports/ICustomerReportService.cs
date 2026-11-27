@@ -24,7 +24,7 @@ public interface ICustomerReportService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Report</returns>
-    Task<IPagedList<BestCustomerReportLine>> GetBestCustomersReport(string storeId = "", string vendorId = "",
+    Task<IPagedList<BestCustomerReportLine>> GetBestCustomersReport(string? storeId = "", string vendorId = "",
         DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         int orderBy = 0,
@@ -34,7 +34,7 @@ public interface ICustomerReportService
     /// <param name="storeId">Store ident</param>
     /// <param name="days">Customers registered in the last days</param>
     /// <returns>Number of registered customers</returns>
-    Task<int> GetRegisteredCustomersReport(string storeId, int days);
+    Task<int> GetRegisteredCustomersReport(string? storeId, int days);
 
     /// <summary>
     ///     Get "customer by time" report
@@ -43,6 +43,6 @@ public interface ICustomerReportService
     /// <param name="startTimeUtc">Start date</param>
     /// <param name="endTimeUtc">End date</param>
     /// <returns>Result</returns>
-    Task<IList<CustomerByTimeReportLine>> GetCustomerByTimeReport(string storeId, DateTime? startTimeUtc = null,
+    Task<IList<CustomerByTimeReportLine>> GetCustomerByTimeReport(string? storeId, DateTime? startTimeUtc = null,
         DateTime? endTimeUtc = null);
 }

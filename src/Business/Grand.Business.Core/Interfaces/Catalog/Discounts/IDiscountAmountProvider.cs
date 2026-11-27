@@ -7,5 +7,5 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts;
 
 public interface IDiscountAmountProvider : IProvider
 {
-    Task<double> DiscountAmount(Discount discount, Customer customer, Product product, double amount);
+    Task<double> DiscountAmount(Discount discount, Customer customer, Product? product, double amount);
 }

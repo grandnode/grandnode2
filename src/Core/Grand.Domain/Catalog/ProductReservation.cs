@@ -12,7 +12,7 @@ public class ProductReservation : BaseEntity
     ///     Gets or sets the product identifier
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the reservation date
@@ -23,20 +23,20 @@ public class ProductReservation : BaseEntity
     ///     Gets or sets the order id
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets resource name
     /// </summary>
-    public string Resource { get; set; }
+    public string? Resource { get; set; }
 
     /// <summary>
     ///     Gets or sets parameter name
     /// </summary>
-    public string Parameter { get; set; }
+    public string? Parameter { get; set; }
 
     /// <summary>
     ///     Gets or sets duration
     /// </summary>
-    public string Duration { get; set; }
+    public string? Duration { get; set; }
 }

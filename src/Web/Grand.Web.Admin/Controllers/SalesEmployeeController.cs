@@ -60,7 +60,8 @@ public class SalesEmployeeController : BaseAdminController
     {
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-        var salesemployee = await _salesEmployeeService.GetSalesEmployeeById(model.Id);
+        var salesemployee = await _salesEmployeeService.GetSalesEmployeeById(model.Id)
+            ?? throw new ArgumentException("No sales employee found with the specified id");
         salesemployee = model.ToEntity(salesemployee);
         await _salesEmployeeService.UpdateSalesEmployee(salesemployee);
         return new JsonResult("");

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
@@ -27,7 +25,7 @@ public abstract class BaseCustomerAddressController(
     [HttpPost]
     public async Task<IActionResult> AddressesSelect(string customerId, DataSourceRequest command)
     {
-        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        var customer = (await LoadAuthorizedCustomer(customerId)).Entity;
         if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
         var addresses = (await customerAddressViewModelService.PrepareAddressModel(customer)).ToList();
@@ -39,7 +37,7 @@ public abstract class BaseCustomerAddressController(
     [HttpPost]
     public async Task<IActionResult> AddressDelete(string id, string customerId)
     {
-        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        var customer = (await LoadAuthorizedCustomer(customerId)).Entity;
         if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
         var address = customer.Addresses.FirstOrDefault(a => a.Id == id);
@@ -56,8 +54,7 @@ public abstract class BaseCustomerAddressController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> AddressCreate(string customerId)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) return denied!;
+        if (!(await LoadAuthorizedCustomer(customerId)).TryGet(out var customer, out var denied)) return denied;
 
         var model = new CustomerAddressModel();
         await customerAddressViewModelService.PrepareAddressModel(model, null, customer, false);
@@ -68,8 +65,7 @@ public abstract class BaseCustomerAddressController(
     [HttpPost]
     public async Task<IActionResult> AddressCreate(CustomerAddressModel model)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(model.CustomerId);
-        if (customer is null) return denied!;
+        if (!(await LoadAuthorizedCustomer(model.CustomerId)).TryGet(out var customer, out var denied)) return denied;
 
         if (ModelState.IsValid)
         {
@@ -87,8 +83,7 @@ public abstract class BaseCustomerAddressController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> AddressEdit(string addressId, string customerId)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) return denied!;
+        if (!(await LoadAuthorizedCustomer(customerId)).TryGet(out var customer, out var denied)) return denied;
 
         var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
         if (address == null) return RedirectToAction("Edit", "Customer", new { id = customer.Id });
@@ -102,8 +97,7 @@ public abstract class BaseCustomerAddressController(
     [HttpPost]
     public async Task<IActionResult> AddressEdit(CustomerAddressModel model)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(model.CustomerId);
-        if (customer is null) return denied!;
+        if (!(await LoadAuthorizedCustomer(model.CustomerId)).TryGet(out var customer, out var denied)) return denied;
 
         var address = customer.Addresses.FirstOrDefault(x => x.Id == model.Address.Id);
         if (address == null) return RedirectToAction("Edit", "Customer", new { id = customer.Id });

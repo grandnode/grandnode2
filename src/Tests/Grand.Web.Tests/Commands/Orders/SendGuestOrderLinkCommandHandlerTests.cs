@@ -75,7 +75,7 @@ public class SendGuestOrderLinkCommandHandlerTests
 
     private Task<bool> Send(string email = "guest@example.com", string orderNumberOrCode = "K7Q2M9XA", string storeId = "s1")
     {
-        return _handler.Handle(new SendGuestOrderLinkCommand {
+        return _handler.Handle(new SendGuestOrderLinkCommand { Host = new Grand.Domain.Stores.DomainHost(),
             OrderNumberOrCode = orderNumberOrCode, Email = email, Store = new Domain.Stores.Store { Id = storeId }
         }, CancellationToken.None);
     }

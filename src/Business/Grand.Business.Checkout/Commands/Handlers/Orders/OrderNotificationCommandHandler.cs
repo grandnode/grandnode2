@@ -65,7 +65,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
 
             if (request.NotifyCustomer)
             {
-                string invoiceDownloadId = null;
+                string? invoiceDownloadId = null;
 
                 try
                 {

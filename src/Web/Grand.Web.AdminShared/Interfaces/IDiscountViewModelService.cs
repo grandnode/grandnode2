@@ -14,7 +14,7 @@ public interface IDiscountViewModelService
     Task<(IEnumerable<DiscountModel> discountModel, int totalCount)> PrepareDiscountModel(DiscountListModel model,
         int pageIndex, int pageSize);
 
-    Task PrepareDiscountModel(DiscountModel model, Discount discount);
+    Task PrepareDiscountModel(DiscountModel model, Discount? discount);
     Task<Discount> InsertDiscountModel(DiscountModel model);
     Task<Discount> UpdateDiscountModel(Discount discount, DiscountModel model);
     Task DeleteDiscount(Discount discount);

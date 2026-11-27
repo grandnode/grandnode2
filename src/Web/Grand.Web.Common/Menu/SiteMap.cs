@@ -17,9 +17,10 @@ public class SiteMap
         _permissionService = permissionService;
     }
 
-    public SiteMapNode RootNode { get; set; }
+    public SiteMapNode? RootNode { get; set; }
 
-    public virtual async Task Load()
+    /// <returns>The root node, also kept in RootNode</returns>
+    public virtual async Task<SiteMapNode> Load()
     {
         var adminSiteMaps = await _adminSiteMapService.GetSiteMap();
         var sitemap = new SiteMapNode {
@@ -29,6 +30,7 @@ public class SiteMap
             ActionName = "Overview"
         };
         await PrepareRootNode(sitemap, adminSiteMaps);
+        return sitemap;
     }
 
 

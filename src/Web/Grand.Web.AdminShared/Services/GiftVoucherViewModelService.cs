@@ -44,7 +44,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
 
     #endregion
 
-    public virtual async Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model = null)
+    public virtual async Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel? model = null)
     {
         model ??= new GiftVoucherModel();
 
@@ -123,9 +123,9 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
         return giftVoucher;
     }
 
-    public virtual async Task<Order> GetOrderFromGiftVoucher(GiftVoucher giftVoucher)
+    public virtual async Task<Order?> GetOrderFromGiftVoucher(GiftVoucher giftVoucher)
     {
-        Order order = null;
+        Order? order = null;
         if (giftVoucher.PurchasedWithOrderItem != null)
             order = await _orderService.GetOrderByOrderItemId(giftVoucher.PurchasedWithOrderItem.Id);
 
@@ -188,7 +188,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
     {
         var model = giftVoucher.ToModel(_dateTimeService);
         model = await PrepareGiftVoucherModel(model);
-        Order order = null;
+        Order? order = null;
         if (giftVoucher.PurchasedWithOrderItem != null)
             order = await _orderService.GetOrderByOrderItemId(giftVoucher.PurchasedWithOrderItem.Id);
 

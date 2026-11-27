@@ -7,17 +7,17 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class InventoryJournal : BaseEntity
 {
-    public string ObjectId { get; set; }
-    public string ObjectType { get; set; }
-    public string PositionId { get; set; }
+    public string? ObjectId { get; set; }
+    public string? ObjectType { get; set; }
+    public string? PositionId { get; set; }
     public DateTime CreateDateUtc { get; set; }
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
     public IList<CustomAttribute> Attributes { get; set; } = new List<CustomAttribute>();
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
     public int InQty { get; set; }
     public int OutQty { get; set; }
-    public string Comments { get; set; }
-    public string Reference { get; set; }
+    public string? Comments { get; set; }
+    public string? Reference { get; set; }
 
     /// <summary>
     ///     What caused the change
@@ -27,17 +27,17 @@ public class InventoryJournal : BaseEntity
     /// <summary>
     ///     Who caused it: a staff member or an API user; empty for the system
     /// </summary>
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     The store of the warehouse; empty for a shared warehouse or a product without one
     /// </summary>
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     The combination of a product stocked by attributes
     /// </summary>
-    public string CombinationId { get; set; }
+    public string? CombinationId { get; set; }
 
     /// <summary>
     ///     The product's stock revision this entry brought it to; an entry newer than the product's is applied
@@ -48,7 +48,7 @@ public class InventoryJournal : BaseEntity
     /// <summary>
     ///     The batch the change moved; empty for the stock without a batch
     /// </summary>
-    public string BatchNumber { get; set; }
+    public string? BatchNumber { get; set; }
 
     /// <summary>
     ///     The serial numbers the change moved
@@ -69,5 +69,5 @@ public class InventoryJournal : BaseEntity
     ///     The idempotency key of a change written through the stock integration API; empty for every other entry. A
     ///     change with a key writes exactly one entry, and a retried call with the same key is not applied again
     /// </summary>
-    public string IdempotencyKey { get; set; }
+    public string? IdempotencyKey { get; set; }
 }

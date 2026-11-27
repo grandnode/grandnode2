@@ -46,7 +46,7 @@ public class VoidCommandHandler : IRequestHandler<VoidCommand, IList<string>>
         if (!canVoid)
             throw new GrandException("Cannot do void for order.");
 
-        VoidPaymentResult result = null;
+        VoidPaymentResult? result = null;
         try
         {
             result = await _paymentService.Void(paymentTransaction);

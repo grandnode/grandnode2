@@ -24,6 +24,10 @@ public class SubAccountAddCommandHandler : IRequestHandler<SubAccountAddCommand>
 
     public async Task Handle(SubAccountAddCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires them
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.Email);
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.Password);
+
         var customer = await PrepareCustomer(request);
 
         var registrationRequest = new RegistrationRequest(customer, request.Model.Email,

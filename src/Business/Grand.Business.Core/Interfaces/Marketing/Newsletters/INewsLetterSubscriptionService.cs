@@ -37,14 +37,14 @@ public interface INewsLetterSubscriptionService
     /// </summary>
     /// <param name="newsLetterSubscriptionId">The newsletter subscription identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    Task<NewsLetterSubscription> GetNewsLetterSubscriptionById(string newsLetterSubscriptionId);
+    Task<NewsLetterSubscription?> GetNewsLetterSubscriptionById(string? newsLetterSubscriptionId);
 
     /// <summary>
     ///     Gets a newsletter subscription by newsletter subscription GUID
     /// </summary>
     /// <param name="newsLetterSubscriptionGuid">The newsletter subscription GUID</param>
     /// <returns>NewsLetter subscription</returns>
-    Task<NewsLetterSubscription> GetNewsLetterSubscriptionByGuid(Guid newsLetterSubscriptionGuid);
+    Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByGuid(Guid newsLetterSubscriptionGuid);
 
     /// <summary>
     ///     Gets a newsletter subscription by email and store ID
@@ -52,7 +52,7 @@ public interface INewsLetterSubscriptionService
     /// <param name="email">The newsletter subscription email</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    Task<NewsLetterSubscription> GetNewsLetterSubscriptionByEmailAndStoreId(string email, string storeId);
+    Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByEmailAndStoreId(string? email, string storeId);
 
 
     /// <summary>
@@ -60,7 +60,7 @@ public interface INewsLetterSubscriptionService
     /// </summary>
     /// <param name="customerId">Customer identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    Task<NewsLetterSubscription> GetNewsLetterSubscriptionByCustomerId(string customerId);
+    Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByCustomerId(string customerId);
 
     /// <summary>
     ///     Gets the newsletter subscription list
@@ -72,8 +72,8 @@ public interface INewsLetterSubscriptionService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>NewsLetterSubscription entities</returns>
-    Task<IPagedList<NewsLetterSubscription>> GetAllNewsLetterSubscriptions(string email = null,
-        string storeId = "", bool? isActive = null, string[] categoryIds = null, int pageIndex = 0,
+    Task<IPagedList<NewsLetterSubscription>> GetAllNewsLetterSubscriptions(string? email = null,
+        string? storeId = "", bool? isActive = null, string[]? categoryIds = null, int pageIndex = 0,
         int pageSize = int.MaxValue);
 
     /// <summary>

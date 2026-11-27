@@ -5,10 +5,10 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class ProductAlsoPurchased : BaseEntity
 {
-    public string ProductId { get; set; }
-    public string ProductId2 { get; set; }
-    public string OrderId { get; set; }
+    public string ProductId { get; set; } = null!;
+    public string? ProductId2 { get; set; }
+    public string OrderId { get; set; } = null!;
     public DateTime CreatedOrderOnUtc { get; set; }
     public int Quantity { get; set; }
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 }

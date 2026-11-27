@@ -123,5 +123,5 @@ public class ShoppingCartSettings : ISettings
     /// <summary>
     ///     Gets or sets a value reservation format date
     /// </summary>
-    public string ReservationDateFormat { get; set; }
+    public string? ReservationDateFormat { get; set; }
 }

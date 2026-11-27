@@ -61,7 +61,7 @@ public abstract class BasePageController(
 
         if (!string.IsNullOrEmpty(model.Name))
             pageModels = pageModels.Where(x =>
-                x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
+                x.SystemName != null && x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
                 (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
 
         // "Error during serialization or deserialization using the JSON JavaScriptSerializer. The

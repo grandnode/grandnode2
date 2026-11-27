@@ -130,7 +130,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
     }
 
     public virtual async Task<IList<string>> GetShoppingCartWarnings(IList<ShoppingCartItem> shoppingCart,
-        IList<CustomAttribute> checkoutAttributes, CalculationContext context, Language language,
+        IList<CustomAttribute>? checkoutAttributes, CalculationContext context, Language language,
         bool validateCheckoutAttributes, bool validateAmount)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -176,7 +176,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
     public async Task<IList<string>> CheckCommonWarnings(Customer customer, IList<ShoppingCartItem> currentCart,
         Product product,
         ShoppingCartType shoppingCartType, DateTime? rentalStartDate, DateTime? rentalEndDate,
-        int quantity, string reservationId, Language language)
+        int quantity, string? reservationId, Language language)
     {
         ArgumentNullException.ThrowIfNull(language);
 
@@ -234,7 +234,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
     }
 
     public virtual async Task<IList<string>> GetRequiredProductWarnings(Customer customer,
-        ShoppingCartItem shoppingCartItem, Product product, string storeId, Language language)
+        ShoppingCartItem shoppingCartItem, Product product, string? storeId, Language language)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(product);

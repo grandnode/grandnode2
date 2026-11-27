@@ -70,7 +70,7 @@ public class ActionCartController : BasePublicController
 
     #region Private methods
 
-    private JsonResult RedirectToProduct(Product product, ShoppingCartType cartType, int quantity)
+    private JsonResult? RedirectToProduct(Product product, ShoppingCartType cartType, int quantity)
     {
         //we can't add grouped products 
         if (product.ProductTypeId == ProductType.GroupedProduct)
@@ -111,14 +111,14 @@ public class ActionCartController : BasePublicController
         return null;
     }
 
-    private string GetWarehouse(Product product)
+    private string? GetWarehouse(Product product)
     {
         return product.UseMultipleWarehouses ? _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId :
             string.IsNullOrEmpty(_contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId :
             _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId;
     }
 
-    private JsonResult ReturnFailMessage(Product product, ShoppingCartType shoppingCartTypeId)
+    private JsonResult? ReturnFailMessage(Product product, ShoppingCartType shoppingCartTypeId)
     {
         switch (product.ProductTypeId)
         {

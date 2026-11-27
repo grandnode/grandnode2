@@ -11,7 +11,7 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
     IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.IsRequired")]
     public bool IsRequired { get; set; }
@@ -24,7 +24,7 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
 
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.AttributeControlType")]
 
-    public string AttributeControlTypeName { get; set; }
+    public string? AttributeControlTypeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -32,7 +32,7 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
     //Store acl
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this attribute is shared across all stores
@@ -50,7 +50,7 @@ public class CustomerAttributeLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

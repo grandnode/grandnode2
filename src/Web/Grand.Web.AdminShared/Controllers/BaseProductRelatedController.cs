@@ -39,7 +39,7 @@ public abstract class BaseProductRelatedController(
         // Vendor's original RelatedProductUpdate/Delete/AddPopup(POST) (below) had no ownership check at
         // all - only List checked - letting any vendor mutate another vendor's related-product mappings
         // by id.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var relatedProducts = product.RelatedProducts.OrderBy(x => x.DisplayOrder);
@@ -66,7 +66,7 @@ public abstract class BaseProductRelatedController(
     public async Task<IActionResult> RelatedProductUpdate(ProductModel.RelatedProductModel model)
     {
         var product = await productService.GetProductById(model.ProductId1);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -83,7 +83,7 @@ public abstract class BaseProductRelatedController(
     public async Task<IActionResult> RelatedProductDelete(ProductModel.RelatedProductModel model)
     {
         var product = await productService.GetProductById(model.ProductId1);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -133,7 +133,7 @@ public abstract class BaseProductRelatedController(
         // RelatedProductAddPopup(POST) had no check at all, letting any vendor add related-product
         // mappings onto another vendor's product by posting its id - closed here the same way as the
         // List/Update/Delete gap above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -174,7 +174,7 @@ public abstract class BaseProductRelatedController(
         // original SimilarProductUpdate/Delete/AddPopup(GET/POST) (below) had no ownership check at all -
         // only List checked (via CheckAccessToProduct) - letting any vendor mutate another vendor's
         // similar-product mappings by id.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var similarProducts = product.SimilarProducts.OrderBy(x => x.DisplayOrder);
@@ -201,7 +201,7 @@ public abstract class BaseProductRelatedController(
     public async Task<IActionResult> SimilarProductUpdate(ProductModel.SimilarProductModel model)
     {
         var product = await productService.GetProductById(model.ProductId1);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -218,7 +218,7 @@ public abstract class BaseProductRelatedController(
     public async Task<IActionResult> SimilarProductDelete(ProductModel.SimilarProductModel model)
     {
         var product = await productService.GetProductById(model.ProductId1);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -268,7 +268,7 @@ public abstract class BaseProductRelatedController(
         // SimilarProductAddPopup(POST) had no check at all, letting any vendor add similar-product
         // mappings onto another vendor's product by posting its id - closed here the same way as the
         // List/Update/Delete gap above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -309,7 +309,7 @@ public abstract class BaseProductRelatedController(
         // hosts. Admin's original CrossSellProductList had no check at all - applying HasAccess uniformly
         // also closes that gap without changing Admin's superuser behaviour (HasAccess is a no-op for
         // Admin's scope).
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var crossSellProducts = product.CrossSellProduct;
@@ -392,7 +392,7 @@ public abstract class BaseProductRelatedController(
         // CrossSellProductAddPopup(POST) had no check at all, letting any vendor add cross-sell-product
         // mappings onto another vendor's product by posting its id - closed here the same way as the
         // List/Delete gap above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -434,7 +434,7 @@ public abstract class BaseProductRelatedController(
         // that gap without changing Admin's superuser behaviour (HasAccess is a no-op for Admin's scope).
         // Vendor's original signature also dropped the DataSourceRequest command parameter entirely
         // (unused by the body on any host either way) - kept here for parity with Admin/Store.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var recommendedProductsModel = new List<ProductModel.RecommendedProductModel>();
@@ -516,7 +516,7 @@ public abstract class BaseProductRelatedController(
         // RecommendedProductAddPopup(POST) had no check at all, letting any vendor add recommended-product
         // mappings onto another vendor's product by posting its id - closed here the same way as the
         // List/Delete gap above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)

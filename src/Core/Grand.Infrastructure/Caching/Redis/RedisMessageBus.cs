@@ -21,7 +21,7 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
     private readonly ISubscriber _subscriber;
     private readonly ILogger<RedisMessageBus> _logger;
     private readonly CancellationTokenSource _cts = new();
-    private Task _subscribeLoop;
+    private Task? _subscribeLoop;
 
     public RedisMessageBus(IConnectionMultiplexer connection, IServiceProvider serviceProvider,
         RedisConfig redisConfig, ILogger<RedisMessageBus> logger)
@@ -63,7 +63,7 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
         try
         {
             var receivers =
-                await _subscriber.PublishAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), message);
+                await _subscriber.PublishAsync(Channel, message);
             if (_logger.IsEnabled(LogLevel.Debug))
                 _logger.LogDebug(
                     "Published cache invalidation message (type: {MessageType}, key: {Key}), delivered to {Receivers} subscriber(s)",
@@ -79,8 +79,11 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
 
     public Task SubscribeAsync()
     {
-        return _subscriber.SubscribeAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), OnMessage);
+        return _subscriber.SubscribeAsync(Channel, OnMessage);
     }
+
+    private RedisChannel Channel => RedisChannel.Literal(_redisConfig.RedisPubSubChannel ??
+                                                         throw new InvalidOperationException("Redis:RedisPubSubChannel is not configured"));
 
     public void OnSubscriptionChanged(IMessageEvent message)
     {
@@ -88,10 +91,11 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
         var cache = scope.ServiceProvider.GetRequiredService<ICacheBase>();
         switch (message.MessageType)
         {
-            case (int)MessageEventType.RemoveKey:
+            //a message without a key names nothing to remove
+            case (int)MessageEventType.RemoveKey when message.Key != null:
                 _ = cache.RemoveAsync(message.Key, false);
                 break;
-            case (int)MessageEventType.RemoveByPrefix:
+            case (int)MessageEventType.RemoveByPrefix when message.Key != null:
                 _ = cache.RemoveByPrefix(message.Key, false);
                 break;
             case (int)MessageEventType.ClearCache:
@@ -163,14 +167,14 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
         }
     }
 
-    private void OnConnectionFailed(object sender, ConnectionFailedEventArgs e)
+    private void OnConnectionFailed(object? sender, ConnectionFailedEventArgs e)
     {
         _logger.LogWarning(e.Exception,
             "Redis connection failed ({ConnectionType}, {FailureType}) - cache invalidation messages may be lost while disconnected",
             e.ConnectionType, e.FailureType);
     }
 
-    private void OnConnectionRestored(object sender, ConnectionFailedEventArgs e)
+    private void OnConnectionRestored(object? sender, ConnectionFailedEventArgs e)
     {
         //invalidation messages published while this instance was disconnected are lost
         //(Redis pub/sub has no replay), so the local cache can no longer be trusted

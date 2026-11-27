@@ -9,9 +9,9 @@ namespace Grand.Web.Features.Models.Products;
 
 public class GetProductDetailsAttributeChange : IRequest<ProductDetailsAttributeChangeModel>
 {
-    public Customer Customer { get; set; }
-    public Currency Currency { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Product Product { get; set; }
-    public ProductModel Model { get; set; }
+    public required Customer Customer { get; set; }
+    public required Currency Currency { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Product Product { get; set; }
+    public required ProductModel Model { get; set; }
 }

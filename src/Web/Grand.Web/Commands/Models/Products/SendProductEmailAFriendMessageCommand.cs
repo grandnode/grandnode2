@@ -8,10 +8,10 @@ namespace Grand.Web.Commands.Models.Products;
 
 public class SendProductEmailAFriendMessageCommand : IRequest<bool>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Domain.Stores.DomainHost Host { get; set; }
-    public Language Language { get; set; }
-    public Product Product { get; set; }
-    public ProductEmailAFriendModel Model { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Domain.Stores.DomainHost Host { get; set; }
+    public required Language Language { get; set; }
+    public required Product Product { get; set; }
+    public required ProductEmailAFriendModel Model { get; set; }
 }

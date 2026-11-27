@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -178,8 +176,8 @@ public abstract class BaseFullReportsController(
                 OrderStatus = statuses.FirstOrDefault(y => y.StatusId == x.OrderStatusId)?.Name,
                 PaymentStatus = EnumTranslationService.GetTranslationEnum(x.PaymentStatusId),
                 ShippingStatus = EnumTranslationService.GetTranslationEnum(x.ShippingStatusId),
-                CustomerEmail = x.BillingAddress.Email,
-                CustomerFullName = $"{x.BillingAddress.FirstName} {x.BillingAddress.LastName}",
+                CustomerEmail = x.BillingAddress?.Email,
+                CustomerFullName = $"{x.BillingAddress?.FirstName} {x.BillingAddress?.LastName}",
                 CreatedOn = DateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
             });
         }

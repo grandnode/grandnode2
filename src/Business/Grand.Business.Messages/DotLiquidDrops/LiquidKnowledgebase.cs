@@ -10,7 +10,7 @@ public class LiquidKnowledgebase : Drop
 {
     private readonly KnowledgebaseArticle _article;
     private readonly KnowledgebaseArticleComment _articleComment;
-    private readonly DomainHost _host;
+    private readonly DomainHost? _host;
     private readonly Language _language;
     private readonly Store _store;
 
@@ -30,9 +30,9 @@ public class LiquidKnowledgebase : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string ArticleTitle => _article.Name;
+    public string? ArticleTitle => _article.Name;
 
-    public string ArticleCommentText => WebUtility.HtmlEncode(_articleComment.CommentText);
+    public string? ArticleCommentText => WebUtility.HtmlEncode(_articleComment.CommentText);
 
     public string ArticleCommentUrl => $"{url}/{_article.SeName}";
 

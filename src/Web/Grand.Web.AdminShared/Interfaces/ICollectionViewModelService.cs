@@ -7,7 +7,7 @@ public interface ICollectionViewModelService
 {
     void PrepareSortOptionsModel(CollectionModel model);
     Task PrepareLayoutsModel(CollectionModel model);
-    Task PrepareDiscountModel(CollectionModel model, Collection collection, bool excludeProperties);
+    Task PrepareDiscountModel(CollectionModel model, Collection? collection, bool excludeProperties);
     Task<Collection> InsertCollectionModel(CollectionModel model);
     Task<Collection> UpdateCollectionModel(Collection collection, CollectionModel model);
     Task DeleteCollection(Collection collection);
@@ -20,6 +20,6 @@ public interface ICollectionViewModelService
         PrepareCollectionProductModel(string collectionId, string storeId, int pageIndex, int pageSize);
 
     Task ProductUpdate(CollectionModel.CollectionProductModel model);
-    Task ProductDelete(string id, string productId);
+    Task ProductDelete(string? id, string? productId);
     Task InsertCollectionProductModel(CollectionModel.AddCollectionProductModel model);
 }

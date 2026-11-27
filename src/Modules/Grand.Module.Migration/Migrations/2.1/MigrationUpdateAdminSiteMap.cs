@@ -39,10 +39,12 @@ public class MigrationUpdateAdminSiteMap : IMigration
                     PermissionSystemName.ContactAttributes
                 };
 
-                sitemapSystem.ChildNodes.Remove(
-                    sitemapSystem.ChildNodes.FirstOrDefault(x => x.SystemName == "Customer reminders"));
-                sitemapSystem.ChildNodes.Remove(
-                    sitemapSystem.ChildNodes.FirstOrDefault(x => x.SystemName == "Customer actions"));
+                foreach (var name in new[] { "Customer reminders", "Customer actions" })
+                {
+                    var removed = sitemapSystem.ChildNodes.FirstOrDefault(x => x.SystemName == name);
+                    if (removed != null)
+                        sitemapSystem.ChildNodes.Remove(removed);
+                }
 
                 await repository.UpdateAsync(sitemapSystem);
             }

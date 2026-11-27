@@ -63,7 +63,7 @@ public class OidcSessionService : IOidcSessionService
         _logger = logger;
     }
 
-    public virtual async Task<string> Start(Customer customer, string subject, string sid, string refreshToken, string storeId)
+    public virtual async Task<string?> Start(Customer customer, string subject, string? sid, string? refreshToken, string storeId)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentException.ThrowIfNullOrEmpty(subject);
@@ -252,7 +252,7 @@ public class OidcSessionService : IOidcSessionService
         _logger.LogInformation("OpenID Connect session {SessionId} ended: {Reason}", sessionId, reason);
     }
 
-    public virtual async Task<IList<OidcSession>> EndBySid(string subject, string sid)
+    public virtual async Task<IList<OidcSession>> EndBySid(string? subject, string sid)
     {
         ArgumentException.ThrowIfNullOrEmpty(sid);
         var query = _sessionRepository.Table.Where(x => x.Sid == sid && x.EndedUtc == null);
@@ -314,12 +314,15 @@ public class OidcSessionService : IOidcSessionService
         return sessions;
     }
 
-    private Task<OidcSession> Get(string sessionId) =>
+    private Task<OidcSession?> Get(string sessionId) =>
         _cache.GetAsync(string.Format(CacheKey.OIDC_SESSION_BY_ID_KEY, sessionId),
             () => _sessionRepository.GetByIdAsync(sessionId), CacheTimeMinutes);
 
-    private string Unprotect(string protectedToken)
+    private string? Unprotect(string? protectedToken)
     {
+        //a session stored without a refresh token has none to refresh with
+        if (protectedToken == null)
+            return null;
         try
         {
             return _protector.Unprotect(protectedToken);

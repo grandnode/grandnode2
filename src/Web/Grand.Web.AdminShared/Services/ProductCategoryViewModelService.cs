@@ -35,6 +35,9 @@ public class ProductCategoryViewModelService(
 
     public virtual async Task InsertProductCategoryModel(ProductModel.ProductCategoryModel model)
     {
+        if (string.IsNullOrEmpty(model.CategoryId))
+            throw new ArgumentException("No category is selected");
+
         var product = await productService.GetProductById(model.ProductId, true);
         if (product != null && product.ProductCategories.All(x => x.CategoryId != model.CategoryId))
         {
@@ -49,7 +52,11 @@ public class ProductCategoryViewModelService(
 
     public virtual async Task UpdateProductCategoryModel(ProductModel.ProductCategoryModel model)
     {
-        var product = await productService.GetProductById(model.ProductId, true);
+        if (string.IsNullOrEmpty(model.CategoryId))
+            throw new ArgumentException("No category is selected");
+
+        var product = await productService.GetProductById(model.ProductId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == model.Id);
         if (productCategory == null)
             throw new ArgumentException("No product category mapping found with the specified id");
@@ -63,9 +70,10 @@ public class ProductCategoryViewModelService(
         await productCategoryService.UpdateProductCategory(productCategory, product.Id);
     }
 
-    public virtual async Task DeleteProductCategory(string id, string productId)
+    public virtual async Task DeleteProductCategory(string? id, string? productId)
     {
-        var product = await productService.GetProductById(productId, true);
+        var product = await productService.GetProductById(productId, true)
+                      ?? throw new ArgumentException("No product found with the specified id");
         var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == id);
         if (productCategory == null)
             throw new ArgumentException("No product category mapping found with the specified id");

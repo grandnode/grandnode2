@@ -5,6 +5,6 @@ namespace Grand.Web.Commands.Models.Customers;
 
 public class SubAccountDeleteCommand : IRequest<(bool success, string error)>
 {
-    public Customer CurrentCustomer { get; set; }
-    public string CustomerId { get; set; }
+    public required Customer CurrentCustomer { get; set; }
+    public required string CustomerId { get; set; }
 }

@@ -19,21 +19,21 @@ public interface IRepository<T> where T : BaseEntity
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    T GetById(string id);
+    T? GetById(string? id);
 
     /// <summary>
     ///     Get async entity by identifier
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    Task<T> GetByIdAsync(string id);
+    Task<T?> GetByIdAsync(string? id);
 
     /// <summary>
     ///     Get entity by identifier
     /// </summary>
     /// <param name="predicate"></param>
     /// <returns>Entity</returns>
-    Task<T> GetOneAsync(Expression<Func<T, bool>> predicate);
+    Task<T?> GetOneAsync(Expression<Func<T, bool>> predicate);
 
     /// <summary>
     ///     Insert entity
@@ -183,7 +183,7 @@ public interface IRepository<T> where T : BaseEntity
     /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
     /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
     /// <param name="cancellationToken">Cancellation token</param>
-    Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+    Task<TResult?> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
         CancellationToken cancellationToken = default);
 
     /// <summary>

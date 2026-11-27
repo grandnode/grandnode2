@@ -15,7 +15,7 @@ public static class ControllerExtensions
         controller.ViewData.Model = model;
 
         await using var writer = new StringWriter();
-        IViewEngine viewEngine =
+        IViewEngine? viewEngine =
             controller.HttpContext.RequestServices.GetService(typeof(ICompositeViewEngine)) as ICompositeViewEngine;
         if (viewEngine == null) return writer.GetStringBuilder().ToString();
         var viewResult = viewEngine.FindView(controller.ControllerContext, viewName, !partial);

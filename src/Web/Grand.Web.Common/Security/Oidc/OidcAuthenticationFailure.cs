@@ -11,15 +11,15 @@ public class OidcAuthenticationFailure
     public OidcFailureKind Kind { get; init; }
 
     /// <summary>Fixed, token-independent text</summary>
-    public string Description { get; init; }
+    public string? Description { get; init; }
 
     /// <summary>Space-separated scopes for insufficient_scope</summary>
-    public string Scope { get; init; }
+    public string? Scope { get; init; }
 
     public static void Set(HttpContext context, OidcAuthenticationFailure failure) =>
         context.Items[OidcResourceServerDefaults.FailureItemKey] = failure;
 
-    public static OidcAuthenticationFailure Get(HttpContext context) =>
+    public static OidcAuthenticationFailure? Get(HttpContext context) =>
         context.Items.TryGetValue(OidcResourceServerDefaults.FailureItemKey, out var value)
             ? value as OidcAuthenticationFailure
             : null;

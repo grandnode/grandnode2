@@ -22,19 +22,20 @@ public class RecordRecurringPaymentFailureCommandHandler(
         var report = await recurringPaymentService.RecordFailure(request.RecurringPaymentId,
             request.ProviderReference, request.CycleReference, request.Reason);
 
-        switch (report.Outcome)
+        //a payment is reported with every outcome but NotFound
+        switch (report)
         {
-            case RecurringReportOutcome.Recorded:
+            case { Outcome: RecurringReportOutcome.Recorded }:
                 return true;
-            case RecurringReportOutcome.OtherReference:
+            case { Outcome: RecurringReportOutcome.OtherReference, RecurringPayment: { } otherPayment }:
                 await RecurringPaymentGateway.StopOtherReference(paymentService, orderService, logger,
-                    report.RecurringPayment, request.ProviderReference,
+                    otherPayment, request.ProviderReference,
                     $"a failed cycle ({request.CycleReference})");
                 return false;
-            case RecurringReportOutcome.Ended:
+            case { Outcome: RecurringReportOutcome.Ended, RecurringPayment: { } endedPayment }:
                 // a failed charge on a payment the shop ended means the gateway still tries to charge, typically a
                 // payment cancelled while pending; the service recorded the reported reference so it can be stopped
-                await RecurringPaymentGateway.Stop(paymentService, orderService, logger, report.RecurringPayment);
+                await RecurringPaymentGateway.Stop(paymentService, orderService, logger, endedPayment);
                 return false;
             default:
                 return false;

@@ -11,7 +11,7 @@ public interface ICustomerNoteService
     /// </summary>
     /// <param name="id">Note identifier</param>
     /// <returns>CustomerNote</returns>
-    Task<CustomerNote> GetCustomerNote(string id);
+    Task<CustomerNote?> GetCustomerNote(string id);
 
     /// <summary>
     ///     Insert an customer note

@@ -80,7 +80,8 @@ public class ProductTagsController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Products(string tagId, DataSourceRequest command)
     {
-        var tag = await _productTagService.GetProductTagById(tagId);
+        var tag = await _productTagService.GetProductTagById(tagId)
+            ?? throw new ArgumentException("No product tag found with the specified id");
 
         var products = (await _productService.SearchProducts(
             access: CatalogAccess.For(_contextAccessor.WorkContext.CurrentCustomer, ""),
@@ -130,6 +131,8 @@ public class ProductTagsController : BaseAdminController
 
         if (ModelState.IsValid)
         {
+            //the validator requires the name
+            ArgumentException.ThrowIfNullOrEmpty(model.Name);
             productTag.Name = model.Name;
             productTag.Locales = model.Locales.ToTranslationProperty();
             productTag.SeName = SeoExtensions.GetSeName(productTag.Name, _seoSettings.ConvertNonWesternChars,

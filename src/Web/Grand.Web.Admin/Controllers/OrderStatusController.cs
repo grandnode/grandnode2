@@ -55,7 +55,8 @@ public class OrderStatusController : BaseAdminController
     {
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-        var status = await _orderStatusService.GetById(model.Id);
+        var status = await _orderStatusService.GetById(model.Id)
+            ?? throw new ArgumentException("No status found with the specified id");
         status = model.ToEntity(status);
         await _orderStatusService.Update(status);
 

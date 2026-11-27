@@ -1,6 +1,7 @@
 ﻿//Source https://github.com/OrchardCMS/OrchardCore/tree/dev/src/OrchardCore
 
 using Microsoft.Extensions.FileProviders.Physical;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Business.Core.Interfaces.Storage;
 
@@ -14,7 +15,7 @@ public interface IFileStore
     /// </summary>
     /// <param name="path">The path within the file store.</param>
     /// <returns>A <see cref="IFileStoreEntry" /> object representing the file, or <c>null</c> if the file does not exist.</returns>
-    Task<IFileStoreEntry> GetFileInfo(string path);
+    Task<IFileStoreEntry?> GetFileInfo(string path);
 
     /// <summary>
     ///     Retrieves information about the given directory within the file store.
@@ -24,7 +25,7 @@ public interface IFileStore
     ///     A <see cref="IFileStoreEntry" /> object representing the directory, or <c>null</c> if the directory does not
     ///     exist.
     /// </returns>
-    IFileStoreEntry GetDirectoryInfo(string path);
+    IFileStoreEntry? GetDirectoryInfo(string path);
 
     /// <summary>
     ///     Retrieves information about the given directory within the file store.
@@ -33,7 +34,7 @@ public interface IFileStore
     ///     A <see cref="PhysicalDirectoryInfo" /> object representing the directory, or <c>null</c> if the directory does
     ///     not exist.
     /// </returns>
-    Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath);
+    Task<PhysicalDirectoryInfo?> GetPhysicalDirectoryInfo(string directoryPath);
 
     /// <summary>
     ///     Enumerates the content (files and directories) in a given directory within the file store.
@@ -41,7 +42,7 @@ public interface IFileStore
     /// <remarks>
     ///     Results are grouped by entry type, where directories are followed by files.
     /// </remarks>
-    IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false,
+    IList<IFileStoreEntry> GetDirectoryContent(string? path = null, bool includeSubDirectories = false,
         bool listDirectories = true, bool listFiles = true);
 
     /// <summary>
@@ -158,10 +159,11 @@ public static class IFileStoreExtensions
     /// <param name="fileStore">The <see cref="IFileStore" />.</param>
     /// <param name="paths">The path parts to combine.</param>
     /// <returns>The full combined path.</returns>
-    public static string Combine(this IFileStore fileStore, params ReadOnlySpan<string> paths)
+    public static string Combine(this IFileStore fileStore, params ReadOnlySpan<string?> paths)
     {
+        //nothing to combine; a null or empty part is skipped the same way below
         if (paths.Length == 0)
-            return null;
+            return string.Empty;
         
         List<string> normalizedParts = [];
         foreach (var path in paths)
@@ -185,7 +187,8 @@ public static class IFileStoreExtensions
     ///     Backslash is converted to forward slash and any leading or trailing slashes
     ///     are removed.
     /// </remarks>
-    public static string NormalizePath(this IFileStore fileStore, string path)
+    [return: NotNullIfNotNull(nameof(path))]
+    public static string? NormalizePath(this IFileStore fileStore, string? path)
     {
         return path?.Replace('\\', '/').Trim('/', ' ');
     }

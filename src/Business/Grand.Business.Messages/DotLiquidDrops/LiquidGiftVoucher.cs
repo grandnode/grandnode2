@@ -16,17 +16,17 @@ public class LiquidGiftVoucher : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string SenderName => WebUtility.HtmlEncode(_giftVoucher.SenderName);
+    public string? SenderName => WebUtility.HtmlEncode(_giftVoucher.SenderName);
 
-    public string SenderEmail => WebUtility.HtmlEncode(_giftVoucher.SenderEmail);
+    public string? SenderEmail => WebUtility.HtmlEncode(_giftVoucher.SenderEmail);
 
-    public string RecipientName => WebUtility.HtmlEncode(_giftVoucher.RecipientName);
+    public string? RecipientName => WebUtility.HtmlEncode(_giftVoucher.RecipientName);
 
-    public string RecipientEmail => WebUtility.HtmlEncode(_giftVoucher.RecipientEmail);
+    public string? RecipientEmail => WebUtility.HtmlEncode(_giftVoucher.RecipientEmail);
 
-    public string Amount { get; set; }
+    public string? Amount { get; set; }
 
-    public string CouponCode => _giftVoucher.Code;
+    public string? CouponCode => _giftVoucher.Code;
 
     public string Message {
         get {

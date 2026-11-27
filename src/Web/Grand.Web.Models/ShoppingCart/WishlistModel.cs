@@ -7,7 +7,7 @@ namespace Grand.Web.Models.ShoppingCart;
 public class WishlistModel : BaseModel
 {
     public Guid CustomerGuid { get; set; }
-    public string CustomerFullname { get; set; }
+    public string? CustomerFullname { get; set; }
 
     public bool EmailWishlistEnabled { get; set; }
 
@@ -28,32 +28,32 @@ public class WishlistModel : BaseModel
 
     public class ShoppingCartItemModel : BaseEntityModel
     {
-        public string Sku { get; set; }
+        public string? Sku { get; set; }
 
         public PictureModel Picture { get; set; } = new();
 
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
-        public string ProductSeName { get; set; }
+        public string? ProductSeName { get; set; }
 
-        public string ProductUrl { get; set; }
+        public string? ProductUrl { get; set; }
 
-        public string UnitPrice { get; set; }
+        public string? UnitPrice { get; set; }
 
-        public string SubTotal { get; set; }
+        public string? SubTotal { get; set; }
 
-        public string Discount { get; set; }
+        public string? Discount { get; set; }
 
         public int Quantity { get; set; }
         public List<SelectListItem> AllowedQuantities { get; set; } = new();
 
-        public string AttributeInfo { get; set; }
+        public string? AttributeInfo { get; set; }
 
-        public string RecurringInfo { get; set; }
+        public string? RecurringInfo { get; set; }
 
-        public string RentalInfo { get; set; }
+        public string? RentalInfo { get; set; }
         public bool AllowItemEditing { get; set; }
 
         public IList<string> Warnings { get; set; } = new List<string>();

@@ -48,8 +48,8 @@ public class RecurringPaymentMessagesHandler : INotificationHandler<RecurringPay
     }
 
     private async Task Send(RecurringPayment recurringPayment,
-        Func<RecurringPayment, Order, Customer, string, Task<int>> sendToCustomer,
-        Func<RecurringPayment, Order, Customer, string, Task<int>> sendToStoreOwner)
+        Func<RecurringPayment, Order, Customer?, string?, Task<int>> sendToCustomer,
+        Func<RecurringPayment, Order, Customer?, string?, Task<int>> sendToStoreOwner)
     {
         try
         {

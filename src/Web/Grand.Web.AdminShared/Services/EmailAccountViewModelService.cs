@@ -61,6 +61,9 @@ public class EmailAccountViewModelService : IEmailAccountViewModelService
 
     public virtual async Task SendTestEmail(EmailAccount emailAccount, EmailAccountModel model)
     {
+        //the controller asks for the address first
+        ArgumentException.ThrowIfNullOrWhiteSpace(model.SendTestEmailTo);
+
         var subject = "Testing email functionality.";
         var body = "Email works fine.";
         await _emailSender.SendEmail(emailAccount, subject, body, emailAccount.Email, emailAccount.DisplayName,

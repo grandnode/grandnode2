@@ -32,7 +32,7 @@ public class OrderPlacementService : IOrderPlacementService
     }
 
     public virtual async Task<OrderPlacementEvaluation> Evaluate(IList<ShoppingCartItem> cart,
-        CalculationContext calculation, Language language, string paymentMethodSystemName,
+        CalculationContext calculation, Language language, string? paymentMethodSystemName,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(cart);

@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Interfaces.Authentication;
 
 public interface ITwoFactorAuthenticationService
 {
-    Task<bool> AuthenticateTwoFactor(string secretKey, string token, Customer customer,
+    Task<bool> AuthenticateTwoFactor(string? secretKey, string? token, Customer customer,
         TwoFactorAuthenticationType twoFactorAuthenticationType);
 
     /// <param name="store">The store whose company name the authenticator app shows as the issuer</param>

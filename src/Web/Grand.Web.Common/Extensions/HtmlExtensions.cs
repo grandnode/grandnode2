@@ -26,7 +26,7 @@ public static class HtmlExtensions
         tag.WriteTo(writer, HtmlEncoder.Default);
         return writer.ToString();
     }
-    public static string HtmlEncodeSafe(string input)
+    public static string HtmlEncodeSafe(string? input)
     {
         return string.IsNullOrEmpty(input) ? string.Empty : WebUtility.HtmlEncode(input);
     }

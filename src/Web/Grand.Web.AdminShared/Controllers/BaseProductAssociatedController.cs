@@ -38,7 +38,7 @@ public abstract class BaseProductAssociatedController(
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
         // this action on both hosts. Admin's original had no check at all - GlobalAdminDataScope.HasAccess
         // is a no-op there, so this closes that gap the same way as every other row in this task.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         // AssociatedProductVendorId (hook below): Vendor's original also passed CurrentVendor.Id into
@@ -151,7 +151,7 @@ public abstract class BaseProductAssociatedController(
         // could attach their own products under another vendor's grouped product (cross-vendor storefront
         // pollution / data-integrity issue, not a write to someone else's product record). Closed here the
         // same way as every other AddPopup(POST) in this task.
-        if (!await scope.HasAccess(parentProduct))
+        if (parentProduct == null || !await scope.HasAccess(parentProduct))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -171,7 +171,7 @@ public abstract class BaseProductAssociatedController(
                 foreach (var id in model.SelectedProductIds)
                 {
                     var selected = await productService.GetProductById(id);
-                    if (await scope.HasAccess(selected)) validIds.Add(id);
+                    if (selected != null && await scope.HasAccess(selected)) validIds.Add(id);
                 }
 
                 model.SelectedProductIds = validIds.ToArray();

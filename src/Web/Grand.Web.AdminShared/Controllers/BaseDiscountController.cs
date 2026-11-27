@@ -171,7 +171,7 @@ public abstract class BaseDiscountController(
     [AcceptVerbs("GET")]
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string rulesystemName,
-        string discountId, string discountRequirementId = null)
+        string discountId, string? discountRequirementId = null)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(rulesystemName);
 
@@ -186,7 +186,8 @@ public abstract class BaseDiscountController(
             return Json(new { Result = false, Error = "Access denied" });
 
         var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x =>
-            x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
+                                    x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase))
+                                ?? throw new ArgumentException("Discount requirement rule could not be loaded");
         var url = discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount,
             discountRequirementId ?? string.Empty);
         return Json(new { url });

@@ -22,8 +22,9 @@ public class GenerateCaptchaTagHelper : TagHelper
     ///     ViewContext
     /// </summary>
     [HtmlAttributeNotBound]
+    //set by the framework before the tag helper runs
     [ViewContext]
-    public ViewContext ViewContext { get; set; }
+    public ViewContext ViewContext { get; set; } = null!;
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {

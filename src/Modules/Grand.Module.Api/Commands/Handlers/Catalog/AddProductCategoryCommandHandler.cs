@@ -16,6 +16,9 @@ public class AddProductCategoryCommandHandler : IRequestHandler<AddProductCatego
 
     public async Task<bool> Handle(AddProductCategoryCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires an existing category
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.CategoryId);
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
         var productCategory = new ProductCategory {
             CategoryId = request.Model.CategoryId,
             IsFeaturedProduct = request.Model.IsFeaturedProduct

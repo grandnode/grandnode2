@@ -33,10 +33,10 @@ public class AuditScopeFilter(IAuditTracker tracker, IContextAccessor contextAcc
         }
     }
 
-    private AuditActor ResolveActor(ResourceExecutingContext context)
+    private AuditActor? ResolveActor(ResourceExecutingContext context)
     {
         var httpContext = context.HttpContext;
-        var workContext = contextAccessor.WorkContext;
+        var workContext = contextAccessor.CurrentWorkContext;
         var original = workContext?.OriginalCustomerIfImpersonated;
         var source = ResolveSource(context, original != null);
         if (source == null)

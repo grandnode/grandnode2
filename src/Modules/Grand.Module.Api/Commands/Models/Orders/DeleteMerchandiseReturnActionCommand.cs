@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Orders;
 
 public class DeleteMerchandiseReturnActionCommand : IRequest<bool>
 {
-    public MerchandiseReturnActionDto Model { get; set; }
+    public required MerchandiseReturnActionDto Model { get; set; }
 }

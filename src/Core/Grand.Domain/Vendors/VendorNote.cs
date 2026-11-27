@@ -8,7 +8,7 @@ public class VendorNote : SubBaseEntity
     /// <summary>
     ///     Gets or sets the note
     /// </summary>
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
     /// <summary>
     ///     Gets or sets the date and time of vendor note creation

@@ -12,16 +12,16 @@ public class PermissionAction : BaseEntity
     ///     Gets or sets the permission system name
     /// </summary>
     [AuditName]
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer group ident
     /// </summary>
     [AuditReference(typeof(CustomerGroup))]
-    public string CustomerGroupId { get; set; }
+    public string? CustomerGroupId { get; set; }
 
     /// <summary>
     ///     Gets or sets the action name for denied access
     /// </summary>
-    public string Action { get; set; }
+    public string? Action { get; set; }
 }

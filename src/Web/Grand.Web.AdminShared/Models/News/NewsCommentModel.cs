@@ -6,25 +6,25 @@ namespace Grand.Web.AdminShared.Models.News;
 public class NewsCommentModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Content.News.Comments.Fields.NewsItem")]
-    public string NewsItemId { get; set; }
+    public string? NewsItemId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.Comments.Fields.NewsItem")]
 
-    public string NewsItemTitle { get; set; }
+    public string? NewsItemTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.Comments.Fields.Customer")]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.Comments.Fields.Customer")]
-    public string CustomerInfo { get; set; }
+    public string? CustomerInfo { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Content.News.Comments.Fields.CommentTitle")]
-    public string CommentTitle { get; set; }
+    public string? CommentTitle { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Content.News.Comments.Fields.CommentText")]
-    public string CommentText { get; set; }
+    public string? CommentText { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.Comments.Fields.CreatedOn")]
     public DateTime CreatedOn { get; set; }

@@ -9,7 +9,7 @@ public static class NoteExtensions
     ///     What the customer typed is text, as the e-mails and the panels show it. A staff note is text too, unless it
     ///     is markup the rich-text allowlist keeps whole, e.g. a link to a form: such notes were shown as HTML before
     /// </summary>
-    public static string NoteHtml(this IHtmlSanitizationService htmlSanitizationService, string note,
+    public static string? NoteHtml(this IHtmlSanitizationService htmlSanitizationService, string? note,
         bool createdByCustomer)
     {
         if (!createdByCustomer && htmlSanitizationService.ContainsMarkup(note) &&

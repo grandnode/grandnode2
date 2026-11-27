@@ -14,7 +14,7 @@ public static class MediaRootFileProvider
     /// <param name="webHostEnvironment">Host environment whose WebRootFileProvider is layered</param>
     /// <param name="mediaRootPath">Media physical path; null or empty leaves wwwroot alone</param>
     /// <param name="directory">Optional per-installation subdirectory (the "Directory" config value)</param>
-    public static void Apply(IWebHostEnvironment webHostEnvironment, string mediaRootPath, string directory)
+    public static void Apply(IWebHostEnvironment webHostEnvironment, string? mediaRootPath, string? directory)
     {
         if (string.IsNullOrEmpty(mediaRootPath)) return;
 

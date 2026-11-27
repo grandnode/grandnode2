@@ -9,7 +9,7 @@ namespace Grand.Web.AdminShared.Models.Shipping;
 /// </summary>
 public class ReturnShippingSettingsModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.ReturnMethods.ReturnAddress")]
     public AddressModel ReturnAddress { get; set; } = new();

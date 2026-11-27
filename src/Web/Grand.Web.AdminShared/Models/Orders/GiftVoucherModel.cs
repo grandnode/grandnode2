@@ -12,7 +12,7 @@ public class GiftVoucherModel : BaseEntityModel
     public int GiftVoucherTypeId { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.Order")]
-    public string PurchasedWithOrderId { get; set; }
+    public string? PurchasedWithOrderId { get; set; }
 
     public int PurchasedWithOrderNumber { get; set; }
 
@@ -20,48 +20,48 @@ public class GiftVoucherModel : BaseEntityModel
     public double Amount { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.CurrencyCode")]
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     public IList<SelectListItem> AvailableCurrencies { get; set; } = new List<SelectListItem>();
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.StoreId")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.Amount")]
-    public string AmountStr { get; set; }
+    public string? AmountStr { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.RemainingAmount")]
-    public string RemainingAmountStr { get; set; }
+    public string? RemainingAmountStr { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.IsGiftVoucherActivated")]
     public bool IsGiftVoucherActivated { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.Code")]
 
-    public string Code { get; set; }
+    public string? Code { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.RecipientName")]
 
-    public string RecipientName { get; set; }
+    public string? RecipientName { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.RecipientEmail")]
 
-    public string RecipientEmail { get; set; }
+    public string? RecipientEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.SenderName")]
 
-    public string SenderName { get; set; }
+    public string? SenderName { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.SenderEmail")]
 
-    public string SenderEmail { get; set; }
+    public string? SenderEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.Message")]
     [NoHtml]
-    public string Message { get; set; }
+    public string? Message { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.IsRecipientNotified")]
     public bool IsRecipientNotified { get; set; }
@@ -78,10 +78,10 @@ public class GiftVoucherModel : BaseEntityModel
     public class GiftVoucherUsageHistoryModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.GiftVouchers.History.UsedValue")]
-        public string UsedValue { get; set; }
+        public string? UsedValue { get; set; }
 
         [GrandResourceDisplayName("Admin.GiftVouchers.History.Order")]
-        public string OrderId { get; set; }
+        public string? OrderId { get; set; }
 
         public int OrderNumber { get; set; }
 

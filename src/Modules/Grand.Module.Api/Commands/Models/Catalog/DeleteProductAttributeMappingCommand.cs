@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class DeleteProductAttributeMappingCommand : IRequest<bool>
 {
-    public ProductDto Product { get; set; }
-    public ProductAttributeMappingDto Model { get; set; }
+    public required ProductDto Product { get; set; }
+    public required ProductAttributeMappingDto Model { get; set; }
 }

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
@@ -27,8 +25,7 @@ public abstract class BaseCustomerOrderController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+            if ((await LoadAuthorizedCustomer(customerId)).IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
         else if (!await permissionService.Authorize(StandardPermission.ManageOrders))
         {
@@ -47,7 +44,7 @@ public abstract class BaseCustomerOrderController(
     [HttpPost]
     public async Task<IActionResult> OrderDetails(string orderId)
     {
-        Order order;
+        Order? order;
         if (Scope.DefaultStoreId is null)
         {
             if (!await permissionService.Authorize(StandardPermission.ManageOrders))

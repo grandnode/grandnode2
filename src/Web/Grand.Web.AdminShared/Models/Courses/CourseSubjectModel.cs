@@ -6,10 +6,10 @@ namespace Grand.Web.AdminShared.Models.Courses;
 public class CourseSubjectModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Courses.Course.Subject.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Course.Subject.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
-    public string CourseId { get; set; }
+    public string? CourseId { get; set; }
 }

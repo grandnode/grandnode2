@@ -103,8 +103,10 @@ public class
 
         foreach (var item in model)
         {
+            //a collection without an id has nothing to search by
+            if (item.Id == null) continue;
             //We cache a value indicating whether we have featured products
-            IPagedList<Product> featuredProducts = null;
+            IPagedList<Product>? featuredProducts = null;
 
             var cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
                 item.Id,

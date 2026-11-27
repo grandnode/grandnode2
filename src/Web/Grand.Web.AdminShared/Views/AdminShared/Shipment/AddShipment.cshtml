@@ -112,7 +112,7 @@
                                                     <option value="@(warehouse.WarehouseId)" data-stock-qty="@(warehouse.StockQuantity)"
                                                             data-reserved-qty="@(warehouse.ReservedQuantity)"
                                                             selected="@selected">
-                                                        @Loc[$"{prefix}.Orders.Shipments.Products.Warehouse.ChooseQty", warehouse.WarehouseName, warehouse.StockQuantity, warehouse.ReservedQuantity]
+                                                        @Loc[$"{prefix}.Orders.Shipments.Products.Warehouse.ChooseQty", warehouse.WarehouseName ?? "", warehouse.StockQuantity, warehouse.ReservedQuantity]
                                                     </option>
                                                 }
                                             </select>

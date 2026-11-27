@@ -34,10 +34,10 @@ public class CustomerGroupController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
 
-        var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key));
-        if (!customerGroup.Any()) return NotFound();
+        var customerGroup = (await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key))).FirstOrDefault();
+        if (customerGroup == null) return NotFound();
 
-        return Ok(customerGroup.FirstOrDefault());
+        return Ok(customerGroup);
     }
 
     [EndpointDescription("Get entities from CustomerGroup")]
@@ -81,10 +81,10 @@ public class CustomerGroupController : BaseApiController
 
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(model.Id));
-        if (!customerGroup.Any()) return NotFound();
+        var customerGroup = (await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(model.Id))).FirstOrDefault();
+        if (customerGroup == null) return NotFound();
 
-        if (customerGroup.FirstOrDefault()!.IsSystem) return BadRequest(ModelState);
+        if (customerGroup.IsSystem) return BadRequest(ModelState);
 
         model = await _mediator.Send(new UpdateCustomerGroupCommand { Model = model });
         return Ok(model);
@@ -104,10 +104,10 @@ public class CustomerGroupController : BaseApiController
 
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key));
-        if (!customerGroup.Any()) return NotFound();
+        var customerGroup = (await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key))).FirstOrDefault();
+        if (customerGroup == null) return NotFound();
 
-        var cr = customerGroup.FirstOrDefault();
+        var cr = customerGroup;
         if (cr!.IsSystem) return BadRequest(ModelState);
 
         model.ApplyTo(cr);
@@ -125,12 +125,12 @@ public class CustomerGroupController : BaseApiController
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key));
-        if (!customerGroup.Any()) return NotFound();
+        var customerGroup = (await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key))).FirstOrDefault();
+        if (customerGroup == null) return NotFound();
 
-        if (customerGroup.FirstOrDefault()!.IsSystem) return Forbid();
+        if (customerGroup.IsSystem) return Forbid();
 
-        await _mediator.Send(new DeleteCustomerGroupCommand { Model = customerGroup.FirstOrDefault() });
+        await _mediator.Send(new DeleteCustomerGroupCommand { Model = customerGroup });
 
         return Ok();
     }

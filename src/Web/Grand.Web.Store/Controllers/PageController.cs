@@ -35,7 +35,7 @@ public class PageController(
     protected override void EditWarningCheck(Page page)
     {
         if (!page.LimitedToStores ||
-            (page.Stores.Contains(Scope.DefaultStoreId) &&
+            (Scope.DefaultStoreId is { } defaultStoreId && page.Stores.Contains(defaultStoreId) &&
              page.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Content.Pages.Permissions"));
     }
@@ -53,7 +53,7 @@ public class PageController(
 
         if (!string.IsNullOrEmpty(model.Name))
             pageModels = pageModels.Where(x =>
-                x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
+                x.SystemName != null && x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
                 (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
 
         foreach (var page in pageModels) page.Body = "";
@@ -76,7 +76,7 @@ public class PageController(
 
         if (!string.IsNullOrEmpty(model.Name))
             pageModels = pageModels.Where(x =>
-                x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
+                x.SystemName != null && x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
                 (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
 
         foreach (var page in pageModels) page.Body = "";
@@ -90,7 +90,7 @@ public class PageController(
     [HttpPost]
     public async Task<IActionResult> Copy(string id)
     {
-        var storeId = Scope.DefaultStoreId;
+        var storeId = Scope.DefaultStoreId ?? throw new InvalidOperationException("The store panel works for one store");
         var page = await PageService.GetPageById(id);
         if (page == null) return RedirectToAction("List");
 
@@ -105,7 +105,7 @@ public class PageController(
 
         var storePages = await PageService.GetAllPages(CatalogAccess.IncludingHidden(storeId));
         if (storePages.Any(p => p.Id != page.Id &&
-                                 p.SystemName.Equals(page.SystemName, StringComparison.OrdinalIgnoreCase)))
+                                 string.Equals(p.SystemName, page.SystemName, StringComparison.OrdinalIgnoreCase)))
         {
             Error(TranslationService.GetResource("Admin.Content.Pages.Copy.DuplicateSystemName"));
             return RedirectToAction("Edit", new { id });

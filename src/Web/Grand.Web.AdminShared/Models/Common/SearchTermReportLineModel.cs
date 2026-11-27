@@ -6,7 +6,7 @@ namespace Grand.Web.AdminShared.Models.Common;
 public class SearchTermReportLineModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.SearchTermReport.Keyword")]
-    public string Keyword { get; set; }
+    public string? Keyword { get; set; }
 
     [GrandResourceDisplayName("Admin.SearchTermReport.Count")]
     public int Count { get; set; }

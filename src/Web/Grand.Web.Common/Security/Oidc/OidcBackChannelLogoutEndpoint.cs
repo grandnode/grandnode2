@@ -70,7 +70,7 @@ public static class OidcBackChannelLogoutEndpoint
         if (!logout.IsValid)
         {
             logger.LogWarning("Back-channel logout refused: {Reason}", logout.Error);
-            return Error(logout.Error);
+            return Error(logout.Error ?? "The logout token is invalid");
         }
 
         try
@@ -82,9 +82,12 @@ public static class OidcBackChannelLogoutEndpoint
             if (await services.GetRequiredService<IOidcLinkService>().LinksMatchProvider())
             {
                 var sessionService = services.GetRequiredService<IOidcSessionService>();
+                //a valid logout token names a sid, a subject or both
                 ended = logout.Sid != null
                     ? await sessionService.EndBySid(logout.Subject, logout.Sid)
-                    : await sessionService.EndBySubject(logout.Subject);
+                    : logout.Subject != null
+                        ? await sessionService.EndBySubject(logout.Subject)
+                        : [];
             }
             else
                 logger.LogWarning("Back-channel logout: no session ended, the identity provider changed and the account " +
@@ -112,7 +115,7 @@ public static class OidcBackChannelLogoutEndpoint
         return Results.Ok();
     }
 
-    private static async Task<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration> Configuration(
+    private static async Task<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration?> Configuration(
         OpenIdConnectOptions options, HttpContext context, ILogger logger)
     {
         try
@@ -130,7 +133,7 @@ public static class OidcBackChannelLogoutEndpoint
     ///     The configuration manager refreshes in the background and answers with the cached metadata meanwhile, so
     ///     wait (briefly) for a new instance; a refresh requested too soon after the last one is ignored by the manager
     /// </summary>
-    private static async Task<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration> RefreshedConfiguration(
+    private static async Task<Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration?> RefreshedConfiguration(
         OpenIdConnectOptions options, Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration cached,
         HttpContext context, ILogger logger)
     {

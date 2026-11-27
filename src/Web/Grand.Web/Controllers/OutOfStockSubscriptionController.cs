@@ -67,7 +67,7 @@ public class OutOfStockSubscriptionController : BasePublicController
 
     [HttpGet]
     // Product details page > out of stock subscribe button
-    public virtual async Task<IActionResult> SubscribeButton(string productId, string warehouseId)
+    public virtual async Task<IActionResult> SubscribeButton(string productId, string? warehouseId)
     {
         var product = await _productService.GetProductById(productId);
         if (product == null)

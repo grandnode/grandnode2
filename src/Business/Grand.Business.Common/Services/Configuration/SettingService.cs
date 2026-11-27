@@ -50,7 +50,7 @@ public class SettingService : ISettingService
     /// <summary>
     ///     Gets the settings of a store and the global ones, read with one query and cached together
     /// </summary>
-    private Task<StoreSettings> GetStoreSettings(string storeId)
+    private Task<StoreSettings> GetStoreSettings(string? storeId)
     {
         storeId ??= "";
         return _cacheBase.GetAsync(StoreSettingsKey(storeId), async () =>
@@ -65,7 +65,8 @@ public class SettingService : ISettingService
     private static ISettings CreateSettings(StoreSettings storeSettings, Type type)
     {
         return storeSettings.Find(type.Name.ToLowerInvariant(), type) as ISettings ??
-               Activator.CreateInstance(type) as ISettings;
+               Activator.CreateInstance(type) as ISettings ??
+               throw new ArgumentException($"{type.Name} is not a settings class", nameof(type));
     }
 
     /// <summary>
@@ -74,11 +75,11 @@ public class SettingService : ISettingService
     private sealed class StoreSettings
     {
         private readonly ILookup<string, Setting> _rows;
-        private readonly ConcurrentDictionary<(string name, Type type), object> _values = new();
+        private readonly ConcurrentDictionary<(string name, Type type), object?> _values = new();
 
         public StoreSettings(IEnumerable<Setting> rows, string storeId)
         {
-            _rows = rows.ToLookup(x => x.Name);
+            _rows = rows.ToLookup(x => x.Name ?? string.Empty);
             StoreId = storeId ?? "";
         }
 
@@ -87,14 +88,14 @@ public class SettingService : ISettingService
         /// <summary>
         ///     Gets the value of a setting - the row of the store wins over the global one - or null when there is neither
         /// </summary>
-        public object Find(string name, Type type)
+        public object? Find(string name, Type type)
         {
             return _values.GetOrAdd((name, type), _ =>
             {
                 var rows = _rows[name];
                 var setting = rows.FirstOrDefault(x => x.StoreId == StoreId) ??
                               rows.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
-                return setting != null ? JsonSerializer.Deserialize(setting.Metadata, type) : null;
+                return setting?.Metadata != null ? JsonSerializer.Deserialize(setting.Metadata, type) : null;
             });
         }
     }
@@ -107,7 +108,7 @@ public class SettingService : ISettingService
     private readonly ICacheBase _cacheBase;
 
     //the settings read without the cache, kept for the rest of this scope
-    private StoreSettings _uncachedStoreSettings;
+    private StoreSettings? _uncachedStoreSettings;
 
     #endregion
 
@@ -165,7 +166,7 @@ public class SettingService : ISettingService
     /// </summary>
     /// <param name="settingId">Setting identifier</param>
     /// <returns>Setting</returns>
-    public virtual Task<Setting> GetSettingById(string settingId)
+    public virtual Task<Setting?> GetSettingById(string settingId)
     {
         return _settingRepository.GetByIdAsync(settingId);
     }
@@ -179,7 +180,7 @@ public class SettingService : ISettingService
     /// <param name="defaultValue">Default value</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Setting value</returns>
-    public virtual async Task<T> GetSettingByKey<T>(string key, T defaultValue = default, string storeId = "")
+    public virtual async Task<T?> GetSettingByKey<T>(string key, T? defaultValue = default, string storeId = "")
     {
         if (string.IsNullOrEmpty(key))
             return defaultValue;
@@ -237,7 +238,7 @@ public class SettingService : ISettingService
     /// </summary>
     /// <typeparam name="T">Type</typeparam>
     /// <param name="storeId">Store identifier for which settings should be loaded</param>
-    public virtual async Task<T> LoadSetting<T>(string storeId = "") where T : ISettings, new()
+    public virtual async Task<T> LoadSetting<T>(string? storeId = "") where T : ISettings, new()
     {
         return (T)CreateSettings(await GetStoreSettings(storeId), typeof(T));
     }
@@ -256,13 +257,13 @@ public class SettingService : ISettingService
     /// </summary>
     /// <param name="type">Type</param>
     /// <param name="storeId">Store identifier for which settings should be loaded</param>
-    public virtual ISettings LoadSetting(Type type, string storeId = "")
+    public virtual ISettings LoadSetting(Type type, string? storeId = "")
     {
         //called by the container, which cannot wait for a query: LoadStoreSettings reads the store settings ahead
         //when the store context is set. Without them - a scope with no store context, or the cache cleared
         //meanwhile - they are read here once and kept for the other settings this scope resolves
         storeId ??= "";
-        if (_cacheBase.TryGet(StoreSettingsKey(storeId), out StoreSettings storeSettings))
+        if (_cacheBase.TryGet<StoreSettings>(StoreSettingsKey(storeId), out var storeSettings))
             return CreateSettings(storeSettings, type);
 
         if (_uncachedStoreSettings?.StoreId != storeId)

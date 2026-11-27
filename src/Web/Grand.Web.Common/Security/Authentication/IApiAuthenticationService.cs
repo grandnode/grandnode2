@@ -8,5 +8,5 @@ public interface IApiAuthenticationService
     ///     Get authenticated customer
     /// </summary>
     /// <returns>Customer</returns>
-    Task<Customer> GetAuthenticatedCustomer();
+    Task<Customer?> GetAuthenticatedCustomer();
 }

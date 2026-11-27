@@ -38,7 +38,7 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, Produ
         //the stock the product starts with goes into the journal before the product exists
         await _stockMovementService.JournalNewProduct(product, InventoryMovementType.Api,
             new StockSource("Api", product.Id, Reference: product.Sku ?? "",
-                CustomerId: _contextAccessor.WorkContext?.CurrentCustomer?.Id ?? ""));
+                CustomerId: _contextAccessor.WorkContext.CurrentCustomer.Id ?? ""));
         await _productService.InsertProduct(product);
 
         request.Model.SeName = await _seNameService.ValidateSeName(product, request.Model.SeName, product.Name, true);

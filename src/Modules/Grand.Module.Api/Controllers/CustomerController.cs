@@ -76,12 +76,16 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CustomerDto model)
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        model = await _mediator.Send(new UpdateCustomerCommand { Model = model });
-        return Ok(model);
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
+        var updated = await _mediator.Send(new UpdateCustomerCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Delete entity from Customer")]
@@ -136,9 +140,9 @@ public class CustomerController : BaseApiController
         var customer = await _mediator.Send(new GetCustomerQuery { Email = email });
         if (customer == null) return NotFound();
 
-        address = await _mediator.Send(new UpdateCustomerAddressCommand { Customer = customer, Address = address });
+        var updated = await _mediator.Send(new UpdateCustomerAddressCommand { Customer = customer, Address = address });
 
-        return Ok(address);
+        return Ok(updated);
     }
 
     //api/Customer/email/DeleteAddress

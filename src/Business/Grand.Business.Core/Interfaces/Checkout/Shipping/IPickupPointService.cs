@@ -10,7 +10,7 @@ public interface IPickupPointService
     /// </summary>
     /// <param name="pickupPointId">The pickup point identifier</param>
     /// <returns>PickupPoint</returns>
-    Task<PickupPoint> GetPickupPointById(string pickupPointId);
+    Task<PickupPoint?> GetPickupPointById(string? pickupPointId);
 
     /// <summary>
     ///     Gets all pickup points
@@ -25,7 +25,7 @@ public interface IPickupPointService
     ///     Gets active pickup points
     /// </summary>
     /// <returns>PickupPoints</returns>
-    Task<IList<PickupPoint>> LoadActivePickupPoints(string storeId = "");
+    Task<IList<PickupPoint>> LoadActivePickupPoints(string? storeId = "");
 
     /// <summary>
     ///     Inserts a pickupPoint

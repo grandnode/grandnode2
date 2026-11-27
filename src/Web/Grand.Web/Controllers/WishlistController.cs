@@ -224,6 +224,9 @@ public class WishlistController : BasePublicController
 
         if (ModelState.IsValid)
         {
+            //the validator requires them
+            ArgumentException.ThrowIfNullOrEmpty(model.YourEmailAddress);
+            ArgumentException.ThrowIfNullOrEmpty(model.FriendEmail);
             //email
             await catalogMessageProviderService.SendWishlistEmailAFriendMessage(_contextAccessor.WorkContext.CurrentCustomer,
                 _contextAccessor.StoreContext.CurrentStore,

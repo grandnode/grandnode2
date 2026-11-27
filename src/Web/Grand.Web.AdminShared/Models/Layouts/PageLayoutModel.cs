@@ -7,11 +7,11 @@ public class PageLayoutModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.ViewPath")]
 
-    public string ViewPath { get; set; }
+    public string? ViewPath { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.DisplayOrder")]
     public int DisplayOrder { get; set; }

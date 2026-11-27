@@ -136,7 +136,7 @@ public class GetSitemapProductsQueryHandlerTests
         });
 
         //Act
-        var result = await _handler.Handle(new GetSitemapProductsQuery { StoreId = StoreId, CustomerGroupIds = null },
+        var result = await _handler.Handle(new GetSitemapProductsQuery { StoreId = StoreId, LanguageId = "", CustomerGroupIds = null },
             CancellationToken.None);
 
         //Assert
@@ -154,7 +154,7 @@ public class GetSitemapProductsQueryHandlerTests
 
         //Act
         var result = await handler.Handle(new GetSitemapProductsQuery {
-            StoreId = StoreId, CustomerGroupIds = [GuestsGroupId], AfterId = "a", PageSize = 2
+            StoreId = StoreId, LanguageId = "", CustomerGroupIds = [GuestsGroupId], AfterId = "a", PageSize = 2
         }, CancellationToken.None);
 
         //Assert

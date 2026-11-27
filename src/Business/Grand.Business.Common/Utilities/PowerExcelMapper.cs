@@ -12,7 +12,7 @@ public class PowerExcelMapper : ExcelMapper
     private readonly Dictionary<Type, Func<object>> ObjectFactories = new();
 
     private Dictionary<string, Dictionary<int, object>> Objects { get; } = new();
-    private IWorkbook Workbook { get; set; }
+    private IWorkbook? Workbook { get; set; }
 
     private static async Task<Stream> ReadAsync(Stream stream, CancellationToken cancellationToken)
     {
@@ -22,7 +22,7 @@ public class PowerExcelMapper : ExcelMapper
     }
 
     public async Task<IEnumerable<T>> FetchAsync<T>(Stream stream, int sheetIndex = 0,
-        Func<string, object, object> valueParser = null, CancellationToken cancellationToken = default)
+        Func<string, object?, object?>? valueParser = null, CancellationToken cancellationToken = default)
     {
         using var ms = await ReadAsync(stream, cancellationToken);
         ms.Position = 0;
@@ -30,19 +30,19 @@ public class PowerExcelMapper : ExcelMapper
     }
 
     public IEnumerable Fetch(Stream stream, Type type, int sheetIndex,
-        Func<string, object, object> valueParser = null)
+        Func<string, object?, object?>? valueParser = null)
     {
         Workbook = WorkbookFactory.Create(stream);
         return Fetch(type, sheetIndex, valueParser);
     }
 
-    public IEnumerable Fetch(Type type, int sheetIndex = 0, Func<string, object, object> valueParser = null)
+    public IEnumerable Fetch(Type type, int sheetIndex = 0, Func<string, object?, object?>? valueParser = null)
     {
-        var sheet = Workbook.GetSheetAt(sheetIndex);
+        var sheet = (Workbook ?? throw new InvalidOperationException("No workbook has been read")).GetSheetAt(sheetIndex);
         return Fetch(sheet, type, valueParser);
     }
 
-    private IEnumerable Fetch(ISheet sheet, Type type, Func<string, object, object> valueParser = null)
+    private IEnumerable Fetch(ISheet sheet, Type type, Func<string, object?, object?>? valueParser = null)
     {
         var firstRowNumber = HeaderRowNumber;
 
@@ -76,7 +76,7 @@ public class PowerExcelMapper : ExcelMapper
             if ((!HeaderRow || i != HeaderRowNumber) && (!SkipBlankRows || row.Cells.Any(c => !IsCellBlank(c))))
             {
                 var o = MapCells(type, valueParser, typeMapper, firstRowCells, ref objInstanceIdx, row,
-                    new HashSet<Type> { type });
+                    type != null ? new HashSet<Type> { type } : new HashSet<Type>());
                 yield return o;
             }
         }
@@ -91,12 +91,12 @@ public class PowerExcelMapper : ExcelMapper
         };
     }
 
-    private object MapCells(Type type, Func<string, object, object> valueParser, TypeMapper typeMapper,
+    private object? MapCells(Type? type, Func<string, object?, object?>? valueParser, TypeMapper typeMapper,
         IEnumerable<ICell> cells, ref int objInstanceIdx, IRow row, ISet<Type> callChain)
     {
         var sheet = row.Sheet;
         var i = row.RowNum;
-        List<(ColumnInfo Col, object CellValue, ICell Cell, int ColumnIndex)> initValues = new();
+        List<(ColumnInfo Col, object? CellValue, ICell? Cell, int ColumnIndex)> initValues = new();
         var columns = cells
             .Select(c => (Index: c.ColumnIndex,
                 Columns: GetColumnInfo(typeMapper, c)
@@ -111,7 +111,7 @@ public class PowerExcelMapper : ExcelMapper
             if (cell != null && (!SkipBlankCells || !IsCellBlank(cell)))
                 foreach (var ci in columnInfos)
                 {
-                    object cellValue;
+                    object? cellValue;
 
                     try
                     {
@@ -153,7 +153,7 @@ public class PowerExcelMapper : ExcelMapper
                     initValues.Add((ci, subObject, null, -1));
                 }
 
-        object o;
+        object? o;
 
         if (type == null)
         {
@@ -170,7 +170,7 @@ public class PowerExcelMapper : ExcelMapper
                     if (typeMapper.ConstructorParams.TryGetValue(initVal.Col.Property.Name, out var parm))
                         try
                         {
-                            object v;
+                            object? v;
 
                             if (initVal.Cell != null)
                                 v = PowerExcelExtensions.GetPropertyValue(initVal.Col, null, initVal.CellValue,
@@ -237,7 +237,7 @@ public class PowerExcelMapper : ExcelMapper
         return o;
     }
 
-    private static object GetDefault(Type t)
+    private static object? GetDefault(Type t)
     {
         return t.GetTypeInfo().IsValueType ? Activator.CreateInstance(t) : null;
     }
@@ -269,7 +269,7 @@ public class PowerExcelMapper : ExcelMapper
         return new List<ColumnInfo>();
     }
 
-    private object GetCellValue(ICell cell, ColumnInfo targetColumn)
+    private object? GetCellValue(ICell cell, ColumnInfo targetColumn)
     {
         var formulaResult = cell.CellType == CellType.Formula &&
                             (targetColumn.PropertyType != typeof(string) || targetColumn.FormulaResult);

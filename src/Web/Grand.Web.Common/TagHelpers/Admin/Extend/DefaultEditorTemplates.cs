@@ -129,7 +129,7 @@ internal static class DefaultEditorTemplates
         var viewData = htmlHelper.ViewData;
         var model = viewData.Model;
 
-        IHtmlContent display;
+        IHtmlContent? display;
         if (viewData.ModelMetadata.HideSurroundingHtml)
             display = null;
         else
@@ -147,7 +147,7 @@ internal static class DefaultEditorTemplates
     private static IDictionary<string, object> CreateHtmlAttributes(
         IHtmlHelper htmlHelper,
         string className,
-        string inputType = null)
+        string? inputType = null)
     {
         var htmlAttributesObject = htmlHelper.ViewData[HtmlAttributeKey];
         if (htmlAttributesObject != null) return MergeHtmlAttributes(htmlAttributesObject, className, inputType);
@@ -164,7 +164,7 @@ internal static class DefaultEditorTemplates
     private static IDictionary<string, object> MergeHtmlAttributes(
         object htmlAttributesObject,
         string className,
-        string inputType)
+        string? inputType)
     {
         var htmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributesObject);
 
@@ -271,7 +271,7 @@ internal static class DefaultEditorTemplates
 
     public static async Task<IHtmlContent> PasswordTemplate(IHtmlHelper htmlHelper)
     {
-        object value = null;
+        object? value = null;
         if (AppContext.TryGetSwitch(UsePasswordValue, out var usePasswordValue) && usePasswordValue)
             value = htmlHelper.ViewData.TemplateInfo.FormattedModelValue;
 
@@ -383,12 +383,12 @@ internal static class DefaultEditorTemplates
                 string.Format(CultureInfo.InvariantCulture, format, value);
     }
 
-    private static IHtmlContent GenerateTextBox(IHtmlHelper htmlHelper, string inputType = null)
+    private static IHtmlContent GenerateTextBox(IHtmlHelper htmlHelper, string? inputType = null)
     {
         return GenerateTextBox(htmlHelper, inputType, htmlHelper.ViewData.TemplateInfo.FormattedModelValue);
     }
 
-    private static IHtmlContent GenerateTextBox(IHtmlHelper htmlHelper, string inputType, object value)
+    private static IHtmlContent GenerateTextBox(IHtmlHelper htmlHelper, string? inputType, object value)
     {
         var htmlAttributes =
             CreateHtmlAttributes(htmlHelper, "text-box single-line", inputType);
@@ -421,7 +421,7 @@ internal static class DefaultEditorTemplates
             if (count > 0) HasContent = true;
         }
 
-        public override void Write(string value)
+        public override void Write(string? value)
         {
             if (!string.IsNullOrEmpty(value)) HasContent = true;
         }

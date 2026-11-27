@@ -7,11 +7,12 @@
     //not changed (the form has no Save)
     bool readOnly = Model is ProductModel { IsReadOnly: true };
     var stores = new List<SelectListItem>();
-    stores.Add(new SelectListItem
-            {
-                Text = contextAccessor.WorkContext.StoreManager.Shortcut,
-                Value = contextAccessor.WorkContext.StoreManager.Id
-            });    
+    if (contextAccessor.WorkContext.StoreManager is { } staffStore)
+        stores.Add(new SelectListItem
+                {
+                    Text = staffStore.Shortcut,
+                    Value = staffStore.Id
+                });
 }
 <vc:store-widget widget-zone="userfield_details_info_top" additional-data="Model"/>
 @* one card: the add form on top, the fields under it - addUserFields() appends a new one to

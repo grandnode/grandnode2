@@ -86,6 +86,8 @@ public class ProductSpecificationViewModelService(
     public virtual async Task UpdateProductSpecificationAttributeModel(ProductSpecificationAttribute psa,
         ProductModel.AddProductSpecificationAttributeModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+
         psa = model.ToEntity(psa);
         await specificationAttributeService.UpdateProductSpecificationAttribute(psa, model.ProductId);
     }

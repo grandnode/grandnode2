@@ -32,10 +32,10 @@ public class CollectionLayoutController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance, CurrentCustomer)) return Forbid();
 
-        var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, CollectionLayout>(key));
-        if (!layout.Any()) return NotFound();
+        var layout = (await _mediator.Send(new GetGenericQuery<LayoutDto, CollectionLayout>(key))).FirstOrDefault();
+        if (layout == null) return NotFound();
 
-        return Ok(layout.FirstOrDefault());
+        return Ok(layout);
     }
 
     [EndpointDescription("Get entities from CollectionLayout")]

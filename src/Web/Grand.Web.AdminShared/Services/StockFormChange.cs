@@ -11,7 +11,7 @@ namespace Grand.Web.AdminShared.Services;
 public static class StockFormChange
 {
     /// <returns>The change, or null when neither the stock nor the reserved quantity changed</returns>
-    public static StockChange Of(IList<CustomAttribute> attributes, string warehouseId, int stock, int originalStock,
+    public static StockChange? Of(IList<CustomAttribute> attributes, string? warehouseId, int stock, int originalStock,
         int reserved, int originalReserved, StockSource source)
     {
         var stockChanged = stock != originalStock;

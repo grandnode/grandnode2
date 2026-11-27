@@ -27,7 +27,7 @@ public class RequestTranslationServiceTests
     [TestMethod]
     public void GetResource_UsesWorkingLanguageOfTheRequest()
     {
-        _contextAccessorMock.Setup(c => c.WorkContext.WorkingLanguage).Returns(new Language { Id = "pl" });
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext.WorkingLanguage).Returns(new Language { Id = "pl" });
         _serviceMock.Setup(x => x.GetResource("name", "pl", "", false)).Returns("nazwa");
 
         var result = _service.GetResource("name");
@@ -38,7 +38,7 @@ public class RequestTranslationServiceTests
     [TestMethod]
     public void GetResource_WithoutWorkingLanguage_ReturnsEmpty()
     {
-        _contextAccessorMock.Setup(c => c.WorkContext.WorkingLanguage).Returns((Language)null);
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext.WorkingLanguage).Returns((Language)null);
 
         var result = _service.GetResource("name");
 
@@ -51,7 +51,7 @@ public class RequestTranslationServiceTests
     [TestMethod]
     public void GetResource_WithoutWorkContext_ReturnsEmpty()
     {
-        _contextAccessorMock.Setup(c => c.WorkContext).Returns((IWorkContext)null);
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext).Returns((IWorkContext)null);
 
         var result = _service.GetResource("name");
 

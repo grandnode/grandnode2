@@ -7,9 +7,9 @@ namespace Grand.Web.Commands.Models.Customers;
 
 public class CustomerRegisteredCommand : IRequest<bool>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Domain.Stores.DomainHost Host { get; set; }
-    public RegisterModel Model { get; set; }
-    public IList<CustomAttribute> CustomerAttributes { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Domain.Stores.DomainHost Host { get; set; }
+    public required RegisterModel Model { get; set; }
+    public required IList<CustomAttribute> CustomerAttributes { get; set; }
 }

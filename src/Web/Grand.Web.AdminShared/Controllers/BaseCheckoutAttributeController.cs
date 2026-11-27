@@ -143,7 +143,7 @@ public abstract class BaseCheckoutAttributeController(
     public virtual async Task<IActionResult> ValueList(string checkoutAttributeId, DataSourceRequest command)
     {
         var ca = await checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-        if (!await scope.CanView(ca))
+        if (ca == null || !await scope.CanView(ca))
             return View("AccessDenied", translationService.GetResource("admin.Catalog.attributes.checkoutAttributes.permissions"));
 
         var values = await checkoutAttributeViewModelService.PrepareCheckoutAttributeValuesModel(checkoutAttributeId);
@@ -179,8 +179,8 @@ public abstract class BaseCheckoutAttributeController(
             await checkoutAttributeViewModelService.InsertCheckoutAttributeValueModel(checkoutAttribute, model);
             return Content("");
         }
-        model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
-        model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId)).Name;
+        model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
+        model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
         return View(model);
     }
 
@@ -188,7 +188,7 @@ public abstract class BaseCheckoutAttributeController(
     public virtual async Task<IActionResult> ValueEditPopup(string id, string checkoutAttributeId)
     {
         var checkoutAttribute = await checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-        if (!await scope.CanView(checkoutAttribute))
+        if (checkoutAttribute == null || !await scope.CanView(checkoutAttribute))
             return View("AccessDenied", translationService.GetResource("admin.Catalog.attributes.checkoutAttributes.permissions"));
 
         var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == id);
@@ -208,7 +208,7 @@ public abstract class BaseCheckoutAttributeController(
     public virtual async Task<IActionResult> ValueEditPopup(CheckoutAttributeValueModel model)
     {
         var checkoutAttribute = await checkoutAttributeService.GetCheckoutAttributeById(model.CheckoutAttributeId);
-        if (!await scope.HasAccess(checkoutAttribute))
+        if (checkoutAttribute == null || !await scope.HasAccess(checkoutAttribute))
             return View("AccessDenied", translationService.GetResource("admin.Catalog.attributes.checkoutAttributes.permissions"));
 
         var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == model.Id);
@@ -220,8 +220,8 @@ public abstract class BaseCheckoutAttributeController(
             await checkoutAttributeViewModelService.UpdateCheckoutAttributeValueModel(checkoutAttribute, cav, model);
             return Content("");
         }
-        model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
-        model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId)).Name;
+        model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
+        model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
         return View(model);
     }
 
@@ -230,7 +230,7 @@ public abstract class BaseCheckoutAttributeController(
     public virtual async Task<IActionResult> ValueDelete(string id, string checkoutAttributeId)
     {
         var checkoutAttribute = await checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-        if (!await scope.HasAccess(checkoutAttribute))
+        if (checkoutAttribute == null || !await scope.HasAccess(checkoutAttribute))
             return View("AccessDenied", translationService.GetResource("admin.Catalog.attributes.checkoutAttributes.permissions"));
 
         var cav = checkoutAttribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == id);

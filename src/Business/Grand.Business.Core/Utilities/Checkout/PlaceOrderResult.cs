@@ -29,12 +29,12 @@ public class PlaceOrderResult
     /// <summary>
     ///     Gets or sets the placed order
     /// </summary>
-    public Order PlacedOrder { get; set; }
+    public Order? PlacedOrder { get; set; }
 
     /// <summary>
     ///     Gets or sets the payment transaction
     /// </summary>
-    public PaymentTransaction PaymentTransaction { get; set; }
+    public PaymentTransaction? PaymentTransaction { get; set; }
 
     /// <summary>
     ///     Add error

@@ -14,14 +14,14 @@ namespace Grand.Infrastructure.Audit;
 public partial class AuditReferences(IAuditRecordReader reader)
 {
     private static readonly ConcurrentDictionary<Type, string> NameProperties = new();
-    private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> Properties = new();
-    private static readonly ConcurrentDictionary<Type, PropertyInfo> Owners = new();
+    private static readonly ConcurrentDictionary<(Type, string), PropertyInfo?> Properties = new();
+    private static readonly ConcurrentDictionary<Type, PropertyInfo?> Owners = new();
 
     //the records read for these entries, null when there is none
-    private readonly Dictionary<RecordKey, IDictionary<string, string>> _records = new();
+    private readonly Dictionary<RecordKey, IDictionary<string, string>?> _records = new();
 
     //set while Prefetch walks the entries: the records they need are noted instead of read
-    private HashSet<RecordKey> _wanted;
+    private HashSet<RecordKey>? _wanted;
 
     [GeneratedRegex(@"\[[^\]]*\]")]
     private static partial Regex ElementKeys();
@@ -40,7 +40,7 @@ public partial class AuditReferences(IAuditRecordReader reader)
     ///     describing them afterwards reads nothing. A record that could not be read this way is read when needed.
     /// </summary>
     public async Task Prefetch(
-        IEnumerable<(Type Type, AuditEntry Entry, IDictionary<string, string> Before, IDictionary<string, string> After)> entries)
+        IEnumerable<(Type Type, AuditEntry Entry, IDictionary<string, string>? Before, IDictionary<string, string>? After)> entries)
     {
         var wanted = _wanted = [];
         try
@@ -77,20 +77,23 @@ public partial class AuditReferences(IAuditRecordReader reader)
     /// <summary>
     ///     Names the list elements, the references and the owner of one entry
     /// </summary>
-    public async Task DescribeEntry(Type entityType, AuditEntry entry, IDictionary<string, string> before,
-        IDictionary<string, string> after)
+    public async Task DescribeEntry(Type entityType, AuditEntry entry, IDictionary<string, string>? before,
+        IDictionary<string, string>? after)
     {
         await NameElements(entityType, entry.Changes, before, after);
         await Describe(entityType, entry.Changes, before, after);
         await LinkOwner(entityType, entry, after ?? before);
     }
 
-    public async Task Describe(Type entityType, IEnumerable<AuditChange> changes, IDictionary<string, string> before,
-        IDictionary<string, string> after)
+    public async Task Describe(Type entityType, IEnumerable<AuditChange> changes, IDictionary<string, string>? before,
+        IDictionary<string, string>? after)
     {
         //a cut value is no longer a whole id list; it stays as stored
         foreach (var change in changes.Where(c => !c.Masked && !c.Truncated))
         {
+            if (change.Path == null)
+                continue;
+
             var property = PropertyAt(entityType, change.Path);
             if (property == null)
                 continue;
@@ -120,11 +123,14 @@ public partial class AuditReferences(IAuditRecordReader reader)
     ///     change reads "Color family" instead of an element id
     /// </summary>
     public async Task NameElements(Type entityType, IEnumerable<AuditChange> changes,
-        IDictionary<string, string> before, IDictionary<string, string> after)
+        IDictionary<string, string>? before, IDictionary<string, string>? after)
     {
-        var named = new Dictionary<string, string>();
+        var named = new Dictionary<string, string?>();
         foreach (var change in changes)
         {
+            if (change.Path == null)
+                continue;
+
             //a name that cannot be found leaves the element ids, never the change out
             try
             {
@@ -160,8 +166,8 @@ public partial class AuditReferences(IAuditRecordReader reader)
     }
 
     //the element's [AuditName] or Name value; a reference names it by the referenced record
-    private async Task<string> ElementName(Type elementType, string path, IDictionary<string, string> before,
-        IDictionary<string, string> after)
+    private async Task<string?> ElementName(Type elementType, string path, IDictionary<string, string>? before,
+        IDictionary<string, string>? after)
     {
         var property = elementType.GetProperty(NameProperty(elementType));
         if (property == null)
@@ -184,7 +190,7 @@ public partial class AuditReferences(IAuditRecordReader reader)
     ///     Links the entry of a record that belongs to another (see <see cref="AuditOwnerAttribute" />) to that record,
     ///     so it shows in the owner's change history, and to the owner's store when it has none of its own
     /// </summary>
-    public async Task LinkOwner(Type entityType, AuditEntry entry, IDictionary<string, string> snapshot)
+    public async Task LinkOwner(Type entityType, AuditEntry entry, IDictionary<string, string>? snapshot)
     {
         var owner = Owners.GetOrAdd(entityType, t => t.GetProperties().FirstOrDefault(p =>
             p.IsDefined(typeof(AuditOwnerAttribute)) && p.IsDefined(typeof(AuditReferenceAttribute))));
@@ -226,15 +232,15 @@ public partial class AuditReferences(IAuditRecordReader reader)
     ///     The property a changed path ends at, e.g. "ProductSpecificationAttributes[id=1].SpecificationAttributeOptionId"
     ///     is SpecificationAttributeOptionId of the element type; null when the path is not a property
     /// </summary>
-    public static PropertyInfo PropertyAt(Type type, string path)
+    public static PropertyInfo? PropertyAt(Type type, string path)
     {
         //cached by the path without its element keys, so the cache grows with the model, not with the data
         return Properties.GetOrAdd((type, ElementKeys().Replace(path, "")), key => FindProperty(key.Item1, key.Item2));
     }
 
-    private static PropertyInfo FindProperty(Type type, string path)
+    private static PropertyInfo? FindProperty(Type type, string path)
     {
-        PropertyInfo property = null;
+        PropertyInfo? property = null;
         foreach (var segment in path.Split('.'))
         {
             property = type?.GetProperty(segment.Split('[')[0]);
@@ -247,7 +253,7 @@ public partial class AuditReferences(IAuditRecordReader reader)
         return property;
     }
 
-    private static Type ElementType(Type type)
+    private static Type? ElementType(Type type)
     {
         return type == typeof(string)
             ? null
@@ -256,8 +262,8 @@ public partial class AuditReferences(IAuditRecordReader reader)
                 ?.GetGenericArguments()[0];
     }
 
-    private async Task<string> Describe(PropertyInfo property, string path, string value,
-        IDictionary<string, string> snapshot)
+    private async Task<string?> Describe(PropertyInfo property, string path, string? value,
+        IDictionary<string, string>? snapshot)
     {
         if (string.IsNullOrEmpty(value))
             return value;
@@ -285,20 +291,20 @@ public partial class AuditReferences(IAuditRecordReader reader)
         return string.Join(", ", described);
     }
 
-    private static string SiblingValue(IDictionary<string, string> snapshot, string path, string sibling)
+    private static string? SiblingValue(IDictionary<string, string>? snapshot, string path, string sibling)
     {
         var parent = path.Contains('.') ? path[..(path.LastIndexOf('.') + 1)] : "";
         return snapshot != null && snapshot.TryGetValue(parent + sibling, out var value) ? value : null;
     }
 
-    private async Task<string> Label(AuditReferenceAttribute reference, string owner, string id)
+    private async Task<string> Label(AuditReferenceAttribute reference, string? owner, string id)
     {
         var name = await NameOf(reference, owner, id);
         return name == null ? id : $"{name} ({id})";
     }
 
     //the name in the snapshot of the referenced record, or of the element of its list; null when there is none
-    private async Task<string> NameOf(AuditReferenceAttribute reference, string owner, string id)
+    private async Task<string?> NameOf(AuditReferenceAttribute reference, string? owner, string id)
     {
         var recordId = reference.List == null ? id : owner;
         if (string.IsNullOrEmpty(recordId))
@@ -315,7 +321,7 @@ public partial class AuditReferences(IAuditRecordReader reader)
     }
 
     //each record is read once for all the entries; while Prefetch collects, it is only noted
-    private async Task<IDictionary<string, string>> Record(Type target, string value, string key, string field)
+    private async Task<IDictionary<string, string>?> Record(Type target, string value, string? key, string field)
     {
         var recordKey = new RecordKey(target, key, field, value);
         if (_wanted != null)
@@ -329,5 +335,5 @@ public partial class AuditReferences(IAuditRecordReader reader)
         return record;
     }
 
-    private readonly record struct RecordKey(Type Target, string Key, string Field, string Value);
+    private readonly record struct RecordKey(Type Target, string? Key, string Field, string Value);
 }

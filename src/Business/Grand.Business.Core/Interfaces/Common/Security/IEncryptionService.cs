@@ -41,21 +41,21 @@ public interface IEncryptionService
     /// <param name="storedSalt">Stored salt (<c>Customer.PasswordSalt</c>); ignored for PBKDF2</param>
     /// <param name="legacyHashedFormat">Hash algorithm used by legacy SHA hashes (global setting)</param>
     /// <returns>True when the password matches</returns>
-    bool VerifyPassword(string enteredPassword, PasswordFormat passwordFormat, string storedPassword,
-        string storedSalt, HashedPasswordFormat legacyHashedFormat);
+    bool VerifyPassword(string? enteredPassword, PasswordFormat passwordFormat, string? storedPassword,
+        string? storedSalt, HashedPasswordFormat legacyHashedFormat);
 
     /// <summary>
     ///     Indicates whether a stored credential uses a weak/legacy format (Clear, Encrypted or a non-PBKDF2 hash)
     ///     and should be transparently re-hashed to the modern format after the next successful authentication.
     /// </summary>
-    bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string storedPassword);
+    bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string? storedPassword);
 
     /// <summary>
     ///     Returns true when the stored value is the modern self-describing (PBKDF2) hash produced by
     ///     <see cref="HashPassword" />. Use it to pick the verification path for records whose password format is
     ///     not tracked in a separate field (e.g. API users), instead of inferring it from other columns.
     /// </summary>
-    bool IsHashedPassword(string storedPassword);
+    bool IsHashedPassword(string? storedPassword);
 
     /// <summary>
     ///     Encrypt text (legacy TripleDES). Retained only to verify pre-existing reversibly-encrypted values
@@ -74,5 +74,5 @@ public interface IEncryptionService
     /// <param name="cipherText">Text to decrypt</param>
     /// <param name="encryptionPrivateKey">Encryption private key</param>
     /// <returns>Decrypted text</returns>
-    string DecryptText(string cipherText, string encryptionPrivateKey);
+    string? DecryptText(string cipherText, string encryptionPrivateKey);
 }

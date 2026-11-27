@@ -47,7 +47,7 @@ public class GetProductsByTagHandler : IRequestHandler<GetProductsByTag, Product
             StoreId = request.Store.Id,
             ProductTag = request.ProductTag.Name,
             VisibleIndividuallyOnly = true,
-            OrderBy = (ProductSortingEnum)request.Command.OrderBy,
+            OrderBy = (ProductSortingEnum)(request.Command.OrderBy ?? 0),
             PageIndex = request.Command.PageNumber - 1,
             PageSize = request.Command.PageSize
         }, cancellationToken)).products;

@@ -6,7 +6,7 @@ namespace Grand.Web.AdminShared.Interfaces;
 public interface IContactAttributeViewModelService
 {
     Task<IEnumerable<ContactAttributeModel>> PrepareContactAttributeListModel();
-    Task PrepareConditionAttributes(ContactAttributeModel model, ContactAttribute contactAttribute);
+    Task PrepareConditionAttributes(ContactAttributeModel model, ContactAttribute? contactAttribute);
     Task<ContactAttribute> InsertContactAttributeModel(ContactAttributeModel model);
     Task<ContactAttribute> UpdateContactAttributeModel(ContactAttribute contactAttribute, ContactAttributeModel model);
     ContactAttributeValueModel PrepareContactAttributeValueModel(ContactAttribute contactAttribute);

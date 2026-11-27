@@ -183,7 +183,7 @@ public class MerchandiseReturnWorkflowService(
                 },
                 //checked again on the return as stored: it may have been rejected or cancelled since
                 stored => stored.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending
-                          && stored.ReturnShipping.LabelStatus == ReturnLabelStatus.Cancelled);
+                          && stored.ReturnShipping != null && stored.ReturnShipping.LabelStatus == ReturnLabelStatus.Cancelled);
             if (error != null)
             {
                 logger.LogWarning("The cancelled label of merchandise return {MerchandiseReturnId}, opened again, " +
@@ -253,7 +253,7 @@ public class MerchandiseReturnWorkflowService(
     }
 
     private async Task<MerchandiseReturn> NewMerchandiseReturn(MerchandiseReturnSubmitRequest request,
-        string vendorId, IEnumerable<MerchandiseReturnSubmitItem> items, MerchandiseReturnShipping shipping)
+        string vendorId, IEnumerable<MerchandiseReturnSubmitItem> items, MerchandiseReturnShipping? shipping)
     {
         var merchandiseReturn = new MerchandiseReturn {
             StoreId = request.StoreId,
@@ -298,7 +298,7 @@ public class MerchandiseReturnWorkflowService(
     ///     The return shipping of one return: the label and the provider's data of one vendor's parcel are never
     ///     those of another's. The addresses and the drop-off point are built for each vendor already
     /// </summary>
-    private static MerchandiseReturnShipping Copy(MerchandiseReturnShipping shipping)
+    private static MerchandiseReturnShipping? Copy(MerchandiseReturnShipping? shipping)
     {
         if (shipping == null)
             return null;
@@ -321,22 +321,22 @@ public class MerchandiseReturnWorkflowService(
         };
     }
 
-    public Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
-        string customerNote = null, string changedBy = null)
+    public Task<string?> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
+        string? customerNote = null, string? changedBy = null)
     {
         return ChangeStatus(merchandiseReturnId, status, customerNote, changedBy, null);
     }
 
-    public Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
-        string customerNote, string changedBy, Func<MerchandiseReturn, bool> allowed)
+    public Task<string?> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
+        string? customerNote, string? changedBy, Func<MerchandiseReturn, bool>? allowed)
     {
         return ChangeStatus(merchandiseReturnId, status, customerNote, changedBy, allowed, false);
     }
 
-    public async Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
-        string customerNote, string changedBy, Func<MerchandiseReturn, bool> allowed, bool withoutReturnReceipts)
+    public async Task<string?> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
+        string? customerNote, string? changedBy, Func<MerchandiseReturn, bool>? allowed, bool withoutReturnReceipts)
     {
-        MerchandiseReturn changed = null;
+        MerchandiseReturn? changed = null;
         var error = await UnderOrderLock(merchandiseReturnId, async stored =>
         {
             if (allowed != null && !allowed(stored))
@@ -369,6 +369,9 @@ public class MerchandiseReturnWorkflowService(
         });
         if (error != null)
             return error;
+        //set by the change above, which ran when no error came back
+        if (changed == null)
+            return MerchandiseReturnErrors.NotFound;
 
         //the goods are not sent back: the label is cancelled with the carrier once the order's lock is let go, as
         //the label service takes it again to save; a label not cancelled leaves the status change as it is
@@ -414,7 +417,7 @@ public class MerchandiseReturnWorkflowService(
         return null;
     }
 
-    public Task<string> Update(string merchandiseReturnId, Action<MerchandiseReturn> apply)
+    public Task<string?> Update(string merchandiseReturnId, Action<MerchandiseReturn> apply)
     {
         ArgumentNullException.ThrowIfNull(apply);
         return UnderOrderLock(merchandiseReturnId, async stored =>
@@ -427,7 +430,7 @@ public class MerchandiseReturnWorkflowService(
         });
     }
 
-    public Task<string> Delete(string merchandiseReturnId)
+    public Task<string?> Delete(string merchandiseReturnId)
     {
         //the order's returned quantities are counted again under the lock its returns are saved with
         return UnderOrderLock(merchandiseReturnId, async stored =>
@@ -442,7 +445,7 @@ public class MerchandiseReturnWorkflowService(
         });
     }
 
-    public async Task MarkReceived(string merchandiseReturnId, string changedBy = null)
+    public async Task MarkReceived(string merchandiseReturnId, string? changedBy = null)
     {
         //read without the lock, which ChangeStatus takes and which is not reentrant; a status changed in between is
         //checked again under it, and such a refusal leaves the return as it is
@@ -463,7 +466,7 @@ public class MerchandiseReturnWorkflowService(
     ///     Runs the change on the return as stored once the lock of its order is held: another change that held the
     ///     lock before has been saved by then
     /// </summary>
-    private async Task<string> UnderOrderLock(string merchandiseReturnId, Func<MerchandiseReturn, Task<string>> change)
+    private async Task<string?> UnderOrderLock(string merchandiseReturnId, Func<MerchandiseReturn, Task<string?>> change)
     {
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null)
@@ -499,7 +502,7 @@ public class MerchandiseReturnWorkflowService(
         return CanMarkReceived(merchandiseReturn, order, false);
     }
 
-    private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order, bool readOrder)
+    private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order? order, bool readOrder)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
@@ -530,13 +533,13 @@ public class MerchandiseReturnWorkflowService(
         return true;
     }
 
-    private static bool TracksStock(Product product)
+    private static bool TracksStock(Product? product)
     {
         return product?.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
             or ManageInventoryMethod.ManageStockByAttributes;
     }
 
-    private async Task<string> StatusChangeError(MerchandiseReturn stored, MerchandiseReturnStatus status,
+    private async Task<string?> StatusChangeError(MerchandiseReturn stored, MerchandiseReturnStatus status,
         bool withoutReturnReceipts)
     {
         if (!stored.MerchandiseReturnStatus.CanChangeTo(status))
@@ -581,6 +584,6 @@ public class MerchandiseReturnWorkflowService(
 
         var returnable = await mediator.Send(new GetReturnableQuantitiesQuery { Order = order, ForStaff = true });
         return merchandiseReturn.MerchandiseReturnItems.GroupBy(x => x.OrderItemId)
-            .All(x => x.Sum(item => item.Quantity) <= returnable.GetValueOrDefault(x.Key));
+            .All(x => x.Key != null && x.Sum(item => item.Quantity) <= returnable.GetValueOrDefault(x.Key));
     }
 }

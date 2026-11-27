@@ -45,7 +45,7 @@ public class NewsletterMessageProviderService : INewsletterMessageProviderServic
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendNewsLetterSubscriptionActivationMessage(NewsLetterSubscription subscription,
-        string languageId, DomainHost host = null)
+        string? languageId, DomainHost? host = null)
     {
         return await SendNewsLetterSubscriptionMessage(MessageTemplateNames.SendNewsLetterSubscriptionActivationMessage,
             subscription, languageId, host: host);
@@ -60,7 +60,7 @@ public class NewsletterMessageProviderService : INewsletterMessageProviderServic
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendNewsLetterSubscriptionDeactivationMessage(NewsLetterSubscription subscription,
-        string languageId, DomainHost host = null)
+        string? languageId, DomainHost? host = null)
     {
         return await SendNewsLetterSubscriptionMessage(
             MessageTemplateNames.SendNewsLetterSubscriptionDeactivationMessage, subscription, languageId, host: host);
@@ -76,7 +76,7 @@ public class NewsletterMessageProviderService : INewsletterMessageProviderServic
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     private async Task<int> SendNewsLetterSubscriptionMessage(string message, NewsLetterSubscription subscription,
-        string languageId, DomainHost host = null)
+        string? languageId, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(subscription);
 

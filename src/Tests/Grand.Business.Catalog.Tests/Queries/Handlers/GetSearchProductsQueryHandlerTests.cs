@@ -81,6 +81,7 @@ public class GetSearchProductsQueryHandlerTests
             CustomerGroups = ["admins-group"]
         });
         var searchProductsQuery = new GetSearchProductsQuery {
+            Customer = new Customer(),
             CustomerGroupIds = ["guests-group"]
         };
         //Act
@@ -98,7 +99,7 @@ public class GetSearchProductsQueryHandlerTests
             Id = "admins", Published = true, VisibleIndividually = true, LimitedToGroups = true,
             CustomerGroups = ["admins-group"]
         });
-        var searchProductsQuery = new GetSearchProductsQuery { ShowHidden = true };
+        var searchProductsQuery = new GetSearchProductsQuery { Customer = new Customer(), ShowHidden = true };
         //Act
         var result = await handler.Handle(searchProductsQuery, CancellationToken.None);
         //Assert

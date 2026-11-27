@@ -38,7 +38,7 @@ public class ProductController(
     protected override void EditWarningCheck(Product product)
     {
         if (!product.LimitedToStores ||
-            (product.Stores.Contains(Scope.DefaultStoreId) &&
+            (Scope.DefaultStoreId is { } defaultStoreId && product.Stores.Contains(defaultStoreId) &&
              product.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Catalog.Products.Permissions"));
     }

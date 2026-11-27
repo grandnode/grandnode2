@@ -4,7 +4,7 @@ namespace Grand.Business.Authentication.Services.Scim;
 
 /// <summary>What the mapped SCIM groups of one user give</summary>
 /// <param name="Conflict">The back-office roles cannot be combined, so none of them is given</param>
-public record ScimWanted(IReadOnlyCollection<string> GroupIds, string StaffStoreId, string VendorId, bool Conflict);
+public record ScimWanted(IReadOnlyCollection<string> GroupIds, string? StaffStoreId, string? VendorId, bool Conflict);
 
 /// <summary>
 ///     The roles a user gets from its mapped SCIM groups. The back-office roles must form a combination the customer validator
@@ -15,7 +15,7 @@ public static class ScimRoles
 {
     /// <param name="groups">The SCIM groups the user belongs to</param>
     /// <param name="systemNameOf">System name of a customer group; empty for a custom group</param>
-    public static ScimWanted Wanted(IEnumerable<ScimGroup> groups, Func<string, string> systemNameOf)
+    public static ScimWanted Wanted(IEnumerable<ScimGroup> groups, Func<string, string?> systemNameOf)
     {
         var mapped = groups.Where(x => !string.IsNullOrEmpty(x.CustomerGroupId)).ToList();
         var custom = new HashSet<string>();
@@ -26,25 +26,29 @@ public static class ScimRoles
         var vendors = new HashSet<string>();
 
         foreach (var group in mapped)
-            switch (systemNameOf(group.CustomerGroupId))
+        {
+            if (group.CustomerGroupId is not { } groupId)
+                continue;
+            switch (systemNameOf(groupId))
             {
                 case SystemCustomerGroupNames.Administrators:
-                    admins.Add(group.CustomerGroupId);
+                    admins.Add(groupId);
                     break;
                 case SystemCustomerGroupNames.StoreManager:
-                    storeManagers.Add(group.CustomerGroupId);
+                    storeManagers.Add(groupId);
                     if (!string.IsNullOrEmpty(group.StaffStoreId))
                         stores.Add(group.StaffStoreId);
                     break;
                 case SystemCustomerGroupNames.Vendors:
-                    vendorGroups.Add(group.CustomerGroupId);
+                    vendorGroups.Add(groupId);
                     if (!string.IsNullOrEmpty(group.VendorId))
                         vendors.Add(group.VendorId);
                     break;
                 default:
-                    custom.Add(group.CustomerGroupId);
+                    custom.Add(groupId);
                     break;
             }
+        }
 
         var kinds = (admins.Count > 0 ? 1 : 0) + (storeManagers.Count > 0 ? 1 : 0) + (vendorGroups.Count > 0 ? 1 : 0);
         var conflict = kinds > 1 ||

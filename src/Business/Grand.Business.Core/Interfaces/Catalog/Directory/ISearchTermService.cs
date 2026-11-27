@@ -20,7 +20,7 @@ public interface ISearchTermService
     /// </summary>
     /// <param name="searchTermId">Search term identifier</param>
     /// <returns>Search term</returns>
-    Task<SearchTerm> GetSearchTermById(string searchTermId);
+    Task<SearchTerm?> GetSearchTermById(string searchTermId);
 
     /// <summary>
     ///     Gets a search term record by keyword
@@ -28,7 +28,7 @@ public interface ISearchTermService
     /// <param name="keyword">Search term keyword</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Search term</returns>
-    Task<SearchTerm> GetSearchTermByKeyword(string keyword, string storeId);
+    Task<SearchTerm?> GetSearchTermByKeyword(string keyword, string storeId);
 
     /// <summary>
     ///     Gets a search term statistics

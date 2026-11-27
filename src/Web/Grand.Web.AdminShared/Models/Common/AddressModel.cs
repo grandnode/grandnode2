@@ -12,67 +12,67 @@ namespace Grand.Web.AdminShared.Models.Common;
 public class AddressModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Address.Fields.AddressName")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.FirstName")]
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.LastName")]
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.Email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.Company")]
 
-    public string Company { get; set; }
+    public string? Company { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.VatNumber")]
-    public string VatNumber { get; set; }
+    public string? VatNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.Country")]
-    public string CountryId { get; set; }
+    public string? CountryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.Country")]
-    public string CountryName { get; set; }
+    public string? CountryName { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.StateProvince")]
-    public string StateProvinceId { get; set; }
+    public string? StateProvinceId { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.StateProvince")]
-    public string StateProvinceName { get; set; }
+    public string? StateProvinceName { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.City")]
-    public string City { get; set; }
+    public string? City { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.Address1")]
-    public string Address1 { get; set; }
+    public string? Address1 { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.Address2")]
-    public string Address2 { get; set; }
+    public string? Address2 { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.ZipPostalCode")]
-    public string ZipPostalCode { get; set; }
+    public string? ZipPostalCode { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.PhoneNumber")]
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.FaxNumber")]
-    public string FaxNumber { get; set; }
+    public string? FaxNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.Fields.Note")]
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
     //address in HTML format (usually used in grids)
     [GrandResourceDisplayName("Admin.Address")]
-    public string AddressHtml { get; set; }
+    public string? AddressHtml { get; set; }
 
     //formatted custom address attributes
-    public string FormattedCustomAddressAttributes { get; set; }
+    public string? FormattedCustomAddressAttributes { get; set; }
     public IList<AddressAttributeModel> CustomAddressAttributes { get; set; } = new List<AddressAttributeModel>();
 
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-    public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+    public IList<CustomAttributeModel> SelectedAttributes { get; set; } = new List<CustomAttributeModel>();
 
     public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
@@ -114,14 +114,14 @@ public class AddressModel : BaseEntityModel
 
     public class AddressAttributeModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public bool IsRequired { get; set; }
 
         /// <summary>
         ///     Selected value for textboxes
         /// </summary>
-        public string DefaultValue { get; set; }
+        public string? DefaultValue { get; set; }
 
         public AttributeControlType AttributeControlType { get; set; }
 
@@ -130,7 +130,7 @@ public class AddressModel : BaseEntityModel
 
     public class AddressAttributeValueModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public bool IsPreSelected { get; set; }
     }

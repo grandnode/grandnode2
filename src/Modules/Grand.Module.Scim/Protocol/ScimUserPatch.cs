@@ -19,7 +19,7 @@ public static partial class ScimUserPatch
     private static partial Regex TypedEmailPath();
 
     public static bool TryApply(ScimUserData user, IList<ScimPatchOperation> operations, out ScimUserData result,
-        out string error)
+        out string? error)
     {
         result = user;
         error = null;
@@ -54,7 +54,7 @@ public static partial class ScimUserPatch
     }
 
     /// <param name="value">Null for a remove</param>
-    private static bool TryApplyPath(ref ScimUserData user, string path, JsonElement? value, out string error)
+    private static bool TryApplyPath(ref ScimUserData user, string path, JsonElement? value, out string? error)
     {
         error = null;
         if (path.StartsWith(UserSchemaPrefix, StringComparison.OrdinalIgnoreCase))
@@ -104,7 +104,7 @@ public static partial class ScimUserPatch
     }
 
     //the primary e-mail, else the work e-mail, else the first one
-    private static string PickEmail(JsonElement? value)
+    private static string? PickEmail(JsonElement? value)
     {
         if (value is not { ValueKind: JsonValueKind.Array } emails)
             return null;
@@ -121,7 +121,7 @@ public static partial class ScimUserPatch
             : null;
     }
 
-    private static bool TryString(JsonElement? value, string name, out string result, out string error)
+    private static bool TryString(JsonElement? value, string name, out string? result, out string? error)
     {
         error = null;
         result = null;

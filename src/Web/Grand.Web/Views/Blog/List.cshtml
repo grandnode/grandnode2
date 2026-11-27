@@ -21,9 +21,9 @@
     <h2 class="generalTitle">
         @if (string.IsNullOrEmpty(Model.PagingFilteringContext.Tag))
         {
-            if (Model.PagingFilteringContext.GetParsedMonth().HasValue)
+            if (Model.PagingFilteringContext.GetParsedMonth() is { } month)
             {
-                @string.Format(Loc["Blog.FilteredByMonth"], Model.PagingFilteringContext.GetParsedMonth().Value.Year, Model.PagingFilteringContext.GetParsedMonth().Value.ToString("MMMM"))
+                @string.Format(Loc["Blog.FilteredByMonth"], month.Year, month.ToString("MMMM"))
             }
             else
             {

@@ -26,5 +26,5 @@ public interface IAclService
     /// <param name="entity">Entity</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    bool Authorize<T>(T entity, string storeId) where T : BaseEntity, IStoreLinkEntity;
+    bool Authorize<T>(T entity, string? storeId) where T : BaseEntity, IStoreLinkEntity;
 }

@@ -62,7 +62,7 @@ public class PushNotificationsService : IPushNotificationsService
     ///     Gets push receiver
     /// </summary>
     /// <param name="customerId"></param>
-    public virtual async Task<PushRegistration> GetPushReceiverByCustomerId(string customerId)
+    public virtual async Task<PushRegistration?> GetPushReceiverByCustomerId(string customerId)
     {
         return await _pushRegistrationRepository.FirstOrDefaultAsync(
             _pushRegistrationRepository.Table.Where(x => x.CustomerId == customerId));
@@ -144,8 +144,8 @@ public class PushNotificationsService : IPushNotificationsService
     /// <param name="clickUrl"></param>
     /// <param name="cancellationToken">Cancels the request to the push service</param>
     /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
-    public virtual async Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl,
-        string clickUrl, List<string> registrationIds = null, CancellationToken cancellationToken = default)
+    public virtual async Task<(bool, string)> SendPushNotification(string? title, string? text, string? pictureUrl,
+        string? clickUrl, List<string>? registrationIds = null, CancellationToken cancellationToken = default)
     {
         List<string> ids;
         if (registrationIds != null && registrationIds.Any())
@@ -156,7 +156,7 @@ public class PushNotificationsService : IPushNotificationsService
         {
             var receivers = await GetAllowedPushReceivers();
             if (!receivers.Any()) return (false, "Admin.PushNotifications.Error.NoReceivers");
-            ids = receivers.Select(x => x.Token).Distinct().ToList();
+            ids = receivers.Select(x => x.Token).OfType<string>().Distinct().ToList();
         }
 
         var numberOfReceivers = 0;
@@ -191,8 +191,8 @@ public class PushNotificationsService : IPushNotificationsService
         }
     }
 
-    private async Task<(bool success, string result, int delivered)> SendBatch(string title, string text,
-        string pictureUrl, string clickUrl, string[] registrationIds, CancellationToken cancellationToken)
+    private async Task<(bool success, string result, int delivered)> SendBatch(string? title, string? text,
+        string? pictureUrl, string? clickUrl, string[] registrationIds, CancellationToken cancellationToken)
     {
         var data = new {
             registration_ids = registrationIds,
@@ -239,7 +239,7 @@ public class PushNotificationsService : IPushNotificationsService
         string customerId, string clickUrl, CancellationToken cancellationToken = default)
     {
         var receiver = await GetPushReceiverByCustomerId(customerId);
-        if (receiver == null) return (false, "Admin.PushNotifications.Error.NoReceivers");
+        if (receiver?.Token == null) return (false, "Admin.PushNotifications.Error.NoReceivers");
 
         return await SendPushNotification(title, text, pictureUrl, clickUrl, [receiver.Token], cancellationToken);
     }
@@ -248,7 +248,7 @@ public class PushNotificationsService : IPushNotificationsService
     ///     Gets all push receivers
     /// </summary>
     /// <param name="id">Ident</param>
-    public virtual Task<PushRegistration> GetPushReceiver(string id)
+    public virtual Task<PushRegistration?> GetPushReceiver(string id)
     {
         return _pushRegistrationRepository.GetByIdAsync(id);
     }

@@ -33,7 +33,7 @@ public abstract class BaseOnlineCustomerController(
     ///     Sales-Manager restriction on the online-customers list. Admin restricts to the current
     ///     Sales-Manager's own customers; Store has no such concept and never restricts by it.
     /// </summary>
-    protected virtual string SalesEmployeeIdFilter => null;
+    protected virtual string? SalesEmployeeIdFilter => null;
 
     public IActionResult List()
     {

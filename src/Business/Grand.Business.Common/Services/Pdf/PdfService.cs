@@ -79,15 +79,15 @@ public class PdfService : IPdfService
         _logger = logger;
     }
 
-    public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "",
-        string vendorId = "", CancellationToken cancellationToken = default)
+    public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string? languageId = "",
+        string? vendorId = "", CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(orders);
 
         using var pdf = new PdfComposer();
         //orders of several stores can be printed together; each store's logo is loaded once
-        var logos = new Dictionary<string, byte[]>();
+        var logos = new Dictionary<string, byte[]?>();
         foreach (var order in orders)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -99,7 +99,7 @@ public class PdfService : IPdfService
         await stream.WriteAsync(pdf.Build(), cancellationToken);
     }
 
-    public async Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string languageId = "",
+    public async Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string? languageId = "",
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -117,7 +117,7 @@ public class PdfService : IPdfService
         await stream.WriteAsync(pdf.Build(), cancellationToken);
     }
 
-    public async Task<string> SaveOrderToBinary(Order order, string languageId, string vendorId = "")
+    public async Task<string> SaveOrderToBinary(Order order, string? languageId, string vendorId = "")
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -136,9 +136,10 @@ public class PdfService : IPdfService
         return download.Id;
     }
 
-    private async Task ComposeOrder(PdfComposer pdf, Order order, string vendorId, Dictionary<string, byte[]> logos)
+    private async Task ComposeOrder(PdfComposer pdf, Order order, string? vendorId, Dictionary<string, byte[]?> logos)
     {
-        var lang = order.CustomerLanguageId;
+        //an order without a language prints the untranslated texts
+        var lang = order.CustomerLanguageId ?? string.Empty;
         var limitByVendor = !string.IsNullOrEmpty(vendorId);
         var priceIncludesTax = order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax;
         var store = await _storeService.GetStoreById(order.StoreId);
@@ -244,7 +245,7 @@ public class PdfService : IPdfService
         return totals;
     }
 
-    private static IReadOnlyList<PdfCell> TotalRow(Order order, string label, double amount, bool bold = false)
+    private static IReadOnlyList<PdfCell> TotalRow(Order order, string? label, double amount, bool bold = false)
     {
         return [PdfCell.Empty, PdfCell.Of(label, bold), PdfCell.Of(Money(order, amount), bold)];
     }
@@ -253,7 +254,7 @@ public class PdfService : IPdfService
     {
         var totals = new List<IReadOnlyList<PdfCell>>();
 
-        void Add(string label, double amount, bool bold = false)
+        void Add(string? label, double amount, bool bold = false)
         {
             totals.Add(TotalRow(order, label, amount, bold));
         }
@@ -290,7 +291,8 @@ public class PdfService : IPdfService
         var order = await _orderService.GetOrderById(shipment.OrderId);
         if (order == null) return;
 
-        var lang = order.CustomerLanguageId;
+        //an order without a language prints the untranslated texts
+        var lang = order.CustomerLanguageId ?? string.Empty;
         var store = await _storeService.GetStoreById(order.StoreId);
         var pdfSettings = await _settingService.LoadSetting<PdfSettings>(order.StoreId);
 
@@ -342,7 +344,7 @@ public class PdfService : IPdfService
     }
 
     public async Task PrintMerchandiseReturnToPdf(Stream stream, MerchandiseReturn merchandiseReturn, Order order,
-        string languageId = "", CancellationToken cancellationToken = default)
+        string? languageId = "", CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
@@ -361,8 +363,9 @@ public class PdfService : IPdfService
     ///     The return, the order it came from, the items with their reasons, and how and where they are sent back
     /// </summary>
     private async Task ComposeMerchandiseReturn(PdfComposer pdf, MerchandiseReturn merchandiseReturn, Order order,
-        string lang)
+        string? lang)
     {
+        lang ??= string.Empty;
         var store = await _storeService.GetStoreById(order.StoreId);
 
         pdf.NewPage();
@@ -435,7 +438,7 @@ public class PdfService : IPdfService
     }
 
     private async Task<PdfCell> AddressCell(Address address, string resourcePrefix, string titleKey, string lang,
-        string closingLine, IEnumerable<string> extraLines = null)
+        string? closingLine, IEnumerable<string>? extraLines = null)
     {
         var lines = new List<PdfLine> { new(_translationService.GetResource(titleKey, lang), true) };
         if (!string.IsNullOrEmpty(address.Company))
@@ -462,7 +465,7 @@ public class PdfService : IPdfService
     ///     Loads the PDF logo as PNG, the one raster format the composer embeds. Pictures are usually stored as
     ///     WebP, so anything else is converted. A logo that cannot be read is left out rather than failing the PDF.
     /// </summary>
-    private async Task<byte[]> LoadLogo(string logoPictureId)
+    private async Task<byte[]?> LoadLogo(string logoPictureId)
     {
         if (string.IsNullOrEmpty(logoPictureId)) return null;
         try
@@ -499,7 +502,7 @@ public class PdfService : IPdfService
             yield return Format("PDFInvoice.PaymentDueDate", lang, order.PaymentDueDateUtc.Value.ToString("yyyy-MM-dd"));
     }
 
-    private string Format(string resourceKey, string lang, object value)
+    private string Format(string resourceKey, string? lang, object? value)
     {
         return string.Format(_translationService.GetResource(resourceKey, lang), value);
     }

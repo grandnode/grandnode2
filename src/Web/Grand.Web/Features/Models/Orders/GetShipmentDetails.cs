@@ -9,8 +9,8 @@ namespace Grand.Web.Features.Models.Orders;
 
 public class GetShipmentDetails : IRequest<ShipmentDetailsModel>
 {
-    public Shipment Shipment { get; set; }
-    public Order Order { get; set; }
-    public Customer Customer { get; set; }
-    public Language Language { get; set; }
+    public required Shipment Shipment { get; set; }
+    public required Order Order { get; set; }
+    public required Customer Customer { get; set; }
+    public required Language Language { get; set; }
 }

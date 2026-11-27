@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Store.Models;
@@ -17,7 +18,7 @@ public class LanguageController(
     IStoreService storeService,
     IContextAccessor contextAccessor) : BaseStoreController
 {
-    private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => contextAccessor.WorkContext.PanelStoreId();
 
     public IActionResult Index()
     {

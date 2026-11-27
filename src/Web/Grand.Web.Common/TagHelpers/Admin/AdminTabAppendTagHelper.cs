@@ -18,11 +18,12 @@ public class AdminTabAppendTagHelper : TagHelper
     private const string TabContent = "tab-content";
 
 
-    [HtmlAttributeName(TabName)] public string Name { get; set; }
+    //the element matches only with all three attributes, so they are always set
+    [HtmlAttributeName(TabName)] public string Name { get; set; } = null!;
 
-    [HtmlAttributeName(TabContent)] public string Content { get; set; }
+    [HtmlAttributeName(TabContent)] public string Content { get; set; } = null!;
 
-    [HtmlAttributeName(TabStripName)] public string StripName { get; set; }
+    [HtmlAttributeName(TabStripName)] public string StripName { get; set; } = null!;
 
     /// <summary>The template a tab strip picks up for one appended tab.</summary>
     internal static TagBuilder Template(string stripName, string tabName, IHtmlContent content)

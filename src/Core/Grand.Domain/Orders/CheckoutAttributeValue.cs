@@ -12,17 +12,17 @@ public class CheckoutAttributeValue : SubBaseEntity, ITranslationEntity
     ///     Gets or sets the checkout attribute mapping identifier
     /// </summary>
     [AuditReference(typeof(CheckoutAttribute))]
-    public string CheckoutAttributeId { get; set; }
+    public string? CheckoutAttributeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the checkout attribute name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the color RGB value (used with "Color squares" attribute type)
     /// </summary>
-    public string ColorSquaresRgb { get; set; }
+    public string? ColorSquaresRgb { get; set; }
 
     /// <summary>
     ///     Gets or sets the price adjustment

@@ -62,7 +62,7 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
         var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
         //the message's store, not the current one: a scheduled task or another store's admin sends it too.
         //The store tokens read the same store, so one e-mail never mixes the settings of two stores
-        var taxSettings = await _settingService.LoadSetting<TaxSettings>(request.Store?.Id);
+        var taxSettings = await _settingService.LoadSetting<TaxSettings>(request.Store.Id);
 
         var liquidOrder = new LiquidOrder(request.Order, request.Customer, language, currency, request.Store,
             request.Host, request.OrderNote, request.Vendor);

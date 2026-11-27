@@ -17,7 +17,7 @@ public class OidcProfileSynchronizer(
     OidcLoginConfig loginConfig,
     ILogger<OidcProfileSynchronizer> logger)
 {
-    public async Task Sync(Customer customer, ExternalRegistrationIdentity identity, string storeId)
+    public async Task Sync(Customer? customer, ExternalRegistrationIdentity identity, string storeId)
     {
         if (!loginConfig.ProviderOnly || customer == null || identity == null)
             return;
@@ -27,7 +27,7 @@ public class OidcProfileSynchronizer(
         await SyncEmail(customer, identity, storeId);
     }
 
-    private async Task SyncUserField(Customer customer, string key, string value)
+    private async Task SyncUserField(Customer customer, string key, string? value)
     {
         if (string.IsNullOrEmpty(value))
             return;

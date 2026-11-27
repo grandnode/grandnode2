@@ -48,29 +48,30 @@ public class AdminGridTagHelper : TagHelper
         _urlHelperFactory = urlHelperFactory;
     }
 
-    [HtmlAttributeName("id")] public string Id { get; set; }
+    //the element matches only with an id, so it is always set
+    [HtmlAttributeName("id")] public string Id { get; set; } = null!;
 
     /// <summary>Id field of the rows (schema.model.id). Default "Id".</summary>
     public string Key { get; set; } = "Id";
 
-    public string ReadUrl { get; set; }
-    public string CreateUrl { get; set; }
-    public string UpdateUrl { get; set; }
-    public string DestroyUrl { get; set; }
+    public string? ReadUrl { get; set; }
+    public string? CreateUrl { get; set; }
+    public string? UpdateUrl { get; set; }
+    public string? DestroyUrl { get; set; }
 
     /// <summary>Controller for the *-action attributes; the area comes from the current route.</summary>
-    public string Controller { get; set; }
+    public string? Controller { get; set; }
 
-    public string ReadAction { get; set; }
-    public string CreateAction { get; set; }
-    public string UpdateAction { get; set; }
-    public string DestroyAction { get; set; }
+    public string? ReadAction { get; set; }
+    public string? CreateAction { get; set; }
+    public string? UpdateAction { get; set; }
+    public string? DestroyAction { get; set; }
 
     /// <summary>Page size; defaults to AdminAreaSettings.DefaultGridPageSize for the Full pager.</summary>
     public int? PageSize { get; set; }
 
     /// <summary>Comma separated page sizes; defaults to AdminAreaSettings.GridPageSizes.</summary>
-    public string PageSizes { get; set; }
+    public string? PageSizes { get; set; }
 
     public GridPager Pager { get; set; } = GridPager.Full;
 
@@ -97,22 +98,22 @@ public class AdminGridTagHelper : TagHelper
     ///     Name of the checkbox inputs of selectable="Checkbox", so the ticked rows of the page are
     ///     posted with the surrounding form (e.g. SelectedProductIds).
     /// </summary>
-    public string SelectionName { get; set; }
+    public string? SelectionName { get; set; }
 
     /// <summary>
     ///     edit-mode="Batch": posts all changed rows in one request as prefix[i].Field (the
     ///     Kendo batch parameterMap pattern). Without it each row is posted on its own.
     /// </summary>
-    public string BatchPrefix { get; set; }
+    public string? BatchPrefix { get; set; }
 
     /// <summary>Rows rendered with the page for a grid without read-url (Kendo dataSource.data).</summary>
-    public object Data { get; set; }
+    public object? Data { get; set; }
 
     /// <summary>Name of a global function returning extra read data (Kendo transport.read.data).</summary>
-    public string AdditionalData { get; set; }
+    public string? AdditionalData { get; set; }
 
     /// <summary>Selector of a container whose fields are posted with every read.</summary>
-    public string SearchForm { get; set; }
+    public string? SearchForm { get; set; }
 
     /// <summary>
     ///     Renders the grid for viewing only: no Edit/Delete commands, no toolbar, no editors and no
@@ -122,16 +123,17 @@ public class AdminGridTagHelper : TagHelper
     /// </summary>
     public bool ReadOnly { get; set; }
 
-    public string OnDataBound { get; set; }
-    public string OnEdit { get; set; }
-    public string OnSave { get; set; }
-    public string OnChange { get; set; }
-    public string OnRequestStart { get; set; }
-    public string OnRequestEnd { get; set; }
-    public string OnError { get; set; }
-    public string OnDetailInit { get; set; }
+    public string? OnDataBound { get; set; }
+    public string? OnEdit { get; set; }
+    public string? OnSave { get; set; }
+    public string? OnChange { get; set; }
+    public string? OnRequestStart { get; set; }
+    public string? OnRequestEnd { get; set; }
+    public string? OnError { get; set; }
+    public string? OnDetailInit { get; set; }
 
-    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; } = null!;
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -201,7 +203,7 @@ public class AdminGridTagHelper : TagHelper
             MakeReadOnly(grid.Detail);
     }
 
-    internal static IList<int> ParsePageSizes(string pageSizes)
+    internal static IList<int>? ParsePageSizes(string? pageSizes)
     {
         if (string.IsNullOrWhiteSpace(pageSizes))
             return null;
@@ -213,7 +215,7 @@ public class AdminGridTagHelper : TagHelper
         return sizes.Count > 0 ? sizes : null;
     }
 
-    internal string ResolveUrl(string url, string controller, string action)
+    internal string? ResolveUrl(string? url, string? controller, string? action)
     {
         if (!string.IsNullOrEmpty(url) || string.IsNullOrEmpty(action))
             return string.IsNullOrEmpty(url) ? null : url;
@@ -224,15 +226,15 @@ public class AdminGridTagHelper : TagHelper
 
     private bool IsRtl()
     {
-        var language = _contextAccessor.WorkContext?.WorkingLanguage;
+        var language = _contextAccessor.CurrentWorkContext?.WorkingLanguage;
         //same condition as HeadAdmin/HeadStore/HeadVendor
         return language is { Rtl: true } && !_languageSettings.IgnoreRtlPropertyForAdminArea;
     }
 
-    private IDictionary<string, string> Events()
+    private IDictionary<string, string>? Events()
     {
         var events = new Dictionary<string, string>();
-        void Add(string name, string handler)
+        void Add(string name, string? handler)
         {
             if (!string.IsNullOrWhiteSpace(handler)) events[name] = handler;
         }
@@ -269,7 +271,7 @@ public class AdminGridTagHelper : TagHelper
             ["selectAll"] = "Admin.Common.Grid.SelectAll",
             ["selectRow"] = "Admin.Common.Grid.SelectRow"
         };
-        var languageId = _contextAccessor.WorkContext?.WorkingLanguage?.Id;
+        var languageId = _contextAccessor.CurrentWorkContext?.WorkingLanguage?.Id;
         var texts = new Dictionary<string, string>();
         foreach (var (name, key) in keys)
         {
@@ -296,7 +298,7 @@ internal class GridBuilder
 {
     private int _templateCount;
 
-    public GridBuilder(GridDefinition grid, string id, GridBuilder root = null)
+    public GridBuilder(GridDefinition grid, string id, GridBuilder? root = null)
     {
         Grid = grid;
         Id = id;

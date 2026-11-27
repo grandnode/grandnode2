@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Tax;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;

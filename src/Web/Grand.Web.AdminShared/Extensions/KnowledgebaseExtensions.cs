@@ -17,7 +17,7 @@ public static class KnowledgebaseExtensions
     /// <param name="separator">Separator</param>
     /// <param name="languageId">Language identifier for localization</param>
     /// <returns>Formatted breadcrumb</returns>
-    public static string GetFormattedBreadCrumb(this KnowledgebaseCategory category,
+    public static string? GetFormattedBreadCrumb(this KnowledgebaseCategory category,
         IList<KnowledgebaseCategory> allCategories,
         string separator = ">>", string languageId = "")
     {
@@ -51,14 +51,16 @@ public static class KnowledgebaseExtensions
         //used to prevent circular references
         var alreadyProcessedCategoryIds = new List<string>();
 
-        while (category != null && !alreadyProcessedCategoryIds.Contains(category.Id)) //prevent circular references
+        KnowledgebaseCategory? current = category;
+        while (current != null && !alreadyProcessedCategoryIds.Contains(current.Id)) //prevent circular references
         {
-            result.Add(category);
+            result.Add(current);
 
-            alreadyProcessedCategoryIds.Add(category.Id);
+            alreadyProcessedCategoryIds.Add(current.Id);
 
-            category = (from c in allCategories
-                where c.Id == category.ParentCategoryId
+            var parentCategoryId = current.ParentCategoryId;
+            current = (from c in allCategories
+                where c.Id == parentCategoryId
                 select c).FirstOrDefault();
         }
 
@@ -67,7 +69,7 @@ public static class KnowledgebaseExtensions
     }
 
     public static List<KnowledgebaseCategory> SortCategoriesForTree(this IList<KnowledgebaseCategory> source,
-        string parentId = null,
+        string? parentId = null,
         bool ignoreCategoriesWithoutExistingParent = false)
     {
         ArgumentNullException.ThrowIfNull(source);

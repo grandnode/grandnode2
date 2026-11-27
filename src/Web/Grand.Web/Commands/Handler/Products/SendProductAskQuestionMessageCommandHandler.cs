@@ -16,9 +16,13 @@ public class SendProductAskQuestionMessageCommandHandler : IRequestHandler<SendP
 
     public async Task<bool> Handle(SendProductAskQuestionMessageCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires them
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.Email);
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.FullName);
+
         await _catalogMessageProviderService.SendProductQuestionMessage(request.Customer, request.Store,
-            request.Language.Id, request.Product, request.Model.Email, request.Model.FullName, request.Model.Phone,
-            FormatText.ConvertText(request.Model.Message), request.RemoteIpAddress, host: request.Host);
+            request.Language.Id, request.Product, request.Model.Email, request.Model.FullName, request.Model.Phone ?? "",
+            FormatText.ConvertText(request.Model.Message), request.RemoteIpAddress ?? "", host: request.Host);
 
         return true;
     }
