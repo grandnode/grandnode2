@@ -147,6 +147,18 @@ public class LoginWebValidatorTests
     }
 
     [TestMethod]
+    public async Task NoPassword_FailsWithoutThrowing()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Active = true });
+
+        var result = await CreateValidator(apiEnabled: true)
+            .ValidateAsync(new LoginWebModel { Email = "user@x.com", Password = null });
+
+        Assert.IsFalse(result.IsValid);
+    }
+
+    [TestMethod]
     public async Task ValidCredentials_ClearsTheFailedAttempts()
     {
         var customer = new Customer { Active = true, FailedLoginAttempts = 2 };

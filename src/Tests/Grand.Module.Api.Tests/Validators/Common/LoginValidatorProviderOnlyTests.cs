@@ -57,6 +57,16 @@ public class LoginValidatorProviderOnlyTests
     }
 
     [TestMethod]
+    [DataRow("not base64!")]
+    [DataRow(null)]
+    public async Task Mixed_PasswordNotBase64_InvalidWithoutThrowing(string password)
+    {
+        var result = await CreateValidator(OidcSignInMode.Mixed)
+            .ValidateAsync(new LoginModel { Email = "user@x.com", Password = password });
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "User not exists or password is wrong"));
+    }
+
+    [TestMethod]
     public async Task Mixed_ValidApiUser_Valid()
     {
         var result = await CreateValidator(OidcSignInMode.Mixed).ValidateAsync(ValidModel());

@@ -34,13 +34,21 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required");
         RuleFor(x => x).MustAsync(async (x, _) =>
         {
-            if (!string.IsNullOrEmpty(x.Email))
+            if (!string.IsNullOrEmpty(x.Email) && !string.IsNullOrEmpty(x.Password))
             {
                 var userapi = await userApiService.GetUserByEmail(x.Email.ToLowerInvariant());
                 if (userapi is { IsActive: true })
                 {
-                    var base64EncodedBytes = Convert.FromBase64String(x.Password ?? "");
-                    var password = Encoding.UTF8.GetString(base64EncodedBytes);
+                    string password;
+                    try
+                    {
+                        password = Encoding.UTF8.GetString(Convert.FromBase64String(x.Password));
+                    }
+                    catch (FormatException)
+                    {
+                        return false;
+                    }
+
                     //detect the format from the stored password itself: modern records are PBKDF2 hashes, legacy
                     //records are reversibly encrypted with the per-user PrivateKey (verified in constant time)
                     var isValid = encryptionService.IsHashedPassword(userapi.Password)
