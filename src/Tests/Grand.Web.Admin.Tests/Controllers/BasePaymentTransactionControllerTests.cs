@@ -697,6 +697,22 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
+    public async Task PartiallyPaidPopup_Post_ZeroAmount_AsksForTheAmountToPay()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 0 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+
+        var model = new PaymentTransactionModel { AmountToPaid = 0 };
+        var result = await _controller.PartiallyPaidPopup("pt-1", false, model) as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsFalse((result!.Model as PaymentTransactionModel)!.RefreshPage);
+        var errors = _controller.ViewData["grand.notifications.Error"] as List<string>;
+        Assert.AreEqual("Enter amount to pay", errors?.Single());
+        _mediatorMock.Verify(m => m.Send(It.IsAny<PartiallyPaidOfflineCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
     public async Task PartiallyPaidPopup_Post_DeniedByScope_RedirectsToList()
     {
         _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });

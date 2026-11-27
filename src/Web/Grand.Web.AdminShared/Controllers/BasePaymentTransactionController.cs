@@ -552,7 +552,7 @@ public abstract class BasePaymentTransactionController(
         {
             var amountToPaid = model.AmountToPaid;
             if (amountToPaid <= 0)
-                throw new GrandException("Enter amount to refund");
+                throw new GrandException("Enter amount to pay");
 
             var maxAmountToPaid = paymentTransaction.AmountLeftToPay();
             if (amountToPaid > maxAmountToPaid)
