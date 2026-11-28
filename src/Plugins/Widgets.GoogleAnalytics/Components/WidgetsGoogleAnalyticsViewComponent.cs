@@ -178,6 +178,12 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
 
             analyticsTrackingScript = analyticsTrackingScript.Replace("{ECOMMERCE}", analyticsEcommerceScript);
         }
+        else
+        {
+            //no order to report (the completed page of a visitor without one): the tracking script alone, as on
+            //every other page
+            analyticsTrackingScript = analyticsTrackingScript.Replace("{ECOMMERCE}", "");
+        }
 
         return analyticsTrackingScript;
     }
