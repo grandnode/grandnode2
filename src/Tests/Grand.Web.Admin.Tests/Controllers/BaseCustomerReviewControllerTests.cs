@@ -47,7 +47,7 @@ public class BaseCustomerReviewControllerTests
     public async Task ReviewList_StoreScope_DeniedOwnership_ReturnsEmpty()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.ReviewList("c1", new DataSourceRequest { Page = 1, PageSize = 10 });
 

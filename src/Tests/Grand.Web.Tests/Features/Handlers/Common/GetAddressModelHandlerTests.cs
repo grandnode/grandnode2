@@ -22,8 +22,7 @@ public class GetAddressModelHandlerTests
         new() { Id = "de", Name = "Germany" }
     };
 
-    [TestInitialize]
-    public void Init()
+    public GetAddressModelHandlerTests()
     {
         _countryServiceMock = new Mock<ICountryService>();
         _countryServiceMock.Setup(s => s.GetStateProvincesByCountryId(It.IsAny<string>(), It.IsAny<string>()))
@@ -38,8 +37,8 @@ public class GetAddressModelHandlerTests
             new AddressSettings { CountryEnabled = true, StateProvinceEnabled = true });
     }
 
-    private Task<Web.Models.Common.AddressModel> Handle(Address address, string defaultCountryId,
-        Web.Models.Common.AddressModel model = null)
+    private Task<Web.Models.Common.AddressModel> Handle(Address? address, string defaultCountryId,
+        Web.Models.Common.AddressModel? model = null)
     {
         return _handler.Handle(new GetAddressModel {
             Model = model,

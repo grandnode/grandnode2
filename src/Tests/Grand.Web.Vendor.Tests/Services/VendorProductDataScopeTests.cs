@@ -14,8 +14,7 @@ public class VendorProductDataScopeTests
     private Mock<IContextAccessor> _contextAccessor = null!;
     private const string VendorId = "vendor-1";
 
-    [TestInitialize]
-    public void Setup()
+    public VendorProductDataScopeTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentVendor).Returns(new Domain.Vendors.Vendor { Id = VendorId });

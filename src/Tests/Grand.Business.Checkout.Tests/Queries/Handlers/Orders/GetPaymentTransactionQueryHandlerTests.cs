@@ -14,8 +14,7 @@ public class GetPaymentTransactionQueryHandlerTests
     private MongoDBRepositoryTest<Order> _orderRepository;
     private MongoDBRepositoryTest<PaymentTransaction> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public GetPaymentTransactionQueryHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<PaymentTransaction>();
         _orderRepository = new MongoDBRepositoryTest<Order>();

@@ -20,4 +20,8 @@
         <ProjectReference Include="..\..\Core\Grand.Mediator\Grand.Mediator.csproj" />
     </ItemGroup>
 
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
 </Project>

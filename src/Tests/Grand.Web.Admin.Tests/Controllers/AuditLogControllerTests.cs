@@ -22,13 +22,17 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class AuditLogControllerTests
 {
+    //the rows of a grid answer
+    private static IEnumerable<AuditEntryRowModel> Rows(JsonResult result) =>
+        (Assert.IsInstanceOfType<DataSourceResult>(result.Value).Data
+         ?? throw new AssertFailedException("The grid answer has no rows")).Cast<AuditEntryRowModel>();
+
     private Mock<IAuditService> _auditService;
     private Mock<IAuditEventRecorder> _recorder;
     private AuditLogController _controller;
     private DefaultHttpContext _httpContext;
 
-    [TestInitialize]
-    public void Setup()
+    public AuditLogControllerTests()
     {
         _auditService = new Mock<IAuditService>();
         _auditService.Setup(s => s.GetEntityTypes()).ReturnsAsync(new List<string> { "Product" });
@@ -80,7 +84,7 @@ public class AuditLogControllerTests
     [TestMethod]
     public async Task List_Post_MapsFiltersToSearch()
     {
-        AuditEntrySearch search = null;
+        AuditEntrySearch? search = null;
         _auditService.Setup(s => s.GetEntries(It.IsAny<AuditEntrySearch>(), 1, 20))
             .Callback<AuditEntrySearch, int, int>((s, _, _) => search = s)
             .ReturnsAsync(new PagedList<AuditEntry>(new List<AuditEntry> {
@@ -90,11 +94,12 @@ public class AuditLogControllerTests
         var result = (JsonResult)await _controller.List(new DataSourceRequest { Page = 2, PageSize = 20 },
             new AuditLogListModel { EntityType = "Product", EntityId = "p1", SearchText = "anna", Kind = AuditKind.Update });
 
+        Assert.IsNotNull(search);
         Assert.AreEqual("Product", search.EntityType);
         Assert.AreEqual("p1", search.EntityId);
         Assert.AreEqual("anna", search.SearchText);
         Assert.AreEqual(AuditKind.Update, search.Kind);
-        var data = ((DataSourceResult)result.Value!).Data.Cast<AuditEntryRowModel>().Single();
+        var data = Rows(result).Single();
         Assert.AreEqual("Price", data.ChangedFields);
         Assert.IsNull(data.ChangesText);
     }
@@ -102,7 +107,7 @@ public class AuditLogControllerTests
     [TestMethod]
     public async Task List_Post_DatesAreUtc()
     {
-        AuditEntrySearch search = null;
+        AuditEntrySearch? search = null;
         _auditService.Setup(s => s.GetEntries(It.IsAny<AuditEntrySearch>(), 0, 20))
             .Callback<AuditEntrySearch, int, int>((s, _, _) => search = s)
             .ReturnsAsync(new PagedList<AuditEntry>(new List<AuditEntry>(), 0, 20));
@@ -112,6 +117,7 @@ public class AuditLogControllerTests
             FromUtc = new DateTime(2026, 10, 21), ToUtc = new DateTime(2026, 10, 22)
         });
 
+        Assert.IsNotNull(search);
         Assert.AreEqual(DateTimeKind.Utc, search.FromUtc!.Value.Kind);
         Assert.AreEqual(new DateTime(2026, 10, 21, 0, 0, 0, DateTimeKind.Utc), search.FromUtc);
         Assert.AreEqual(DateTimeKind.Utc, search.ToUtc!.Value.Kind);
@@ -259,7 +265,7 @@ public class AuditLogControllerTests
     [TestMethod]
     public async Task HistoryList_WithId_PageSize20()
     {
-        AuditEntrySearch search = null;
+        AuditEntrySearch? search = null;
         _auditService.Setup(s => s.GetEntries(It.IsAny<AuditEntrySearch>(), 2, 20))
             .Callback<AuditEntrySearch, int, int>((s, _, _) => search = s)
             .ReturnsAsync(new PagedList<AuditEntry>(new List<AuditEntry> {
@@ -269,22 +275,25 @@ public class AuditLogControllerTests
         var result = (JsonResult)await _controller.HistoryList(new DataSourceRequest { Page = 3, PageSize = 50 },
             "Product", "p1", null);
 
+        Assert.IsNotNull(search);
         Assert.AreEqual("Product", search.EntityType);
         Assert.AreEqual("p1", search.EntityId);
-        var row = ((DataSourceResult)result.Value!).Data.Cast<AuditEntryRowModel>().Single();
+        var row = Rows(result).Single();
         Assert.AreEqual("Price: 129 → 99", row.ChangesText);
     }
 
     [TestMethod]
     public async Task HistoryList_EntityNames_FilterTheSettingClasses()
     {
-        AuditEntrySearch search = null;
+        AuditEntrySearch? search = null;
         _auditService.Setup(s => s.GetEntries(It.IsAny<AuditEntrySearch>(), 0, 100))
             .Callback<AuditEntrySearch, int, int>((s, _, _) => search = s)
             .ReturnsAsync(new PagedList<AuditEntry>(new List<AuditEntry>(), 0, 100));
 
         await _controller.HistoryList(new DataSourceRequest(), "Setting", null, "catalogsettings, ordersettings");
 
+        Assert.IsNotNull(search);
+        Assert.IsNotNull(search.EntityNames);
         CollectionAssert.AreEqual(new[] { "catalogsettings", "ordersettings" }, search.EntityNames.ToArray());
     }
 
@@ -300,7 +309,7 @@ public class AuditLogControllerTests
 
         var result = (JsonResult)await _controller.HistoryList(new DataSourceRequest(), "Setting", null, null);
 
-        var what = ((DataSourceResult)result.Value!).Data.Cast<AuditEntryRowModel>().Select(r => r.What).ToArray();
+        var what = Rows(result).Select(r => r.What).ToArray();
         CollectionAssert.AreEqual(new[] {
             "Setting catalogsettings (Admin.System.AuditLog.AllStores)",
             "Setting catalogsettings (Store B)",
@@ -311,13 +320,14 @@ public class AuditLogControllerTests
     [TestMethod]
     public async Task HistoryList_TypeOnly_Newest100()
     {
-        AuditEntrySearch search = null;
+        AuditEntrySearch? search = null;
         _auditService.Setup(s => s.GetEntries(It.IsAny<AuditEntrySearch>(), 0, 100))
             .Callback<AuditEntrySearch, int, int>((s, _, _) => search = s)
             .ReturnsAsync(new PagedList<AuditEntry>(new List<AuditEntry>(), 0, 100));
 
         await _controller.HistoryList(new DataSourceRequest { Page = 4, PageSize = 20 }, "SalesEmployee", null, null);
 
+        Assert.IsNotNull(search);
         Assert.AreEqual("SalesEmployee", search.EntityType);
         Assert.IsNull(search.EntityId);
     }

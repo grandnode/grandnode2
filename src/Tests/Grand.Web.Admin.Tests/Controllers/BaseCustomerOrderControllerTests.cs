@@ -49,7 +49,7 @@ public class BaseCustomerOrderControllerTests
     public async Task OrderDetails_GlobalScope_NotFound_ThrowsArgumentException()
     {
         PermissionServiceMock.Setup(p => p.Authorize(StandardPermission.ManageOrders)).ReturnsAsync(true);
-        OrderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order)null);
+        OrderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(() => Controller.OrderDetails("missing"));
     }

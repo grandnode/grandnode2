@@ -17,8 +17,7 @@ public class InventoryBatchExpiryScheduleTaskTests
     private readonly Mock<IProductUnitService> _units = new();
     private InventoryBatchExpiryScheduleTask _task;
 
-    [TestInitialize]
-    public void Init()
+    public InventoryBatchExpiryScheduleTaskTests()
     {
         var stores = new Mock<IStoreService>();
         stores.Setup(x => x.GetAllStores()).ReturnsAsync([

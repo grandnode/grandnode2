@@ -45,7 +45,7 @@ public class OrderApprovalCommandsTests
     private Mock<IOrderService> _orders;
     private Mock<IMediator> _mediator;
     private Mock<ILogger<ApplyOrderApprovalDecisionCommandHandler>> _logger;
-    private Order _order;
+    private Order? _order;
 
     private static IRequestTranslationService Translation()
     {
@@ -67,14 +67,13 @@ public class OrderApprovalCommandsTests
         OrderId = "o1", Amount = 150
     };
 
-    private static Customer SubAccount(string id, SubAccountRole role, string email = null, bool active = true,
+    private static Customer SubAccount(string id, SubAccountRole role, string? email = null, bool active = true,
         bool deleted = false) => new() {
         Id = id, OwnerId = OwnerId, SubAccountRole = role, Active = active, Deleted = deleted,
         StoreId = StoreId, Email = email ?? $"{id}@example.com"
     };
 
-    [TestInitialize]
-    public void Init()
+    public OrderApprovalCommandsTests()
     {
         _approvals = new Mock<IOrderApprovalService>();
         _approvals.Setup(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
@@ -122,7 +121,7 @@ public class OrderApprovalCommandsTests
     }
 
     private static DecideOrderApprovalCommand DecideCommand(Customer approver, bool approve = true,
-        string comment = null, string id = "a1") => new() {
+        string? comment = null, string id = "a1") => new() {
         Approver = approver, Store = Shop(), ApprovalId = id, Approve = approve, Comment = comment,
         Language = new Language { Id = "en" }, Host = new DomainHost { HostName = "shop.example" }
     };
@@ -149,6 +148,7 @@ public class OrderApprovalCommandsTests
     public async Task Decide_SendsTheDecisionInTheBuyersLanguage()
     {
         // the approver works in English, the buyer placed the order in Polish
+        Assert.IsNotNull(_order);
         _order.CustomerLanguageId = "pl";
         _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
 
@@ -271,6 +271,7 @@ public class OrderApprovalCommandsTests
 
         await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false, new string('x', 1500)), default);
 
+        Assert.IsNotNull(approval.DecisionComment);
         Assert.AreEqual(1000, approval.DecisionComment.Length);
     }
 
@@ -461,6 +462,7 @@ public class OrderApprovalCommandsTests
         var note = sent.OfType<OrderNotificationCommand>().Single();
         Assert.IsFalse(note.NotifyCustomer);
         Assert.IsTrue(note.NotifyStoreOwnerAndVendors);
+        Assert.IsNotNull(note.Customer);
         Assert.AreEqual("buyer", note.Customer.Id);
         // the order got its "Order placed" note at placement
         Assert.IsFalse(note.AddOrderPlacedNote);
@@ -478,6 +480,7 @@ public class OrderApprovalCommandsTests
 
         await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
 
+        Assert.IsNotNull(_order);
         _orders.Verify(o => o.InsertOrderNote(It.Is<OrderNote>(n =>
             n.OrderId == _order.Id && n.Note == $"Order approved by {OwnerId}" && !n.DisplayToCustomer)), Times.Once);
     }
@@ -490,6 +493,7 @@ public class OrderApprovalCommandsTests
 
         await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false), default);
 
+        Assert.IsNotNull(_order);
         _orders.Verify(o => o.InsertOrderNote(It.Is<OrderNote>(n =>
             n.OrderId == _order.Id && n.Note == $"Order rejected by {OwnerId}" && !n.DisplayToCustomer)), Times.Once);
     }
@@ -498,6 +502,7 @@ public class OrderApprovalCommandsTests
     public async Task Approve_PaidOrder_ProcessesItAsPaid()
     {
         var sent = Sent();
+        Assert.IsNotNull(_order);
         _order.PaymentStatusId = PaymentStatus.Paid;
         _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
 
@@ -510,6 +515,7 @@ public class OrderApprovalCommandsTests
     public async Task Approve_OrderNoLongerAwaiting_Refused()
     {
         var sent = Sent();
+        Assert.IsNotNull(_order);
         _order.OrderStatusId = (int)OrderStatusSystem.Cancelled;
         var approval = Approval();
         _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
@@ -629,6 +635,7 @@ public class OrderApprovalCommandsTests
     public async Task Approve_ProcessPaidThrows_DecisionStandsAndIsLogged()
     {
         Sent();
+        Assert.IsNotNull(_order);
         _order.PaymentStatusId = PaymentStatus.Paid;
         _mediator.Setup(m => m.Send(It.IsAny<ProcessOrderPaidCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("boom"));
@@ -640,7 +647,7 @@ public class OrderApprovalCommandsTests
         Assert.IsTrue(result);
         Assert.AreEqual(OrderApprovalStatus.Approved, approval.Status);
         _logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
         _messages.Verify(m => m.SendOrderApprovalDecidedMessage(approval, It.IsAny<Customer>(),
             It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
     }
@@ -649,6 +656,7 @@ public class OrderApprovalCommandsTests
     public async Task Reject_OrderNoLongerAwaiting_Refused()
     {
         var sent = Sent();
+        Assert.IsNotNull(_order);
         _order.OrderStatusId = (int)OrderStatusSystem.Pending;
         var approval = Approval();
         _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
@@ -735,6 +743,7 @@ public class OrderApprovalCommandsTests
     public async Task Withdraw_OrderNoLongerAwaiting_Refused()
     {
         var sent = Sent();
+        Assert.IsNotNull(_order);
         _order.OrderStatusId = (int)OrderStatusSystem.Pending;
         var approval = Approval();
         _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
@@ -752,7 +761,7 @@ public class OrderApprovalCommandsTests
     #region Cancel closes a pending request
 
     // the stored request, as the database keeps it: every read gets its own copy, every save replaces it
-    private OrderApproval _stored;
+    private OrderApproval? _stored;
 
     private static OrderApproval Copy(OrderApproval a) => new() {
         Id = a.Id, CustomerId = a.CustomerId, CompanyOwnerId = a.CompanyOwnerId, StoreId = a.StoreId,
@@ -798,6 +807,7 @@ public class OrderApprovalCommandsTests
         var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false), default);
 
         Assert.IsTrue(result);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual(OrderApprovalStatus.Rejected, _stored.Status);
         Assert.AreEqual(OwnerId, _stored.DecidedByCustomerId);
         _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), OrderApprovalStatus.Cancelled, It.IsAny<string>(),
@@ -813,6 +823,7 @@ public class OrderApprovalCommandsTests
             new WithdrawOrderApprovalCommand { Customer = Buyer(), Store = Shop(), ApprovalId = "a1" }, default);
 
         Assert.IsTrue(result);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual(OrderApprovalStatus.Withdrawn, _stored.Status);
         _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), OrderApprovalStatus.Cancelled, It.IsAny<string>(),
             It.IsAny<string>()), Times.Never);

@@ -41,8 +41,7 @@ public class BaseContactAttributeControllerTests
     private Mock<IAdminDataScope<ContactAttribute>> _scope = null!;
     private TestContactAttributeController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseContactAttributeControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<ContactAttributeProfile>());
         AutoMapperConfig.Init(mapperConfig);

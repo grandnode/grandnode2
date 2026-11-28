@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedBrandDataScopeTests
 {
-    private static RoutedBrandDataScope Build(string area, out Mock<IAdminDataScope<Brand>> globalMock, out Mock<IAdminDataScope<Brand>> storeMock)
+    private static RoutedBrandDataScope Build(string? area, out Mock<IAdminDataScope<Brand>>? globalMock, out Mock<IAdminDataScope<Brand>>? storeMock)
     {
         var httpContext = new DefaultHttpContext();
         if (area != null)

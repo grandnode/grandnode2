@@ -42,8 +42,7 @@ public class BaseNewsControllerTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<NewsItem>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseNewsControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<NewsItemProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -54,7 +53,7 @@ public class BaseNewsControllerTests
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<NewsItem>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         var languageServiceMock = new Mock<ILanguageService>();
         languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
@@ -116,7 +115,7 @@ public class BaseNewsControllerTests
     [TestMethod]
     public async Task ListPost_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _newsViewModelServiceMock
             .Setup(v => v.PrepareNewsItemModel(It.IsAny<NewsItemListModel>(), 1, 10))
             .ReturnsAsync((new List<NewsItemModel>(), 0));
@@ -130,7 +129,7 @@ public class BaseNewsControllerTests
     [TestMethod]
     public async Task ListGet_GlobalScope_PopulatesAvailableStores()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var storeServiceMock = new Mock<IStoreService>();
         storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(
             new List<Grand.Domain.Stores.Store> { new() { Id = "s1", Shortcut = "Store One" } });
@@ -145,7 +144,8 @@ public class BaseNewsControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        var model = (NewsItemListModel)view.Model;
+        var model = Assert.IsInstanceOfType<NewsItemListModel>(view.Model);
+        Assert.IsNotNull(model);
         Assert.IsTrue(model.AvailableStores.Any(s => s.Value == "s1"));
     }
 
@@ -165,7 +165,8 @@ public class BaseNewsControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        var model = (NewsItemListModel)view.Model;
+        var model = Assert.IsInstanceOfType<NewsItemListModel>(view.Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual(0, model.AvailableStores.Count);
         storeServiceMock.Verify(s => s.GetAllStores(), Times.Never);
     }
@@ -192,7 +193,7 @@ public class BaseNewsControllerTests
         _newsViewModelServiceMock
             .Setup(v => v.InsertNewsItemModel(It.IsAny<NewsItemModel>()))
             .ReturnsAsync(inserted)
-            .Callback<NewsItemModel>(m => Assert.AreEqual("store-1", m.Stores.Single()));
+            .Callback<NewsItemModel>(m => Assert.AreEqual("store-1", m.Stores?.Single()));
 
         await _controller.Create(new NewsItemModel { Title = "N" }, false);
 
@@ -202,13 +203,13 @@ public class BaseNewsControllerTests
     [TestMethod]
     public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var inserted = new NewsItem { Id = "new-1" };
         var submitted = new NewsItemModel { Title = "N", Stores = ["explicit-store"] };
         _newsViewModelServiceMock
             .Setup(v => v.InsertNewsItemModel(It.IsAny<NewsItemModel>()))
             .ReturnsAsync(inserted)
-            .Callback<NewsItemModel>(m => Assert.AreEqual("explicit-store", m.Stores.Single()));
+            .Callback<NewsItemModel>(m => Assert.AreEqual("explicit-store", m.Stores?.Single()));
 
         await _controller.Create(submitted, false);
     }
@@ -216,7 +217,7 @@ public class BaseNewsControllerTests
     [TestMethod]
     public async Task EditGet_NewsItemNotFound_RedirectsToList()
     {
-        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem)null);
+        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem?)null);
 
         var result = await _controller.Edit("missing");
 
@@ -309,7 +310,8 @@ public class BaseNewsControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _newsViewModelServiceMock.Verify(
             v => v.PrepareNewsCommentModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
@@ -318,13 +320,14 @@ public class BaseNewsControllerTests
     [TestMethod]
     public async Task Comments_NewsItemNotFound_ReturnsKendoErrorWithoutCallingPrepareNewsCommentModel()
     {
-        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem)null);
+        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem?)null);
 
         var result = await _controller.Comments("missing", new DataSourceRequest { Page = 1, PageSize = 10 });
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _newsViewModelServiceMock.Verify(
             v => v.PrepareNewsCommentModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
@@ -345,7 +348,8 @@ public class BaseNewsControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNull(gridModel.Errors);
         Assert.AreEqual(1, gridModel.Total);
         _newsViewModelServiceMock.Verify(v => v.PrepareNewsCommentModel("n1", 1, 10), Times.Once);
@@ -363,7 +367,8 @@ public class BaseNewsControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _newsViewModelServiceMock.Verify(v => v.CommentDelete(It.IsAny<NewsComment>()), Times.Never);
     }
@@ -387,13 +392,14 @@ public class BaseNewsControllerTests
     public async Task CommentDelete_NewsItemNotFound_ReturnsKendoErrorWithoutDeleting()
     {
         var comment = new NewsComment { Id = "c1", NewsItemId = "missing" };
-        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem)null);
+        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem?)null);
 
         var result = await _controller.CommentDelete(comment);
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _newsViewModelServiceMock.Verify(v => v.CommentDelete(It.IsAny<NewsComment>()), Times.Never);
     }

@@ -20,8 +20,7 @@ public class CountryServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Country> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CountryServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Country>();
 
@@ -142,7 +141,7 @@ public class CountryServiceTests
         country.Name = "USA";
         await _countryService.UpdateCountry(country);
         //Assert
-        Assert.AreEqual("USA", _repository.Table.FirstOrDefault(x => x.Id == country.Id).Name);
+        Assert.AreEqual("USA", _repository.Table.First(x => x.Id == country.Id).Name);
     }
 
     [TestMethod]
@@ -167,6 +166,7 @@ public class CountryServiceTests
         //Act
         var result = await _countryService.GetStateProvincesByCountryId(country.Id);
         //Assert
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.Any());
     }
 
@@ -189,6 +189,7 @@ public class CountryServiceTests
         await _countryService.InsertStateProvince(new StateProvince(), country.Id);
         //Assert
         var result = await _countryService.GetStateProvincesByCountryId(country.Id);
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.Any());
     }
 
@@ -205,8 +206,9 @@ public class CountryServiceTests
         await _countryService.UpdateStateProvince(state, country.Id);
         //Assert
         var result = await _countryService.GetStateProvincesByCountryId(country.Id);
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.Any());
-        Assert.AreEqual("TEST", result.FirstOrDefault().Name);
+        Assert.AreEqual("TEST", result.First().Name);
     }
 
     [TestMethod]
@@ -221,6 +223,7 @@ public class CountryServiceTests
         await _countryService.DeleteStateProvince(state, country.Id);
         //Assert
         var result = await _countryService.GetStateProvincesByCountryId(country.Id);
+        Assert.IsNotNull(result);
         Assert.IsFalse(result.Any());
     }
 }

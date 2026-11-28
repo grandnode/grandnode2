@@ -15,8 +15,7 @@ public class ProductPublishEventHandlerTests
     private ProductPublishEventHandler handlerPublish;
     private ProductUnPublishEventHandler handlerUnPublish;
 
-    [TestInitialize]
-    public void Init()
+    public ProductPublishEventHandlerTests()
     {
         _casheManagerMock = new Mock<ICacheBase>();
         handlerPublish = new ProductPublishEventHandler(_casheManagerMock.Object);

@@ -16,8 +16,7 @@ public class AdminSiteMapServiceTests
     private Mock<IRepository<AdminSiteMap>> _repositoryMock;
     private AdminSiteMapService _service;
 
-    [TestInitialize]
-    public void Init()
+    public AdminSiteMapServiceTests()
     {
         _repositoryMock = new Mock<IRepository<AdminSiteMap>>();
         _cacheMock = new Mock<ICacheBase>();

@@ -22,8 +22,7 @@ public class AuditTrackerTests
     private static readonly AuditActor Actor = new(AuditSource.Admin, "c1", "anna@shop.com", null, "s1", null,
         "10.0.0.1", "UA", "Admin / Product / Edit", "op-1");
 
-    [TestInitialize]
-    public void Init()
+    public AuditTrackerTests()
     {
         _writer = new CapturingWriter();
         _mediator = new Mock<IMediator>();
@@ -568,18 +567,18 @@ public class AuditTrackerTests
     public class LabelledThing : BaseEntity
     {
         [AuditName]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        public string Note { get; set; }
+        public string? Note { get; set; }
     }
 
     public class TrackedThing : BaseEntity
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int Price { get; set; }
         public int StockQuantity { get; set; }
         public long Ticks { get; set; }
-        public string StoreId { get; set; }
+        public string? StoreId { get; set; }
     }
 
     private class CapturingWriter : IAuditEntryWriter

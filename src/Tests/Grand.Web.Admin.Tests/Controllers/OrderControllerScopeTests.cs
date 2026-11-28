@@ -27,8 +27,7 @@ public class OrderControllerScopeTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IShipmentService> _shipmentServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public OrderControllerScopeTests()
     {
         //GetOrdersByIds returns whatever the request names; the scope decides what the staff member may touch
         var orderServiceMock = new Mock<IOrderService>();

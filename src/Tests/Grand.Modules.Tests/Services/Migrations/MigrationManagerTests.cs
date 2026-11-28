@@ -28,8 +28,7 @@ public class MigrationManagerTests
             .Where(x => x.GetType().Assembly == MigrationsAssembly)
             .ToList();
 
-    [TestInitialize]
-    public void Init()
+    public MigrationManagerTests()
     {
         Assert.IsNotNull(MigrationsAssembly);
         _migrationManager = new MigrationManager();

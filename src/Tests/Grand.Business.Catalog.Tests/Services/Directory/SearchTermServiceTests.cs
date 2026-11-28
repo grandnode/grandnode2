@@ -15,8 +15,7 @@ public class SearchTermServiceTests
     private Mock<IRepository<SearchTerm>> _repositoryMock;
     private SearchTermService _service;
 
-    [TestInitialize]
-    public void Init()
+    public SearchTermServiceTests()
     {
         _repositoryMock = new Mock<IRepository<SearchTerm>>();
         _mediatorMock = new Mock<IMediator>();
@@ -51,18 +50,18 @@ public class SearchTermServiceTests
     [TestMethod]
     public void InsertSearchTerm_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertSearchTerm(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertSearchTerm(null!));
     }
 
     [TestMethod]
     public void UpdateSearchTerm_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateSearchTerm(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateSearchTerm(null!));
     }
 
     [TestMethod]
     public void DeleteSearchTerm_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteSearchTerm(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteSearchTerm(null!));
     }
 }

@@ -33,8 +33,7 @@ public class VendorViewModelServiceTests
     private Mock<IMediator> _mediatorMock;
     private VendorViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public VendorViewModelServiceTests()
     {
         _discountServiceMock = new Mock<IDiscountService>();
         _vendorServiceMock = new Mock<IVendorService>();

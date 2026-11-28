@@ -13,8 +13,7 @@ public class SchemaPropertyTests
 {
     private Mock<IPictureService> _pictureService;
 
-    [TestInitialize]
-    public void Init()
+    public SchemaPropertyTests()
     {
         _pictureService = new Mock<IPictureService>();
         _pictureService.Setup(x => x.GetPictureById(It.IsAny<string>()))
@@ -23,9 +22,9 @@ public class SchemaPropertyTests
             .ReturnsAsync((Picture p, int _, bool _) => $"/thumbs/{p.Id}.jpg");
     }
 
-    private static object Value<T>(PropertyByName<T>[] properties, string name, T item)
+    private static object? Value<T>(PropertyByName<T>[] properties, string name, T item)
     {
-        return properties.Single(x => x.PropertyName == name).GetProperty(item);
+        return properties.Single(x => x.PropertyName == name).GetProperty?.Invoke(item);
     }
 
     [TestMethod]

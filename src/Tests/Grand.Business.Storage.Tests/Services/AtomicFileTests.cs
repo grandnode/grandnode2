@@ -8,8 +8,7 @@ public class AtomicFileTests
 {
     private string _dir;
 
-    [TestInitialize]
-    public void Init()
+    public AtomicFileTests()
     {
         _dir = Path.Combine(Path.GetTempPath(), "atomicfile-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_dir);

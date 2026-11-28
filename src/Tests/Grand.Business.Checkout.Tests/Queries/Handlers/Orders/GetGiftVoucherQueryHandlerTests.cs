@@ -12,8 +12,7 @@ public class GetGiftVoucherQueryHandlerTests
     private GetGiftVoucherQueryHandler _handler;
     private LiteDBRepositoryMock<GiftVoucher> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public GetGiftVoucherQueryHandlerTests()
     {
         _repository = new LiteDBRepositoryMock<GiftVoucher>();
         _handler = new GetGiftVoucherQueryHandler(_repository);

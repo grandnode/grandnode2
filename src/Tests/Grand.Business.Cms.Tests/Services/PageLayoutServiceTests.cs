@@ -25,8 +25,7 @@ public class PageLayoutServiceTests
     private Mock<IWorkContext> _workContextMock;
     private Mock<IStoreContext> _storeContextMock;
 
-    [TestInitialize]
-    public void Init()
+    public PageLayoutServiceTests()
     {
         _repository = new MongoDBRepositoryTest<PageLayout>();
 
@@ -87,7 +86,7 @@ public class PageLayoutServiceTests
         pageLayout.Name = "test";
         await _pageLayoutService.UpdatePageLayout(pageLayout);
         //Assert
-        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == pageLayout.Id).Name);
+        Assert.AreEqual("test", _repository.Table.First(x => x.Id == pageLayout.Id).Name);
     }
 
     [TestMethod]

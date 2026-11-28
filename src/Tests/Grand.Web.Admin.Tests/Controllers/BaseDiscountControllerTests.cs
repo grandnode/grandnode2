@@ -55,8 +55,7 @@ public class BaseDiscountControllerTests
     private Mock<IDiscountProviderLoader> _loader = null!;
     private TestDiscountController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseDiscountControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<DiscountProfile>());
         AutoMapperConfig.Init(mapperConfig);

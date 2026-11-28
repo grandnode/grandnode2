@@ -27,8 +27,7 @@ public class CategoryServiceDbTests
     private Mock<IMediator> _mediatorMock;
     private CatalogSettings _settings;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public CategoryServiceDbTests()
     {
         _categoryRepository = new MongoDBRepositoryTest<Category>();
         _mediatorMock = new Mock<IMediator>();
@@ -62,7 +61,7 @@ public class CategoryServiceDbTests
     public async Task GetAllCategoriesSearchBox_WithoutCustomer_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _categoryService.GetAllCategoriesSearchBox(null, "store1"));
+            _categoryService.GetAllCategoriesSearchBox(null!, "store1"));
     }
 
     [TestMethod]
@@ -158,7 +157,7 @@ public class CategoryServiceDbTests
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
         //Act
-        await _categoryService.DeleteCategory(allCategory.FirstOrDefault(x => x.Id == "1"));
+        await _categoryService.DeleteCategory(allCategory.First(x => x.Id == "1"));
         //Assert
         Assert.HasCount(4, _categoryRepository.Table);
         Assert.IsNull(_categoryRepository.Table.FirstOrDefault(x => x.Id == "1"));
@@ -318,7 +317,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = _categoryService.GetFormattedBreadCrumb(null, allCategory);
+        var result = _categoryService.GetFormattedBreadCrumb(null!, allCategory);
         Assert.IsTrue(string.IsNullOrEmpty(result));
     }
 

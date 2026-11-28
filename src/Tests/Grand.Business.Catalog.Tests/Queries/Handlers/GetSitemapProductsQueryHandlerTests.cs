@@ -18,14 +18,13 @@ public class GetSitemapProductsQueryHandlerTests
     private GetSitemapProductsQueryHandler _handler;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public GetSitemapProductsQueryHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _handler = new GetSitemapProductsQueryHandler(_repository, new CatalogSettings(), new AccessControlConfig());
     }
 
-    private Task<IList<SitemapProduct>> Handle(string afterId = null, int pageSize = 1000)
+    private Task<IList<SitemapProduct>> Handle(string? afterId = null, int pageSize = 1000)
     {
         return _handler.Handle(new GetSitemapProductsQuery {
             StoreId = StoreId,
@@ -136,7 +135,7 @@ public class GetSitemapProductsQueryHandlerTests
         });
 
         //Act
-        var result = await _handler.Handle(new GetSitemapProductsQuery { StoreId = StoreId, LanguageId = "", CustomerGroupIds = null },
+        var result = await _handler.Handle(new GetSitemapProductsQuery { StoreId = StoreId, LanguageId = "", CustomerGroupIds = null! },
             CancellationToken.None);
 
         //Assert

@@ -21,11 +21,10 @@ public class GetMerchandiseReturnEstimateHandlerTests
     private readonly Order _order = new() { Id = "o1", StoreId = "s1", CustomerCurrencyCode = "EUR" };
     private GetMerchandiseReturnEstimateHandler _handler;
     private MerchandiseReturnSubmitResult _preview;
-    private MerchandiseReturnSubmitRequest _request;
+    private MerchandiseReturnSubmitRequest? _request;
     private MerchandiseReturnRefundQuote _estimate;
 
-    [TestInitialize]
-    public void Init()
+    public GetMerchandiseReturnEstimateHandlerTests()
     {
         _preview = new MerchandiseReturnSubmitResult();
         _estimate = new MerchandiseReturnRefundQuote();
@@ -36,7 +35,7 @@ public class GetMerchandiseReturnEstimateHandlerTests
         var refunds = new Mock<IMerchandiseReturnRefundService>();
         refunds.Setup(x => x.GetEstimate(It.IsAny<IList<MerchandiseReturn>>(), _order))
             .ReturnsAsync((IList<MerchandiseReturn> returns, Order _) =>
-                returns.SequenceEqual(_preview.MerchandiseReturns) ? _estimate : null);
+                returns.SequenceEqual(_preview.MerchandiseReturns) ? _estimate : throw new AssertFailedException("The estimate was asked for other returns"));
         var currencyService = new Mock<ICurrencyService>();
         currencyService.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(new Currency { CurrencyCode = "EUR" });
         var priceFormatter = new Mock<IPriceFormatter>();
@@ -52,7 +51,7 @@ public class GetMerchandiseReturnEstimateHandlerTests
             currencyService.Object, priceFormatter.Object, translationService.Object, new OrderSettings());
     }
 
-    private Task<MerchandiseReturnEstimateModel> Handle(Dictionary<string, string> form = null)
+    private Task<MerchandiseReturnEstimateModel> Handle(Dictionary<string, string>? form = null)
     {
         var model = new MerchandiseReturnModel {
             OrderId = "o1", ReturnShippingProvider = "Carrier", ReturnShippingOption = "parcel", Comments = "torn"
@@ -114,12 +113,14 @@ public class GetMerchandiseReturnEstimateHandlerTests
     {
         await Handle(new Dictionary<string, string> { ["returnshipping.point"] = "p1", ["other"] = "x" });
 
+        Assert.IsNotNull(_request);
         Assert.AreEqual("s1", _request.StoreId);
         Assert.AreEqual("c1", _request.CustomerId);
         Assert.AreEqual("c1", _request.OwnerId);
         Assert.AreEqual("l1", _request.LanguageId);
         Assert.AreEqual("torn", _request.Comments);
         Assert.AreEqual(new MerchandiseReturnSubmitItem("a", 2, "rr1", null), _request.Items.Single());
+        Assert.IsNotNull(_request.ReturnShipping);
         Assert.AreEqual("Carrier", _request.ReturnShipping.ProviderSystemName);
         Assert.AreEqual("p1", _request.ReturnShipping.Form["point"]);
         Assert.IsFalse(_request.ReturnShipping.Form.ContainsKey("other"));

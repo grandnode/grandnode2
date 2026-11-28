@@ -48,17 +48,16 @@ public class MessageProviderServiceTest
     private Mock<IQueuedEmailService> _queuedEmailServiceMock;
     private Mock<IStoreService> _storeServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public MessageProviderServiceTest()
     {
         _messageTemplateServiceMock = new Mock<IMessageTemplateService>();
         _messageTemplateServiceMock.Setup(x => x.GetMessageTemplateByName(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(Task.FromResult(new MessageTemplate { IsActive = true }));
+            .ReturnsAsync(new MessageTemplate { IsActive = true });
 
         _queuedEmailServiceMock = new Mock<IQueuedEmailService>();
         _groupService = new Mock<IGroupService>();
         _languageServiceMock = new Mock<ILanguageService>();
-        _languageServiceMock.Setup(x => x.GetLanguageById(It.IsAny<string>())).Returns(Task.FromResult(new Language()));
+        _languageServiceMock.Setup(x => x.GetLanguageById(It.IsAny<string>())).ReturnsAsync(new Language());
         _languageServiceMock.Setup(x => x.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(
             Task.FromResult(
                 new List<Language> { new() { Name = "English" }, new() { Name = "Polish" } } as IList<Language>));
@@ -72,12 +71,12 @@ public class MessageProviderServiceTest
 
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(x => x.GetStoreById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new Store { Url = "https://localhost:44350/" }));
+            .ReturnsAsync(new Store { Url = "https://localhost:44350/" });
         _storeServiceMock.Setup(x => x.GetAllStores()).Returns(Task.FromResult(new List<Store>() as IList<Store>));
 
         _mediatorMock = new Mock<IMediator>();
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetCustomerByIdQuery>(), default))
-            .Returns(Task.FromResult(new Customer { Email = "sdfsdf@mail.com" }));
+            .ReturnsAsync(new Customer { Email = "sdfsdf@mail.com" });
 
         _emailAccountSettingsMock = new Mock<EmailAccountSettings>();
         _commonSetting = new Mock<CommonSettings>();
@@ -156,7 +155,7 @@ public class MessageProviderServiceTest
     {
         _messageTemplateServiceMock.Setup(x => x.GetMessageTemplateByName(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MessageTemplate { IsActive = true, AttachedDownloadId = "template-attachment" });
-        QueuedEmail queuedEmail = null;
+        QueuedEmail? queuedEmail = null;
         _queuedEmailServiceMock.Setup(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()))
             .Callback<QueuedEmail>(email => queuedEmail = email);
 
@@ -164,6 +163,7 @@ public class MessageProviderServiceTest
             new Customer(), "123", "invoice");
 
         Assert.AreEqual(1, result);
+        Assert.IsNotNull(queuedEmail);
         Assert.AreEqual("invoice", queuedEmail.InvoiceDownloadId);
         CollectionAssert.AreEqual(new[] { "template-attachment" }, queuedEmail.AttachedDownloads.ToArray());
         Assert.IsNull(queuedEmail.AttachmentFilePath);
@@ -271,14 +271,14 @@ public class MessageProviderServiceTest
         StringAssert.StartsWith(url, "https://store.example/");
     }
 
-    private static Order OrderWithBillingEmail(string email)
+    private static Order OrderWithBillingEmail(string? email)
     {
         return new Order { BillingAddress = new Address { Email = email } };
     }
 
     private async Task<string> PasswordRecoveryUrl(Store store)
     {
-        LiquidCustomer liquidCustomer = null;
+        LiquidCustomer? liquidCustomer = null;
         _mediatorMock.Setup(x => x.Publish(It.IsAny<EntityTokensAddedEvent<Customer>>(), It.IsAny<CancellationToken>()))
             .Callback<EntityTokensAddedEvent<Customer>, CancellationToken>((e, _) =>
                 liquidCustomer = (LiquidCustomer)e.LiquidDrop);

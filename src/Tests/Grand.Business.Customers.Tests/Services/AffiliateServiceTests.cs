@@ -18,8 +18,7 @@ public class AffiliateServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<Order>> _orderRepository;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public AffiliateServiceTests()
     {
         _affiliateRepository = new Mock<IRepository<Affiliate>>();
         _orderRepository = new Mock<IRepository<Order>>();
@@ -39,21 +38,21 @@ public class AffiliateServiceTests
     public async Task UpdateAffiliate_NullParameter_ThrwoException()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await _affiliateService.UpdateAffiliate(null), "affiliate");
+            async () => await _affiliateService.UpdateAffiliate(null!), "affiliate");
     }
 
     [TestMethod]
     public async Task InsertAffiliate_NullParameter_ThrwoException()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await _affiliateService.InsertAffiliate(null), "affiliate");
+            async () => await _affiliateService.InsertAffiliate(null!), "affiliate");
     }
 
     [TestMethod]
     public async Task DeleteAffiliate_NullParameter_ThrwoException()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await _affiliateService.DeleteAffiliate(null), "affiliate");
+            async () => await _affiliateService.DeleteAffiliate(null!), "affiliate");
     }
 
 

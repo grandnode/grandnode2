@@ -43,8 +43,7 @@ public class GetSitemapXmlCommandHandlerTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IPageService> _pageServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public GetSitemapXmlCommandHandlerTests()
     {
         _categoryServiceMock = new Mock<ICategoryService>(MockBehavior.Strict);
         _brandServiceMock = new Mock<IBrandService>(MockBehavior.Strict);
@@ -221,33 +220,33 @@ public class GetSitemapXmlCommandHandlerTests
             "Product", "Category", "Brand", "BlogPost", "Page", "KnowledgebaseArticle"
         ];
 
-        public override string GetUriByAddress<TAddress>(TAddress address, RouteValueDictionary values,
+        public override string? GetUriByAddress<TAddress>(TAddress address, RouteValueDictionary values,
             string scheme, HostString host, PathString pathBase = default, FragmentString fragment = default,
-            LinkOptions options = null)
+            LinkOptions? options = null)
         {
-            if (address is not RouteValuesAddress routeAddress || !RouteNames.Contains(routeAddress.RouteName))
+            if (address is not RouteValuesAddress routeAddress || !RouteNames.Contains(routeAddress.RouteName ?? ""))
                 return null;
 
             return $"{scheme}://{host}/{values["SeName"]}";
         }
 
         public override string GetUriByAddress<TAddress>(HttpContext httpContext, TAddress address,
-            RouteValueDictionary values, RouteValueDictionary ambientValues = null, string scheme = null,
+            RouteValueDictionary values, RouteValueDictionary? ambientValues = null, string? scheme = null,
             HostString? host = null, PathString? pathBase = null, FragmentString fragment = default,
-            LinkOptions options = null)
+            LinkOptions? options = null)
         {
             throw new NotSupportedException();
         }
 
         public override string GetPathByAddress<TAddress>(HttpContext httpContext, TAddress address,
-            RouteValueDictionary values, RouteValueDictionary ambientValues = null, PathString? pathBase = null,
-            FragmentString fragment = default, LinkOptions options = null)
+            RouteValueDictionary values, RouteValueDictionary? ambientValues = null, PathString? pathBase = null,
+            FragmentString fragment = default, LinkOptions? options = null)
         {
             throw new NotSupportedException();
         }
 
         public override string GetPathByAddress<TAddress>(TAddress address, RouteValueDictionary values,
-            PathString pathBase = default, FragmentString fragment = default, LinkOptions options = null)
+            PathString pathBase = default, FragmentString fragment = default, LinkOptions? options = null)
         {
             throw new NotSupportedException();
         }

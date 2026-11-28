@@ -31,8 +31,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
     private Mock<IExternalSignInPolicy> _externalSignInPolicyMock;
     private OidcLoginConfig _oidcLoginConfig;
 
-    [TestInitialize]
-    public void Init()
+    public JwtBearerCustomerAuthenticationServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _groupService = new Mock<IGroupService>();
@@ -68,7 +67,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
     {
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
 
         var httpContext = new Mock<HttpContext>();
         var context = new TokenValidatedContext(httpContext.Object,
@@ -89,7 +88,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
     {
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
 
         var httpContext = new Mock<HttpContext>();
         var context = new TokenValidatedContext(httpContext.Object,
@@ -100,7 +99,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Customer { Active = false }));
+            .ReturnsAsync(() => new Customer { Active = false });
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Customer not exists/or not active in the customer table",
@@ -112,9 +111,9 @@ public class JwtBearerCustomerAuthenticationServiceTests
     {
         var customer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(customer));
-        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).Returns(() =>
-            Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
+            .ReturnsAsync(() => customer);
+        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).ReturnsAsync(() =>
+            new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" });
         _permissionServiceMock.Setup(c => c.Authorize(StandardPermission.AllowUseApi, customer))
             .Returns(() => Task.FromResult(false));
         var httpContext = new Mock<HttpContext>();
@@ -140,8 +139,8 @@ public class JwtBearerCustomerAuthenticationServiceTests
         customer.UserFields.Add(new UserField
             { Key = SystemCustomerFieldNames.PasswordToken, Value = "123", StoreId = "" });
         _customerServiceMock.Setup(c => c.GetCustomerById("cust-1")).ReturnsAsync(customer);
-        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).Returns(() =>
-            Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
+        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).ReturnsAsync(() =>
+            new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" });
         _permissionServiceMock.Setup(c => c.Authorize(StandardPermission.AllowUseApi, customer))
             .ReturnsAsync(true);
         var httpContext = new Mock<HttpContext>();
@@ -170,9 +169,9 @@ public class JwtBearerCustomerAuthenticationServiceTests
         customer.UserFields.Add(new UserField
             { Key = SystemCustomerFieldNames.PasswordToken, Value = "123", StoreId = "" });
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(customer));
-        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).Returns(() =>
-            Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
+            .ReturnsAsync(() => customer);
+        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).ReturnsAsync(() =>
+            new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" });
         _permissionServiceMock.Setup(c => c.Authorize(StandardPermission.AllowUseApi, customer))
             .Returns(() => Task.FromResult(true));
         var httpContext = new Mock<HttpContext>();
@@ -194,11 +193,12 @@ public class JwtBearerCustomerAuthenticationServiceTests
         customer.UserFields.Add(new UserField
             { Key = SystemCustomerFieldNames.PasswordToken, Value = "123", StoreId = "" });
         _customerServiceMock.Setup(c => c.GetCustomerById(customer.Id)).ReturnsAsync(customer);
-        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).Returns(() =>
-            Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
+        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(customer)).ReturnsAsync(() =>
+            new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" });
         _permissionServiceMock.Setup(c => c.Authorize(StandardPermission.AllowUseApi, customer)).ReturnsAsync(true);
         var context = new TokenValidatedContext(new Mock<HttpContext>().Object,
             new AuthenticationScheme("", "", typeof(AuthSchemaMock)), new JwtBearerOptions());
+        Assert.IsNotNull(customer.Email);
         IList<Claim> claims = new List<Claim> {
             new("CustomerId", customer.Id),
             new("Email", customer.Email),
@@ -247,8 +247,8 @@ public class JwtBearerCustomerAuthenticationServiceTests
         var guid = Guid.NewGuid();
         var guest = new Customer { CustomerGuid = guid, Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync(guest);
-        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(guest)).Returns(() =>
-            Task.FromResult(new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" }));
+        _refreshTokenServiceMock.Setup(c => c.GetCustomerRefreshToken(guest)).ReturnsAsync(() =>
+            new RefreshToken { IsActive = true, RefreshId = "567", Token = "123" });
         _permissionServiceMock.Setup(c => c.Authorize(StandardPermission.AllowUseApi, guest)).ReturnsAsync(true);
         _groupService.Setup(c => c.IsGuest(guest)).ReturnsAsync(true);
         _externalSignInPolicyMock.Setup(c => c.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))

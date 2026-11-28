@@ -22,8 +22,7 @@ public class OrderCancelledRecurringPaymentHandlerTests
     private RecurringPayment _recurringPayment;
     private Mock<IRecurringPaymentService> _recurringPaymentService;
 
-    [TestInitialize]
-    public void Init()
+    public OrderCancelledRecurringPaymentHandlerTests()
     {
         _recurringPaymentService = new Mock<IRecurringPaymentService>();
         _orderService = new Mock<IOrderService>();
@@ -89,7 +88,7 @@ public class OrderCancelledRecurringPaymentHandlerTests
     public async Task OrderCancelled_NoRecurringPayment_SendsNothing()
     {
         _recurringPaymentService.Setup(x => x.GetRecurringPaymentByInitialOrderId("o1"))
-            .ReturnsAsync((RecurringPayment)null);
+            .ReturnsAsync((RecurringPayment?)null);
 
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
@@ -107,7 +106,7 @@ public class OrderCancelledRecurringPaymentHandlerTests
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
         _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
-            n.OrderId == _order.Id && !n.DisplayToCustomer && n.Note.Contains("declined") &&
+            n.OrderId == _order.Id && !n.DisplayToCustomer && n.Note != null && n.Note.Contains("declined") &&
             n.Note.Contains("cancelled"))), Times.Once);
     }
 
@@ -120,7 +119,7 @@ public class OrderCancelledRecurringPaymentHandlerTests
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
         _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
-            n.OrderId == _order.Id && !n.DisplayToCustomer && n.Note.Contains("gateway down"))), Times.Once);
+            n.OrderId == _order.Id && !n.DisplayToCustomer && n.Note != null && n.Note.Contains("gateway down"))), Times.Once);
     }
 
     [TestMethod]
@@ -133,6 +132,6 @@ public class OrderCancelledRecurringPaymentHandlerTests
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
         _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Exactly(2));
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Exactly(2));
     }
 }

@@ -25,8 +25,7 @@ public class InventoryDocumentUnitLinesTests
     private readonly Mock<IWarehouseService> _warehouseService = new();
     private InventoryDocumentViewModelService _service;
 
-    [TestInitialize]
-    public void Init()
+    public InventoryDocumentUnitLinesTests()
     {
         var productScope = new Mock<IAdminDataScope<Product>>();
         productScope.Setup(x => x.HasAccess(It.IsAny<Product>())).ReturnsAsync(true);

@@ -11,8 +11,9 @@ namespace Grand.Web.Tests.Controllers;
 [TestClass]
 public class StoreAccessAttributeTests
 {
-    private static void AssertOpenToGuestsOfAClosedStore(MethodInfo action)
+    private static void AssertOpenToGuestsOfAClosedStore(MethodInfo? action)
     {
+        Assert.IsNotNull(action);
         Assert.IsTrue(action.GetCustomAttribute<PublicStoreAttribute>()?.IgnoreFilter ?? false,
             $"{action.Name} needs [PublicStore(true)]");
         Assert.IsTrue(action.GetCustomAttribute<ClosedStoreAttribute>()?.IgnoreFilter ?? false,

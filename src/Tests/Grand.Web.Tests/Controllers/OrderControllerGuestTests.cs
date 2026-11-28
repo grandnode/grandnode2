@@ -58,8 +58,7 @@ public class OrderControllerGuestTests
     private IDataProtectionProvider _provider;
     private Mock<IWorkContext> _work;
 
-    [TestInitialize]
-    public void Init()
+    public OrderControllerGuestTests()
     {
         _work = new Mock<IWorkContext>();
         _work.Setup(x => x.CurrentCustomer).Returns(_visitor);
@@ -170,7 +169,7 @@ public class OrderControllerGuestTests
 
         //Assert
         Assert.AreEqual(sent.ViewName, notSent.ViewName);
-        Assert.AreEqual(((GuestOrderModel)sent.Model).Result, ((GuestOrderModel)notSent.Model).Result);
+        Assert.AreEqual(Assert.IsInstanceOfType<GuestOrderModel>(sent.Model).Result, Assert.IsInstanceOfType<GuestOrderModel>(notSent.Model).Result);
         Assert.IsNotNull(((GuestOrderModel)sent.Model).Result);
         Assert.IsNull(sent.StatusCode);
         Assert.IsNull(notSent.StatusCode);
@@ -257,9 +256,9 @@ public class OrderControllerGuestTests
     [TestMethod]
     public async Task Details_Grant_ShownAsGuestLink()
     {
-        var result = (ViewResult)(await _controller.Details("o1")).Result;
+        var result = Assert.IsInstanceOfType<ViewResult>((await _controller.Details("o1")).Result);
 
-        Assert.IsTrue(((OrderDetailsModel)result!.Model).GuestLink);
+        Assert.IsTrue(Assert.IsInstanceOfType<OrderDetailsModel>(result!.Model).GuestLink);
         Assert.IsTrue(((OrderDetailsModel)result.Model).HasMerchandiseReturns);
         _mediator.Verify(x => x.Send(It.Is<GetOrderDetails>(c => c.Customer.Id == "g1"),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -275,7 +274,7 @@ public class OrderControllerGuestTests
                 CanWithdrawOrderApproval = true, CanRePostProcessPayment = true
             });
 
-        var model = (OrderDetailsModel)((ViewResult)(await _controller.Details("o1")).Result)!.Model;
+        var model = Assert.IsInstanceOfType<OrderDetailsModel>(Assert.IsInstanceOfType<ViewResult>((await _controller.Details("o1")).Result)!.Model);
 
         Assert.IsTrue(model!.UserCanCancelUnpaidOrder);
         Assert.IsTrue(model.IsReOrderAllowed);
@@ -293,7 +292,7 @@ public class OrderControllerGuestTests
         _mediator.Setup(x => x.Send(It.IsAny<GetOrderDetails>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new OrderDetailsModel { UserCanCancelUnpaidOrder = true, IsReOrderAllowed = true });
 
-        var model = (OrderDetailsModel)((ViewResult)(await _controller.Details("o1")).Result)!.Model;
+        var model = Assert.IsInstanceOfType<OrderDetailsModel>(Assert.IsInstanceOfType<ViewResult>((await _controller.Details("o1")).Result)!.Model);
 
         Assert.IsFalse(model!.GuestLink);
         Assert.IsTrue(model.UserCanCancelUnpaidOrder);

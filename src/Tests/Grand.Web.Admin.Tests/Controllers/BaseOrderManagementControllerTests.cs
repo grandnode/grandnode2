@@ -30,6 +30,13 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class BaseOrderManagementControllerTests
 {
+    //the "Result" flag of an anonymous JSON answer
+    private static bool Result(JsonResult json)
+    {
+        return json.Value?.GetType().GetProperty("Result")?.GetValue(json.Value) as bool?
+               ?? throw new AssertFailedException("The JSON answer has no Result flag");
+    }
+
     private class TestOrderManagementController(
         IOrderViewModelService orderViewModelService,
         IOrderService orderService,
@@ -83,7 +90,7 @@ public class BaseOrderManagementControllerTests
     {
         OrderInScope(false);
 
-        var result = await _controller.DecideApproval("o1", true, null);
+        var result = await _controller.DecideApproval("o1", true, null!);
 
         Assert.AreEqual("List", ((RedirectToActionResult)result).ActionName);
         NoCommandWasSent();
@@ -94,7 +101,7 @@ public class BaseOrderManagementControllerTests
     {
         OrderInScope();
 
-        var result = await _controller.DecideApproval("o1", null, null);
+        var result = await _controller.DecideApproval("o1", null, null!);
 
         Assert.AreEqual("Edit", ((RedirectToActionResult)result).ActionName);
         NoCommandWasSent();
@@ -122,7 +129,7 @@ public class BaseOrderManagementControllerTests
         OrderInScope();
         CommandAnswers(true);
 
-        await _controller.DecideApproval("o1", false, null);
+        await _controller.DecideApproval("o1", false, "");
 
         _mediatorMock.Verify(m => m.Send(It.Is<DecideStoreOrderApprovalCommand>(c => !c.Approve),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -135,7 +142,7 @@ public class BaseOrderManagementControllerTests
         OrderInScope();
         CommandAnswers(false);
 
-        await _controller.DecideApproval("o1", true, null);
+        await _controller.DecideApproval("o1", true, "");
 
         _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Approval.Refused"), Times.Once);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Approval.Approved"), Times.Never);
@@ -147,7 +154,7 @@ public class BaseOrderManagementControllerTests
         //the popup loads this over ajax: a redirect would put the whole Edit page inside it
         var order = OrderInScope();
         _orderViewModelServiceMock.Setup(s => s.PrepareOrderApprovalDecisionModel(order))
-            .ReturnsAsync((OrderApprovalDecisionModel)null);
+            .ReturnsAsync((OrderApprovalDecisionModel?)null);
 
         var result = await _controller.DecideApprovalPopup("o1");
 
@@ -177,8 +184,7 @@ public class BaseOrderManagementControllerTests
         Assert.AreSame(model, ((ViewResult)result).Model);
     }
 
-    [TestInitialize]
-    public void Setup()
+    public BaseOrderManagementControllerTests()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _orderNoteViewModelServiceMock = new Mock<IOrderNoteViewModelService>();
@@ -377,7 +383,7 @@ public class BaseOrderManagementControllerTests
         var model = new OrderModel { OrderTotalValue = 99.0, CurrencyRate = 1.0 };
         var result = await _controller.EditOrderTotals("o1", model);
 
-        Assert.AreEqual("o1", (result as RedirectToActionResult)?.RouteValues["id"]);
+        Assert.AreEqual("o1", (result as RedirectToActionResult)?.RouteValues?["id"]);
         Assert.AreEqual(99.0, order.OrderTotal);
         _orderServiceMock.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.Note == "Order totals have been edited")), Times.Once);
     }
@@ -479,7 +485,7 @@ public class BaseOrderManagementControllerTests
 
         var redirect = result as RedirectToActionResult;
         Assert.AreEqual("Edit", redirect?.ActionName);
-        Assert.AreEqual("o1", redirect?.RouteValues["id"]);
+        Assert.AreEqual("o1", redirect?.RouteValues?["id"]);
     }
 
     [TestMethod]
@@ -495,7 +501,7 @@ public class BaseOrderManagementControllerTests
 
         var redirect = result as RedirectToActionResult;
         Assert.AreEqual("AddProductToOrder", redirect?.ActionName);
-        Assert.AreEqual("o1", redirect?.RouteValues["orderId"]);
+        Assert.AreEqual("o1", redirect?.RouteValues?["orderId"]);
         _orderProductViewModelServiceMock.Verify(v => v.AddProductToOrderDetails(It.IsAny<Order>(),
             It.IsAny<Product>(), It.IsAny<AddProductToOrderModel>()), Times.Never);
     }
@@ -643,7 +649,7 @@ public class BaseOrderManagementControllerTests
         var order = new Order { Id = "o1", BillingAddress = new Grand.Domain.Common.Address { Id = "a1", City = "Saved" } };
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
-        Grand.Domain.Common.Address shown = null;
+        Grand.Domain.Common.Address? shown = null;
         _orderAddressViewModelServiceMock
             .Setup(v => v.PrepareOrderAddressModel(order, It.IsAny<Grand.Domain.Common.Address>()))
             .Callback<Order, Grand.Domain.Common.Address>((_, a) => shown = a)
@@ -671,7 +677,7 @@ public class BaseOrderManagementControllerTests
     [TestMethod]
     public async Task OrderNotesSelect_NotFound_ThrowsArgumentException()
     {
-        _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order)null);
+        _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             () => _controller.OrderNotesSelect("missing", new Grand.Web.Common.DataSource.DataSourceRequest()));
@@ -698,14 +704,15 @@ public class BaseOrderManagementControllerTests
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
 
-        var result = await _controller.OrderNoteAdd("o1", null, false, "msg");
+        var result = await _controller.OrderNoteAdd("o1", "", false, "msg");
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        Assert.IsNotNull(json.Value);
+        Assert.IsFalse(Result(json));
         _orderNoteViewModelServiceMock.Verify(v => v.InsertOrderNote(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
     }
-    private static object GridErrors(IActionResult result) =>
+    private static object? GridErrors(IActionResult result) =>
         ((result as JsonResult)?.Value as Grand.Web.Common.DataSource.DataSourceResult)?.Errors;
 
     private Order OrderWithItem(OrderItem item, int status = (int)OrderStatusSystem.Pending)

@@ -23,8 +23,7 @@ public class CustomerControllerSetPasswordTests
     private Mock<ICustomerManagerService> _customerManagerService;
     private Mock<IGroupService> _groupService;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerControllerSetPasswordTests()
     {
         var permissionService = new Mock<IPermissionService>();
         permissionService.Setup(x => x.Authorize(It.IsAny<string>(), _current)).ReturnsAsync(true);
@@ -51,6 +50,7 @@ public class CustomerControllerSetPasswordTests
     {
         _groupService.Setup(x => x.IsAdmin(_target)).ReturnsAsync(true);
 
+        Assert.IsNotNull(_target.Email);
         var result = await _controller.SetPassword(_target.Email, new PasswordDto { Password = "secret" });
 
         Assert.IsInstanceOfType<ForbidResult>(result);
@@ -63,6 +63,7 @@ public class CustomerControllerSetPasswordTests
     {
         _groupService.Setup(x => x.IsAdmin(It.IsAny<Customer>())).ReturnsAsync(true);
 
+        Assert.IsNotNull(_target.Email);
         var result = await _controller.SetPassword(_target.Email, new PasswordDto { Password = "secret" });
 
         Assert.IsInstanceOfType<OkObjectResult>(result);
@@ -73,6 +74,7 @@ public class CustomerControllerSetPasswordTests
     [TestMethod]
     public async Task NonAdministrator_SetsACustomersPassword_Changed()
     {
+        Assert.IsNotNull(_target.Email);
         var result = await _controller.SetPassword(_target.Email, new PasswordDto { Password = "secret" });
 
         Assert.IsInstanceOfType<OkObjectResult>(result);

@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Web.Common.Localization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Web.Tests.Controllers;
 
@@ -36,7 +37,7 @@ public class AccountControllerTwoFactorReturnUrlTests
         public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void Remove(string key) => _data.Remove(key);
         public void Set(string key, byte[] value) => _data[key] = value;
-        public bool TryGetValue(string key, out byte[] value) => _data.TryGetValue(key, out value);
+        public bool TryGetValue(string key, [NotNullWhen(true)] out byte[]? value) => _data.TryGetValue(key, out value);
     }
 
     private Mock<ICustomerManagerService> _manager;
@@ -44,8 +45,7 @@ public class AccountControllerTwoFactorReturnUrlTests
     private AccountController _controller;
     private readonly Customer _customer = new() { Id = "c1", Email = "a@b.c" };
 
-    [TestInitialize]
-    public void Init()
+    public AccountControllerTwoFactorReturnUrlTests()
     {
         _manager = new Mock<ICustomerManagerService>();
         _customers = new Mock<ICustomerService>();

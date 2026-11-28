@@ -13,8 +13,7 @@ public class CanDeletePaymentTransactionQueryHandlerTests
     private CanDeletePaymentTransactionQueryHandler _handler;
     private LiteDBRepositoryMock<Order> _orders;
 
-    [TestInitialize]
-    public void Init()
+    public CanDeletePaymentTransactionQueryHandlerTests()
     {
         _orders = new LiteDBRepositoryMock<Order>();
         _handler = new CanDeletePaymentTransactionQueryHandler(_orders);
@@ -131,6 +130,6 @@ public class CanDeletePaymentTransactionQueryHandlerTests
     [TestMethod]
     public async Task NullTransaction_Throws()
     {
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => Handle(null));
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => Handle(null!));
     }
 }

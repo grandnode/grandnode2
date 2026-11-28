@@ -21,8 +21,7 @@ public class StorePageViewComponentTests
     private Mock<IHtmlSanitizationService> _sanitizerMock = null!;
     private StorePageViewComponent _component = null!;
 
-    [TestInitialize]
-    public void Init()
+    public StorePageViewComponentTests()
     {
         _pageServiceMock = new Mock<IPageService>();
         _sanitizerMock = new Mock<IHtmlSanitizationService>();
@@ -36,7 +35,7 @@ public class StorePageViewComponentTests
             _sanitizerMock.Object, NullLogger<StorePageViewComponent>.Instance);
     }
 
-    private async Task<StorePortalModel> Invoke(Page page)
+    private async Task<StorePortalModel> Invoke(Page? page)
     {
         _pageServiceMock.Setup(x => x.GetPageBySystemName(SystemName, StoreId)).ReturnsAsync(page);
         var result = await _component.InvokeAsync(SystemName);

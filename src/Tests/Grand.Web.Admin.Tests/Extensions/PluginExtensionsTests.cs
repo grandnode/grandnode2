@@ -10,8 +10,7 @@ public class PluginExtensionsTests
 {
     private DirectoryInfo _pluginDirectory;
 
-    [TestInitialize]
-    public void Setup()
+    public PluginExtensionsTests()
     {
         //<temp>/<guid>/Plugins/Payments.Test/Payments.Test.dll - the logo url is built from the last two folders
         var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -50,7 +49,7 @@ public class PluginExtensionsTests
     [TestMethod]
     public void GetLogoUrl_PrefersJpgOverPng()
     {
-        Assert.AreEqual("/Plugins/Payments.Test/logo.jpg", Plugin("logo.png", "logo.jpg").GetLogoUrl(null));
+        Assert.AreEqual("/Plugins/Payments.Test/logo.jpg", Plugin("logo.png", "logo.jpg").GetLogoUrl(""));
     }
 
     [TestMethod]

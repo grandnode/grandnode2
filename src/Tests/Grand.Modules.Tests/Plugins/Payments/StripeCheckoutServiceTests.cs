@@ -33,8 +33,7 @@ public class StripeCheckoutServiceTests
     private TestStripeCheckoutService _service;
     private Mock<ISettingService> _settingService;
 
-    [TestInitialize]
-    public void Init()
+    public StripeCheckoutServiceTests()
     {
         _handler = new FakeStripeHandler();
         _settingService = new Mock<ISettingService>();
@@ -56,7 +55,7 @@ public class StripeCheckoutServiceTests
             _paymentTransactionService.Object, _recurringPaymentService.Object, _settingService.Object);
     }
 
-    private static PaymentTransaction Transaction(string paymentIntentId = "pi_1")
+    private static PaymentTransaction Transaction(string? paymentIntentId = "pi_1")
     {
         return new PaymentTransaction { StoreId = "s2", AuthorizationTransactionId = paymentIntentId };
     }
@@ -328,7 +327,7 @@ public class StripeCheckoutServiceTests
         Assert.IsFalse(body.Contains("recurring"));
     }
 
-    private static RecurringPayment Subscribed(string subscriptionId = "sub_1")
+    private static RecurringPayment Subscribed(string? subscriptionId = "sub_1")
     {
         return new RecurringPayment { Id = "rp1", StoreId = "s2", ProviderReference = subscriptionId };
     }
@@ -662,7 +661,7 @@ public class StripeCheckoutServiceTests
         private readonly Dictionary<HttpMethod, (HttpStatusCode status, string json, (string name, string value)[] headers)>
             _responses = new();
 
-        private Exception _failure;
+        private Exception? _failure;
 
         public List<(HttpRequestMessage Request, string Body)> Requests { get; } = [];
 

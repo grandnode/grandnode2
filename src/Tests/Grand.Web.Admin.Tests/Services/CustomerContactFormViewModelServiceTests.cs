@@ -20,8 +20,7 @@ public class CustomerContactFormViewModelServiceTests
     private Mock<IStoreService> _storeServiceMock;
     private CustomerContactFormViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerContactFormViewModelServiceTests()
     {
         AutoMapperConfig.Init(new MapperConfiguration(cfg => cfg.AddProfile<ContactUsProfile>()));
 
@@ -58,7 +57,7 @@ public class CustomerContactFormViewModelServiceTests
         _contactUsServiceMock.Setup(c => c.GetAllContactUs(null, null, "", "", "c1", "", 0, 10))
             .ReturnsAsync(new PagedList<ContactUs>(new List<ContactUs> { known, orphan }, 0, 10, 2));
         _storeServiceMock.Setup(s => s.GetStoreById("s1")).ReturnsAsync(new Store { Id = "s1", Shortcut = "Main" });
-        _storeServiceMock.Setup(s => s.GetStoreById("gone")).ReturnsAsync((Store)null);
+        _storeServiceMock.Setup(s => s.GetStoreById("gone")).ReturnsAsync((Store?)null);
 
         var (models, totalCount) = await _service.PrepareContactFormModel("c1", 1, 10);
 

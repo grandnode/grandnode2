@@ -33,8 +33,7 @@ public class ReturnShippingServiceTests
     private ShippingSettings _shippingSettings;
     private Mock<IVendorService> _vendorService;
 
-    [TestInitialize]
-    public void Init()
+    public ReturnShippingServiceTests()
     {
         _order = new Order { Id = "o1", StoreId = StoreId, CurrencyRate = 1.5 };
         _order.OrderItems.Add(new OrderItem { Id = "a", Quantity = 5 });
@@ -70,7 +69,7 @@ public class ReturnShippingServiceTests
             NullLogger<ReturnShippingService>.Instance);
     }
 
-    private static Mock<IReturnShippingProvider> Provider(string systemName, IList<string> limitedToStores = null)
+    private static Mock<IReturnShippingProvider> Provider(string systemName, IList<string>? limitedToStores = null)
     {
         var provider = new Mock<IReturnShippingProvider>();
         provider.Setup(x => x.SystemName).Returns(systemName);
@@ -99,8 +98,8 @@ public class ReturnShippingServiceTests
             { Order = _order, StoreId = StoreId, CustomerId = "c1", LanguageId = "l1", Items = items };
     }
 
-    private static MerchandiseReturnSubmitItem Item(string orderItemId, string reasonId = null,
-        string actionId = null)
+    private static MerchandiseReturnSubmitItem Item(string orderItemId, string? reasonId = null,
+        string? actionId = null)
     {
         return new MerchandiseReturnSubmitItem(orderItemId, 1, reasonId, actionId);
     }
@@ -427,6 +426,7 @@ public class ReturnShippingServiceTests
         Assert.AreEqual(1.5, shipping.CurrencyRate);
         Assert.AreEqual("Option point", shipping.OptionName);
         Assert.AreEqual(ReturnLabelStatus.NotRequired, shipping.LabelStatus);
+        Assert.IsNotNull(shipping.ReturnAddress);
         Assert.AreEqual("Origin", shipping.ReturnAddress.Address1);
     }
 
@@ -517,6 +517,7 @@ public class ReturnShippingServiceTests
 
         var address = await _service.GetReturnAddress(StoreId, "v1");
 
+        Assert.IsNotNull(address);
         Assert.AreEqual("Vendor street", address.Address1);
         Assert.AreEqual("pl", address.CountryId);
     }
@@ -533,6 +534,7 @@ public class ReturnShippingServiceTests
         _providerSettings.ReturnAddress = new Address();
         var origin = await _service.GetReturnAddress(StoreId, "");
         Assert.AreNotSame(_shippingSettings.ShippingOriginAddress, origin);
+        Assert.IsNotNull(origin);
         Assert.AreEqual("Origin", origin.Address1);
     }
 
@@ -543,11 +545,17 @@ public class ReturnShippingServiceTests
             { Id = "v1", Address = new Address { Address1 = "No country" } });
         _providerSettings.ReturnAddress = new Address { Address1 = "Returns street" };
 
-        Assert.AreEqual("Returns street", (await _service.GetReturnAddress(StoreId, "v1")).Address1);
-        Assert.AreEqual("Returns street", (await _service.GetReturnAddress(StoreId, "")).Address1);
+        var address = await _service.GetReturnAddress(StoreId, "v1");
+        Assert.IsNotNull(address);
+        Assert.AreEqual("Returns street", address.Address1);
+        var address2 = await _service.GetReturnAddress(StoreId, "");
+        Assert.IsNotNull(address2);
+        Assert.AreEqual("Returns street", address2.Address1);
 
         _providerSettings.ReturnAddress = new Address();
 
-        Assert.AreEqual("Origin", (await _service.GetReturnAddress(StoreId, "v1")).Address1);
+        var address3 = await _service.GetReturnAddress(StoreId, "v1");
+        Assert.IsNotNull(address3);
+        Assert.AreEqual("Origin", address3.Address1);
     }
 }

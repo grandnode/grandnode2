@@ -33,8 +33,7 @@ public class WorkContextSetterRequestResolverTests
     private Mock<IHttpContextAccessor> _accessor;
     private Mock<IGuestCustomerPersistence> _persistence;
 
-    [TestInitialize]
-    public void Setup()
+    public WorkContextSetterRequestResolverTests()
     {
         _customerService = new Mock<ICustomerService>();
         _groupService = new Mock<IGroupService>();
@@ -69,7 +68,7 @@ public class WorkContextSetterRequestResolverTests
             new TaxSettings(), new AppConfig(), services.BuildServiceProvider());
     }
 
-    private static Mock<IRequestCustomerResolver> ResolverMock(int order, Customer result)
+    private static Mock<IRequestCustomerResolver> ResolverMock(int order, Customer? result)
     {
         var mock = new Mock<IRequestCustomerResolver>();
         mock.SetupGet(r => r.Order).Returns(order);
@@ -78,7 +77,7 @@ public class WorkContextSetterRequestResolverTests
     }
 
     //registered in a scrambled order on purpose: the setter must sort by Order
-    private IRequestCustomerResolver[] BuiltIns(IUserAgentClassifier classifier = null)
+    private IRequestCustomerResolver[] BuiltIns(IUserAgentClassifier? classifier = null)
     {
         return [
             new ApiUserCustomerResolver(_apiAuthentication.Object, _accessor.Object, _customerService.Object),
@@ -128,7 +127,7 @@ public class WorkContextSetterRequestResolverTests
     {
         ArrangeAllBuiltInsMatch();
         _httpContext.SetEndpoint(null);
-        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer?)null);
         var customer = await CreateSetter(BuiltIns()).CurrentCustomerForTest(new Store());
         Assert.AreEqual("guest", customer.Id);
     }
@@ -155,8 +154,8 @@ public class WorkContextSetterRequestResolverTests
     {
         ArrangeAllBuiltInsMatch();
         _httpContext.SetEndpoint(null);
-        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
-        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string)null);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer?)null);
+        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string?)null);
         var customer = await CreateSetter(BuiltIns()).CurrentCustomerForTest(new Store());
         Assert.AreEqual("crawler", customer.Id);
     }
@@ -166,8 +165,8 @@ public class WorkContextSetterRequestResolverTests
     {
         ArrangeAllBuiltInsMatch();
         _httpContext.SetEndpoint(null);
-        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
-        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string)null);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer?)null);
+        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string?)null);
         _userAgent.SetupGet(u => u.IsCrawler).Returns(false);
         var customer = await CreateSetter(BuiltIns()).CurrentCustomerForTest(new Store());
         Assert.AreEqual("api", customer.Id);
@@ -176,10 +175,10 @@ public class WorkContextSetterRequestResolverTests
     [TestMethod]
     public async Task BuiltIns_NothingMatches_CreatesNewGuest()
     {
-        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
-        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string)null);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer?)null);
+        _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync((string?)null);
         _userAgent.SetupGet(u => u.IsCrawler).Returns(false);
-        _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
+        _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer?)null);
         _customerService.Setup(c => c.InsertGuestCustomer(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c);
 
@@ -221,7 +220,7 @@ public class WorkContextSetterRequestResolverTests
         _httpContext.Request.Method = HttpMethods.Get;
         var guid = Guid.NewGuid();
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
-        _customerService.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync((Customer)null);
+        _customerService.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync((Customer?)null);
         var promoted = new Customer { Id = "promoted", CustomerGuid = guid, Active = true };
         _persistence.Setup(p => p.Promote(It.Is<Customer>(c => c.CustomerGuid == guid && c.StoreId == "s1")))
             .ReturnsAsync(promoted);
@@ -256,7 +255,7 @@ public class WorkContextSetterRequestResolverTests
         _httpContext.Request.Method = HttpMethods.Get;
         var guid = Guid.NewGuid();
         _authentication.Setup(a => a.GetCustomerGuid()).ReturnsAsync(guid.ToString());
-        _persistence.Setup(p => p.Promote(It.IsAny<Customer>())).ReturnsAsync((Customer)null);
+        _persistence.Setup(p => p.Promote(It.IsAny<Customer>())).ReturnsAsync((Customer?)null);
 
         var customer = await CreateSetterWithPersistence().CurrentCustomerForTest(new Store { Id = "s1" });
 
@@ -267,7 +266,7 @@ public class WorkContextSetterRequestResolverTests
     [TestMethod]
     public async Task BackgroundTask_NeverTransient()
     {
-        _accessor.Setup(a => a.HttpContext).Returns((HttpContext)null);
+        _accessor.Setup(a => a.HttpContext).Returns((HttpContext?)null);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask))
             .ReturnsAsync(new Customer { Id = "task", IsSystemAccount = true });
 
@@ -280,7 +279,7 @@ public class WorkContextSetterRequestResolverTests
     [TestMethod]
     public async Task BackgroundTask_NoHttpContext_ResolversAreNotAsked()
     {
-        _accessor.Setup(a => a.HttpContext).Returns((HttpContext)null);
+        _accessor.Setup(a => a.HttpContext).Returns((HttpContext?)null);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask))
             .ReturnsAsync(new Customer { Id = "task", IsSystemAccount = true });
         var resolver = ResolverMock(10, new Customer { Id = "resolved", Active = true });
@@ -296,7 +295,7 @@ public class WorkContextSetterRequestResolverTests
     {
         //the real registration: resolvers needing the request (detection, API authentication) must not be built
         //in a scope without one, so a resolver that cannot be constructed there must not fail the task
-        _accessor.Setup(a => a.HttpContext).Returns((HttpContext)null);
+        _accessor.Setup(a => a.HttpContext).Returns((HttpContext?)null);
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask))
             .ReturnsAsync(new Customer { Id = "task", IsSystemAccount = true });
         var services = new ServiceCollection();
@@ -363,7 +362,7 @@ public class WorkContextSetterRequestResolverTests
     {
         ArrangeAllBuiltInsMatch();
         _httpContext.SetEndpoint(null);
-        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer?)null);
         //between Cookie (2000) and GuestCookie (3000)
         var custom = ResolverMock(2500, new Customer { Id = "custom", Active = true });
         var all = BuiltIns().Append(custom.Object).ToArray();
@@ -472,10 +471,10 @@ public class WorkContextSetterRequestResolverTests
             languageService, storeService, aclService, vendorService, taxSettings, config, serviceProvider,
             NullLogger<WorkContextSetter>.Instance)
     {
-        public Customer OriginalCustomerForTest =>
-            (Customer)typeof(WorkContextSetter)
-                .GetField("_originalCustomerIfImpersonated", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(this);
+        public Customer? OriginalCustomerForTest =>
+            (Customer?)(typeof(WorkContextSetter).GetField("_originalCustomerIfImpersonated", BindingFlags.Instance | BindingFlags.NonPublic)
+                           ?? throw new InvalidOperationException("WorkContextSetter has no _originalCustomerIfImpersonated field"))
+            .GetValue(this);
 
         public Task<Customer> CurrentCustomerForTest(Store store) => CurrentCustomer(store);
     }
@@ -486,6 +485,6 @@ public class WorkContextSetterRequestResolverTests
 
         public int Order => 1;
 
-        public Task<Customer> Resolve() => Task.FromResult<Customer>(null);
+        public Task<Customer?> Resolve() => Task.FromResult<Customer?>(null);
     }
 }

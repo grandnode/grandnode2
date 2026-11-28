@@ -23,8 +23,7 @@ public class ProviderSignOutTests
     private List<IExternalSignOutProvider> _providers;
     private DefaultHttpContext _httpContext;
 
-    [TestInitialize]
-    public void Init()
+    public ProviderSignOutTests()
     {
         _auth = new Mock<IGrandAuthenticationService>();
         _provider = new Mock<IExternalSignOutProvider>();
@@ -160,7 +159,7 @@ public class ProviderSignOutTests
     public async Task FirstProviderWithUrlWins()
     {
         var empty = new Mock<IExternalSignOutProvider>();
-        empty.Setup(x => x.GetSignOutUrl(It.IsAny<string>())).ReturnsAsync((string)null);
+        empty.Setup(x => x.GetSignOutUrl(It.IsAny<string>())).ReturnsAsync((string?)null);
         _providers.Insert(0, empty.Object);
 
         Assert.AreEqual(ProviderUrl, await Service().SignOut());

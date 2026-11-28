@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class VendorShipmentDataScopeTests
 {
-    private static VendorShipmentDataScope Build(string currentVendorId)
+    private static VendorShipmentDataScope Build(string? currentVendorId)
     {
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(w => w.CurrentVendor).Returns(new Vendor { Id = currentVendorId });
@@ -38,7 +38,7 @@ public class VendorShipmentDataScopeTests
     public async Task HasAccess_NullEntity_False()
     {
         var scope = Build("vendor-A");
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 
     [TestMethod]

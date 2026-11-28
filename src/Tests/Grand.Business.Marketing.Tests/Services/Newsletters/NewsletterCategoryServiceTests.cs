@@ -15,8 +15,7 @@ public class NewsletterCategoryServiceTests
     private NewsletterCategoryService _newsletterCategoryService;
     private Mock<IRepository<NewsletterCategory>> _repoMock;
 
-    [TestInitialize]
-    public void Init()
+    public NewsletterCategoryServiceTests()
     {
         _repoMock = new Mock<IRepository<NewsletterCategory>>();
         _mediatorMock = new Mock<IMediator>();
@@ -27,7 +26,7 @@ public class NewsletterCategoryServiceTests
     public async Task DeleteNewsletterCategory_NullArgument_ThrowException()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await _newsletterCategoryService.DeleteNewsletterCategory(null), "newslettercategory");
+            async () => await _newsletterCategoryService.DeleteNewsletterCategory(null!), "newslettercategory");
     }
 
     [TestMethod]
@@ -49,7 +48,7 @@ public class NewsletterCategoryServiceTests
     public async Task InsertNewsletterCategory_NullArgument_ThrowException()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await _newsletterCategoryService.InsertNewsletterCategory(null), "newslettercategory");
+            async () => await _newsletterCategoryService.InsertNewsletterCategory(null!), "newslettercategory");
     }
 
     [TestMethod]
@@ -72,6 +71,6 @@ public class NewsletterCategoryServiceTests
     public void UpdateNewsletterCategory_NullArgument_ThrowException()
     {
         Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await _newsletterCategoryService.UpdateNewsletterCategory(null), "newslettercategory");
+            async () => await _newsletterCategoryService.UpdateNewsletterCategory(null!), "newslettercategory");
     }
 }

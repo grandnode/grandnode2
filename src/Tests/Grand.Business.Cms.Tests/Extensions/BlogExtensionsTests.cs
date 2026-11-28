@@ -8,8 +8,7 @@ public class BlogExtensionsTests
 {
     private List<BlogPost> _blogPosts;
 
-    [TestInitialize]
-    public void Init()
+    public BlogExtensionsTests()
     {
         _blogPosts = [
             new BlogPost { StartDateUtc = DateTime.Now.AddDays(4), Id = "5" },

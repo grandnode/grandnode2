@@ -15,8 +15,7 @@ public class OidcSchemeSelectorTests
     private const string Issuer = "https://idp.example.com/realms/shop";
     private OidcSchemeSelector _selector;
 
-    [TestInitialize]
-    public void Init()
+    public OidcSchemeSelectorTests()
     {
         var config = new OidcResourceServerConfig {
             Enabled = true, Authority = Issuer + "/",
@@ -25,12 +24,12 @@ public class OidcSchemeSelectorTests
         _selector = new OidcSchemeSelector(new OidcProtectedResourceRegistry(config, []));
     }
 
-    private static string Token(string issuer) => new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor {
+    private static string Token(string? issuer) => new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor {
         Issuer = issuer,
         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(new string('k', 32))), SecurityAlgorithms.HmacSha256)
     });
 
-    private static HttpContext Request(string path, string authorization = null)
+    private static HttpContext Request(string path, string? authorization = null)
     {
         var context = new DefaultHttpContext();
         context.Request.Path = path;
@@ -128,7 +127,7 @@ public class OidcSchemeSelectorTests
     [DataRow("PluginJwt")]
     public void PostConfigure_OtherJwtBearerScheme_KeepsItsOwnSelector(string scheme)
     {
-        Func<HttpContext, string> own = _ => null;
+        Func<HttpContext, string?> own = _ => null;
         var options = new JwtBearerOptions { ForwardDefaultSelector = own };
         _selector.PostConfigure(scheme, options);
         Assert.AreSame(own, options.ForwardDefaultSelector);

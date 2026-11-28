@@ -83,8 +83,8 @@ public class DiscountControllerAttributeTests
     [TestMethod]
     public void AdminDiscountController_HasAreaAttributeWithAdminArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
-            typeof(Grand.Web.Admin.Controllers.DiscountController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(
+            typeof(Grand.Web.Admin.Controllers.DiscountController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(Grand.Web.Admin.Extensions.Constants.AreaAdmin, areaAttr.RouteValue);
     }
@@ -107,8 +107,8 @@ public class DiscountControllerAttributeTests
     [TestMethod]
     public void StoreDiscountController_HasAreaAttributeWithStoreArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
-            typeof(StoreHost::Grand.Web.Store.Controllers.DiscountController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(
+            typeof(StoreHost::Grand.Web.Store.Controllers.DiscountController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(StoreHost::Grand.Web.Store.Extensions.Constants.AreaStore, areaAttr.RouteValue);
     }

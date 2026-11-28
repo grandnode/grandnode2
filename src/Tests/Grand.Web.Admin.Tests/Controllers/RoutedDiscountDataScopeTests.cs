@@ -27,8 +27,7 @@ public class RoutedDiscountDataScopeTests
     private AdminDiscountDataScope _adminScope = null!;
     private StoreAdminDataScope<Discount> _storeScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedDiscountDataScopeTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { StaffStoreId = StaffStoreId });

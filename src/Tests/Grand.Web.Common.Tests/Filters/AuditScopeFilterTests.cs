@@ -23,14 +23,13 @@ public class AuditScopeFilterTests
     private Mock<IAuditTracker> _tracker;
     private Mock<IWorkContext> _workContext;
     private Mock<IContextAccessor> _contextAccessor;
-    private AuditActor _activated;
+    private AuditActor? _activated;
 
     private static readonly Customer Staff = new() {
         Id = "staff1", Email = "anna@shop.com", StaffStoreId = "s1", VendorId = "v1"
     };
 
-    [TestInitialize]
-    public void Setup()
+    public AuditScopeFilterTests()
     {
         _tracker = new Mock<IAuditTracker>();
         _tracker.Setup(t => t.Activate(It.IsAny<AuditActor>())).Callback<AuditActor>(a => _activated = a);
@@ -40,7 +39,7 @@ public class AuditScopeFilterTests
         _contextAccessor.SetupGet(c => c.CurrentWorkContext).Returns(_workContext.Object);
     }
 
-    private async Task Run(string area, bool authenticated = true, object[] metadata = null, bool throws = false)
+    private async Task Run(string? area, bool authenticated = true, object[]? metadata = null, bool throws = false)
     {
         var httpContext = new DefaultHttpContext {
             TraceIdentifier = "trace-1",
@@ -82,7 +81,7 @@ public class AuditScopeFilterTests
     public async Task RequestWithoutWorkContext_NotActivated()
     {
         //the installer runs before ContextMiddleware has a store to set a work context for
-        _contextAccessor.SetupGet(c => c.CurrentWorkContext).Returns((IWorkContext)null);
+        _contextAccessor.SetupGet(c => c.CurrentWorkContext).Returns((IWorkContext?)null);
         _contextAccessor.SetupGet(c => c.WorkContext).Throws(new InvalidOperationException("No work context is set"));
 
         await Run(null, authenticated: false);
@@ -113,6 +112,7 @@ public class AuditScopeFilterTests
     {
         await Run("Admin");
 
+        Assert.IsNotNull(_activated);
         Assert.AreEqual("Admin / Order / CancelOrder", _activated.Action);
     }
 
@@ -121,6 +121,7 @@ public class AuditScopeFilterTests
     {
         await Run("Store");
 
+        Assert.IsNotNull(_activated);
         Assert.AreEqual(AuditSource.Store, _activated.Source);
     }
 
@@ -129,6 +130,7 @@ public class AuditScopeFilterTests
     {
         await Run("Vendor");
 
+        Assert.IsNotNull(_activated);
         Assert.AreEqual(AuditSource.Vendor, _activated.Source);
     }
 
@@ -145,6 +147,7 @@ public class AuditScopeFilterTests
     {
         await Run(null, metadata: [new AuditSourceAttribute(AuditSource.Api)]);
 
+        Assert.IsNotNull(_activated);
         Assert.AreEqual(AuditSource.Api, _activated.Source);
         Assert.AreEqual("Api / Order / CancelOrder", _activated.Action);
     }
@@ -157,6 +160,7 @@ public class AuditScopeFilterTests
         //SCIM checks its bearer token in ScimAuthorizeFilter, not through an authentication scheme
         await Run(null, false, [new AuditSourceAttribute(AuditSource.Scim)]);
 
+        Assert.IsNotNull(_activated);
         Assert.AreEqual(AuditSource.Scim, _activated.Source);
         Assert.AreEqual("SCIM", _activated.Email);
         Assert.IsNull(_activated.CustomerId);
@@ -186,6 +190,7 @@ public class AuditScopeFilterTests
 
         await Run("Admin");
 
+        Assert.IsNotNull(_activated);
         Assert.AreEqual("staff1", _activated.CustomerId);
         Assert.AreEqual("anna@shop.com", _activated.Email);
         Assert.AreEqual("cust9", _activated.ImpersonatedCustomerId);
@@ -199,6 +204,7 @@ public class AuditScopeFilterTests
 
         await Run(null);
 
+        Assert.IsNotNull(_activated);
         Assert.AreEqual(AuditSource.Storefront, _activated.Source);
         Assert.AreEqual("staff1", _activated.CustomerId);
         Assert.AreEqual("cust9", _activated.ImpersonatedCustomerId);

@@ -39,8 +39,7 @@ public class BaseTaxCategoryControllerTests
     private Mock<IStoreService> _storeServiceMock = null!;
     private Mock<IRequestTranslationService> _translationServiceMock = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseTaxCategoryControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<TaxCategoryProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -135,7 +134,8 @@ public class BaseTaxCategoryControllerTests
         var result = await controller.Categories(new DataSourceRequest()) as JsonResult;
 
         var payload = (DataSourceResult)result!.Value!;
-        var items = (List<TaxCategoryModel>)payload.Data;
+        var items = Assert.IsInstanceOfType<List<TaxCategoryModel>>(payload.Data);
+        Assert.IsNotNull(items);
         Assert.AreEqual("MyStore", items.Single().StoreName);
     }
 
@@ -151,7 +151,8 @@ public class BaseTaxCategoryControllerTests
         var result = await controller.Categories(new DataSourceRequest()) as JsonResult;
 
         var payload = (DataSourceResult)result!.Value!;
-        var items = (List<TaxCategoryModel>)payload.Data;
+        var items = Assert.IsInstanceOfType<List<TaxCategoryModel>>(payload.Data);
+        Assert.IsNotNull(items);
         Assert.AreEqual("Admin.Common.All", items.Single().StoreName);
     }
 
@@ -165,7 +166,8 @@ public class BaseTaxCategoryControllerTests
         var result = await controller.Categories(new DataSourceRequest()) as JsonResult;
 
         var payload = (DataSourceResult)result!.Value!;
-        var items = (List<TaxCategoryModel>)payload.Data;
+        var items = Assert.IsInstanceOfType<List<TaxCategoryModel>>(payload.Data);
+        Assert.IsNotNull(items);
         Assert.AreEqual(string.Empty, items.Single().StoreName);
     }
 

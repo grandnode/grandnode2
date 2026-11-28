@@ -39,8 +39,7 @@ public class ProductControllerPreviewTests
     private Mock<IGuestCustomerPersistence> _guestPersistenceMock;
     private Mock<IRecentlyViewedProductsService> _recentlyViewedMock;
 
-    [TestInitialize]
-    public void Init()
+    public ProductControllerPreviewTests()
     {
         _customer = new Customer { Id = "c1" };
         var store = new Grand.Domain.Stores.Store { Id = "s1" };

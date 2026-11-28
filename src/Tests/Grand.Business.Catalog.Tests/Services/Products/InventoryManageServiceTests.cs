@@ -33,8 +33,7 @@ public class InventoryManageServiceTests
     private Mock<IWorkContext> _workContextMock;
     private Mock<IStoreContext> _storeContextMock;
 
-    [TestInitialize]
-    public void Init()
+    public InventoryManageServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _repositoryInventoryJournal = new MongoDBRepositoryTest<InventoryJournal>();
@@ -212,7 +211,7 @@ public class InventoryManageServiceTests
         await _repository.InsertAsync(product);
 
         var results = await Task.WhenAll(Enumerable.Range(0, 10).Select(_ => Task.Run(() =>
-            _inventoryManageService.TryReserve(product, 1, null, ""))));
+            _inventoryManageService.TryReserve(product, 1, [], ""))));
 
         Assert.AreEqual(1, results.Count(x => x));
         Assert.AreEqual(1, Stored(product).ReservedQuantity);
@@ -230,7 +229,7 @@ public class InventoryManageServiceTests
         await _repository.InsertAsync(product);
         product.ReservedQuantity = 0;
 
-        Assert.IsFalse(await _inventoryManageService.TryReserve(product, 1, null, ""));
+        Assert.IsFalse(await _inventoryManageService.TryReserve(product, 1, [], ""));
         Assert.AreEqual(1, Stored(product).ReservedQuantity);
     }
 
@@ -244,7 +243,7 @@ public class InventoryManageServiceTests
         };
         await _repository.InsertAsync(product);
 
-        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 2, null, ""));
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 2, [], ""));
         Assert.AreEqual(2, Stored(product).ReservedQuantity);
     }
 
@@ -273,8 +272,8 @@ public class InventoryManageServiceTests
         product.ProductWarehouseInventory.Add(new ProductWarehouseInventory { WarehouseId = "w2", StockQuantity = 5 });
         await _repository.InsertAsync(product);
 
-        Assert.IsFalse(await _inventoryManageService.TryReserve(product, 1, null, "w1"));
-        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, null, "w2"));
+        Assert.IsFalse(await _inventoryManageService.TryReserve(product, 1, [], "w1"));
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, [], "w2"));
         Assert.AreEqual(1, Stored(product).ProductWarehouseInventory.First(x => x.WarehouseId == "w2").ReservedQuantity);
     }
 
@@ -290,7 +289,7 @@ public class InventoryManageServiceTests
         await _repository.InsertAsync(product);
 
         //the order item falls back to the store's default warehouse w2
-        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, null, "w2"));
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, [], "w2"));
         Assert.AreEqual(1, Stored(product).ReservedQuantity);
     }
 
@@ -319,7 +318,7 @@ public class InventoryManageServiceTests
         bundle.BundleProducts.Add(new BundleProduct { ProductId = child.Id, Quantity = 2 });
         await _repository.InsertAsync(bundle);
 
-        Assert.IsFalse(await _inventoryManageService.TryReserve(bundle, 2, null, ""));
+        Assert.IsFalse(await _inventoryManageService.TryReserve(bundle, 2, [], ""));
         Assert.AreEqual(0, Stored(child).ReservedQuantity);
     }
 
@@ -337,7 +336,7 @@ public class InventoryManageServiceTests
         await _repository.InsertAsync(bundle);
         var stopwatch = Stopwatch.StartNew();
 
-        Assert.IsTrue(await _inventoryManageService.TryReserve(bundle, 1, null, ""));
+        Assert.IsTrue(await _inventoryManageService.TryReserve(bundle, 1, [], ""));
 
         Assert.IsLessThan(2000, stopwatch.ElapsedMilliseconds);
         Assert.AreEqual(2, Stored(child).ReservedQuantity);
@@ -355,10 +354,10 @@ public class InventoryManageServiceTests
             Published = true
         };
         await _repository.InsertAsync(product);
-        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 3, null, ""));
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 3, [], ""));
         Assert.IsFalse(Stored(product).Published);
 
-        await _inventoryManageService.CancelReservation(product, 3, null, "");
+        await _inventoryManageService.CancelReservation(product, 3, [], "");
 
         var stored = Stored(product);
         Assert.IsTrue(stored.Published);
@@ -378,9 +377,9 @@ public class InventoryManageServiceTests
             Published = false
         };
         await _repository.InsertAsync(product);
-        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, null, ""));
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, [], ""));
 
-        await _inventoryManageService.CancelReservation(product, 1, null, "");
+        await _inventoryManageService.CancelReservation(product, 1, [], "");
 
         Assert.IsFalse(Stored(product).Published);
     }
@@ -415,6 +414,7 @@ public class InventoryManageServiceTests
         await _inventoryManageService.AdjustReserved(product, -10);
         product = _repository.Table.FirstOrDefault(x => x.Id == product.Id);
         //Assert
+        Assert.IsNotNull(product);
         Assert.AreEqual(15, product.ReservedQuantity);
     }
 
@@ -450,6 +450,7 @@ public class InventoryManageServiceTests
         await _inventoryManageService.AdjustReserved(product, 8);
         product = _repository.Table.FirstOrDefault(x => x.Id == product.Id);
         //Assert
+        Assert.IsNotNull(product);
         Assert.AreEqual(2, product.ReservedQuantity);
     }
 
@@ -471,6 +472,7 @@ public class InventoryManageServiceTests
         await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
         product = _repository.Table.FirstOrDefault(x => x.Id == product.Id);
         //Assert
+        Assert.IsNotNull(product);
         Assert.AreEqual(0, product.ReservedQuantity);
         Assert.AreEqual(0, product.StockQuantity);
     }
@@ -496,6 +498,7 @@ public class InventoryManageServiceTests
         product = _repository.Table.FirstOrDefault(x => x.Id == product.Id);
 
         //Assert
+        Assert.IsNotNull(product);
         Assert.AreEqual(10, product.ReservedQuantity);
         Assert.AreEqual(10, product.StockQuantity);
     }
@@ -519,6 +522,7 @@ public class InventoryManageServiceTests
         product = _repository.Table.FirstOrDefault(x => x.Id == product.Id);
 
         //Assert
+        Assert.IsNotNull(product);
         Assert.AreEqual(10, product.ReservedQuantity);
         Assert.AreEqual(10, product.StockQuantity);
     }

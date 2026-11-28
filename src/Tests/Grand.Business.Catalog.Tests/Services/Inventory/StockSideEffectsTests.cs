@@ -19,8 +19,7 @@ public class StockSideEffectsTests
     private IRepository<Product> _products;
     private StockSideEffects _sideEffects;
 
-    [TestInitialize]
-    public void Init()
+    public StockSideEffectsTests()
     {
         _products = new MongoDBRepositoryTest<Product>();
         _outOfStock = new Mock<IOutOfStockSubscriptionService>();

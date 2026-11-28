@@ -25,8 +25,7 @@ public class RobotsTxtServiceTests
     private Mock<IWorkContext> _workContextMock;
     private Mock<IStoreContext> _storeContextMock;
 
-    [TestInitialize]
-    public void Init()
+    public RobotsTxtServiceTests()
     {
         _repository = new MongoDBRepositoryTest<RobotsTxt>();
 
@@ -75,7 +74,7 @@ public class RobotsTxtServiceTests
         robotsTxt.Text = "test";
         await _robotsTxtService.UpdateRobotsTxt(robotsTxt);
         //Assert
-        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == robotsTxt.Id).Text);
+        Assert.AreEqual("test", _repository.Table.First(x => x.Id == robotsTxt.Id).Text);
     }
 
     [TestMethod]

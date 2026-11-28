@@ -19,8 +19,7 @@ public class PaymentServiceTests
     private PaymentSettings _paymentSettings;
     private Mock<ISettingService> _settingService;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public PaymentServiceTests()
     {
         _paymentSettings = new PaymentSettings {
             ActivePaymentProviderSystemNames = [
@@ -49,7 +48,7 @@ public class PaymentServiceTests
         var expectedResult = new List<string> { "1", "2", "3", "4" };
         var expectedKey = "PaymentMethodRestictions.systemName";
         _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
-            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = expectedResult }));
+            .ReturnsAsync(() => new PaymentRestrictedSettings { Ids = expectedResult });
 
         var result = await _paymentService.GetRestrictedCountryIds(_paymentProviderMock.Object);
         Assert.IsTrue(expectedResult.SequenceEqual(result));
@@ -62,7 +61,7 @@ public class PaymentServiceTests
         _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
         var expectedKey = "PaymentMethodRestictions.systemName";
         _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
-            .Returns(() => Task.FromResult((PaymentRestrictedSettings)null));
+            .Returns(() => Task.FromResult((PaymentRestrictedSettings?)null));
 
         var result = await _paymentService.GetRestrictedCountryIds(_paymentProviderMock.Object);
         Assert.IsEmpty(result);
@@ -76,7 +75,7 @@ public class PaymentServiceTests
         var expectedResult = new List<string> { "1", "2" };
         var expectedKey = "PaymentMethodRestictions.systemName";
         _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, "storeId"))
-            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = expectedResult }));
+            .ReturnsAsync(() => new PaymentRestrictedSettings { Ids = expectedResult });
 
         var result = await _paymentService.GetRestrictedCountryIds(_paymentProviderMock.Object, "storeId");
         Assert.IsTrue(expectedResult.SequenceEqual(result));
@@ -91,7 +90,7 @@ public class PaymentServiceTests
         var expectedResult = new List<string> { "Ground", "Pickup" };
         var expectedKey = "PaymentMethodRestictionsShipping.systemName";
         _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
-            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = expectedResult }));
+            .ReturnsAsync(() => new PaymentRestrictedSettings { Ids = expectedResult });
 
         var result = await _paymentService.GetRestrictedShippingIds(_paymentProviderMock.Object);
         Assert.IsTrue(expectedResult.SequenceEqual(result));
@@ -104,7 +103,7 @@ public class PaymentServiceTests
         _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
         var expectedKey = "PaymentMethodRestictionsShipping.systemName";
         _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
-            .Returns(() => Task.FromResult((PaymentRestrictedSettings)null));
+            .Returns(() => Task.FromResult((PaymentRestrictedSettings?)null));
 
         var result = await _paymentService.GetRestrictedShippingIds(_paymentProviderMock.Object);
         Assert.IsEmpty(result);
@@ -118,7 +117,7 @@ public class PaymentServiceTests
         var expectedResult = new List<string> { "Ground" };
         var expectedKey = "PaymentMethodRestictionsShipping.systemName";
         _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, "storeId"))
-            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = expectedResult }));
+            .ReturnsAsync(() => new PaymentRestrictedSettings { Ids = expectedResult });
 
         var result = await _paymentService.GetRestrictedShippingIds(_paymentProviderMock.Object, "storeId");
         Assert.IsTrue(expectedResult.SequenceEqual(result));
@@ -186,7 +185,7 @@ public class PaymentServiceTests
         _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
         var expectedKey = "PaymentMethodRestictions.systemName";
         _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, "storeId"))
-            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = ["countryId"] }));
+            .ReturnsAsync(() => new PaymentRestrictedSettings { Ids = ["countryId"] });
 
         var result = await _paymentService.LoadAllPaymentMethods(storeId: "storeId", filterByCountryId: "countryId");
 
@@ -358,7 +357,7 @@ public class PaymentServiceTests
         public IList<string> LimitedToGroups => throw new NotImplementedException();
         public PaymentMethodType PaymentMethodType => throw new NotImplementedException();
         public string LogoURL => throw new NotImplementedException();
-        public Task<PaymentTransaction> InitPaymentTransaction() => throw new NotImplementedException();
+        public Task<PaymentTransaction?> InitPaymentTransaction() => throw new NotImplementedException();
         public Task<ProcessPaymentResult> ProcessPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
         public Task PostProcessPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
         public Task<string> PostRedirectPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
@@ -370,7 +369,7 @@ public class PaymentServiceTests
         public Task CancelPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
         public Task<bool> CanRePostRedirectPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
         public Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model) => throw new NotImplementedException();
-        public Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model) => throw new NotImplementedException();
+        public Task<PaymentTransaction?> SavePaymentInfo(IDictionary<string, string> model) => throw new NotImplementedException();
         public Task<string> GetControllerRouteName() => throw new NotImplementedException();
         public Task<bool> SkipPaymentInfo() => throw new NotImplementedException();
         public Task<string> Description() => throw new NotImplementedException();

@@ -18,8 +18,7 @@ public class ShippingMethodServiceTests
     private Mock<IRepository<ShippingMethod>> _repositoryMock;
     private IShippingMethodService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ShippingMethodServiceTests()
     {
         _repositoryMock = new Mock<IRepository<ShippingMethod>>();
         _mediatorMock = new Mock<IMediator>();
@@ -38,7 +37,7 @@ public class ShippingMethodServiceTests
     [TestMethod]
     public void InsertShippingMethod_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertShippingMethod(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertShippingMethod(null!));
     }
 
     [TestMethod]
@@ -52,7 +51,7 @@ public class ShippingMethodServiceTests
     [TestMethod]
     public void UpdateShippingMethod_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateShippingMethod(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateShippingMethod(null!));
     }
 
     [TestMethod]
@@ -66,6 +65,6 @@ public class ShippingMethodServiceTests
     [TestMethod]
     public void DeleteShippingMethod_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteShippingMethod(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteShippingMethod(null!));
     }
 }

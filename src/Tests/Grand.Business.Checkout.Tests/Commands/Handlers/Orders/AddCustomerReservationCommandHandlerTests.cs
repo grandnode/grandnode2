@@ -16,8 +16,7 @@ public class AddCustomerReservationCommandHandlerTests
     private AddCustomerReservationCommandHandler _handler;
     private Mock<IProductReservationService> _productReservationServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public AddCustomerReservationCommandHandlerTests()
     {
         _productReservationServiceMock = new Mock<IProductReservationService>();
         _handler = new AddCustomerReservationCommandHandler(_productReservationServiceMock.Object);

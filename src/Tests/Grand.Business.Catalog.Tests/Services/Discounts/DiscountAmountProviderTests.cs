@@ -19,7 +19,7 @@ public class DiscountAmountProviderTests : IDiscountAmountProvider
 
     public IList<string> LimitedToGroups => new List<string>();
 
-    public async Task<double> DiscountAmount(Discount discount, Customer customer, Product product, double amount)
+    public async Task<double> DiscountAmount(Discount discount, Customer customer, Product? product, double amount)
     {
         return await Task.FromResult(9);
     }

@@ -28,8 +28,7 @@ public class DiscountDeletedEventHandlerTests
     private IRepository<Product> _productRepository;
     private IRepository<Vendor> _vendorRepository;
 
-    [TestInitialize]
-    public void Init()
+    public DiscountDeletedEventHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _productRepository = new MongoDBRepositoryTest<Product>();

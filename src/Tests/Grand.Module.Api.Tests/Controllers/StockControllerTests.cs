@@ -24,8 +24,7 @@ public class StockControllerTests
     private Mock<IPermissionService> _permissionServiceMock;
     private StockController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public StockControllerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _mediatorMock.Setup(x => x.Send(It.IsAny<ApplyStockCommand>(), It.IsAny<CancellationToken>()))
@@ -66,7 +65,7 @@ public class StockControllerTests
             PermissionActionName.Edit, _customer)).ReturnsAsync(false);
 
         Assert.IsInstanceOfType<ForbidResult>(await _controller.Apply(Request(1)));
-        Assert.IsInstanceOfType<ForbidResult>(await _controller.Journal(null));
+        Assert.IsInstanceOfType<ForbidResult>(await _controller.Journal(null!));
     }
 
     [TestMethod]
@@ -77,7 +76,7 @@ public class StockControllerTests
             PermissionActionName.Edit, _customer)).ReturnsAsync(false);
 
         Assert.IsInstanceOfType<ForbidResult>(await _controller.Apply(Request(1)));
-        Assert.IsNotInstanceOfType<ForbidResult>(await _controller.Journal(null));
+        Assert.IsNotInstanceOfType<ForbidResult>(await _controller.Journal(""));
         _mediatorMock.Verify(x => x.Send(It.IsAny<ApplyStockCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -101,7 +100,7 @@ public class StockControllerTests
     public async Task Apply_EmptyLine_BadRequest()
     {
         var request = Request(1);
-        request.Lines.Add(null);
+        request.Lines.Add(null!);
 
         Assert.IsInstanceOfType<BadRequestObjectResult>(await _controller.Apply(request));
     }
@@ -109,7 +108,7 @@ public class StockControllerTests
     [TestMethod]
     public async Task Journal_MovementTypesByNameOrNumber_Passed()
     {
-        Assert.IsInstanceOfType<OkObjectResult>(await _controller.Journal(null,
+        Assert.IsInstanceOfType<OkObjectResult>(await _controller.Journal("",
             movementTypes: $"Shipment, {(int)InventoryMovementType.Api}"));
 
         _mediatorMock.Verify(x => x.Send(It.Is<GetStockJournalQuery>(q =>
@@ -121,7 +120,7 @@ public class StockControllerTests
     [TestMethod]
     public async Task Journal_UnknownMovementType_BadRequest()
     {
-        Assert.IsInstanceOfType<BadRequestObjectResult>(await _controller.Journal(null, movementTypes: "Shipment,999"));
+        Assert.IsInstanceOfType<BadRequestObjectResult>(await _controller.Journal(null!, movementTypes: "Shipment,999"));
         _mediatorMock.Verify(x => x.Send(It.IsAny<GetStockJournalQuery>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }

@@ -21,8 +21,7 @@ public class OidcSignOutProviderTests
     private Mock<IConfigurationManager<OpenIdConnectConfiguration>> _manager;
     private Mock<ILogger<OidcSignOutProvider>> _logger;
 
-    [TestInitialize]
-    public void Init()
+    public OidcSignOutProviderTests()
     {
         _authenticationService = new Mock<IExternalAuthenticationService>();
         _authenticationService.Setup(x => x.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName, It.IsAny<Grand.Domain.Customers.Customer>(), It.IsAny<Grand.Domain.Stores.Store>()))
@@ -32,7 +31,7 @@ public class OidcSignOutProviderTests
         Metadata("https://idp.test/logout");
     }
 
-    private void Metadata(string endSession) =>
+    private void Metadata(string? endSession) =>
         _manager.Setup(x => x.GetConfigurationAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OpenIdConnectConfiguration { EndSessionEndpoint = endSession });
 
@@ -59,6 +58,7 @@ public class OidcSignOutProviderTests
     {
         Metadata("https://idp.test/logout?realm=a");
         var url = await Provider().GetSignOutUrl(Back);
+        Assert.IsNotNull(url);
         Assert.IsTrue(url.StartsWith("https://idp.test/logout?realm=a&client_id=shop%20app&"), url);
     }
 
@@ -90,6 +90,6 @@ public class OidcSignOutProviderTests
         Assert.IsNull(await Provider().GetSignOutUrl(Back));
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(),
             It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 }

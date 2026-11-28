@@ -24,18 +24,18 @@ namespace Grand.Web.Tests.Features.Handlers.News;
 public class GetHomePageNewsItemsHandlerTests
 {
     private readonly AccessControlConfig _accessControlConfig = new();
-    private Customer _currentCustomer;
+    private Customer _currentCustomer = new();
     private GetHomePageNewsItemsHandler _handler;
     private Mock<INewsService> _newsServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public GetHomePageNewsItemsHandlerTests()
     {
         _newsServiceMock = new Mock<INewsService>();
         _newsServiceMock.Setup(s => s.GetAllNews(It.IsAny<CatalogAccess>(), It.IsAny<int>(), It.IsAny<int>(),
                 It.IsAny<bool>(), It.IsAny<string>()))
             .ReturnsAsync((CatalogAccess access, int _, int _, bool _, string _) => {
                 var news = new List<NewsItem> { new() { Id = "public" } };
+                Assert.IsNotNull(access.Customer);
                 if (access.Customer.Groups.Contains("vip"))
                     news.Add(new NewsItem { Id = "vip-only" });
                 return new PagedList<NewsItem>(news, 0, int.MaxValue);

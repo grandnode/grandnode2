@@ -40,8 +40,7 @@ public class AccountControllerExternalRegisterTests
     private AccountController _controller;
     private readonly Customer _guest = new() { Id = "g1" };
 
-    [TestInitialize]
-    public void Init()
+    public AccountControllerExternalRegisterTests()
     {
         _manager = new Mock<ICustomerManagerService>();
         _messages = new Mock<ICustomerMessageProviderService>();
@@ -82,8 +81,10 @@ public class AccountControllerExternalRegisterTests
     public async Task Get_Pending_PrefillsAndMarksExternal()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        var view = (ViewResult)(await _controller.Register(_external.Object, _externalAuth.Object, new OidcLoginConfig())).Result;
-        var model = (RegisterModel)view.Model;
+        var view = Assert.IsInstanceOfType<ViewResult>((await _controller.Register(_external.Object, _externalAuth.Object, new OidcLoginConfig())).Result);
+        Assert.IsNotNull(view);
+        var model = Assert.IsInstanceOfType<RegisterModel>(view.Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual("john@example.com", model.Email);
         Assert.AreEqual("John", model.FirstName);
         Assert.IsTrue(model.ExternalRegistration);
@@ -94,10 +95,11 @@ public class AccountControllerExternalRegisterTests
     public async Task Post_Pending_UsesPendingEmail_RandomPassword_Links()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        RegistrationRequest request = null;
+        RegistrationRequest? request = null;
         _manager.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>())).Callback<RegistrationRequest>(r => request = r);
-        await _controller.Register(new RegisterModel { Email = "evil@b.c", ExternalRegistration = false }, null,
+        await _controller.Register(new RegisterModel { Email = "evil@b.c", ExternalRegistration = false }, "",
             _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        Assert.IsNotNull(request);
         Assert.AreEqual("john@example.com", request.Email);
         Assert.IsFalse(string.IsNullOrEmpty(request.Password));
         _external.Verify(x => x.Complete(_guest, "s1"), Times.Once);
@@ -112,11 +114,12 @@ public class AccountControllerExternalRegisterTests
     {
         _settings.UserRegistrationType = type;
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = verified });
-        RegistrationRequest request = null;
+        RegistrationRequest? request = null;
         _manager.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>())).Callback<RegistrationRequest>(r => request = r);
         //an unconnected registration types a password, as the validator asks
-        await _controller.Register(new RegisterModel { Password = "Passw0rd!" }, null, _external.Object, _externalAuth.Object,
+        await _controller.Register(new RegisterModel { Password = "Passw0rd!" }, "", _external.Object, _externalAuth.Object,
             new OidcLoginConfig());
+        Assert.IsNotNull(request);
         Assert.AreEqual(approved, request.IsApproved);
     }
 
@@ -125,10 +128,10 @@ public class AccountControllerExternalRegisterTests
     {
         _settings.UserRegistrationType = UserRegistrationType.Standard;
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = false });
-        var result = await _controller.Register(new RegisterModel { Password = "Passw0rd!" }, null, _external.Object,
+        var result = await _controller.Register(new RegisterModel { Password = "Passw0rd!" }, "", _external.Object,
             _externalAuth.Object, new OidcLoginConfig());
         _messages.Verify(x => x.SendCustomerEmailValidationMessage(_guest, It.IsAny<Grand.Domain.Stores.Store>(), "l1"), Times.Once);
-        Assert.AreEqual((int)UserRegistrationType.EmailValidation, ((RedirectToRouteResult)result).RouteValues["resultId"]);
+        Assert.AreEqual((int)UserRegistrationType.EmailValidation, ((RedirectToRouteResult)result).RouteValues?["resultId"]);
     }
 
     [TestMethod]
@@ -136,9 +139,10 @@ public class AccountControllerExternalRegisterTests
     {
         //whoever holds an identity with an unconfirmed address must not keep the account once its owner activates it
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = false });
-        RegistrationRequest request = null;
+        RegistrationRequest? request = null;
         _manager.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>())).Callback<RegistrationRequest>(r => request = r);
-        await _controller.Register(new RegisterModel { Password = "Secret1!" }, null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        await _controller.Register(new RegisterModel { Password = "Secret1!" }, "", _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        Assert.IsNotNull(request);
         Assert.AreEqual("john@example.com", request.Email);
         Assert.AreEqual("Secret1!", request.Password);
         _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
@@ -149,8 +153,10 @@ public class AccountControllerExternalRegisterTests
     public async Task Get_Pending_Unverified_AsksForPassword()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = false });
-        var view = (ViewResult)(await _controller.Register(_external.Object, _externalAuth.Object, new OidcLoginConfig())).Result;
-        var model = (RegisterModel)view.Model;
+        var view = Assert.IsInstanceOfType<ViewResult>((await _controller.Register(_external.Object, _externalAuth.Object, new OidcLoginConfig())).Result);
+        Assert.IsNotNull(view);
+        var model = Assert.IsInstanceOfType<RegisterModel>(view.Model);
+        Assert.IsNotNull(model);
         Assert.IsTrue(model.ExternalRegistration);
         Assert.IsFalse(model.ExternalConnects);
     }
@@ -160,22 +166,23 @@ public class AccountControllerExternalRegisterTests
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.SubjectLinkedToOtherCustomer);
-        await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        await _controller.Register(new RegisterModel(), "", _external.Object, _externalAuth.Object, new OidcLoginConfig());
         Assert.IsNotNull(_controller.TempData["grand.notifications.Warning"]);
     }
 
     [TestMethod]
     public async Task Post_NoPending_RegularPath_NoLink()
     {
-        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
-        RegistrationRequest request = null;
+        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity?)null);
+        RegistrationRequest? request = null;
         _manager.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>())).Callback<RegistrationRequest>(r => request = r);
-        await _controller.Register(new RegisterModel { Email = "a@b.c", Password = "Secret1!" }, null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        await _controller.Register(new RegisterModel { Email = "a@b.c", Password = "Secret1!" }, null!, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        Assert.IsNotNull(request);
         Assert.AreEqual("Secret1!", request.Password);
         _external.Verify(x => x.Complete(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);
     }
 
-    private Mock<IExternalSignInPathProvider> PathProvider(string path = "/oidc/login?returnUrl=%2Fregisterresult%2F1")
+    private Mock<IExternalSignInPathProvider> PathProvider(string? path = "/oidc/login?returnUrl=%2Fregisterresult%2F1")
     {
         var provider = new Mock<IExternalSignInPathProvider>();
         provider.Setup(x => x.GetSignInPath(It.IsAny<string>())).ReturnsAsync(path);
@@ -205,7 +212,7 @@ public class AccountControllerExternalRegisterTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         var provider = PathProvider();
-        var result = await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        var result = await _controller.Register(new RegisterModel(), null!, _external.Object, _externalAuth.Object, new OidcLoginConfig());
         Assert.IsInstanceOfType(result, typeof(RedirectToRouteResult));
         provider.Verify(x => x.GetSignInPath(It.IsAny<string>()), Times.Never);
     }
@@ -217,7 +224,7 @@ public class AccountControllerExternalRegisterTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.SubjectLinkedToOtherCustomer);
         var provider = PathProvider();
-        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null!, _external.Object, _externalAuth.Object, new OidcLoginConfig());
         Assert.IsFalse(result.Url.Contains("/oidc/login"));
         provider.Verify(x => x.GetSignInPath(It.IsAny<string>()), Times.Never);
     }
@@ -230,7 +237,7 @@ public class AccountControllerExternalRegisterTests
         _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         _externalAuth.Setup(x => x.LoadAuthenticationProviderBySystemName("ExternalAuth.OpenIdConnect"))
             .Returns(new Mock<IExternalAuthenticationProvider>().Object);
-        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null!, _external.Object, _externalAuth.Object, new OidcLoginConfig());
         Assert.AreEqual("https://localhost/registerresult/1", result.Url);
     }
 
@@ -241,7 +248,7 @@ public class AccountControllerExternalRegisterTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _external.Setup(x => x.Complete(_guest, "s1")).ReturnsAsync(OidcLinkResult.Linked);
         PathProvider(null);
-        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        var result = (RedirectResult)await _controller.Register(new RegisterModel(), null!, _external.Object, _externalAuth.Object, new OidcLoginConfig());
         Assert.AreEqual("https://localhost/registerresult/1", result.Url);
     }
 }

@@ -9,8 +9,7 @@ public class MimeMappingServiceTests
 {
     private MimeMappingService _service;
 
-    [TestInitialize]
-    public void Init()
+    public MimeMappingServiceTests()
     {
         _service = new MimeMappingService(new FileExtensionContentTypeProvider());
     }

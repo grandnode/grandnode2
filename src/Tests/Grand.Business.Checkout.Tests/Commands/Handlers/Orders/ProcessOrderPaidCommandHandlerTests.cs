@@ -26,8 +26,7 @@ public class ProcessOrderPaidCommandHandlerTests
     private Mock<IPdfService> _pdfServiceMock;
     private Mock<ISettingService> _settingServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ProcessOrderPaidCommandHandlerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _customerServiceMock.Setup(x => x.GetCustomerById(It.IsAny<string>())).ReturnsAsync(new Customer());

@@ -28,10 +28,9 @@ public class TokenWebControllerTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRefreshTokenService> _refreshTokenServiceMock;
     private Mock<IExternalSignInPolicy> _signInPolicyMock;
-    private GenerateTokenWebCommand _capturedCommand;
+    private GenerateTokenWebCommand? _capturedCommand;
 
-    [TestInitialize]
-    public void Init()
+    public TokenWebControllerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _mediatorMock = new Mock<IMediator>();
@@ -139,6 +138,7 @@ public class TokenWebControllerTests
             .Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
 
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+        Assert.IsNotNull(_capturedCommand);
         Assert.IsTrue(_capturedCommand.Claims.ContainsKey("Guid"));
     }
 

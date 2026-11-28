@@ -21,8 +21,7 @@ public class CancelRecurringPaymentCommandHandlerTests
     private Mock<IPaymentService> _paymentService;
     private RecurringPayment _recurringPayment;
 
-    [TestInitialize]
-    public void Init()
+    public CancelRecurringPaymentCommandHandlerTests()
     {
         _recurringPayment = new RecurringPayment {
             Id = "rp1", Status = RecurringPaymentStatus.Active, ProviderReference = "sub_1"
@@ -86,12 +85,16 @@ public class CancelRecurringPaymentCommandHandlerTests
         _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
             .ThrowsAsync(new HttpRequestException("timeout"));
         Assert.IsFalse((await Handler(service).Handle(command, CancellationToken.None)).Success);
-        Assert.AreEqual(RecurringPaymentStatus.Active, (await service.GetRecurringPaymentById(rp.Id)).Status);
+        var recurringPayment = await service.GetRecurringPaymentById(rp.Id);
+        Assert.IsNotNull(recurringPayment);
+        Assert.AreEqual(RecurringPaymentStatus.Active, recurringPayment.Status);
 
         _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
             .ReturnsAsync(new CancelRecurringPaymentResult());
         Assert.IsTrue((await Handler(service).Handle(command, CancellationToken.None)).Success);
-        Assert.AreEqual(RecurringPaymentStatus.Cancelled, (await service.GetRecurringPaymentById(rp.Id)).Status);
+        var recurringPayment2 = await service.GetRecurringPaymentById(rp.Id);
+        Assert.IsNotNull(recurringPayment2);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, recurringPayment2.Status);
     }
 
     [TestMethod]

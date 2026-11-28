@@ -20,8 +20,7 @@ public class MeasureServiceTests
     private Mock<IRepository<MeasureWeight>> _mwRepositoryMock;
     private MeasureSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public MeasureServiceTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _mdRepositoryMock = new Mock<IRepository<MeasureDimension>>();

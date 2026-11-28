@@ -19,8 +19,7 @@ public class SubAccountEditCommandHandlerTests
     private CustomerSettings _customerSettings;
     private SubAccountEditCommandHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public SubAccountEditCommandHandlerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
@@ -54,8 +53,8 @@ public class SubAccountEditCommandHandlerTests
             It.IsAny<string>()), Times.Never);
     }
 
-    private static SubAccountEditCommand Command(string email = "sub@x.com", string password = null,
-        SubAccountRole role = SubAccountRole.Buyer, string limit = null) => new() {
+    private static SubAccountEditCommand Command(string email = "sub@x.com", string? password = null,
+        SubAccountRole role = SubAccountRole.Buyer, string? limit = null) => new() {
         Store = new Grand.Domain.Stores.Store(),
         CurrentCustomer = new Customer { Id = "owner" },
         EditModel = new SubAccountEditModel {

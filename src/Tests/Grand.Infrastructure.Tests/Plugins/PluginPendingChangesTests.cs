@@ -10,8 +10,7 @@ public class PluginPendingChangesTests
     private PluginFolderFixture _fixture;
     private PluginStateStoreFixture _stateStore;
 
-    [TestInitialize]
-    public void Init()
+    public PluginPendingChangesTests()
     {
         _fixture = new PluginFolderFixture();
         _stateStore = new PluginStateStoreFixture();

@@ -40,8 +40,7 @@ public class ShoppingCartSubTotalServiceTests
 
     private CalculationContext _context;
 
-    [TestInitialize]
-    public void Init()
+    public ShoppingCartSubTotalServiceTests()
     {
         _catalogSettings = new CatalogSettings();
         _checkoutAttributeParserMock = new Mock<ICheckoutAttributeParser>();
@@ -87,8 +86,8 @@ public class ShoppingCartSubTotalServiceTests
     [TestMethod]
     public async Task GetShoppingCartSubTotalTest()
     {
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "1", Published = true, Price = 10 });
         _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>()))
             .Returns(() =>
                 Task.FromResult(

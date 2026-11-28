@@ -27,14 +27,13 @@ public class OrderPlacedOrderApprovalStaffMailTests
     private Mock<ICustomerService> _customerService;
     private Mock<IGroupService> _groups;
     private OrderPlacedOrderApprovalHandler _handler;
-    private OrderApproval _inserted;
+    private OrderApproval? _inserted;
     private Mock<ILogger<OrderPlacedOrderApprovalHandler>> _logger;
     private Mock<ICustomerMessageProviderService> _messages;
     private Order _order;
     private Mock<ISalesEmployeeService> _salesEmployees;
 
-    [TestInitialize]
-    public void Init()
+    public OrderPlacedOrderApprovalStaffMailTests()
     {
         var approvalService = new Mock<IOrderApprovalService>();
         approvalService.Setup(x => x.Insert(It.IsAny<OrderApproval>())).Callback<OrderApproval>(a => _inserted = a)
@@ -71,7 +70,7 @@ public class OrderPlacedOrderApprovalStaffMailTests
         });
     }
 
-    private void Owner(bool active = true, bool deleted = false, string staffStoreId = null, bool admin = true,
+    private void Owner(bool active = true, bool deleted = false, string? staffStoreId = null, bool admin = true,
         bool manager = false)
     {
         var owner = new Customer {
@@ -84,8 +83,9 @@ public class OrderPlacedOrderApprovalStaffMailTests
         _groups.Setup(x => x.IsStoreManager(owner)).ReturnsAsync(manager);
     }
 
-    private void Mailed(string toEmail, string panelArea)
+    private void Mailed(string? toEmail, string panelArea)
     {
+        Assert.IsNotNull(_inserted);
         _messages.Verify(x => x.SendOrderApprovalStaffMessage(_inserted, _buyer, _store, toEmail, It.IsAny<string>(),
             panelArea, "admin-lang"), Times.Once);
     }
@@ -186,6 +186,7 @@ public class OrderPlacedOrderApprovalStaffMailTests
     [TestMethod]
     public async Task Handle_SalesEmployeeIsTheBuyer_FallsToOwnerAccount()
     {
+        Assert.IsNotNull(_buyer.Email);
         SalesEmployee(email: _buyer.Email);
         Owner();
 
@@ -253,7 +254,7 @@ public class OrderPlacedOrderApprovalStaffMailTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(), It.IsAny<string[]>(),
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>(), It.IsAny<string[]>(),
                 It.IsAny<bool>()))
             .ReturnsAsync(new Grand.Domain.PagedList<Customer>([], 0, int.MaxValue, 0));
         _order.CustomerId = "buyer";
@@ -277,6 +278,6 @@ public class OrderPlacedOrderApprovalStaffMailTests
 
         Assert.IsNotNull(_inserted);
         _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<InvalidOperationException>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<InvalidOperationException>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 }

@@ -47,8 +47,7 @@ public class CategoryImportDataObjectTests
     private ISeNameService _seNameService;
     private SecurityConfig _securityConfig;
     private Mock<ILogger<CategoryImportDataObject>> _loggerMock;
-    [TestInitialize]
-    public void Init()
+    public CategoryImportDataObjectTests()
     {
         InitAutoMapper();
         _securityConfig = new SecurityConfig();
@@ -81,13 +80,13 @@ public class CategoryImportDataObjectTests
         categorys.Add(new CategoryDto { Name = "test2", Published = true });
         categorys.Add(new CategoryDto { Name = "test3", Published = true });
         _categoryLayoutServiceMock.Setup(c => c.GetCategoryLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new CategoryLayout()));
+            .ReturnsAsync(new CategoryLayout());
         _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts())
             .Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _categoryImportDataObject.Execute(categorys);
 
@@ -120,22 +119,22 @@ public class CategoryImportDataObjectTests
         categorys.Add(new CategoryDto { Id = category3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
         _categoryLayoutServiceMock.Setup(c => c.GetCategoryLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new CategoryLayout()));
+            .ReturnsAsync(new CategoryLayout());
         _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts())
             .Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _categoryImportDataObject.Execute(categorys);
 
         //Assert
         Assert.IsNotEmpty(_repository.Table);
         Assert.HasCount(3, _repository.Table);
-        Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Name);
-        Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).DisplayOrder);
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
+        Assert.AreEqual("update3", _repository.Table.First(x => x.Id == category3.Id).Name);
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == category3.Id).DisplayOrder);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == category3.Id).Published);
     }
 
     [TestMethod]
@@ -153,28 +152,28 @@ public class CategoryImportDataObjectTests
         categorys.Add(new CategoryDto { Id = category3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
         _categoryLayoutServiceMock.Setup(c => c.GetCategoryLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new CategoryLayout()));
+            .ReturnsAsync(new CategoryLayout());
         _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts())
             .Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _categoryImportDataObject.Execute(categorys);
 
         //Assert
         Assert.IsNotEmpty(_repository.Table);
         Assert.HasCount(3, _repository.Table);
-        Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Name);
-        Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).DisplayOrder);
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
+        Assert.AreEqual("update3", _repository.Table.First(x => x.Id == category3.Id).Name);
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == category3.Id).DisplayOrder);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == category3.Id).Published);
     }
 
     private void SetupLayouts()
     {
         _categoryLayoutServiceMock.Setup(c => c.GetCategoryLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new CategoryLayout()));
+            .ReturnsAsync(new CategoryLayout());
         _categoryLayoutServiceMock.Setup(c => c.GetAllCategoryLayouts())
             .Returns(Task.FromResult<IList<CategoryLayout>>(new List<CategoryLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
@@ -219,7 +218,7 @@ public class CategoryImportDataObjectTests
         var existing = new Category { Name = "old", SeName = "my-slug" };
         await _categoryService.InsertCategory(existing);
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = existing.Id, EntityName = "Category", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = existing.Id, EntityName = "Category", Slug = "my-slug" });
 
         var result = await _categoryImportDataObject.Import(
             new List<CategoryDto> { new() { SeName = "my-slug", Name = "renamed" } }, false);
@@ -235,7 +234,7 @@ public class CategoryImportDataObjectTests
     {
         SetupLayouts();
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = "x", EntityName = "Product", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = "x", EntityName = "Product", Slug = "my-slug" });
 
         var result = await _categoryImportDataObject.Import(
             new List<CategoryDto> { new() { SeName = "my-slug" } }, true);
@@ -369,7 +368,7 @@ public class CategoryImportDataObjectTests
         var existing = new Category { Name = "old", SeName = "my-slug" };
         await _categoryService.InsertCategory(existing);
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = existing.Id, EntityName = "Category", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = existing.Id, EntityName = "Category", Slug = "my-slug" });
 
         await _categoryImportDataObject.Execute(new List<CategoryDto> { new() { SeName = "my-slug", Name = "other" } });
 
@@ -430,8 +429,8 @@ public class CategoryImportDataObjectTests
 
         Assert.AreEqual("good", _repository.Table.Single().Name);
         _loggerMock.Verify(l => l.Log(LogLevel.Warning, It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("row 2") && v.ToString()!.Contains("Description")),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.Is<It.IsAnyType>((v, _) => $"{v}".Contains("row 2") && $"{v}".Contains("Description")),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -442,7 +441,7 @@ public class CategoryImportDataObjectTests
         await _categoryImportDataObject.Execute(new List<CategoryDto> { new() { Name = "good" } });
 
         _loggerMock.Verify(l => l.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Never);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Never);
     }
 
     [TestMethod]
@@ -530,13 +529,13 @@ public class CategoryImportDataObjectTests
 
         //create and sort instances of mapper configurations
         var instances = mapperConfigurations
-            .Select(mapperConfiguration => (IAutoMapperProfile)Activator.CreateInstance(mapperConfiguration))
+            .Select(mapperConfiguration => Assert.IsInstanceOfType<IAutoMapperProfile>(Activator.CreateInstance(mapperConfiguration)))
             .OrderBy(mapperConfiguration => mapperConfiguration.Order);
 
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
+            foreach (var instance in instances) cfg.AddProfile(Assert.IsInstanceOfType<Grand.Mapping.Profile>(instance));
         });
 
         //register automapper

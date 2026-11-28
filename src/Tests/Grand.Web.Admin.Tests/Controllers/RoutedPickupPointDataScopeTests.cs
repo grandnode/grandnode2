@@ -13,7 +13,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedPickupPointDataScopeTests
 {
-    private static RoutedPickupPointDataScope Build(string area)
+    private static RoutedPickupPointDataScope Build(string? area)
     {
         var httpContext = new DefaultHttpContext();
         if (area != null)

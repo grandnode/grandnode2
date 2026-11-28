@@ -12,8 +12,7 @@ public class CalculateLoyaltyPointsCommandHandlerTests
     private CalculateLoyaltyPointsCommandHandler _handler;
     private LoyaltyPointsSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public CalculateLoyaltyPointsCommandHandlerTests()
     {
         _settings = new LoyaltyPointsSettings();
         _handler = new CalculateLoyaltyPointsCommandHandler(_settings);

@@ -19,8 +19,7 @@ public class RecordRecurringPaymentCommandHandlersTests
     private Mock<IOrderService> _orderService;
     private Mock<IMediator> _mediator;
 
-    [TestInitialize]
-    public void Init()
+    public RecordRecurringPaymentCommandHandlersTests()
     {
         _service = new Mock<IRecurringPaymentService>();
         _paymentService = new Mock<IPaymentService>();
@@ -29,7 +28,7 @@ public class RecordRecurringPaymentCommandHandlersTests
         _orderService.Setup(x => x.GetOrderNotes(It.IsAny<string>())).ReturnsAsync(new List<OrderNote>());
     }
 
-    private static RecurringReportResult Report(RecurringReportOutcome outcome, RecurringPayment recurringPayment = null)
+    private static RecurringReportResult Report(RecurringReportOutcome outcome, RecurringPayment? recurringPayment = null)
     {
         return new RecurringReportResult { Outcome = outcome, RecurringPayment = recurringPayment };
     }

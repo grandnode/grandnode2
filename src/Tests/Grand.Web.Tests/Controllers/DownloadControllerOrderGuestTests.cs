@@ -45,8 +45,7 @@ public class DownloadControllerOrderGuestTests
     private Mock<IShipmentService> _shipments;
     private Customer _visitor;
 
-    [TestInitialize]
-    public void Init()
+    public DownloadControllerOrderGuestTests()
     {
         var item1 = new OrderItem {
             Id = "i1", OrderItemGuid = Item1, ProductId = "p1", LicenseDownloadId = "lic",
@@ -147,7 +146,7 @@ public class DownloadControllerOrderGuestTests
         return order;
     }
 
-    private static Download File(string id, string customerId = null)
+    private static Download File(string id, string? customerId = null)
     {
         return new Download {
             Id = id, CustomerId = customerId, DownloadBinary = [1, 2], ContentType = "application/pdf",

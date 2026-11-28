@@ -15,8 +15,7 @@ public class GuestCustomerPersistenceTests
     private Mock<IGroupService> _groups;
     private GuestCustomerPersistence _persistence;
 
-    [TestInitialize]
-    public void Setup()
+    public GuestCustomerPersistenceTests()
     {
         _customers = new Mock<ICustomerService>();
         _customers.Setup(c => c.InsertGuestCustomer(It.IsAny<Customer>())).ReturnsAsync((Customer c) => c);
@@ -34,7 +33,7 @@ public class GuestCustomerPersistenceTests
 
         Assert.IsTrue(_persistence.IsTransient("g1"));
         Assert.IsFalse(_persistence.IsTransient("other"));
-        Assert.IsFalse(_persistence.IsTransient(null));
+        Assert.IsFalse(_persistence.IsTransient(null!));
         Assert.IsFalse(_persistence.IsTransient(""));
     }
 

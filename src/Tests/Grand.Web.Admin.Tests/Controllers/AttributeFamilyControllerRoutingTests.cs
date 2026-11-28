@@ -50,7 +50,7 @@ public class AttributeFamilyControllerRoutingTests
     {
         foreach (var (controller, _, name) in ControllerPairs)
         {
-            var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(controller, typeof(AreaAttribute), false);
+            var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(controller, typeof(AreaAttribute), false));
             Assert.IsNotNull(areaAttr, $"{name} is missing [Area].");
             Assert.AreEqual(Constants.AreaAdmin, areaAttr.RouteValue,
                 $"{name}'s [Area] does not have Constants.AreaAdmin value.");
@@ -96,8 +96,8 @@ public class AttributeFamilyControllerRoutingTests
     {
         // CustomerAttribute deliberately has [PermissionAuthorize(PermissionSystemName.Settings)]
         // on the concrete Admin controller, not on the base class - this is a preserved quirk
-        var attr = (PermissionAuthorizeAttribute)Attribute.GetCustomAttribute(
-            typeof(CustomerAttributeController), typeof(PermissionAuthorizeAttribute), false);
+        var attr = Assert.IsInstanceOfType<PermissionAuthorizeAttribute>(Attribute.GetCustomAttribute(
+            typeof(CustomerAttributeController), typeof(PermissionAuthorizeAttribute), false));
 
         Assert.IsNotNull(attr, "CustomerAttributeController is missing [PermissionAuthorize].");
         Assert.AreEqual(PermissionSystemName.Settings, attr.Permission,

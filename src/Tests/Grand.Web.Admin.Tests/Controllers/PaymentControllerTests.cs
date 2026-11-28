@@ -36,8 +36,7 @@ public class PaymentControllerTests
     private Mock<IShippingMethodService> _shippingMethodServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public PaymentControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
@@ -182,7 +181,8 @@ public class PaymentControllerTests
 
         var result = await _controller.Settings();
 
-        var model = (PaymentSettingsModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<PaymentSettingsModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         CollectionAssert.AreEquivalent(new[] { "Payments.CashOnDelivery", "Payments.Card" },
             model.AvailableOrderApprovalPaymentMethods.Select(x => x.Value).ToArray());
         CollectionAssert.AreEqual(new[] { "Payments.CashOnDelivery" },
@@ -200,8 +200,9 @@ public class PaymentControllerTests
         _settingServiceMock.Setup(s => s.LoadSetting<OrderApprovalSettings>("")).ReturnsAsync(
             new OrderApprovalSettings { PaymentMethodSystemNames = ["Payments.Gone"] });
 
-        var model = (PaymentSettingsModel)((ViewResult)await _controller.Settings()).Model;
+        var model = Assert.IsInstanceOfType<PaymentSettingsModel>(((ViewResult)await _controller.Settings()).Model);
 
+        Assert.IsNotNull(model);
         Assert.AreEqual("Payments.Gone", model.AvailableOrderApprovalPaymentMethods.Single().Value);
     }
 

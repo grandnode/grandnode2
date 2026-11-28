@@ -45,8 +45,7 @@ public class BaseCheckoutAttributeControllerTests
     private Mock<IAdminDataScope<CheckoutAttribute>> _scope = null!;
     private TestCheckoutAttributeController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseCheckoutAttributeControllerTests()
     {
         _service = new Mock<ICheckoutAttributeService>();
         _vmService = new Mock<ICheckoutAttributeViewModelService>();

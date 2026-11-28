@@ -20,8 +20,7 @@ public class ContactAttributeParserTests
     private ContactAttributeParser _parser;
     private List<CustomAttribute> customAtr;
 
-    [TestInitialize]
-    public void Init()
+    public ContactAttributeParserTests()
     {
         _contactAttributeServiceMock = new Mock<IContactAttributeService>();
         _parser = new ContactAttributeParser(_contactAttributeServiceMock.Object);
@@ -75,7 +74,7 @@ public class ContactAttributeParserTests
     {
         var result = _parser.AddContactAttribute(customAtr, new ContactAttribute { Id = "key7" }, "value7");
         Assert.HasCount(5, result);
-        Assert.IsTrue(result.Any(c => c.Key.Equals("key7")));
+        Assert.IsTrue(result.Any(c => string.Equals(c.Key, "key7")));
     }
 
     [TestMethod]
@@ -107,7 +106,7 @@ public class ContactAttributeParserTests
     {
         var result = _parser.RemoveContactAttribute(customAtr, new ContactAttribute { Id = "key1" });
         Assert.HasCount(3, result);
-        Assert.IsFalse(result.Any(c => c.Key.Equals("key1")));
+        Assert.IsFalse(result.Any(c => string.Equals(c.Key, "key1")));
     }
 
     [TestMethod]
@@ -118,7 +117,7 @@ public class ContactAttributeParserTests
         var result = await _parser.FormatAttributes(new Language(),
             new List<CustomAttribute> {
                 new() { Key = "key1", Value = "value1" }
-            }, null);
+            }, null!);
         Assert.AreEqual("name1: value1", result);
     }
 
@@ -186,7 +185,7 @@ public class ContactAttributeParserTests
         Assert.AreEqual(added, result.Count == 1);
     }
 
-    private async Task<string> FormatFileUpload(DomainHost host, Guid? downloadGuid = null)
+    private async Task<string> FormatFileUpload(DomainHost? host, Guid? downloadGuid = null)
     {
         var attribute = new ContactAttribute {
             Id = "file", Name = "file", TextPrompt = "download", AttributeControlType = AttributeControlType.FileUpload

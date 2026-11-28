@@ -56,7 +56,7 @@ public class MerchandiseReturnShippingExtensionsTests
         Assert.AreEqual("Warsaw", await MerchandiseReturnShippingExtensions.AddressLine(countryService.Object,
             new Address { City = "Warsaw" }, null, ""));
         Assert.AreEqual("Point", await MerchandiseReturnShippingExtensions.AddressLine(countryService.Object,
-            (Address)null, "Point"));
+            (Address?)null, "Point"));
         countryService.Verify(x => x.GetCountryById(It.IsAny<string>()), Times.Never);
     }
 }

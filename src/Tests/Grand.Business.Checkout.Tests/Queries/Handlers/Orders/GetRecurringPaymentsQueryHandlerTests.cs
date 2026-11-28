@@ -15,8 +15,7 @@ public class GetRecurringPaymentsQueryHandlerTests
     private MongoDBRepositoryTest<Order> _orderRepository;
     private MongoDBRepositoryTest<RecurringPayment> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public GetRecurringPaymentsQueryHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<RecurringPayment>();
         _customerRepository = new MongoDBRepositoryTest<Customer>();

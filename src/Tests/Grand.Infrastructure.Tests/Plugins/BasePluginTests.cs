@@ -10,8 +10,7 @@ public class BasePluginTests
     private PluginStateStoreFixture _stateStore;
     private SampleBasePlugin sampleBasePlugin;
 
-    [TestInitialize]
-    public void Init()
+    public BasePluginTests()
     {
         _stateStore = new PluginStateStoreFixture();
         sampleBasePlugin = new SampleBasePlugin();

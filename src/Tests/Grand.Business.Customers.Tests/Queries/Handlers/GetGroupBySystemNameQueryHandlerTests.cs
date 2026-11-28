@@ -12,8 +12,7 @@ public class GetGroupBySystemNameQueryHandlerTests
     private Mock<IGroupService> _groupServiceMock;
     private GetGroupBySystemNameQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetGroupBySystemNameQueryHandlerTests()
     {
         _groupServiceMock = new Mock<IGroupService>();
         handler = new GetGroupBySystemNameQueryHandler(_groupServiceMock.Object);

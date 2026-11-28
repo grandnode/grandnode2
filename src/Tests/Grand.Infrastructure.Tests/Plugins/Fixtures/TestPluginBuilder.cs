@@ -19,7 +19,7 @@ public static class TestPluginBuilder
     ///     Compiles <paramref name="source" /> into <paramref name="outputDir" />/<paramref name="assemblyName" />.dll
     ///     and returns the path. <paramref name="references" /> are additional assembly files to compile against.
     /// </summary>
-    public static string Compile(string outputDir, string assemblyName, string source, Version version = null,
+    public static string Compile(string outputDir, string assemblyName, string source, Version? version = null,
         params string[] references)
     {
         Directory.CreateDirectory(outputDir);

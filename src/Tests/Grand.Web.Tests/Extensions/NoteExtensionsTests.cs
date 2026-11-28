@@ -17,6 +17,7 @@ public class NoteExtensionsTests
 
         var html = _sanitizer.Object.NoteHtml("<img src=x onerror=alert(1)>", createdByCustomer: true);
 
+        Assert.IsNotNull(html);
         Assert.DoesNotContain("<img", html);
         Assert.Contains("&lt;img", html);
     }
@@ -39,6 +40,7 @@ public class NoteExtensionsTests
 
         var html = _sanitizer.Object.NoteHtml("<script>x</script>", createdByCustomer: false);
 
+        Assert.IsNotNull(html);
         Assert.DoesNotContain("<script", html);
     }
 }

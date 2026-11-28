@@ -48,8 +48,7 @@ public class BaseBrandControllerTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Brand>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseBrandControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<BrandProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -62,7 +61,7 @@ public class BaseBrandControllerTests
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Brand>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         var languageServiceMock = new Mock<ILanguageService>();
         languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>())).ReturnsAsync(new List<Grand.Domain.Localization.Language>());
@@ -92,7 +91,7 @@ public class BaseBrandControllerTests
     [TestMethod]
     public async Task ListGet_GlobalScope_PopulatesAvailableStores()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _storeServiceMock.Setup(s => s.GetAllStores())
             .ReturnsAsync(new List<Store> { new() { Id = "s1", Shortcut = "Store 1" } });
 
@@ -100,8 +99,9 @@ public class BaseBrandControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        var model = (BrandListModel)view.Model;
+        var model = Assert.IsInstanceOfType<BrandListModel>(view.Model);
         // "All" placeholder + the one real store
+        Assert.IsNotNull(model);
         Assert.AreEqual(2, model.AvailableStores.Count);
     }
 
@@ -114,7 +114,8 @@ public class BaseBrandControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        var model = (BrandListModel)view.Model;
+        var model = Assert.IsInstanceOfType<BrandListModel>(view.Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual(0, model.AvailableStores.Count);
         _storeServiceMock.Verify(s => s.GetAllStores(), Times.Never);
     }
@@ -136,7 +137,7 @@ public class BaseBrandControllerTests
     [TestMethod]
     public async Task ListPost_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _brandServiceMock
             .Setup(b => b.GetAllBrands(It.IsAny<string>(),
                 CatalogAccess.IncludingHidden("admin-submitted-store"), 0, 10))
@@ -153,7 +154,7 @@ public class BaseBrandControllerTests
     [TestMethod]
     public async Task EditGet_BrandNotFound_RedirectsToList()
     {
-        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand)null);
+        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand?)null);
 
         var result = await _controller.Edit("missing");
 
@@ -188,7 +189,7 @@ public class BaseBrandControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.AreEqual("Acme", ((BrandModel)view.Model).Name);
+        Assert.AreEqual("Acme", Assert.IsInstanceOfType<BrandModel>(view.Model).Name);
     }
 
     // --- Edit (POST) -------------------------------------------------------------------------------
@@ -239,6 +240,7 @@ public class BaseBrandControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("b1", redirect.RouteValues["id"]);
         _brandViewModelServiceMock.Verify(v => v.DeleteBrand(It.IsAny<Brand>()), Times.Never);
     }
@@ -263,7 +265,7 @@ public class BaseBrandControllerTests
     [TestMethod]
     public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var inserted = new Brand { Id = "new-1" };
         var submitted = new BrandModel { Name = "N", Stores = ["explicit-store"] };
         _brandViewModelServiceMock
@@ -295,7 +297,7 @@ public class BaseBrandControllerTests
     [TestMethod]
     public async Task PicturePopupGet_BrandNotFound_ReturnsNotExistContent()
     {
-        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand)null);
+        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand?)null);
 
         var result = await _controller.PicturePopup("missing");
 
@@ -323,7 +325,7 @@ public class BaseBrandControllerTests
     [TestMethod]
     public async Task PicturePopupPost_BrandNotFound_ThrowsArgumentException()
     {
-        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand)null);
+        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand?)null);
 
         var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "missing", Id = "pic-1" };
 
@@ -432,7 +434,7 @@ public class BaseBrandControllerTests
     {
         var importManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IImportManager<Grand.Business.Core.Dto.BrandDto>>();
 
-        var result = await _controller.ImportFromXlsx(null, importManagerMock.Object);
+        var result = await _controller.ImportFromXlsx(null!, importManagerMock.Object);
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
@@ -462,7 +464,7 @@ public class BaseBrandControllerTests
     [TestMethod]
     public async Task ImportFromXlsx_GlobalScope_CallsImportManager()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var importManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IImportManager<Grand.Business.Core.Dto.BrandDto>>();
         var fileMock = new Mock<IFormFile>();
         fileMock.Setup(f => f.Length).Returns(100);
@@ -479,7 +481,7 @@ public class BaseBrandControllerTests
     [TestMethod]
     public async Task ImportFromXlsx_RequestAborted_PropagatesWithoutNotification()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
         _controller.HttpContext.RequestAborted = cts.Token;

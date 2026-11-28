@@ -45,8 +45,7 @@ public class MerchandiseReturnControllerTests
     private Mock<IMerchandiseReturnWorkflowService> _workflow;
     private readonly OrderSettings _orderSettings = new() { MerchandiseReturnsEnabled = true };
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnControllerTests()
     {
         var work = new Mock<IWorkContext>();
         work.Setup(x => x.CurrentCustomer).Returns(_buyer);
@@ -95,7 +94,11 @@ public class MerchandiseReturnControllerTests
         _controller.Url = new Mock<IUrlHelper>().Object;
     }
 
-    private MerchandiseReturn Return(string customerId, string providerSystemName = null,
+    //Return sets the shipping of every return it makes
+    private static MerchandiseReturnShipping Shipping(MerchandiseReturn merchandiseReturn) =>
+        merchandiseReturn.ReturnShipping ?? throw new AssertFailedException("The return has no shipping");
+
+    private MerchandiseReturn Return(string customerId, string? providerSystemName = null,
         MerchandiseReturnStatus status = MerchandiseReturnStatus.Pending)
     {
         var merchandiseReturn = new MerchandiseReturn {
@@ -126,7 +129,8 @@ public class MerchandiseReturnControllerTests
         var result = await _controller.MerchandiseReturn(new MerchandiseReturnModel { OrderId = "o1" });
 
         //Assert
-        var model = (MerchandiseReturnModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<MerchandiseReturnModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual("Choose a method., Pick a Parcel Locker near you.", model.Error);
     }
 
@@ -190,7 +194,7 @@ public class MerchandiseReturnControllerTests
     [TestMethod]
     public async Task MerchandiseReturnLabel_NoLabel_NotFound()
     {
-        Return("buyer").ReturnShipping.LabelDownloadId = null;
+        Shipping(Return("buyer")).LabelDownloadId = null;
 
         var result = await _controller.MerchandiseReturnLabel("r1");
 
@@ -225,7 +229,7 @@ public class MerchandiseReturnControllerTests
     {
         Return("buyer");
         var shipping = new MerchandiseReturnShipping();
-        Func<MerchandiseReturn, bool> allowed = null;
+        Func<MerchandiseReturn, bool>? allowed = null;
         _labels.Setup(x => x.UpdateShipping("r1", It.IsAny<Action<MerchandiseReturnShipping>>(),
                 It.IsAny<Func<MerchandiseReturn, bool>>()))
             .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, apply, check) =>
@@ -233,13 +237,14 @@ public class MerchandiseReturnControllerTests
                 apply(shipping);
                 allowed = check;
             })
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
 
         var result = await _controller.MerchandiseReturnTrackingNumber("r1", " TN1 ");
 
         Assert.AreEqual("MerchandiseReturnDetails", ((RedirectToRouteResult)result).RouteName);
         Assert.AreEqual("TN1", shipping.TrackingNumber);
         //checked again on the return as stored: a return received in the meantime takes no number
+        Assert.IsNotNull(allowed);
         Assert.IsTrue(allowed(Return("buyer")));
         Assert.IsFalse(allowed(Return("buyer", status: MerchandiseReturnStatus.Received)));
     }
@@ -247,7 +252,7 @@ public class MerchandiseReturnControllerTests
     [TestMethod]
     public async Task MerchandiseReturnRetryLabel_OtherCustomer_NotFound()
     {
-        Return("someone-else").ReturnShipping.LabelStatus = ReturnLabelStatus.Failed;
+        Shipping(Return("someone-else")).LabelStatus = ReturnLabelStatus.Failed;
 
         var result = await _controller.MerchandiseReturnRetryLabel("r1");
 
@@ -258,8 +263,8 @@ public class MerchandiseReturnControllerTests
     [TestMethod]
     public async Task MerchandiseReturnRetryLabel_Failed_CreatesTheLabel()
     {
-        Return("buyer").ReturnShipping.LabelStatus = ReturnLabelStatus.Failed;
-        _labels.Setup(x => x.CreateLabel("r1")).ReturnsAsync((string)null);
+        Shipping(Return("buyer")).LabelStatus = ReturnLabelStatus.Failed;
+        _labels.Setup(x => x.CreateLabel("r1")).ReturnsAsync((string?)null);
 
         var result = await _controller.MerchandiseReturnRetryLabel("r1");
 
@@ -289,7 +294,7 @@ public class MerchandiseReturnControllerTests
         };
         _controller.ControllerContext.HttpContext.Request.ContentType = "multipart/form-data; boundary=b";
         _controller.ControllerContext.HttpContext.Request.Form = new FormCollection([], files);
-        MerchandiseReturnSubmitCommand sent = null;
+        MerchandiseReturnSubmitCommand? sent = null;
         _mediator.Setup(x => x.Send(It.IsAny<MerchandiseReturnSubmitCommand>(), It.IsAny<CancellationToken>()))
             .Callback<IRequest<MerchandiseReturnSubmitResult>, CancellationToken>((c, _) =>
                 sent = (MerchandiseReturnSubmitCommand)c)
@@ -297,6 +302,7 @@ public class MerchandiseReturnControllerTests
 
         await _controller.MerchandiseReturn(new MerchandiseReturnModel { OrderId = "o1" });
 
+        Assert.IsNotNull(sent);
         Assert.AreEqual(1, sent.Photos.Count);
         CollectionAssert.AreEqual(new[] { "front.png", "back.png" },
             sent.Photos["a"].Select(x => x.FileName).ToArray());
@@ -329,7 +335,7 @@ public class MerchandiseReturnControllerTests
         var result = await _controller.MerchandiseReturnCancel("r1");
 
         Assert.AreEqual("MerchandiseReturnDetails", ((RedirectToRouteResult)result).RouteName);
-        Assert.IsTrue(((IList<string>)_controller.TempData["grand.notifications.Error"]).Contains("Too late."));
+        Assert.IsTrue(Assert.IsInstanceOfType<IList<string>>(_controller.TempData["grand.notifications.Error"]).Contains("Too late."));
     }
 
     [TestMethod]
@@ -374,12 +380,12 @@ public class MerchandiseReturnControllerTests
         Return("buyer");
         _translation.Setup(x => x.GetResource("MerchandiseReturns.Notes.Added")).Returns("Sent.");
         _mediator.Setup(x => x.Send(It.IsAny<InsertMerchandiseReturnNoteCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
 
         var result = await _controller.MerchandiseReturnAddNote("r1", "Hello", null);
 
         Assert.AreEqual("MerchandiseReturnDetails", ((RedirectToRouteResult)result).RouteName);
-        Assert.IsTrue(((IList<string>)_controller.TempData["grand.notifications.Success"]).Contains("Sent."));
+        Assert.IsTrue(Assert.IsInstanceOfType<IList<string>>(_controller.TempData["grand.notifications.Success"]).Contains("Sent."));
         _mediator.Verify(x => x.Send(It.Is<InsertMerchandiseReturnNoteCommand>(c =>
                 c.MerchandiseReturn.Id == "r1" && c.Order.Id == "o1" && c.Note == "Hello" && c.Customer == _buyer),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -455,7 +461,8 @@ public class MerchandiseReturnControllerTests
 
         var result = await _controller.MerchandiseReturnEstimate("o1", new MerchandiseReturnModel());
 
-        var estimate = (MerchandiseReturnEstimateModel)((JsonResult)result).Value;
+        var estimate = Assert.IsInstanceOfType<MerchandiseReturnEstimateModel>(((JsonResult)result).Value);
+        Assert.IsNotNull(estimate);
         Assert.IsNull(estimate.Amount);
         _mediator.Verify(x => x.Send(It.IsAny<GetMerchandiseReturnEstimate>(), It.IsAny<CancellationToken>()),
             Times.Never);

@@ -32,8 +32,7 @@ public class ProductAttributeCombinationViewModelServiceTests
     private Mock<IWarehouseService> _warehouseServiceMock;
     private ProductAttributeCombinationViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public ProductAttributeCombinationViewModelServiceTests()
     {
         _stockMovementServiceMock = new Mock<IStockMovementService>();
         _stockMovementServiceMock.Setup(x => x.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()))

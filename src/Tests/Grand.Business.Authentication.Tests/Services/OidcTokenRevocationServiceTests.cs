@@ -13,8 +13,7 @@ public class OidcTokenRevocationServiceTests
     private IRepository<OidcTokenRevocation> _revocations;
     private OidcTokenRevocationService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OidcTokenRevocationServiceTests()
     {
         _revocations = new MongoDBRepositoryTest<OidcTokenRevocation>();
         _service = new OidcTokenRevocationService(_revocations);

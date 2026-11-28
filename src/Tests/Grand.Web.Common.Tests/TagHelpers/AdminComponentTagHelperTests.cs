@@ -22,8 +22,7 @@ public class AdminComponentTagHelperTests
     private Dictionary<string, string> _resources;
     private Mock<ITranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public AdminComponentTagHelperTests()
     {
         _resources = new Dictionary<string, string>();
         var workContextMock = new Mock<IWorkContext>();
@@ -56,7 +55,7 @@ public class AdminComponentTagHelperTests
         return writer.ToString();
     }
 
-    private static TagHelperContext Context(IDictionary<object, object> items = null)
+    private static TagHelperContext Context(IDictionary<object, object>? items = null)
     {
         return new TagHelperContext([], items ?? new Dictionary<object, object>(), "id");
     }

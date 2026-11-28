@@ -122,7 +122,7 @@ public class BaseProductReservationControllerTests : ProductControllerTestsBase<
     [TestMethod]
     public async Task GenerateCalendar_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             () => _controller.GenerateCalendar("missing", ValidCalendarModel()));
@@ -186,7 +186,7 @@ public class BaseProductReservationControllerTests : ProductControllerTestsBase<
     [TestMethod]
     public async Task ClearCalendar_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ClearCalendar("missing"));
     }
@@ -230,7 +230,7 @@ public class BaseProductReservationControllerTests : ProductControllerTestsBase<
     [TestMethod]
     public async Task ClearOld_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ClearOld("missing"));
     }
@@ -276,7 +276,7 @@ public class BaseProductReservationControllerTests : ProductControllerTestsBase<
     [TestMethod]
     public async Task ProductReservationDelete_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product?)null);
         var model = new ProductModel.ReservationModel { ProductId = "missing", ReservationId = "r1" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ProductReservationDelete(model));
@@ -365,7 +365,7 @@ public class BaseProductReservationControllerTests : ProductControllerTestsBase<
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productReservationServiceMock.Setup(s => s.GetProductReservation("missing")).ReturnsAsync((ProductReservation)null);
+        _productReservationServiceMock.Setup(s => s.GetProductReservation("missing")).ReturnsAsync((ProductReservation?)null);
         var model = new ProductModel.ReservationModel { ProductId = "p1", ReservationId = "missing" };
 
         var result = await _controller.ProductReservationDelete(model);

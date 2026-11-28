@@ -30,8 +30,7 @@ public class BasePickupPointControllerTests
     private Mock<IStoreService> _storeServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BasePickupPointControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<PickupPointProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -62,7 +61,7 @@ public class BasePickupPointControllerTests
     public async Task Create_GlobalScope_DoesNotForceStoreId()
     {
         var controller = Build(new GlobalAdminDataScope<PickupPoint>());
-        PickupPoint inserted = null;
+        PickupPoint? inserted = null;
         _pickupPointServiceMock.Setup(s => s.InsertPickupPoint(It.IsAny<PickupPoint>()))
             .Callback<PickupPoint>(p => inserted = p).Returns(Task.CompletedTask);
 
@@ -83,7 +82,7 @@ public class BasePickupPointControllerTests
         var scope = new StorePickupPointDataScope(contextAccessor.Object);
         var controller = Build(scope);
 
-        PickupPoint inserted = null;
+        PickupPoint? inserted = null;
         _pickupPointServiceMock.Setup(s => s.InsertPickupPoint(It.IsAny<PickupPoint>()))
             .Callback<PickupPoint>(p => inserted = p).Returns(Task.CompletedTask);
 

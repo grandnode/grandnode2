@@ -12,8 +12,7 @@ public class PluginFolderScannerTests
 
     private string _root;
 
-    [TestInitialize]
-    public void Init()
+    public PluginFolderScannerTests()
     {
         _root = Path.Combine(Path.GetTempPath(), "grand-plugin-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_root);
@@ -36,7 +35,7 @@ public class PluginFolderScannerTests
             """, null, CoreAssemblyPath);
     }
 
-    private PluginScanResult Scan(string skipPattern = null) =>
+    private PluginScanResult Scan(string? skipPattern = null) =>
         PluginFolderScanner.Scan(new DirectoryInfo(_root), skipPattern, Host);
 
     [TestMethod]

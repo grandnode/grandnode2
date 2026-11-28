@@ -27,13 +27,12 @@ public class MerchandiseReturnSubmitCommandHandlerTests
     private MerchandiseReturnSubmitCommandHandler _handler;
     private Mock<IMerchandiseReturnMessageProviderService> _messageProviderMock;
     private Order _order;
-    private MerchandiseReturnSubmitRequest _request;
+    private MerchandiseReturnSubmitRequest? _request;
     private MerchandiseReturnSubmitResult _result;
     private Mock<IMerchandiseReturnWorkflowService> _workflowMock;
     private OrderSettings _orderSettings;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnSubmitCommandHandlerTests()
     {
         _order = new Order { Id = "o1", StoreId = "order-store", CustomerLanguageId = "customer-language" };
         _order.OrderItems.Add(new OrderItem { Id = "a", ProductId = "p", Quantity = 5 });
@@ -162,6 +161,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         await _handler.Handle(Command(3), CancellationToken.None);
 
         //Assert
+        Assert.IsNotNull(_request);
         Assert.AreSame(_order, _request.Order);
         //the order's store, whose staff handle the return, not the store the request came through
         Assert.AreEqual("order-store", _request.StoreId);
@@ -200,6 +200,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
 
         await _handler.Handle(Command(3), CancellationToken.None);
 
+        Assert.IsNotNull(_request);
         Assert.AreEqual(new MerchandiseReturnSubmitItem("a", 3, "rr1", null), _request.Items.Single());
     }
 
@@ -220,6 +221,9 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         await _handler.Handle(command, CancellationToken.None);
 
         //Assert
+        Assert.IsNotNull(_request);
+        Assert.IsNotNull(_request.ReturnShipping);
+        Assert.IsNotNull(_request);
         Assert.AreEqual("ReturnShipping.InStore", _request.ReturnShipping.ProviderSystemName);
         Assert.AreEqual("instore", _request.ReturnShipping.OptionCode);
         Assert.AreEqual(1, _request.ReturnShipping.Form.Count);
@@ -237,6 +241,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         await _handler.Handle(command, CancellationToken.None);
 
         //Assert
+        Assert.IsNotNull(_request);
         Assert.IsNull(_request.ReturnShipping);
     }
 

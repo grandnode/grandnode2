@@ -20,8 +20,7 @@ public class CustomerReportViewModelServiceTests
     private CustomerReportViewModelService _service = null!;
     private Mock<ICustomerReportService> _customerReportServiceMock = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerReportViewModelServiceTests()
     {
         var customerServiceMock = new Mock<ICustomerService>();
         var translationServiceMock = new Mock<IRequestTranslationService>();

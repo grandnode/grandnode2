@@ -10,8 +10,7 @@ public class DefaultMediaFileStoreTests
     private readonly string myFile = "sample.txt";
     private DefaultMediaFileStore _defaultMediaFileStore;
 
-    [TestInitialize]
-    public void Init()
+    public DefaultMediaFileStoreTests()
     {
         _defaultMediaFileStore =
             new DefaultMediaFileStore(
@@ -159,6 +158,7 @@ public class DefaultMediaFileStoreTests
         //Arrange
         var fileStoreEntry = await _defaultMediaFileStore.GetFileInfo(myFile);
         //Act
+        Assert.IsNotNull(fileStoreEntry);
         var stream = await _defaultMediaFileStore.GetFileStream(fileStoreEntry);
         //Assert
         stream.Position = 0;

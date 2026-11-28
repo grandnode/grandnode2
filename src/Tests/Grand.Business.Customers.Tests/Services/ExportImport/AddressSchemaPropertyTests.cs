@@ -22,6 +22,7 @@ public class AddressSchemaPropertyTests
         var properties = await new AddressSchemaProperty(countryService.Object).GetProperties([address, noCountry]);
         var country = properties.Single(x => x.PropertyName == "Country");
 
+        Assert.IsNotNull(country.GetProperty);
         Assert.AreEqual("Poland", country.GetProperty(address));
         Assert.AreEqual("", country.GetProperty(noCountry));
         countryService.Verify(x => x.GetCountryById(It.IsAny<string>()), Times.Never);

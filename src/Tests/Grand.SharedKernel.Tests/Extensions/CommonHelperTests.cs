@@ -75,7 +75,7 @@ public class CommonHelperTests
     {
         var str = "value";
         var max = 3;
-        string post = null;
+        string? post = null;
         Assert.AreEqual("val", CommonHelper.EnsureMaximumLength(str, max, post));
     }
 
@@ -84,7 +84,7 @@ public class CommonHelperTests
     {
         var str = "value";
         var max = 10;
-        string post = null;
+        string? post = null;
         Assert.AreEqual("value", CommonHelper.EnsureMaximumLength(str, max, post));
     }
 

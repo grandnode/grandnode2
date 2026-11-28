@@ -14,8 +14,7 @@ public class CustomerLoggedInNotificationHandlerTests
     private Mock<ICustomerService> _cumstomerServiceMock;
     private CustomerLoggedInEventHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerLoggedInNotificationHandlerTests()
     {
         _cumstomerServiceMock = new Mock<ICustomerService>();
         _handler = new CustomerLoggedInEventHandler(_cumstomerServiceMock.Object);

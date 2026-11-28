@@ -12,11 +12,7 @@ public class DataSettingsManagerTests
     {
         var path = Path.Combine(TestContext.CurrentContext.TestDirectory, CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(path);
-    }
-
-    [TestInitialize]
-    public void Setup()
-    {
+        //forgets what an earlier test loaded, so the settings are read from the file again
         DataSettingsManager.Instance.LoadDataSettings(null);
 
         /*if (File.Exists(CommonPath.SettingsPath))

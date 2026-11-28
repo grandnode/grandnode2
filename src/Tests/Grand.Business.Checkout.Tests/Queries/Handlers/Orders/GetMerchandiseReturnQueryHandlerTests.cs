@@ -13,14 +13,13 @@ public class GetMerchandiseReturnQueryHandlerTests
     private MongoDBRepositoryTest<MerchandiseReturn> _repository;
     private GetMerchandiseReturnQueryHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetMerchandiseReturnQueryHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<MerchandiseReturn>();
         _handler = new GetMerchandiseReturnQueryHandler(_repository);
     }
 
-    private async Task<MerchandiseReturn> Insert(Action<MerchandiseReturn> setup = null)
+    private async Task<MerchandiseReturn> Insert(Action<MerchandiseReturn>? setup = null)
     {
         var merchandiseReturn = new MerchandiseReturn { CreatedOnUtc = DateTime.UtcNow };
         setup?.Invoke(merchandiseReturn);

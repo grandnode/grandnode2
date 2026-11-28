@@ -10,10 +10,14 @@ namespace Grand.Modules.Tests.Scim;
 [TestClass]
 public class ScimUserPatchTests
 {
+    private static ScimPatchRequest Patch(string json) =>
+        JsonSerializer.Deserialize<ScimPatchRequest>(json, ScimJson.Options)
+        ?? throw new AssertFailedException("Not a SCIM patch request");
+
     private static readonly ScimUserData User = new("jan@example.com", "oid-1", null, "Jan", "Nowak", true);
 
     private static IList<ScimPatchOperation> Ops(string json) =>
-        JsonSerializer.Deserialize<ScimPatchRequest>(json, ScimJson.Options).Operations;
+        Patch(json).Operations;
 
     private static ScimUserData Apply(string operationsJson)
     {

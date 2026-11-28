@@ -20,8 +20,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
     private Mock<ITranslationService> _translationService;
     private Mock<IOrderService> _orderService;
 
-    [TestInitialize]
-    public void Init()
+    public GetOrderApprovalTokensCommandHandlerTests()
     {
         //resources the language has; a missing one gives the default, or an empty string when asked for that
         _resources = new Dictionary<string, string>();
@@ -45,7 +44,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
         };
     }
 
-    private static GetOrderApprovalTokensCommand Command(OrderApproval approval, DomainHost host = null)
+    private static GetOrderApprovalTokensCommand Command(OrderApproval approval, DomainHost? host = null)
     {
         return new GetOrderApprovalTokensCommand {
             Approval = approval,
@@ -181,6 +180,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
 
         //Assert
         Assert.AreEqual("&lt;script&gt;alert(&#39;x&#39;)&lt;/script&gt; &amp; more", result.DecisionComment);
+        Assert.IsNotNull(result.ItemsHtml);
         Assert.IsFalse(result.ItemsHtml.Contains("<b>Desk</b>"));
         Assert.IsFalse(result.ItemsHtml.Contains("<i>red</i>"));
         Assert.IsFalse(result.ItemsHtml.Contains("SKU<1>"));

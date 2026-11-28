@@ -28,8 +28,7 @@ public class LoginControllerProviderOnlyTests
     private Mock<IGroupService> _groupService = null!;
     private Mock<ICustomerManagerService> _customerManagerService = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public LoginControllerProviderOnlyTests()
     {
         _externalAuthenticationService = new Mock<IExternalAuthenticationService>();
         _groupService = new Mock<IGroupService>();

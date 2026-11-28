@@ -20,8 +20,7 @@ public class AddressAttributeServiceTests
     private Mock<MongoRepository<AddressAttribute>> _repositoryMock;
     private AddressAttributeService _service;
 
-    [TestInitialize]
-    public void Init()
+    public AddressAttributeServiceTests()
     {
         var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);

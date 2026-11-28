@@ -15,8 +15,7 @@ public class CourseActionServiceTests
     private CourseActionService _courseActionService;
     private Mock<IMediator> _mediatorMock;
 
-    [TestInitialize]
-    public void Init()
+    public CourseActionServiceTests()
     {
         _courseActionRepository = new Mock<IRepository<CourseAction>>();
         _mediatorMock = new Mock<IMediator>();
@@ -26,7 +25,7 @@ public class CourseActionServiceTests
     [TestMethod]
     public void InsertAsync_NullArgument_ThrowExcepiton()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _courseActionService.InsertAsync(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _courseActionService.InsertAsync(null!),
             "courseAction");
     }
 
@@ -41,7 +40,7 @@ public class CourseActionServiceTests
     [TestMethod]
     public void Update_NullArgument_ThrowExcepiton()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _courseActionService.Update(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _courseActionService.Update(null!),
             "courseAction");
     }
 

@@ -24,8 +24,7 @@ public class ProductControllerTests
     private Mock<IProductService> _productServiceMock;
     private Mock<IAdminDataScope<Product>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public ProductControllerTests()
     {
         _productServiceMock = new Mock<IProductService>();
         var productViewModelServiceMock = new Mock<IProductViewModelService>();

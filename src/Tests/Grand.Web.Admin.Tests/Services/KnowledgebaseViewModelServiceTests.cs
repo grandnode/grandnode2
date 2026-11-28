@@ -15,8 +15,7 @@ public class KnowledgebaseViewModelServiceTests
     private Mock<IKnowledgebaseService> _knowledgebaseServiceMock;
     private KnowledgebaseViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public KnowledgebaseViewModelServiceTests()
     {
         _knowledgebaseServiceMock = new Mock<IKnowledgebaseService>();
         _service = new KnowledgebaseViewModelService(_knowledgebaseServiceMock.Object, Mock.Of<ISeNameService>());
@@ -28,7 +27,7 @@ public class KnowledgebaseViewModelServiceTests
         _knowledgebaseServiceMock.Setup(x => x.GetKnowledgebaseArticles()).ReturnsAsync(articles);
     }
 
-    private async Task<List<KnowledgebaseNodeGridModel>> Level(string parentId)
+    private async Task<List<KnowledgebaseNodeGridModel>> Level(string? parentId)
     {
         var (nodes, total) = await _service.PrepareKnowledgebaseNodeGridModel(parentId, 1, 100);
         var list = nodes.ToList();
@@ -117,11 +116,12 @@ public class KnowledgebaseViewModelServiceTests
         var root = await Level(null);
         Assert.AreEqual(1, root.Count);
         var seen = new List<string>();
-        var pending = new Queue<string>(root.Select(x => x.Id));
+        var pending = new Queue<string>(root.Select(x => x.Id).OfType<string>());
         seen.AddRange(pending);
         while (pending.Count > 0)
             foreach (var child in await Level(pending.Dequeue()))
             {
+                Assert.IsNotNull(child.Id);
                 seen.Add(child.Id);
                 pending.Enqueue(child.Id);
             }

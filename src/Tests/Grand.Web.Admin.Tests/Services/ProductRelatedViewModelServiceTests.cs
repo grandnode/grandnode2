@@ -15,8 +15,7 @@ public class ProductRelatedViewModelServiceTests
     private ProductRelatedViewModelService _productRelatedViewModelService;
     private Mock<IAdminDataScope<Product>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public ProductRelatedViewModelServiceTests()
     {
         _productServiceMock = new Mock<IProductService>();
         _scopeMock = new Mock<IAdminDataScope<Product>>();

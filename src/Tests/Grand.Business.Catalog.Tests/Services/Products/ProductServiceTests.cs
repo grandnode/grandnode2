@@ -30,14 +30,13 @@ public class ProductServiceTests
     private IRepository<Product> _productRepository;
     private ProductService _productService;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public ProductServiceTests()
     {
         _productRepository = new MongoDBRepositoryTest<Product>();
         _mediatorMock = new Mock<IMediator>();
 
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetProductArchByIdQuery>(), default))
-            .Returns(Task.FromResult(new Product()));
+            .ReturnsAsync(new Product());
 
         _aclServiceMock = new AclService(new AccessControlConfig());
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
@@ -266,7 +265,7 @@ public class ProductServiceTests
     [TestMethod]
     public async Task GetProductsByIds_WithoutAccess_Throws()
     {
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => _productService.GetProductsByIds(["p1"], null));
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => _productService.GetProductsByIds(["p1"], null!));
     }
 
     [TestMethod]
@@ -354,7 +353,7 @@ public class ProductServiceTests
         await _productService.GetProductById("p2");
 
         //Act
-        var products = await _productService.GetProductsByIds(["p2", "", "x", "p1", "p2", null],
+        var products = await _productService.GetProductsByIds(["p2", "", "x", "p1", "p2", null!],
             CatalogAccess.For(new Customer(), ""));
 
         //Assert
@@ -708,7 +707,7 @@ public class ProductServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.HasCount(1, result.RelatedProducts);
-        Assert.AreEqual(10, result.RelatedProducts.FirstOrDefault().DisplayOrder);
+        Assert.AreEqual(10, result.RelatedProducts.First().DisplayOrder);
     }
 
     [TestMethod]
@@ -747,7 +746,7 @@ public class ProductServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.HasCount(1, result.SimilarProducts);
-        Assert.AreEqual(10, result.SimilarProducts.FirstOrDefault().DisplayOrder);
+        Assert.AreEqual(10, result.SimilarProducts.First().DisplayOrder);
     }
 
     [TestMethod]
@@ -803,7 +802,7 @@ public class ProductServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.HasCount(1, result.BundleProducts);
-        Assert.AreEqual(10, result.BundleProducts.FirstOrDefault().Quantity);
+        Assert.AreEqual(10, result.BundleProducts.First().Quantity);
     }
 
     [TestMethod]
@@ -927,6 +926,7 @@ public class ProductServiceTests
         var result = await _productService.GetProductById(product.Id);
 
         //Assert
+        Assert.IsNotNull(result);
         Assert.IsEmpty(result.RecommendedProduct);
     }
 
@@ -964,7 +964,7 @@ public class ProductServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.HasCount(1, result.TierPrices);
-        Assert.AreEqual(10, result.TierPrices.FirstOrDefault().Quantity);
+        Assert.AreEqual(10, result.TierPrices.First().Quantity);
     }
 
     [TestMethod]
@@ -1021,7 +1021,7 @@ public class ProductServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.HasCount(1, result.ProductPrices);
-        Assert.AreEqual("EUR", result.ProductPrices.FirstOrDefault().CurrencyCode);
+        Assert.AreEqual("EUR", result.ProductPrices.First().CurrencyCode);
     }
 
     [TestMethod]
@@ -1079,7 +1079,7 @@ public class ProductServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.HasCount(1, result.ProductPictures);
-        Assert.AreEqual("2", result.ProductPictures.FirstOrDefault().PictureId);
+        Assert.AreEqual("2", result.ProductPictures.First().PictureId);
     }
 
     [TestMethod]
@@ -1137,7 +1137,7 @@ public class ProductServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.HasCount(1, result.ProductWarehouseInventory);
-        Assert.AreEqual("2", result.ProductWarehouseInventory.FirstOrDefault().WarehouseId);
+        Assert.AreEqual("2", result.ProductWarehouseInventory.First().WarehouseId);
     }
 
     [TestMethod]

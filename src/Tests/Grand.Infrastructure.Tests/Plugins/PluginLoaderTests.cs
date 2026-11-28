@@ -11,8 +11,7 @@ public class PluginLoaderTests
 {
     private PluginFolderFixture _fixture;
 
-    [TestInitialize]
-    public void Init()
+    public PluginLoaderTests()
     {
         _fixture = new PluginFolderFixture();
     }
@@ -53,6 +52,7 @@ public class PluginLoaderTests
         var plugin = _fixture.Load("P", true);
 
         Assert.IsNull(plugin.LoadError);
+        Assert.IsNotNull(plugin.PluginType);
         Assert.AreEqual("ConcretePlugin", plugin.PluginType.Name);
         Assert.IsTrue(plugin.IsActive);
 
@@ -95,6 +95,7 @@ public class PluginLoaderTests
         var plugin = _fixture.Load("A", true);
 
         Assert.IsNull(plugin.LoadError);
+        Assert.IsNotNull(plugin.PluginType);
         Assert.AreEqual("APlugin", plugin.PluginType.Name);
     }
 
@@ -114,6 +115,7 @@ public class PluginLoaderTests
 
         Assert.IsNull(plugin.LoadError);
         Assert.IsTrue(plugin.IsActive);
+        Assert.IsNotNull(plugin.PluginType);
         Assert.AreEqual("UsesLibraryPlugin", plugin.PluginType.Name);
     }
 

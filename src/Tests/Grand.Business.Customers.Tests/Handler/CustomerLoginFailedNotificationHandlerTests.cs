@@ -14,8 +14,7 @@ public class CustomerLoginFailedNotificationHandlerTests
     private CustomerSettings _customerSettings;
     private CustomerLoginFailedEventHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerLoginFailedNotificationHandlerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _customerSettings = new CustomerSettings { FailedPasswordAllowedAttempts = 10 };

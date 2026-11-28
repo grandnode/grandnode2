@@ -18,8 +18,7 @@ public class DiscountRuleControllerScopeTests
     private DiscountRulesShoppingCartAmountController _controller;
     private Mock<IDiscountService> _discountService;
 
-    [TestInitialize]
-    public void Init()
+    public DiscountRuleControllerScopeTests()
     {
         _discountService = new Mock<IDiscountService>();
         var contextAccessor = new Mock<IContextAccessor>();
@@ -33,13 +32,13 @@ public class DiscountRuleControllerScopeTests
     private Task<IActionResult> Save(Discount discount)
     {
         _discountService.Setup(x => x.GetDiscountById(discount.Id)).ReturnsAsync(discount);
-        return _controller.Configure(discount.Id, null, 10);
+        return _controller.Configure(discount.Id, "", 10);
     }
 
     private Task<IActionResult> Open(Discount discount)
     {
         _discountService.Setup(x => x.GetDiscountById(discount.Id)).ReturnsAsync(discount);
-        return _controller.Configure(discount.Id, null);
+        return _controller.Configure(discount.Id, "");
     }
 
     [TestMethod]

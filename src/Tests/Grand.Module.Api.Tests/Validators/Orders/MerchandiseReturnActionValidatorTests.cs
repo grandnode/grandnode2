@@ -15,8 +15,7 @@ public class MerchandiseReturnActionValidatorTests
     private readonly Mock<IMerchandiseReturnService> _merchandiseReturnService = new();
     private MerchandiseReturnActionValidator _validator;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnActionValidatorTests()
     {
         var translation = new Mock<ITranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
@@ -37,7 +36,7 @@ public class MerchandiseReturnActionValidatorTests
     public async Task Validate_UnknownId_Error()
     {
         _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnActionById("missing"))
-            .ReturnsAsync((MerchandiseReturnAction)null);
+            .ReturnsAsync((MerchandiseReturnAction?)null);
 
         var result = await _validator.ValidateAsync(
             new MerchandiseReturnActionDto { Name = "n", Id = "missing" });

@@ -51,8 +51,7 @@ public class BaseGiftVoucherControllerTests
         return controller;
     }
 
-    [TestInitialize]
-    public void Setup()
+    public BaseGiftVoucherControllerTests()
     {
         _viewModelService = new Mock<IGiftVoucherViewModelService>();
         _giftVoucherService = new Mock<IGiftVoucherService>();
@@ -75,7 +74,7 @@ public class BaseGiftVoucherControllerTests
     [TestMethod]
     public async Task GiftVoucherList_Admin_PassesNullDefaultStoreIdAsEmptyString()
     {
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _viewModelService
             .Setup(s => s.PrepareGiftVoucherModel(It.IsAny<GiftVoucherListModel>(), 1, 10, ""))
             .ReturnsAsync((Enumerable.Empty<GiftVoucherModel>(), 0));
@@ -114,12 +113,12 @@ public class BaseGiftVoucherControllerTests
     [TestMethod]
     public async Task CreateGet_Admin_DoesNotForceStoreId()
     {
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var model = new GiftVoucherModel {
             AvailableStores = { new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = "", Text = "All" },
                                  new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = "store-1", Text = "Store 1" } }
         };
-        _viewModelService.Setup(s => s.PrepareGiftVoucherModel((GiftVoucherModel)null)).ReturnsAsync(model);
+        _viewModelService.Setup(s => s.PrepareGiftVoucherModel((GiftVoucherModel?)null)).ReturnsAsync(model);
 
         var result = await CreateController().Create() as ViewResult;
         var returnedModel = result?.Model as GiftVoucherModel;
@@ -138,7 +137,7 @@ public class BaseGiftVoucherControllerTests
                                  new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = "store-1", Text = "Store 1" },
                                  new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = "store-2", Text = "Store 2" } }
         };
-        _viewModelService.Setup(s => s.PrepareGiftVoucherModel((GiftVoucherModel)null)).ReturnsAsync(model);
+        _viewModelService.Setup(s => s.PrepareGiftVoucherModel((GiftVoucherModel?)null)).ReturnsAsync(model);
 
         var result = await CreateController().Create() as ViewResult;
         var returnedModel = result?.Model as GiftVoucherModel;
@@ -171,7 +170,7 @@ public class BaseGiftVoucherControllerTests
     [TestMethod]
     public async Task EditGet_NotFound_RedirectsToList()
     {
-        _giftVoucherService.Setup(s => s.GetGiftVoucherById("missing")).ReturnsAsync((GiftVoucher)null);
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("missing")).ReturnsAsync((GiftVoucher?)null);
 
         var result = await CreateController().Edit("missing") as RedirectToActionResult;
 
@@ -199,7 +198,7 @@ public class BaseGiftVoucherControllerTests
         var model = new GiftVoucherModel { Id = "gv-1" };
         _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
         _scope.Setup(s => s.CanView(giftVoucher)).ReturnsAsync(true);
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _viewModelService.Setup(s => s.PrepareGiftVoucherModel(giftVoucher)).ReturnsAsync(model);
 
         var result = await CreateController().Edit("gv-1") as ViewResult;
@@ -352,7 +351,7 @@ public class BaseGiftVoucherControllerTests
         var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "" };
         _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
         _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(true);
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         // Simulate invalid model state by returning the model with AvailableStores populated
         var preparedModel = new GiftVoucherModel {

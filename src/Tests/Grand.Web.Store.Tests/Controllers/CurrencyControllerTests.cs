@@ -26,8 +26,7 @@ public class CurrencyControllerTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private CurrencySettings _currencySettings;
 
-    [TestInitialize]
-    public void Setup()
+    public CurrencyControllerTests()
     {
         _currencyServiceMock = new Mock<ICurrencyService>();
         _storeServiceMock = new Mock<IStoreService>();
@@ -69,6 +68,7 @@ public class CurrencyControllerTests
         var result = await _controller.UnassignStore(currency.Id) as JsonResult;
 
         Assert.IsNotNull(result);
+        Assert.IsNotNull(result.Value);
         Assert.AreEqual("Admin.Configuration.Currencies.CantUnassignLast",
             result.Value.GetType().GetProperty("message")!.GetValue(result.Value));
         Assert.IsTrue(currency.Stores.Contains(StoreId));
@@ -87,6 +87,7 @@ public class CurrencyControllerTests
         var result = await _controller.UnassignStore(currency.Id) as JsonResult;
 
         Assert.IsNotNull(result);
+        Assert.IsNotNull(result.Value);
         Assert.IsTrue((bool)result.Value.GetType().GetProperty("success")!.GetValue(result.Value)!);
         Assert.IsFalse(currency.Stores.Contains(StoreId));
         _currencyServiceMock.Verify(c => c.UpdateCurrency(currency), Times.Once);

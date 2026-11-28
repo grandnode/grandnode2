@@ -40,7 +40,7 @@ public class StoreProductReviewDataScopeTests
     public async Task HasAccess_NullEntity_ReturnsFalse()
     {
         var scope = CreateScope("store-1");
-        var result = await scope.HasAccess(null);
+        var result = await scope.HasAccess(null!);
         Assert.IsFalse(result);
     }
 

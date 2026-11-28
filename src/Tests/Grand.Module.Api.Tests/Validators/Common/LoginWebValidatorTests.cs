@@ -27,8 +27,7 @@ public class LoginWebValidatorTests
     private Mock<IMediator> _mediatorMock;
     private CustomerSettings _customerSettings;
 
-    [TestInitialize]
-    public void Init()
+    public LoginWebValidatorTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
@@ -97,7 +96,7 @@ public class LoginWebValidatorTests
     public async Task WrongCredentials_Fails()
     {
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync((Customer)null);
+            .ReturnsAsync((Customer?)null);
 
         var validator = CreateValidator(apiEnabled: true);
         var result = await validator.ValidateAsync(ValidModel());

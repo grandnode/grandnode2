@@ -33,8 +33,7 @@ public class CampaignServiceTests
     private Mock<IQueuedEmailService> _queuedEmailServiceMock;
     private Mock<IStoreService> _storeServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public CampaignServiceTests()
     {
         _campaignRepository = new MongoDBRepositoryTest<Campaign>();
         _campaignHistoryRepository = new MongoDBRepositoryTest<CampaignHistory>();
@@ -85,7 +84,7 @@ public class CampaignServiceTests
         await _campaignService.UpdateCampaign(campaign);
         //Assert
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Campaign>>(), default), Times.Once);
-        Assert.AreEqual("test", _campaignRepository.Table.FirstOrDefault(x => x.Id == campaign.Id).Subject);
+        Assert.AreEqual("test", _campaignRepository.Table.First(x => x.Id == campaign.Id).Subject);
     }
 
     [TestMethod]
@@ -205,9 +204,9 @@ public class CampaignServiceTests
             { StoreId = "1", Active = true, Email = "test@test.com" });
 
         _languageServiceMock.Setup(x => x.GetLanguageById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new Language()));
+            .ReturnsAsync(new Language());
         _storeServiceMock.Setup(x => x.GetStoreById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new Store()));
+            .ReturnsAsync(new Store());
 
         //Act
         await _campaignService.SendCampaign(campaign, new EmailAccount { Host = "host.com" }, "test@test.com",
@@ -237,7 +236,7 @@ public class CampaignServiceTests
 
         _languageServiceMock.Setup(x => x.GetLanguageById(It.IsAny<string>())).ReturnsAsync(language);
         _storeServiceMock.Setup(x => x.GetStoreById("1")).ReturnsAsync(store);
-        QueuedEmail queuedEmail = null;
+        QueuedEmail? queuedEmail = null;
         _queuedEmailServiceMock.Setup(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()))
             .Callback<QueuedEmail>(x => queuedEmail = x);
 
@@ -252,7 +251,7 @@ public class CampaignServiceTests
         Assert.AreEqual("body", queuedEmail.Body);
         _campaignMessageRendererMock.Verify(x => x.Render(campaign, It.Is<CampaignRecipient>(r =>
                 r.Store == store && r.Language == language && r.EmailAccount == emailAccount && r.Host == host &&
-                r.Customer.Id == customer.Id && r.Currency == currency &&
+                r.Customer != null && r.Customer.Id == customer.Id && r.Currency == currency &&
                 r.TaxDisplayType == TaxDisplayType.IncludingTax && r.Subscription == subscription &&
                 r.QueuedEmailId == queuedEmail.Id)),
             Times.Once);

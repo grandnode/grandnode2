@@ -20,8 +20,7 @@ public class OidcProfileSynchronizerTests
     private OidcLoginConfig _login;
     private Customer _customer;
 
-    [TestInitialize]
-    public void Init()
+    public OidcProfileSynchronizerTests()
     {
         _customers = new Mock<ICustomerService>();
         _logger = new Mock<ILogger<OidcProfileSynchronizer>>();
@@ -32,7 +31,7 @@ public class OidcProfileSynchronizerTests
         _customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.LastName, Value = "Doe", StoreId = "" });
     }
 
-    private Task Sync(string email = "old@shop.com", bool verified = true, string first = "John", string last = "Doe") =>
+    private Task Sync(string email = "old@shop.com", bool verified = true, string first = "John", string? last = "Doe") =>
         new OidcProfileSynchronizer(_customers.Object, _settings, _login, _logger.Object)
             .Sync(_customer, new ExternalRegistrationIdentity("OpenIdConnect", "sub-1", email, verified, first, last), "s1");
 
@@ -81,7 +80,7 @@ public class OidcProfileSynchronizerTests
         Assert.AreEqual("old@shop.com", _customer.Email);
         _customers.Verify(x => x.UpdateUserField(_customer, SystemCustomerFieldNames.FirstName, "Jane", ""), Times.Once);
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -94,7 +93,7 @@ public class OidcProfileSynchronizerTests
         VerifyEmail("emergency@shop.com", Times.Never());
         Assert.AreEqual("old@shop.com", _customer.Email);
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -132,8 +131,8 @@ public class OidcProfileSynchronizerTests
         VerifyEmail("new@shop.com", Times.Never());
         Assert.AreEqual("old@shop.com", _customer.Email);
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("customer c2") && !v.ToString()!.Contains("@shop.com")),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.Is<It.IsAnyType>((v, _) => $"{v}".Contains("customer c2") && !$"{v}".Contains("@shop.com")),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]

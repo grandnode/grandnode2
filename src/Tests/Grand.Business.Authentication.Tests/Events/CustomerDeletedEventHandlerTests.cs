@@ -13,8 +13,7 @@ public class CustomerDeletedEventHandlerTests
     private CustomerDeletedEventHandler _handler;
     private IRepository<ExternalAuthentication> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerDeletedEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<ExternalAuthentication>();
         _handler = new CustomerDeletedEventHandler(_repository);

@@ -47,8 +47,7 @@ public class ContentPreviewTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRequestPermissionService> _permissionServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ContentPreviewTests()
     {
         _customer = new Customer { Id = "c1" };
         var workContextMock = new Mock<IWorkContext>();
@@ -75,11 +74,12 @@ public class ContentPreviewTests
             .ReturnsAsync(new BlogPostModel());
     }
 
-    private static ControllerContext GetContext(IServiceProvider requestServices = null)
+    private static ControllerContext GetContext(IServiceProvider? requestServices = null)
     {
-        return new ControllerContext {
-            HttpContext = new DefaultHttpContext { Request = { Method = "GET" }, RequestServices = requestServices }
-        };
+        var httpContext = new DefaultHttpContext { Request = { Method = "GET" } };
+        if (requestServices != null)
+            httpContext.RequestServices = requestServices;
+        return new ControllerContext { HttpContext = httpContext };
     }
 
     private NewsController NewsController(NewsItem newsItem)
@@ -122,7 +122,7 @@ public class ContentPreviewTests
         };
     }
 
-    private void GivenManager(string permission, bool granted)
+    private void GivenManager(string? permission, bool granted)
     {
         _permissionServiceMock.Setup(x => x.Authorize(It.Is<Permission>(p => p.SystemName == permission)))
             .ReturnsAsync(granted);

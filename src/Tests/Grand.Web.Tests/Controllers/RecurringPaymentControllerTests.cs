@@ -29,8 +29,7 @@ public class RecurringPaymentControllerTests
     private Mock<IRecurringPaymentService> _recurringPaymentService;
     private RecurringPaymentController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public RecurringPaymentControllerTests()
     {
         _customer = new Customer { Id = "buyer", Email = "buyer@shop.test" };
         _store = new Grand.Domain.Stores.Store { Id = "s1" };

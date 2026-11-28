@@ -15,8 +15,7 @@ public class ProductBundleViewModelServiceTests
     private ProductBundleViewModelService _productBundleViewModelService;
     private Mock<IAdminDataScope<Product>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public ProductBundleViewModelServiceTests()
     {
         _productServiceMock = new Mock<IProductService>();
         _scopeMock = new Mock<IAdminDataScope<Product>>();

@@ -19,8 +19,7 @@ public class ProductValidatorTrackedStockTests
     private readonly Mock<IProductService> _productService = new();
     private ProductValidator _validator;
 
-    [TestInitialize]
-    public void Init()
+    public ProductValidatorTrackedStockTests()
     {
         var translation = new Mock<ITranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),

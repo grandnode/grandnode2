@@ -22,11 +22,10 @@ public class PluginManagerTests
     private static readonly string DomainAssemblyPath = typeof(BaseEntity).Assembly.Location;
 
     private PluginFolderFixture _fixture;
-    private IEnumerable<PluginInfo> _referencedPlugins;
-    private PluginLoadSnapshot _loadSnapshot;
+    private IEnumerable<PluginInfo>? _referencedPlugins;
+    private PluginLoadSnapshot? _loadSnapshot;
 
-    [TestInitialize]
-    public void Init()
+    public PluginManagerTests()
     {
         _fixture = new PluginFolderFixture();
         _referencedPlugins = PluginManager.ReferencedPlugins;
@@ -56,6 +55,7 @@ public class PluginManagerTests
         Assert.IsNull(plugin.ReferencedAssembly);
         Assert.IsNull(plugin.PluginType);
         //the list and the logo come from the scan
+        Assert.IsNotNull(plugin.OriginalAssemblyFile);
         Assert.AreEqual(main, plugin.OriginalAssemblyFile.FullName);
         Assert.Contains("Manager.Uninstalled.Core", plugin.AssemblyNames);
         Assert.IsFalse(IsLoaded("Manager.Uninstalled"));
@@ -72,6 +72,7 @@ public class PluginManagerTests
 
         var plugin = Plugin("Manager.Installed");
         Assert.IsTrue(plugin.IsActive);
+        Assert.IsNotNull(plugin.PluginType);
         Assert.AreEqual("InstalledPlugin", plugin.PluginType.Name);
         Assert.AreSame(_fixture.Loaded("Manager.Installed"), plugin.ReferencedAssembly);
     }
@@ -114,6 +115,7 @@ public class PluginManagerTests
         using var provider = new ServiceCollection().BuildServiceProvider();
         var instance = plugin.Instance<IPlugin>(provider);
 
+        Assert.IsNotNull(instance);
         Assert.AreEqual("OnDemandPlugin", instance.GetType().Name);
         Assert.AreSame(plugin, instance.PluginInfo);
         Assert.IsNull(plugin.LoadError);
@@ -121,6 +123,7 @@ public class PluginManagerTests
         Assert.AreSame(instance.GetType(), plugin.PluginType);
         //installed only after the restart: until then it contributes no types to any scan
         Assert.IsFalse(plugin.Installed);
+        Assert.IsNotNull(plugin.ReferencedAssembly);
         Assert.IsFalse(PluginExtensions.OnlyInstalledPlugins(plugin.ReferencedAssembly));
     }
 
@@ -134,7 +137,7 @@ public class PluginManagerTests
         using var provider = new ServiceCollection().BuildServiceProvider();
 
         var types = new Type[8];
-        Parallel.For(0, types.Length, i => types[i] = plugin.Instance<IPlugin>(provider).GetType());
+        Parallel.For(0, types.Length, i => types[i] = (plugin.Instance<IPlugin>(provider) ?? throw new InvalidOperationException("No instance")).GetType());
 
         Assert.IsNull(plugin.LoadError);
         Assert.AreEqual(1, types.Distinct().Count());
@@ -204,7 +207,9 @@ public class PluginManagerTests
 
         var plugin = Plugin("Manager.Shadow");
         Assert.IsNull(plugin.LoadError);
+        Assert.IsNotNull(plugin.ReferencedAssembly);
         Assert.AreEqual(Path.Combine(ShadowFolder("Shadow"), "Manager.Shadow.dll"), plugin.ReferencedAssembly.Location);
+        Assert.IsNotNull(plugin.OriginalAssemblyFile);
         Assert.AreEqual(main, plugin.OriginalAssemblyFile.FullName);
         Assert.IsTrue(File.Exists(Path.Combine(ShadowFolder("Shadow"), "Manager.Shadow.deps.json")));
         Assert.IsTrue(File.Exists(Path.Combine(ShadowFolder("Shadow"), "runtimes", "any", "native.txt")));
@@ -249,6 +254,7 @@ public class PluginManagerTests
 
         var plugin = Plugin("Manager.Direct");
         Assert.IsTrue(plugin.IsActive);
+        Assert.IsNotNull(plugin.ReferencedAssembly);
         Assert.AreEqual(main, plugin.ReferencedAssembly.Location);
         Assert.IsTrue(File.Exists(Path.Combine(_fixture.Folder("Direct"), "Manager.Direct.deps.json")));
         Assert.IsFalse(Directory.Exists(ShadowFolder("Direct")));
@@ -262,7 +268,7 @@ public class PluginManagerTests
 
         Load("Manager.Twice", failOnPluginLoadError: true);
 
-        var entries = PluginManager.ReferencedPlugins.Where(x => x.SystemName == "Manager.Twice").ToList();
+        var entries = (PluginManager.ReferencedPlugins ?? []).Where(x => x.SystemName == "Manager.Twice").ToList();
         Assert.HasCount(2, entries);
         Assert.IsTrue(entries[0].IsActive);
         Assert.AreEqual("A", entries[0].FolderName);
@@ -369,10 +375,10 @@ public class PluginManagerTests
     }
 
     private void Load(string installed = "Manager.NotInstalled", bool useLiteDb = false, bool shadowCopy = false,
-        CapturingLoggerProvider logs = null, bool failOnPluginLoadError = false, string applicationName = null)
+        CapturingLoggerProvider? logs = null, bool failOnPluginLoadError = false, string? applicationName = null)
     {
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string> {
+            .AddInMemoryCollection(new Dictionary<string, string?> {
                 ["Extensions:InstalledPlugins"] = installed,
                 ["Extensions:PluginShadowCopy"] = shadowCopy.ToString(),
                 ["Extensions:FailOnPluginLoadError"] = failOnPluginLoadError.ToString(),
@@ -381,7 +387,9 @@ public class PluginManagerTests
             .Build();
         var hostEnvironment = new Mock<IWebHostEnvironment>();
         hostEnvironment.Setup(x => x.ContentRootPath).Returns(Path.GetDirectoryName(_fixture.PluginsFolder)!);
-        hostEnvironment.Setup(x => x.ApplicationName).Returns(applicationName);
+        //without one the mock answers null, as a host that names no application
+        if (applicationName != null)
+            hostEnvironment.Setup(x => x.ApplicationName).Returns(applicationName);
         var mvcCoreBuilder = new ServiceCollection().AddLogging(x =>
         {
             if (logs != null)
@@ -405,7 +413,7 @@ public class PluginManagerTests
     }
 
     private static PluginInfo Plugin(string systemName) =>
-        PluginManager.ReferencedPlugins.Single(x => x.SystemName == systemName);
+        (PluginManager.ReferencedPlugins ?? []).Single(x => x.SystemName == systemName);
 
     private static bool IsLoaded(string assemblyName) =>
         AssemblyLoadContext.All.SelectMany(x => x.Assemblies).Any(x => x.GetName().Name == assemblyName);

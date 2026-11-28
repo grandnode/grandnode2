@@ -10,7 +10,8 @@ public class ContactAttributeExtensionsTests
     [TestMethod]
     public void ShouldHaveValues_NullContactAttribute_ReturnFalse()
     {
-        ContactAttribute contactAttribute = null;
+        //null exercises the guard of the method under test
+        ContactAttribute contactAttribute = null!;
         Assert.IsFalse(contactAttribute.ShouldHaveValues());
     }
 

@@ -17,10 +17,10 @@ namespace Grand.Web.Tests.Commands.Customers;
 [TestClass]
 public class UpdateCustomerInfoCommandHandlerTests
 {
-    private Mock<ICustomerService> _customerService;
+    private Mock<ICustomerService>? _customerService;
 
-    private async Task<Customer> Update(OidcLoginConfig config, CustomerSettings settings = null,
-        Customer customer = null, string email = "new@x.com", string username = null)
+    private async Task<Customer> Update(OidcLoginConfig config, CustomerSettings? settings = null,
+        Customer? customer = null, string email = "new@x.com", string? username = null)
     {
         _customerService = new Mock<ICustomerService>();
         var handler = new UpdateCustomerInfoCommandHandler(new Mock<IGrandAuthenticationService>().Object,
@@ -58,6 +58,7 @@ public class UpdateCustomerInfoCommandHandlerTests
         var customer = await Update(new OidcLoginConfig(), email: "  New.Me@X.COM ");
 
         Assert.AreEqual("new.me@x.com", customer.Email);
+        Assert.IsNotNull(_customerService);
         _customerService.Verify(c => c.UpdateCustomerField(customer,
             It.IsAny<Expression<Func<Customer, string>>>(), "new.me@x.com"), Times.AtLeastOnce);
     }
@@ -76,6 +77,7 @@ public class UpdateCustomerInfoCommandHandlerTests
         var customer = await Update(new OidcLoginConfig(), email: "OLD@X.com");
 
         Assert.AreEqual("old@x.com", customer.Email);
+        Assert.IsNotNull(_customerService);
         _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
             It.IsAny<Expression<Func<Customer, string>>>(), It.IsAny<string>()), Times.Never);
     }
@@ -120,6 +122,7 @@ public class UpdateCustomerInfoCommandHandlerTests
         await Update(new OidcLoginConfig(), settings,
             new Customer { Id = "c1", Email = "old@x.com", Username = "john" }, email: "old@x.com", username: "John");
 
+        Assert.IsNotNull(_customerService);
         _customerService.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
             It.IsAny<Expression<Func<Customer, string>>>(), It.IsAny<string>()), Times.Never);
     }

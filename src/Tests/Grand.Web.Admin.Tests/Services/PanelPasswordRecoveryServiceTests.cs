@@ -37,8 +37,7 @@ public class PanelPasswordRecoveryServiceTests
     private Customer _customer;
     private PanelPasswordRecoveryService _service;
 
-    [TestInitialize]
-    public void Init()
+    public PanelPasswordRecoveryServiceTests()
     {
         _customer = new Customer { Id = "c1", Email = Email, Active = true };
         _customerService = new Mock<ICustomerService>();

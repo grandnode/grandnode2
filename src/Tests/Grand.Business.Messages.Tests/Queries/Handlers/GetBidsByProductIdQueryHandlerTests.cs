@@ -11,8 +11,7 @@ public class GetBidsByProductIdQueryHandlerTests
 {
     private GetBidsByProductIdQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetBidsByProductIdQueryHandlerTests()
     {
         var _repository = new MongoDBRepositoryTest<Bid>();
         _repository.Insert(new Bid { Id = "1", ProductId = "1" });

@@ -24,14 +24,14 @@ public class GetHomepageCollectionsHandlerTests
     private GetHomepageCollectionsHandler _handler;
     private Mock<ICollectionService> _collectionServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public GetHomepageCollectionsHandlerTests()
     {
         _collectionServiceMock = new Mock<ICollectionService>();
         _collectionServiceMock.Setup(s => s.GetAllCollections(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
                 It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync((string _, CatalogAccess access, int _, int _) => {
                 var collections = new List<Collection> { new() { Id = "public", ShowOnHomePage = true } };
+                Assert.IsNotNull(access.Customer);
                 if (access.Customer.Groups.Contains("vip"))
                     collections.Add(new Collection { Id = "vip-only", ShowOnHomePage = true });
                 return new PagedList<Collection>(collections, 0, int.MaxValue);

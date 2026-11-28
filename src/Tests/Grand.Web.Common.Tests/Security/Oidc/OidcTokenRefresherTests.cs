@@ -21,7 +21,7 @@ public class OidcTokenRefresherTests
 {
     private sealed class StubHandler(Func<HttpRequestMessage, Task<HttpResponseMessage>> answer) : HttpMessageHandler
     {
-        public string LastBody { get; private set; }
+        public string? LastBody { get; private set; }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -30,12 +30,11 @@ public class OidcTokenRefresherTests
         }
     }
 
-    private StubHandler _handler;
+    private StubHandler? _handler;
     private OpenIdConnectOptions _options;
     private OidcLoginConfig _config;
 
-    [TestInitialize]
-    public void Init()
+    public OidcTokenRefresherTests()
     {
         _options = new OpenIdConnectOptions {
             ConfigurationManager = new StaticConfigurationManager<OpenIdConnectConfiguration>(
@@ -53,7 +52,7 @@ public class OidcTokenRefresherTests
     private OidcTokenRefresher Refresher()
     {
         var factory = new Mock<IHttpClientFactory>();
-        factory.Setup(x => x.CreateClient(OidcLoginDefaults.HttpClientName)).Returns(() => new HttpClient(_handler));
+        factory.Setup(x => x.CreateClient(OidcLoginDefaults.HttpClientName)).Returns(() => new HttpClient(_handler ?? throw new InvalidOperationException("The test sets the handler first")));
         var monitor = new Mock<IOptionsMonitor<OpenIdConnectOptions>>();
         monitor.Setup(x => x.Get(OidcLoginDefaults.AuthenticationScheme)).Returns(_options);
         return new OidcTokenRefresher(factory.Object, monitor.Object, _config, NullLogger<OidcTokenRefresher>.Instance);
@@ -65,6 +64,7 @@ public class OidcTokenRefresherTests
         var result = await Refresher().Refresh("rt-1");
         Assert.AreEqual(OidcRefreshOutcome.Refreshed, result.Outcome);
         Assert.AreEqual("rt-2", result.RefreshToken);
+        Assert.IsNotNull(_handler);
         StringAssert.Contains(_handler.LastBody, "grant_type=refresh_token");
         StringAssert.Contains(_handler.LastBody, "refresh_token=rt-1");
         StringAssert.Contains(_handler.LastBody, "client_id=shop");
@@ -85,6 +85,9 @@ public class OidcTokenRefresherTests
     {
         _config.ClientSecret = "";
         await Refresher().Refresh("rt-1");
+        Assert.IsNotNull(_handler);
+        Assert.IsNotNull(_handler.LastBody);
+        Assert.IsNotNull(_handler);
         Assert.IsFalse(_handler.LastBody.Contains("client_secret"));
     }
 

@@ -4,7 +4,7 @@ namespace Grand.Data.Tests;
 
 public class SampleCollection : BaseEntity
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public int Count { get; set; }
     public IList<string> Phones { get; set; } = new List<string>();
@@ -13,7 +13,7 @@ public class SampleCollection : BaseEntity
 
     public class SampleCategory
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int DisplayOrder { get; set; }
     }
 }

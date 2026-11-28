@@ -11,8 +11,7 @@ public class PrepareOrderCodeCommandHandlerTests
     private const int LengthCode = 6;
     private PrepareOrderCodeCommandHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public PrepareOrderCodeCommandHandlerTests()
     {
         _handler = new PrepareOrderCodeCommandHandler(new OrderSettings { LengthCode = LengthCode });
     }

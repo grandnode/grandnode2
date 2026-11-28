@@ -23,8 +23,7 @@ public class ApiMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public ApiMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<AddressProfile>();

@@ -63,7 +63,7 @@ public class OutOfStockSubscriptionDispatchIntegrationTests
         // Only w1 is assigned and stocked. The store's default w2 has no product inventory.
         if (withCombinations)
         {
-            var combination = new ProductAttributeCombination { Attributes = attributes };
+            var combination = new ProductAttributeCombination { Attributes = attributes ?? [] };
             combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
                 WarehouseId = "w1", StockQuantity = 3
             });
@@ -98,7 +98,10 @@ public class OutOfStockSubscriptionDispatchIntegrationTests
         async Task Dispatch(string warehouse)
         {
             if (withCombinations)
+            {
+                Assert.IsNotNull(attributes);
                 await service.SendNotificationsToSubscribers(product, attributes, warehouse);
+            }
             else
                 await service.SendNotificationsToSubscribers(product, warehouse);
         }

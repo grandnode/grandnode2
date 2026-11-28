@@ -19,8 +19,7 @@ public class CustomerNoteViewModelServiceTests
     private Mock<IDownloadService> _downloadServiceMock;
     private CustomerNoteViewModelService _customerNoteViewModelService;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerNoteViewModelServiceTests()
     {
         _customerNoteServiceMock = new Mock<ICustomerNoteService>();
         _downloadServiceMock = new Mock<IDownloadService>();
@@ -110,7 +109,7 @@ public class CustomerNoteViewModelServiceTests
     public async Task DeleteCustomerNote_NotFound_Throws()
     {
         _customerNoteServiceMock.Setup(c => c.GetCustomerNote(It.IsAny<string>()))
-            .ReturnsAsync((CustomerNote)null);
+            .ReturnsAsync((CustomerNote?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(
             () => _customerNoteViewModelService.DeleteCustomerNote("missing", "c1"));

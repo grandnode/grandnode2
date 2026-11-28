@@ -115,7 +115,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
 
-        var result = await _controller.ProductAttributeMappingPopup("p1", null);
+        var result = await _controller.ProductAttributeMappingPopup("p1", "");
 
         var content = result as ContentResult;
         Assert.IsNotNull(content);
@@ -133,7 +133,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(product))
             .ReturnsAsync(new ProductModel.ProductAttributeMappingModel());
 
-        var result = await _controller.ProductAttributeMappingPopup("p1", null);
+        var result = await _controller.ProductAttributeMappingPopup("p1", null!);
 
         Assert.IsInstanceOfType<ViewResult>(result);
         _productAttributeMappingViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(product), Times.Once);
@@ -214,7 +214,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task ProductAttributeMappingPopup_Post_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.ProductAttributeMappingModel { ProductAttributeId = "pa1", ProductId = "missing" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ProductAttributeMappingPopup(model, _productAttributeServiceMock.Object));
@@ -255,7 +255,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task ProductAttributeMappingDelete_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var attrServiceMock = new Mock<IProductAttributeService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
@@ -363,7 +363,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task ProductAttributeValidationRulesPopup_Post_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.ProductAttributeMappingModel { ProductId = "missing" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
@@ -518,7 +518,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task ProductAttributeConditionPopup_Post_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var model = new ProductAttributeConditionModel { ProductId = "missing" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ProductAttributeConditionPopup(model));
@@ -582,7 +582,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task EditAttributeValues_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var attrServiceMock = new Mock<IProductAttributeService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
@@ -748,7 +748,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task ProductAttributeValueCreatePopup_Post_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.ProductAttributeValueModel { ProductId = "missing" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
@@ -922,7 +922,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task ProductAttributeValueEditPopup_Post_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.ProductAttributeValueModel();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
@@ -1009,7 +1009,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task ProductAttributeValueDelete_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var attrServiceMock = new Mock<IProductAttributeService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
@@ -1138,7 +1138,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     [TestMethod]
     public async Task AssociateProductToAttributeValuePopup_Post_AssociatedProductMissing_ReturnsContent()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel
             { AssociatedToProductId = "missing" };
 
@@ -1179,6 +1179,7 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
 
         Assert.IsInstanceOfType<ContentResult>(result);
         var content = result as ContentResult;
+        Assert.IsNotNull(content);
         Assert.AreEqual("", content.Content);
     }
 }

@@ -27,8 +27,7 @@ public class AuthorizeMenuAttributeTests
     private Mock<IContextAccessor> _mockWorkContext;
     private SecurityConfig _securityConfig;
 
-    [TestInitialize]
-    public void Setup()
+    public AuthorizeMenuAttributeTests()
     {
         var path = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(path);

@@ -15,8 +15,7 @@ public class GetProductLayoutViewPathHandlerTests
     private Mock<IProductLayoutService> _layoutServiceMock;
     private GetProductLayoutViewPathHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetProductLayoutViewPathHandlerTests()
     {
         _layoutServiceMock = new Mock<IProductLayoutService>();
         _layoutServiceMock.Setup(x => x.GetProductLayoutById("grouped")).ReturnsAsync(_grouped);

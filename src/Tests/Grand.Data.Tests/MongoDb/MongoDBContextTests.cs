@@ -10,8 +10,7 @@ public class MongoDBContextTests
     private MongoDBRepositoryTest<SampleCollection> _repository;
     private MongoDBContext _context;
 
-    [TestInitialize]
-    public void Init()
+    public MongoDBContextTests()
     {
         _repository = new MongoDBRepositoryTest<SampleCollection>();
         _context = new MongoDBContext(

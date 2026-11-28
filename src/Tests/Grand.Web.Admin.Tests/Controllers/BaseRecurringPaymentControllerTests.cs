@@ -53,8 +53,7 @@ public class BaseRecurringPaymentControllerTests
     private RecurringPayment _recurringPayment;
     private Mock<IAdminDataScope<Order>> _scope;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseRecurringPaymentControllerTests()
     {
         _initialOrder = new Order { Id = "o1", OrderNumber = 1042, StoreId = "s1", CustomerCurrencyCode = "USD" };
         _recurringPayment = new RecurringPayment {
@@ -154,7 +153,7 @@ public class BaseRecurringPaymentControllerTests
         var result = (JsonResult)await _controller.List(new DataSourceRequest { Page = 1, PageSize = 15 },
             new RecurringPaymentListModel());
 
-        var row = ((IEnumerable<RecurringPaymentModel>)((DataSourceResult)result.Value!).Data).Single();
+        var row = Assert.IsInstanceOfType<IEnumerable<RecurringPaymentModel>>(((DataSourceResult)result.Value!).Data).Single();
         Assert.AreEqual("jan@example.com", row.CustomerEmail);
         Assert.AreEqual(1042, row.InitialOrderNumber);
         Assert.AreEqual("Main", row.StoreName);

@@ -77,7 +77,7 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
     [TestMethod]
     public async Task AssociatedProductUpdate_NotFound_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("a1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("a1", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.AssociatedProductModel { Id = "a1" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.AssociatedProductUpdate(model));
@@ -118,7 +118,7 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
     [TestMethod]
     public async Task AssociatedProductDelete_NotFound_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("a1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("a1", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.AssociatedProductModel { Id = "a1" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.AssociatedProductDelete(model));
@@ -192,7 +192,7 @@ public class BaseProductAssociatedControllerTests : ProductControllerTestsBase<B
     [TestMethod]
     public async Task AssociatedProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddAssociatedProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));

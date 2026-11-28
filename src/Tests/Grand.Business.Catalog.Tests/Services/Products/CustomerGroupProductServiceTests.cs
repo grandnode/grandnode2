@@ -17,8 +17,7 @@ public class CustomerGroupProductServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<CustomerGroupProduct>> _repositoryMock;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerGroupProductServiceTests()
     {
         _repositoryMock = new Mock<IRepository<CustomerGroupProduct>>();
         _mediatorMock = new Mock<IMediator>();

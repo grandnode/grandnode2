@@ -16,8 +16,7 @@ public class OrderPlacedEventHandlerTests
     private OrderPlacedEventHandler _orderPlacedEventHandler;
     private Mock<IRepository<ProductAlsoPurchased>> _productAlsoPurchasedRepository;
 
-    [TestInitialize]
-    public void Init()
+    public OrderPlacedEventHandlerTests()
     {
         _productAlsoPurchasedRepository = new Mock<IRepository<ProductAlsoPurchased>>();
         _customerServiceMock = new Mock<ICustomerService>();

@@ -19,8 +19,7 @@ public class BrandLayoutServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<BrandLayout> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public BrandLayoutServiceTests()
     {
         _repository = new MongoDBRepositoryTest<BrandLayout>();
         _mediatorMock = new Mock<IMediator>();

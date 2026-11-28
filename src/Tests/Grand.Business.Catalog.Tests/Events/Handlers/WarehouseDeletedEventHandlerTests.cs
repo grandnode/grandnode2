@@ -19,8 +19,7 @@ public class WarehouseDeletedEventHandlerTests
     private WarehouseDeletedEventHandler _handler;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public WarehouseDeletedEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _cacheMock = new Mock<ICacheBase>();

@@ -25,8 +25,7 @@ public class CaptureCommandHandlerTests
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
     private Mock<IPaymentTransactionHistoryService> _historyMock;
 
-    [TestInitialize]
-    public void Init()
+    public CaptureCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _loggerMock = new Mock<ILogger<CaptureCommandHandler>>();

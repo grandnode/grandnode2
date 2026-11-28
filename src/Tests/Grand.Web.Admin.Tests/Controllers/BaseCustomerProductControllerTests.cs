@@ -44,7 +44,7 @@ public class BaseCustomerProductControllerTests
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         CustomerProductServiceMock.Setup(s => s.GetCustomerProductPriceById("pp1"))
-            .ReturnsAsync((CustomerProductPrice)null);
+            .ReturnsAsync((CustomerProductPrice?)null);
 
         var result = await Controller.DeleteProductPrice("pp1");
 
@@ -76,7 +76,7 @@ public class BaseCustomerProductControllerTests
     public async Task ProductAddPopup_Get_StoreScope_Denied_RedirectsToCustomerList()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.ProductAddPopup("c1");
 
@@ -90,7 +90,7 @@ public class BaseCustomerProductControllerTests
     public async Task ProductsPrice_StoreScope_DeniedOwnership_ReturnsEmpty()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.ProductsPrice(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
 
@@ -117,7 +117,7 @@ public class BaseCustomerProductControllerTests
     public async Task PersonalizedProducts_StoreScope_DeniedOwnership_ReturnsEmpty()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.PersonalizedProducts(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
 

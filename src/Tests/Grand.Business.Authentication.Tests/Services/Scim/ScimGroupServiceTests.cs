@@ -14,17 +14,28 @@ public class ScimGroupServiceTests
 {
     private ScimFixture _f;
 
-    [TestInitialize]
-    public void Init() => _f = new ScimFixture();
+    public ScimGroupServiceTests() => _f = new ScimFixture();
 
-    private async Task<string> User(string email = "jan@example.com", string externalId = "oid-1") =>
-        (await _f.UserService().Create(ScimFixture.Data(userName: email, externalId: externalId))).User.Id;
+    private async Task<string> User(string email = "jan@example.com", string externalId = "oid-1")
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data(userName: email, externalId: externalId));
+        Assert.IsNotNull(created.User);
+        return created.User.Id;
+    }
 
-    private async Task<string> Group(string name, params string[] members) =>
-        (await _f.GroupServiceUnderTest().Create(new ScimGroupData(name, "ext-" + name, members))).Group.Id;
+    private async Task<string> Group(string name, params string[] members)
+    {
+        var created = await _f.GroupServiceUnderTest().Create(new ScimGroupData(name, "ext-" + name, members));
+        Assert.IsNotNull(created.Group);
+        return created.Group.Id;
+    }
 
-    private async Task<bool> HasGroup(string customerId, string customerGroupId) =>
-        (await _f.Reload(customerId)).Groups.Contains(customerGroupId);
+    private async Task<bool> HasGroup(string customerId, string customerGroupId)
+    {
+        var customer = await _f.Reload(customerId);
+        Assert.IsNotNull(customer);
+        return customer.Groups.Contains(customerGroupId);
+    }
 
     [TestMethod]
     public async Task Create_NoDisplayName_Invalid() =>
@@ -62,6 +73,7 @@ public class ScimGroupServiceTests
     {
         var created = await _f.GroupServiceUnderTest().Create(new ScimGroupData("Shop admins", null, ["nobody"]));
         Assert.AreEqual(ScimOutcome.Created, created.Outcome);
+        Assert.IsNotNull(created.Group);
         Assert.AreEqual(0, created.Group.MemberIds.Count);
     }
 
@@ -71,7 +83,7 @@ public class ScimGroupServiceTests
         var user = await User();
         var group = await Group("Shop admins", user);
 
-        var outcome = await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        var outcome = await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, "", "");
 
         Assert.AreEqual(ScimOutcome.Ok, outcome);
         Assert.IsTrue(await HasGroup(user, ScimFixture.Administrators.Id));
@@ -82,7 +94,7 @@ public class ScimGroupServiceTests
     {
         var user = await User();
         var group = await Group("Shop admins");
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, "", "");
 
         await _f.GroupServiceUnderTest().ModifyMembers(group, [user], [], false);
         Assert.IsTrue(await HasGroup(user, ScimFixture.Administrators.Id));
@@ -97,9 +109,9 @@ public class ScimGroupServiceTests
     {
         var user = await User();
         var group = await Group("Shop admins", user);
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, "", "");
 
-        await _f.GroupServiceUnderTest().SetMapping(group, "", null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, "", "", "");
 
         Assert.IsFalse(await HasGroup(user, ScimFixture.Administrators.Id));
     }
@@ -109,9 +121,9 @@ public class ScimGroupServiceTests
     {
         var user = await User();
         var group = await Group("Shop admins", user);
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, "", "");
 
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Custom.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Custom.Id, "", "");
 
         Assert.IsFalse(await HasGroup(user, ScimFixture.Administrators.Id));
         Assert.IsTrue(await HasGroup(user, ScimFixture.Custom.Id));
@@ -122,7 +134,7 @@ public class ScimGroupServiceTests
     {
         var user = await User();
         var group = await Group("Shop admins", user);
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, "", "");
 
         Assert.AreEqual(ScimOutcome.Ok, await _f.GroupServiceUnderTest().Delete(group));
 
@@ -135,9 +147,10 @@ public class ScimGroupServiceTests
         var user = await User();
         var group = await Group("Store A staff", user);
 
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.StoreManager.Id, "storeA", null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.StoreManager.Id, "storeA", "");
 
         var customer = await _f.Reload(user);
+        Assert.IsNotNull(customer);
         Assert.IsTrue(customer.Groups.Contains(ScimFixture.StoreManager.Id));
         Assert.AreEqual("storeA", customer.StaffStoreId);
     }
@@ -148,11 +161,12 @@ public class ScimGroupServiceTests
         var user = await User();
         var admins = await Group("Shop admins", user);
         var staff = await Group("Store A staff", user);
-        await _f.GroupServiceUnderTest().SetMapping(admins, ScimFixture.Administrators.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(admins, ScimFixture.Administrators.Id, "", "");
 
-        await _f.GroupServiceUnderTest().SetMapping(staff, ScimFixture.StoreManager.Id, "storeA", null);
+        await _f.GroupServiceUnderTest().SetMapping(staff, ScimFixture.StoreManager.Id, "storeA", "");
 
         var customer = await _f.Reload(user);
+        Assert.IsNotNull(customer);
         Assert.IsFalse(customer.Groups.Contains(ScimFixture.Administrators.Id));
         Assert.IsFalse(customer.Groups.Contains(ScimFixture.StoreManager.Id));
         Assert.IsTrue(string.IsNullOrEmpty(customer.StaffStoreId));
@@ -164,7 +178,7 @@ public class ScimGroupServiceTests
     {
         var group = await Group("Sales");
         Assert.AreEqual(ScimOutcome.Invalid,
-            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.SalesManager.Id, null, null));
+            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.SalesManager.Id, "", ""));
     }
 
     [TestMethod]
@@ -175,7 +189,7 @@ public class ScimGroupServiceTests
     {
         var group = await Group("Some");
         Assert.AreEqual(ScimOutcome.Invalid,
-            await _f.GroupServiceUnderTest().SetMapping(group, customerGroupId, null, null));
+            await _f.GroupServiceUnderTest().SetMapping(group, customerGroupId, "", ""));
     }
 
     [TestMethod]
@@ -183,16 +197,16 @@ public class ScimGroupServiceTests
     {
         var group = await Group("Store staff");
         Assert.AreEqual(ScimOutcome.Invalid,
-            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.StoreManager.Id, "", null));
+            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.StoreManager.Id, "", ""));
     }
 
     [TestMethod]
     public async Task SetMapping_StoreManagerUnknownStore_Invalid()
     {
-        _f.StoreService.Setup(x => x.GetStoreById("missing")).ReturnsAsync((Store)null);
+        _f.StoreService.Setup(x => x.GetStoreById("missing")).ReturnsAsync((Store?)null);
         var group = await Group("Store staff");
         Assert.AreEqual(ScimOutcome.Invalid,
-            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.StoreManager.Id, "missing", null));
+            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.StoreManager.Id, "missing", ""));
     }
 
     [TestMethod]
@@ -200,7 +214,7 @@ public class ScimGroupServiceTests
     {
         var group = await Group("Vendor staff");
         Assert.AreEqual(ScimOutcome.Invalid,
-            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Vendors.Id, null, null));
+            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Vendors.Id, "", ""));
     }
 
     [TestMethod]
@@ -208,7 +222,7 @@ public class ScimGroupServiceTests
     {
         var group = await Group("Some");
         Assert.AreEqual(ScimOutcome.Invalid,
-            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Custom.Id, "storeA", null));
+            await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Custom.Id, "storeA", ""));
     }
 
     [TestMethod]
@@ -217,7 +231,7 @@ public class ScimGroupServiceTests
         var jan = await User();
         var ola = await User("ola@example.com", "oid-2");
         var group = await Group("Shop admins", jan);
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, "", "");
 
         await _f.GroupServiceUnderTest().ModifyMembers(group, [ola], [], true);
 
@@ -239,7 +253,7 @@ public class ScimGroupServiceTests
     {
         var user = await User();
         var group = await Group("Shop admins", user);
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, "", "");
 
         var mapping = (await _f.GroupServiceUnderTest().GetMappings()).Single();
 
@@ -265,7 +279,7 @@ public class ScimGroupServiceTests
     {
         var user = await User();
         var group = await Group("Shop admins", user);
-        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, "", "");
         _f.LoginConfig.BreakGlassAccounts = ["jan@example.com"];
 
         await _f.GroupServiceUnderTest().ModifyMembers(group, [], [user], false);

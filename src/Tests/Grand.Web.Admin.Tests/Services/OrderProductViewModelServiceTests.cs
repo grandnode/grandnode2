@@ -31,8 +31,7 @@ public class OrderProductViewModelServiceTests
     private readonly Order _order = new() { Id = "o1", CustomerId = "c1", StoreId = "s1", CustomerCurrencyCode = "USD" };
     private readonly Product _product = new() { Id = "p1" };
 
-    [TestInitialize]
-    public void Setup()
+    public OrderProductViewModelServiceTests()
     {
         var customerService = new Mock<ICustomerService>();
         customerService.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(new Customer());
@@ -63,7 +62,7 @@ public class OrderProductViewModelServiceTests
     [TestMethod]
     public async Task AddProductToOrderDetails_KeepsInclAndExclTaxUnitPrices()
     {
-        InsertOrderItemCommand sent = null;
+        InsertOrderItemCommand? sent = null;
         _mediator.Setup(m => m.Send(It.IsAny<InsertOrderItemCommand>(), It.IsAny<CancellationToken>()))
             .Callback<IRequest<bool>, CancellationToken>((c, _) => sent = (InsertOrderItemCommand)c)
             .ReturnsAsync(true);

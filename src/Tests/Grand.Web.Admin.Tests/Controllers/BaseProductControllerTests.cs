@@ -64,7 +64,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task EditGet_ProductNotFound_RedirectsToList()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", true)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", true)).ReturnsAsync((Product?)null);
 
         var result = await _controller.Edit("missing");
 
@@ -128,6 +128,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
 
         var redirect = (RedirectToActionResult)result;
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual(true, redirect.RouteValues["popup"]);
     }
 
@@ -146,7 +147,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
 
         //shown, but read-only: HasAccess no longer gates the page, it only takes the buttons away
         Assert.IsInstanceOfType<ViewResult>(result);
-        Assert.IsTrue(((ProductModel)((ViewResult)result).Model).IsReadOnly);
+        Assert.IsTrue(Assert.IsInstanceOfType<ProductModel>(((ViewResult)result).Model).IsReadOnly);
     }
 
     [TestMethod]
@@ -160,7 +161,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var result = await _controller.Edit("p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        Assert.IsFalse(((ProductModel)((ViewResult)result).Model).IsReadOnly);
+        Assert.IsFalse(Assert.IsInstanceOfType<ProductModel>(((ViewResult)result).Model).IsReadOnly);
     }
 
     [TestMethod]
@@ -187,7 +188,8 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
             value: null,
             container: null);
 
-        var model = (ProductModel)result.Model;
+        var model = Assert.IsInstanceOfType<ProductModel>(result.Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual("posted", model.Name);
         Assert.IsFalse(model.IsReadOnly);
     }
@@ -197,7 +199,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task EditPost_ProductNotFound_RedirectsToList()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", true)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", true)).ReturnsAsync((Product?)null);
 
         var result = await _controller.Edit(new ProductModel { Id = "missing" }, continueEditing: false);
 
@@ -220,6 +222,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("p1", redirect.RouteValues["id"]);
         _productViewModelServiceMock.Verify(
             s => s.UpdateProductModel(It.IsAny<Product>(), It.IsAny<ProductModel>()), Times.Never);
@@ -276,7 +279,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task Delete_ProductNotFound_RedirectsToList()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", true)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", true)).ReturnsAsync((Product?)null);
 
         var result = await _controller.Delete("missing");
 
@@ -298,6 +301,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("p1", redirect.RouteValues["id"]);
         _productViewModelServiceMock.Verify(s => s.DeleteProduct(product), Times.Never);
     }
@@ -359,6 +363,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("p2", redirect.RouteValues["id"]);
     }
 
@@ -384,6 +389,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("p2", redirect.RouteValues["id"]);
     }
 
@@ -439,7 +445,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task GoToSku_ProductNotFound_ShowsWarningAndRedirectsToList()
     {
-        _productServiceMock.Setup(p => p.GetProductBySku("sku1")).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductBySku("sku1")).ReturnsAsync((Product?)null);
 
         var result = await _controller.GoToSku(new ProductListModel { GoDirectlyToSku = "sku1" });
 
@@ -476,6 +482,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("p1", redirect.RouteValues["id"]);
     }
 
@@ -556,8 +563,8 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         Assert.AreEqual("First, Second", GetTextProperty(json.Value));
     }
 
-    private static string GetTextProperty(object value) =>
-        (string)value.GetType().GetProperty("Text")!.GetValue(value);
+    private static string? GetTextProperty(object? value) =>
+        Assert.IsInstanceOfType<string>(value?.GetType().GetProperty("Text")?.GetValue(value));
 
     // --- RequiredProductAddPopup ----------------------------------------------------------------------
 
@@ -595,7 +602,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task RequiredProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRequiredProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
@@ -743,7 +750,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
         _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var reviews = new PagedList<ProductReview>(new List<ProductReview>(), 0, int.MaxValue);
         var productReviewServiceMock = new Mock<IProductReviewService>();
         productReviewServiceMock
@@ -805,7 +812,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task ExportExcelAll_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var model = new ProductListModel { SearchStoreId = "explicit" };
         _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync([]);
         var exportManagerMock = new Mock<IExportManager<Product>>();
@@ -839,7 +846,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         exportManagerMock.Setup(e => e.Export(It.Is<IEnumerable<Product>>(p => !p.Any()), It.IsAny<CancellationToken>()))
             .ReturnsAsync([9]);
 
-        var result = await _controller.ExportExcelSelected(null, exportManagerMock.Object);
+        var result = await _controller.ExportExcelSelected(null!, exportManagerMock.Object);
 
         var file = result as FileContentResult;
         Assert.IsNotNull(file);
@@ -929,7 +936,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     {
         var importManagerMock = new Mock<IImportManager<ProductDto>>();
 
-        var result = await _controller.ImportExcel(null, importManagerMock.Object);
+        var result = await _controller.ImportExcel(null!, importManagerMock.Object);
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
@@ -1018,7 +1025,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task BulkEditCreate_NullProducts_DoesNotCallService()
     {
-        var result = await _controller.BulkEditCreate(null);
+        var result = await _controller.BulkEditCreate(null!);
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
         _productViewModelServiceMock.Verify(
@@ -1041,7 +1048,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task BulkEditUpdate_NullProducts_DoesNotCallService()
     {
-        var result = await _controller.BulkEditUpdate(null);
+        var result = await _controller.BulkEditUpdate(null!);
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
         _productViewModelServiceMock.Verify(
@@ -1091,7 +1098,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     [TestMethod]
     public async Task BulkEditDelete_NullProducts_DoesNotCallService()
     {
-        var result = await _controller.BulkEditDelete(null);
+        var result = await _controller.BulkEditDelete(null!);
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
         _productViewModelServiceMock.Verify(

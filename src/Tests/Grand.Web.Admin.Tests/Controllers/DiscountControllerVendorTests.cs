@@ -30,8 +30,7 @@ public class DiscountControllerVendorTests
     private Mock<IAdminDataScope<Discount>> _scope = null!;
     private DiscountController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public DiscountControllerVendorTests()
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
@@ -85,7 +84,7 @@ public class DiscountControllerVendorTests
     {
         var discount = new Discount { Id = "1" };
         _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
-        _vendorService.Setup(x => x.GetVendorById("missing-vendor")).ReturnsAsync((Vendor)null);
+        _vendorService.Setup(x => x.GetVendorById("missing-vendor")).ReturnsAsync((Vendor?)null);
 
         await Assert.ThrowsAsync<Exception>(() =>
             _sut.VendorDelete("1", "missing-vendor", _vendorService.Object));
@@ -94,7 +93,7 @@ public class DiscountControllerVendorTests
     [TestMethod]
     public async Task VendorList_MissingDiscount_ThrowsException()
     {
-        _service.Setup(x => x.GetDiscountById("missing")).ReturnsAsync((Discount)null);
+        _service.Setup(x => x.GetDiscountById("missing")).ReturnsAsync((Discount?)null);
 
         await Assert.ThrowsAsync<Exception>(() =>
             _sut.VendorList(new DataSourceRequest(), "missing", _vendorService.Object));
@@ -143,7 +142,7 @@ public class DiscountControllerVendorTests
     public async Task VendorAddPopup_Post_MissingDiscount_ThrowsException()
     {
         var model = new DiscountModel.AddVendorToDiscountModel { DiscountId = "missing" };
-        _service.Setup(x => x.GetDiscountById("missing")).ReturnsAsync((Discount)null);
+        _service.Setup(x => x.GetDiscountById("missing")).ReturnsAsync((Discount?)null);
 
         await Assert.ThrowsAsync<Exception>(() => _sut.VendorAddPopup(model));
     }

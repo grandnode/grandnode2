@@ -25,8 +25,7 @@ public class KnowledgebaseServiceTests
 
     private IRepository<KnowledgebaseCategory> _repositoryKnowledgebaseCategory;
 
-    [TestInitialize]
-    public void Init()
+    public KnowledgebaseServiceTests()
     {
         _repositoryKnowledgebaseCategory = new MongoDBRepositoryTest<KnowledgebaseCategory>();
         _repositoryKnowledgebaseArticle = new MongoDBRepositoryTest<KnowledgebaseArticle>();
@@ -64,7 +63,7 @@ public class KnowledgebaseServiceTests
         //Assert
         Assert.AreEqual(
             "test",
-            _repositoryKnowledgebaseCategory.Table.FirstOrDefault(x => x.Id == knowledgebaseCategory.Id).Name);
+            _repositoryKnowledgebaseCategory.Table.First(x => x.Id == knowledgebaseCategory.Id).Name);
     }
 
     [TestMethod]
@@ -175,7 +174,7 @@ public class KnowledgebaseServiceTests
         knowledgebaseArticle.Name = "test";
         await _knowledgebaseService.UpdateKnowledgebaseArticle(knowledgebaseArticle);
         //Assert
-        Assert.AreEqual("test", _repositoryKnowledgebaseArticle.Table.FirstOrDefault(x => x.Id == knowledgebaseArticle.Id).Name);
+        Assert.AreEqual("test", _repositoryKnowledgebaseArticle.Table.First(x => x.Id == knowledgebaseArticle.Id).Name);
     }
 
     [TestMethod]

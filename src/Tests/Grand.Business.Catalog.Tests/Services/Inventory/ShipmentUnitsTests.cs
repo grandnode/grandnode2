@@ -20,8 +20,7 @@ public class ShipmentUnitsTests
     private InventoryManageService _inventory;
     private ProductUnitService _units;
 
-    [TestInitialize]
-    public void Init()
+    public ShipmentUnitsTests()
     {
         _units = StockTestFixture.UnitService(_fixture.Batches, _fixture.Serials, _fixture.Products);
         var mediator = new Mock<IMediator>().Object;
@@ -61,7 +60,7 @@ public class ShipmentUnitsTests
     }
 
     private static Shipment Shipment(Product product, int quantity, string warehouseId = "w1",
-        IList<ShipmentItemBatch> batches = null, params string[] serialNumbers)
+        IList<ShipmentItemBatch>? batches = null, params string[] serialNumbers)
     {
         var shipment = new Shipment
             { OrderId = "o1", CreatedOnUtc = new DateTime(2026, 11, 7, 10, 0, 0, DateTimeKind.Utc) };

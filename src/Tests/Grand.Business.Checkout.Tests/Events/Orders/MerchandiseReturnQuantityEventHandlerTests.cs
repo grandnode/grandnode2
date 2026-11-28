@@ -21,8 +21,7 @@ public class MerchandiseReturnQuantityEventHandlerTests
     private Mock<IRepository<Order>> _orderRepositoryMock;
     private Mock<IOrderService> _orderServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnQuantityEventHandlerTests()
     {
         _order = new Order { Id = "o1" };
         _order.OrderItems.Add(new OrderItem { Id = "a", Quantity = 2 });

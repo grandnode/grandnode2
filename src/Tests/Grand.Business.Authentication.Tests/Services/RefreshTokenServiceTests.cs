@@ -18,8 +18,7 @@ public class RefreshTokenServiceTests
     private RefreshTokenService _service;
     private Mock<ICustomerService> _customerServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public RefreshTokenServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _service = new RefreshTokenService(_customerServiceMock.Object, new FrontendAPIConfig {

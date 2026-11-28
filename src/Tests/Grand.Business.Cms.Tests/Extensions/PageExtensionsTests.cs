@@ -119,6 +119,6 @@ public class PageExtensionsTests
     [TestMethod]
     public void PreferStoreOverrides_NullPages_Throws()
     {
-        Assert.ThrowsExactly<ArgumentNullException>(() => ((IEnumerable<Page>)null).PreferStoreOverrides("store-1"));
+        Assert.ThrowsExactly<ArgumentNullException>(() => ((IEnumerable<Page>)null!).PreferStoreOverrides("store-1"));
     }
 }

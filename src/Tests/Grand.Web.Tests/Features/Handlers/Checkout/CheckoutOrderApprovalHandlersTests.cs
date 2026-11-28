@@ -38,8 +38,7 @@ public class CheckoutOrderApprovalHandlersTests
     private Grand.Domain.Stores.Store _store;
     private Mock<IRequestTranslationService> _translation;
 
-    [TestInitialize]
-    public void Init()
+    public CheckoutOrderApprovalHandlersTests()
     {
         _customer = new Customer { Id = "buyer", OwnerId = "owner" };
         _store = new Grand.Domain.Stores.Store { Id = "s1" };

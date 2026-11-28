@@ -19,7 +19,7 @@ public class StoreReportsControllerRoutingTests
     [TestMethod]
     public void StoreReportsController_HasAreaAttributeWithStoreArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(typeof(StoreReportsController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(typeof(StoreReportsController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual("Store", areaAttr.RouteValue);
     }
@@ -32,8 +32,8 @@ public class StoreReportsControllerRoutingTests
     [TestMethod]
     public void StoreReportsController_HasPermissionAuthorizeReportsAttribute()
     {
-        var attr = (PermissionAuthorizeAttribute)Attribute.GetCustomAttribute(typeof(StoreReportsController),
-            typeof(PermissionAuthorizeAttribute), false);
+        var attr = Assert.IsInstanceOfType<PermissionAuthorizeAttribute>(Attribute.GetCustomAttribute(typeof(StoreReportsController),
+            typeof(PermissionAuthorizeAttribute), false));
         Assert.IsNotNull(attr, "Missing [PermissionAuthorize].");
         Assert.AreEqual(PermissionSystemName.Reports, attr!.Permission);
     }

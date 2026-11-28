@@ -15,8 +15,7 @@ namespace Grand.Web.Admin.Tests.Extensions;
 [TestClass]
 public class MerchandiseReturnFlagsMappingTests
 {
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnFlagsMappingTests()
     {
         AutoMapperConfig.Init(new MapperConfiguration(cfg =>
         {

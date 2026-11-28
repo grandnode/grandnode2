@@ -23,8 +23,7 @@ public class RoutedContactAttributeDataScopeTests
     private GlobalAdminDataScope<ContactAttribute> _globalScope = null!;
     private StoreAdminDataScope<ContactAttribute> _storeScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedContactAttributeDataScopeTests()
     {
         var contextAccessor = new Mock<IContextAccessor>();
         var workContext = new Mock<IWorkContext>();

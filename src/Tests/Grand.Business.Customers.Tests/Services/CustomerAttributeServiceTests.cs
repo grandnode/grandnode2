@@ -18,8 +18,7 @@ public class CustomerAttributeServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<CustomerAttribute>> _repositoryMock;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerAttributeServiceTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<CustomerAttribute>>();
@@ -56,7 +55,7 @@ public class CustomerAttributeServiceTests
     public async Task InsertCustomerAttributeValue_ValidArguemnts_InvokeRepositoryAndCache()
     {
         _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new CustomerAttribute()));
+            .ReturnsAsync(() => new CustomerAttribute());
         await _atrService.InsertCustomerAttributeValue(new CustomerAttributeValue());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CustomerAttributeValue>>(), default), Times.Once);
@@ -66,7 +65,7 @@ public class CustomerAttributeServiceTests
     public async Task UpdateCustomerAttributeValue_ValidArguemnts_InvokeRepositoryAndCache()
     {
         _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new CustomerAttribute()));
+            .ReturnsAsync(() => new CustomerAttribute());
         await _atrService.UpdateCustomerAttributeValue(new CustomerAttributeValue());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<CustomerAttributeValue>>(), default), Times.Once);
@@ -76,7 +75,7 @@ public class CustomerAttributeServiceTests
     public async Task DeleteCustomerAttributeValue_ValidArguemnts_InvokeRepositoryAndCache()
     {
         _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new CustomerAttribute()));
+            .ReturnsAsync(() => new CustomerAttribute());
         await _atrService.DeleteCustomerAttributeValue(new CustomerAttributeValue());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CustomerAttributeValue>>(), default), Times.Once);

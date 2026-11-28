@@ -35,8 +35,8 @@ public class ProductControllerTests
         // Inherited from the Base*Controller in AdminShared - PermissionAuthorizeAttribute has no
         // AttributeUsage(Inherited = false), so MVC's attribute discovery (inherit: true) picks it up
         // from the base class without the subclass needing to restate it.
-        var permissionAttr = (PermissionAuthorizeAttribute)Attribute.GetCustomAttribute(type,
-            typeof(PermissionAuthorizeAttribute), true);
+        var permissionAttr = Assert.IsInstanceOfType<PermissionAuthorizeAttribute>(Attribute.GetCustomAttribute(type,
+            typeof(PermissionAuthorizeAttribute), true));
         Assert.IsNotNull(permissionAttr, $"{type.Name}: missing [PermissionAuthorize] (expected via inheritance from its base controller).");
         Assert.AreEqual(PermissionSystemName.Products, permissionAttr.Permission);
     }

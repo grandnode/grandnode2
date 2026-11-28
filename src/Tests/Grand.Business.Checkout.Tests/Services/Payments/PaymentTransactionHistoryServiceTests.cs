@@ -19,8 +19,7 @@ public class PaymentTransactionHistoryServiceTests
     private IRepository<PaymentTransactionEntry> _repository;
     private PaymentTransactionHistoryService _service;
 
-    [TestInitialize]
-    public void Init()
+    public PaymentTransactionHistoryServiceTests()
     {
         _repository = new MongoDBRepositoryTest<PaymentTransactionEntry>();
         _orderServiceMock = new Mock<IOrderService>();

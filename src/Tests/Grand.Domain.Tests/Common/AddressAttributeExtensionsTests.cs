@@ -10,7 +10,8 @@ public class AddressAttributeExtensionsTests
     [TestMethod]
     public void ShouldHaveValues_NullAddressAtribute_ReturnFalse()
     {
-        AddressAttribute addressAttribute = null;
+        //null exercises the guard of the method under test
+        AddressAttribute addressAttribute = null!;
         Assert.IsFalse(addressAttribute.ShouldHaveValues());
     }
 

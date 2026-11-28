@@ -23,8 +23,7 @@ public class WorkContextSetterTests
     private Mock<IStoreService> _storeServiceMock;
     private TestableWorkContextSetter _setter;
 
-    [TestInitialize]
-    public void Setup()
+    public WorkContextSetterTests()
     {
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(s => s.GetStoreById("store-a")).ReturnsAsync(new Store { Id = "store-a", Shortcut = "A" });
@@ -64,6 +63,7 @@ public class WorkContextSetterTests
 
         var store = await _setter.GetStoreManagerForTest(customer);
 
+        Assert.IsNotNull(store);
         Assert.AreEqual("store-a", store.Id);
     }
 
@@ -91,7 +91,7 @@ public class WorkContextSetterTests
     [TestMethod]
     public async Task GetStoreManager_NullCustomer_ReturnsNull()
     {
-        var store = await _setter.GetStoreManagerForTest(null);
+        var store = await _setter.GetStoreManagerForTest(null!);
 
         Assert.IsNull(store);
         _storeServiceMock.Verify(s => s.GetStoreById(It.IsAny<string>()), Times.Never);
@@ -114,6 +114,6 @@ public class WorkContextSetterTests
             languageService, storeService, aclService, vendorService, taxSettings, config,
             serviceProvider, logger)
     {
-        public Task<Store> GetStoreManagerForTest(Customer customer) => GetStoreManager(customer);
+        public Task<Store?> GetStoreManagerForTest(Customer customer) => GetStoreManager(customer);
     }
 }

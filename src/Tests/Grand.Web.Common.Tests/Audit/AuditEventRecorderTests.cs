@@ -29,8 +29,7 @@ public class AuditEventRecorderTests
     private List<AuditEntry> _recorded;
     private AuditEventRecorder _recorder;
 
-    [TestInitialize]
-    public void Init()
+    public AuditEventRecorderTests()
     {
         _recorded = [];
         _auditService = new Mock<IAuditService>();
@@ -114,7 +113,7 @@ public class AuditEventRecorderTests
         _httpContext.SetEndpoint(new Endpoint(null,
             new EndpointMetadataCollection(new AuditSourceAttribute(AuditSource.Api)), "api"));
 
-        await _recorder.Export("Product", null, null);
+        await _recorder.Export("Product", null!, null);
 
         var entry = _recorded.Single();
         Assert.AreEqual(AuditSource.Api, entry.Source);
@@ -236,7 +235,7 @@ public class AuditEventRecorderTests
         _auditService.Setup(s => s.InsertEvent(It.IsAny<AuditEntry>())).ThrowsAsync(new Exception("db down"));
 
         await _recorder.SignIn(Staff);
-        await _recorder.Export("Customer", null, null);
+        await _recorder.Export("Customer", null!, null);
     }
 
     [TestMethod]
@@ -245,7 +244,7 @@ public class AuditEventRecorderTests
         var recorder = new Mock<IAuditEventRecorder>();
         var handler = new AuditSignInEventHandler(recorder.Object);
 
-        await handler.Handle(new CustomerLoggedInEvent(Staff, null, "s1", null), CancellationToken.None);
+        await handler.Handle(new CustomerLoggedInEvent(Staff, new(), "s1", new()), CancellationToken.None);
         await handler.Handle(new CustomerLoginFailedEvent(Staff, "wrong two-factor code"), CancellationToken.None);
         await handler.Handle(new CustomerLoggedOutEvent(Staff), CancellationToken.None);
 

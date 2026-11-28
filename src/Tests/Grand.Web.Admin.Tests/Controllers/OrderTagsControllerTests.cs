@@ -21,8 +21,7 @@ public class OrderTagsControllerTests
     private Mock<IOrderTagService> _orderTagServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public OrderTagsControllerTests()
     {
         _orderTagServiceMock = new Mock<IOrderTagService>();
         _translationServiceMock = new Mock<IRequestTranslationService>();
@@ -58,6 +57,7 @@ public class OrderTagsControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("t1", redirect.RouteValues["id"]);
         _orderTagServiceMock.Verify(s => s.UpdateOrderTag(It.Is<OrderTag>(t => t.Name == "new")), Times.Once);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.OrderTags.Updated"), Times.Once);
@@ -78,7 +78,7 @@ public class OrderTagsControllerTests
     [TestMethod]
     public async Task EditPost_TagNotFound_RedirectsToListWithoutSaving()
     {
-        _orderTagServiceMock.Setup(s => s.GetOrderTagById("missing")).ReturnsAsync((OrderTag)null);
+        _orderTagServiceMock.Setup(s => s.GetOrderTagById("missing")).ReturnsAsync((OrderTag?)null);
 
         var result = await _controller.Edit(new OrderTagModel { Id = "missing", Name = "new" });
 

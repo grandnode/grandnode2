@@ -19,11 +19,10 @@ public class UpdateMerchandiseReturnCommandHandlerTests
 
     private Mock<IMerchandiseReturnService> _merchandiseReturnServiceMock;
     private Mock<ISettingService> _settingServiceMock;
-    private MerchandiseReturn _stored;
+    private MerchandiseReturn? _stored;
     private Mock<IMerchandiseReturnWorkflowService> _workflowServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public UpdateMerchandiseReturnCommandHandlerTests()
     {
         _workflowServiceMock = new Mock<IMerchandiseReturnWorkflowService>();
         _stored = new MerchandiseReturn {
@@ -49,14 +48,14 @@ public class UpdateMerchandiseReturnCommandHandlerTests
 
     private Action<MerchandiseReturn> CaptureApply()
     {
-        Action<MerchandiseReturn> apply = null;
+        Action<MerchandiseReturn>? apply = null;
         _workflowServiceMock.Setup(w => w.Update("r1", It.IsAny<Action<MerchandiseReturn>>()))
-            .ReturnsAsync((string)null)
+            .ReturnsAsync((string?)null)
             .Callback<string, Action<MerchandiseReturn>>((_, a) => apply = a);
-        return stored => apply(stored);
+        return stored => (apply ?? throw new AssertFailedException("Update was not called"))(stored);
     }
 
-    private Task<string> Handle(MerchandiseReturnDto model)
+    private Task<string?> Handle(MerchandiseReturnDto model)
     {
         return CreateHandler().Handle(new UpdateMerchandiseReturnCommand { Id = "r1", Model = model }, default);
     }
@@ -65,6 +64,7 @@ public class UpdateMerchandiseReturnCommandHandlerTests
     public async Task Handle_OnlyStaffNotesSent_KeepsTheOtherFields()
     {
         var apply = CaptureApply();
+        Assert.IsNotNull(_stored);
         var pickupAddress = _stored.PickupAddress;
 
         await Handle(new MerchandiseReturnDto { StaffNotes = "notes" });
@@ -122,6 +122,7 @@ public class UpdateMerchandiseReturnCommandHandlerTests
         });
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored);
         var stored = new MerchandiseReturn { PickupDate = StoredPickupDate, PickupAddress = _stored.PickupAddress };
         apply(stored);
         Assert.AreEqual("notes", stored.StaffNotes);

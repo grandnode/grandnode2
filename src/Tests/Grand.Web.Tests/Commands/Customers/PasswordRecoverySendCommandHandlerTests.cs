@@ -22,8 +22,7 @@ public class PasswordRecoverySendCommandHandlerTests
     private Mock<ICustomerMessageProviderService> _messages;
     private Mock<IExternalSignInPolicy> _policy;
 
-    [TestInitialize]
-    public void Init()
+    public PasswordRecoverySendCommandHandlerTests()
     {
         _customerService = new Mock<ICustomerService>();
         _messages = new Mock<ICustomerMessageProviderService>();
@@ -36,7 +35,7 @@ public class PasswordRecoverySendCommandHandlerTests
             _groupService.Object);
     }
 
-    private Task<bool> Send(Customer customer) =>
+    private Task<bool> Send(Customer? customer) =>
         _handler.Handle(new PasswordRecoverySendCommand { Host = new Grand.Domain.Stores.DomainHost(), Model = new Grand.Web.Models.Customer.PasswordRecoveryModel(),
             Customer = customer, Store = new Grand.Domain.Stores.Store(), Language = new Language { Id = "l1" }
         }, CancellationToken.None);

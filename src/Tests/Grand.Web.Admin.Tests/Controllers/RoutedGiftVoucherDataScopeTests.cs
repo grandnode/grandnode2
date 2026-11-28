@@ -10,7 +10,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedGiftVoucherDataScopeTests
 {
-    private static RoutedGiftVoucherDataScope CreateScope(string area, out StoreGiftVoucherDataScope storeScope)
+    private static RoutedGiftVoucherDataScope CreateScope(string? area, out StoreGiftVoucherDataScope storeScope)
     {
         var httpContext = new DefaultHttpContext();
         httpContext.Request.RouteValues = new RouteValueDictionary { ["area"] = area };

@@ -31,13 +31,12 @@ public class BaseVendorReviewControllerTests
     private Mock<IVendorService> _vendorServiceMock;
     private Mock<IAdminDataScope<VendorReview>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseVendorReviewControllerTests()
     {
         _vendorViewModelServiceMock = new Mock<IVendorViewModelService>();
         _vendorServiceMock = new Mock<IVendorService>();
         _scopeMock = new Mock<IAdminDataScope<VendorReview>>();
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
 
         var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
@@ -108,7 +107,7 @@ public class BaseVendorReviewControllerTests
     [TestMethod]
     public async Task Edit_Get_NotFound_RedirectsToList()
     {
-        _vendorServiceMock.Setup(v => v.GetVendorReviewById("missing")).ReturnsAsync((VendorReview)null);
+        _vendorServiceMock.Setup(v => v.GetVendorReviewById("missing")).ReturnsAsync((VendorReview?)null);
 
         var result = await _controller.Edit("missing") as RedirectToActionResult;
 

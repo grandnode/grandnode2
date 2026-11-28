@@ -17,8 +17,7 @@ public class GetPriceByCustomerProductQueryHandlerTests
 
     private GetPriceByCustomerProductQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetPriceByCustomerProductQueryHandlerTests()
     {
         _casheManagerMock = new Mock<ICacheBase>();
         _customerProductPriceRepositoryMock = new Mock<IRepository<CustomerProductPrice>>();

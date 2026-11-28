@@ -15,8 +15,7 @@ public class SendQuantityBelowStoreOwnerNotificationCommandHandlerTests
     private Mock<ICatalogMessageProviderService> _messageProviderMock;
     private LanguageSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public SendQuantityBelowStoreOwnerNotificationCommandHandlerTests()
     {
         _messageProviderMock = new Mock<ICatalogMessageProviderService>();
         _settings = new LanguageSettings();

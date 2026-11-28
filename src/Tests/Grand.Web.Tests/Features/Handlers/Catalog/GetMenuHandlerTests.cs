@@ -32,14 +32,14 @@ public class GetMenuHandlerTests
     private Mock<IBrandService> _brandServiceMock;
     private Mock<ICollectionService> _collectionServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public GetMenuHandlerTests()
     {
         _brandServiceMock = new Mock<IBrandService>();
         _brandServiceMock.Setup(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
                 It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync((string _, CatalogAccess access, int _, int _) => {
                 var brands = new List<Brand> { new() { Id = "public", IncludeInMenu = true } };
+                Assert.IsNotNull(access.Customer);
                 if (access.Customer.Groups.Contains("vip"))
                     brands.Add(new Brand { Id = "vip-only", IncludeInMenu = true });
                 return new PagedList<Brand>(brands, 0, int.MaxValue);
@@ -50,6 +50,7 @@ public class GetMenuHandlerTests
                 It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync((string _, CatalogAccess access, int _, int _) => {
                 var collections = new List<Collection> { new() { Id = "public", IncludeInMenu = true } };
+                Assert.IsNotNull(access.Customer);
                 if (access.Customer.Groups.Contains("vip"))
                     collections.Add(new Collection { Id = "vip-only", IncludeInMenu = true });
                 return new PagedList<Collection>(collections, 0, int.MaxValue);

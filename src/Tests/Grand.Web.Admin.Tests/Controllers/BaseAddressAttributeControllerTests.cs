@@ -40,8 +40,7 @@ public class BaseAddressAttributeControllerTests
     private Mock<ILanguageService> _languageService = null!;
     private TestAddressAttributeController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseAddressAttributeControllerTests()
     {
         _vmService = new Mock<IAddressAttributeViewModelService>();
         _service = new Mock<IAddressAttributeService>();

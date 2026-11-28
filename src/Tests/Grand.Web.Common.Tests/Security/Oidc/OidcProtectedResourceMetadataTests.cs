@@ -17,11 +17,11 @@ public class OidcProtectedResourceMetadataTests
 
     private const string BaseUrl = "https://shop.example.com/eu";
 
-    private JsonElement Json(OidcProtectedResource resource) =>
+    private JsonElement Json(OidcProtectedResource? resource) =>
         JsonSerializer.SerializeToElement(OidcProtectedResourceMetadata.Build(_config, _resources, resource, BaseUrl));
 
     private static string[] Strings(JsonElement e, string name) =>
-        e.GetProperty(name).EnumerateArray().Select(x => x.GetString()).ToArray();
+        e.GetProperty(name).EnumerateArray().Select(x => x.GetString() ?? "").ToArray();
 
     [TestMethod]
     public void Resource_Document()

@@ -17,8 +17,7 @@ public class CustomerLoyaltyPointsViewModelServiceTests
     private Mock<IStoreService> _storeServiceMock;
     private CustomerLoyaltyPointsViewModelService _customerLoyaltyPointsViewModelService;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerLoyaltyPointsViewModelServiceTests()
     {
         _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();
         _storeServiceMock = new Mock<IStoreService>();

@@ -26,8 +26,7 @@ public class MerchandiseReturnServiceTests
 
     private IRepository<MerchandiseReturn> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnServiceTests()
     {
         _repository = new MongoDBRepositoryTest<MerchandiseReturn>();
         _merchandiseReturnActionRepository = new MongoDBRepositoryTest<MerchandiseReturnAction>();
@@ -139,7 +138,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
 
         //Assert
-        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == merchandiseReturn.Id).CustomerComments);
+        Assert.AreEqual("test", _repository.Table.First(x => x.Id == merchandiseReturn.Id).CustomerComments);
     }
 
     [TestMethod]
@@ -163,6 +162,7 @@ public class MerchandiseReturnServiceTests
         //Assert
         var stored = _repository.Table.First(x => x.Id == merchandiseReturn.Id);
         Assert.AreEqual(MerchandiseReturnStatus.Rejected, stored.MerchandiseReturnStatus);
+        Assert.IsNotNull(stored.ReturnShipping);
         Assert.AreEqual(ReturnLabelStatus.Created, stored.ReturnShipping.LabelStatus);
         Assert.AreEqual("T1", stored.ReturnShipping.TrackingNumber);
         _mediatorMock.Verify(x => x.Publish(It.IsAny<EntityUpdated<MerchandiseReturn>>(), default), Times.Once);
@@ -204,7 +204,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.UpdateMerchandiseReturnAction(merchandiseReturnAction);
 
         //Assert
-        Assert.AreEqual("test", _merchandiseReturnActionRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnAction.Id)
+        Assert.AreEqual("test", _merchandiseReturnActionRepository.Table.First(x => x.Id == merchandiseReturnAction.Id)
             .Name);
     }
 
@@ -288,7 +288,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.UpdateMerchandiseReturnReason(merchandiseReturnReason);
 
         //Assert
-        Assert.AreEqual("test", _merchandiseReturnReasonRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnReason.Id)
+        Assert.AreEqual("test", _merchandiseReturnReasonRepository.Table.First(x => x.Id == merchandiseReturnReason.Id)
             .Name);
     }
 

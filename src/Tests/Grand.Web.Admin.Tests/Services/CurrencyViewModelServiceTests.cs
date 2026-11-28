@@ -29,8 +29,7 @@ public class CurrencyViewModelServiceTests
     private Mock<IMediator> _mediatorMock;
     private CurrencyViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public CurrencyViewModelServiceTests()
     {
         _currencyServiceMock = new Mock<ICurrencyService>();
         _storeServiceMock = new Mock<IStoreService>();

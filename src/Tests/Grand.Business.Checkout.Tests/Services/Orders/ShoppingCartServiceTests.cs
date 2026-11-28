@@ -38,8 +38,7 @@ public class ShoppingCartServiceTests
         new WebTypeConverter().Register();
     }
 
-    [TestInitialize]
-    public void Init()
+    public ShoppingCartServiceTests()
     {
         _productServiceMock = new Mock<IProductService>();
         _shoppingCartSettings = new ShoppingCartSettings();
@@ -60,8 +59,8 @@ public class ShoppingCartServiceTests
         customer.ShoppingCartItems.Add(new ShoppingCartItem
             { ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "" });
 
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "1", Published = true, Price = 10 });
 
         //Act
         var result = await _shoppingCartService.GetShoppingCart(customer);
@@ -80,8 +79,8 @@ public class ShoppingCartServiceTests
         customer.ShoppingCartItems.Add(new ShoppingCartItem
             { ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "", ProductId = "2" });
 
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "1", Published = true, Price = 10 });
 
         //Act
         var result = await _shoppingCartService.FindShoppingCartItem(customer.ShoppingCartItems.ToList(),
@@ -98,8 +97,8 @@ public class ShoppingCartServiceTests
         var customer = new Customer();
         customer.Groups.Add("1");
 
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "1", Published = true, Price = 10 });
         _shoppingCartValidatorMock.Setup(x => x.CheckCommonWarnings(It.IsAny<Customer>(),
                 It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Product>(), ShoppingCartType.ShoppingCart, null, null,
                 It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Language>()))
@@ -123,8 +122,8 @@ public class ShoppingCartServiceTests
         var customer = new Customer();
         customer.Groups.Add("1");
 
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "1", Published = true, Price = 10 });
         _shoppingCartValidatorMock.Setup(x => x.CheckCommonWarnings(It.IsAny<Customer>(),
                 It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Product>(), ShoppingCartType.ShoppingCart, null, null,
                 It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Language>()))
@@ -148,8 +147,8 @@ public class ShoppingCartServiceTests
         var customer = new Customer();
         customer.Groups.Add("1");
 
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "1", Published = true, Price = 10 });
         _shoppingCartValidatorMock.Setup(x => x.CheckCommonWarnings(It.IsAny<Customer>(),
                 It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Product>(), ShoppingCartType.ShoppingCart, null, null,
                 It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Language>()))
@@ -161,6 +160,7 @@ public class ShoppingCartServiceTests
 
         var item = await _shoppingCartService.AddToCart(customer, Language, "2", ShoppingCartType.ShoppingCart, "");
         //Act
+        Assert.IsNotNull(item.shoppingCartItem);
         var result = await _shoppingCartService.UpdateShoppingCartItem(customer, Language, item.shoppingCartItem.Id, "",
             new List<CustomAttribute>(), null);
         //Assert
@@ -175,8 +175,8 @@ public class ShoppingCartServiceTests
         var customer = new Customer();
         customer.Groups.Add("1");
 
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "1", Published = true, Price = 10 });
         _shoppingCartValidatorMock.Setup(x => x.CheckCommonWarnings(It.IsAny<Customer>(),
                 It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Product>(), ShoppingCartType.ShoppingCart, null, null,
                 It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Language>()))
@@ -188,6 +188,7 @@ public class ShoppingCartServiceTests
 
         var item = await _shoppingCartService.AddToCart(customer, Language, "2", ShoppingCartType.ShoppingCart, "");
         //Act
+        Assert.IsNotNull(item.shoppingCartItem);
         await _shoppingCartService.DeleteShoppingCartItem(customer, item.shoppingCartItem);
         //Assert
         _customerServiceMock.Verify(x => x.DeleteShoppingCartItem(It.IsAny<string>(), It.IsAny<ShoppingCartItem>()),
@@ -201,8 +202,8 @@ public class ShoppingCartServiceTests
         var customer = new Customer();
         customer.Groups.Add("1");
 
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "1", Published = true, Price = 10 });
         _shoppingCartValidatorMock.Setup(x => x.CheckCommonWarnings(It.IsAny<Customer>(),
                 It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Product>(), ShoppingCartType.ShoppingCart, null, null,
                 It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Language>()))

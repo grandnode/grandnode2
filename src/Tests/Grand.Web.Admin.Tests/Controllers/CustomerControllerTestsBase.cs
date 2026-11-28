@@ -55,8 +55,7 @@ public abstract class CustomerControllerTestsBase<TController> where TController
 
     protected abstract TController CreateController();
 
-    [TestInitialize]
-    public void Setup()
+    protected CustomerControllerTestsBase()
     {
         CustomerServiceMock = new Mock<ICustomerService>();
         CustomerViewModelServiceMock = new Mock<ICustomerViewModelService>();
@@ -86,7 +85,7 @@ public abstract class CustomerControllerTestsBase<TController> where TController
         TranslationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         ContextAccessorMock = new Mock<IContextAccessor>();
         ScopeMock = new Mock<IAdminDataScope<Customer>>();
-        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         Controller = CreateController();
 

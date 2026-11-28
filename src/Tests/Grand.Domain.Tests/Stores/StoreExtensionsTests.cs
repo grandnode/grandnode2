@@ -8,8 +8,7 @@ public class StoreExtensionsTests
 {
     private Store store;
 
-    [TestInitialize]
-    public void Setup()
+    public StoreExtensionsTests()
     {
         store = new Store();
         store.Domains.Add(new DomainHost { HostName = "google.com", Url = "https:\\google.com" });
@@ -45,7 +44,7 @@ public class StoreExtensionsTests
     [TestMethod]
     public void PrimaryHost_WithoutDomains_FallsBackToTheStoreUrl()
     {
-        var withoutDomains = new Store { Url = "https://shop.example/", Domains = null };
+        var withoutDomains = new Store { Url = "https://shop.example/", Domains = null! };
 
         Assert.AreEqual("https://shop.example/", withoutDomains.PrimaryHost().Url);
     }

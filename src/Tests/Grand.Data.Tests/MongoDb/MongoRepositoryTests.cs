@@ -10,8 +10,7 @@ public class MongoRepositoryTests
 {
     private IRepository<SampleCollection> _myRepository;
 
-    [TestInitialize]
-    public void Init()
+    public MongoRepositoryTests()
     {
         _myRepository = new MongoDBRepositoryTest<SampleCollection>();
     }
@@ -119,6 +118,7 @@ public class MongoRepositoryTests
         var p = _myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p);
         Assert.HasCount(2, p.UserFields);
         Assert.AreEqual("user", p!.CreatedBy);
         Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
@@ -197,6 +197,7 @@ public class MongoRepositoryTests
         var p = _myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p);
         Assert.HasCount(2, p.Phones);
         Assert.AreEqual("user", p!.CreatedBy);
         Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
@@ -215,6 +216,7 @@ public class MongoRepositoryTests
 
         //Assert
         var p = _myRepository.GetById("1");
+        Assert.IsNotNull(p);
         Assert.HasCount(2, p.Phones);
         Assert.IsNull(p.UpdatedOnUtc);
         Assert.IsNull(p.UpdatedBy);
@@ -245,8 +247,11 @@ public class MongoRepositoryTests
         var p3 = _myRepository.GetById("3");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.HasCount(2, p1.Phones);
+        Assert.IsNotNull(p2);
         Assert.HasCount(2, p2.Phones);
+        Assert.IsNotNull(p3);
         Assert.IsEmpty(p3.Phones);
         //nothing to pull from p3, so it must not be written (nor re-stamped) at all
         Assert.IsNull(p3.UpdatedOnUtc);
@@ -281,6 +286,7 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.HasCount(1, p1.UserFields);
         Assert.AreEqual("user", p1!.CreatedBy);
         Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
@@ -312,6 +318,7 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.HasCount(1, p1.UserFields);
         Assert.AreEqual("user", p1!.CreatedBy);
         Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
@@ -353,8 +360,11 @@ public class MongoRepositoryTests
 
         //Assert
         //p3 has no user field to pull, so it must not be written (nor re-stamped) at all
+        Assert.IsNotNull(p3);
         Assert.IsNull(p3.UpdatedOnUtc);
+        Assert.IsNotNull(p1);
         Assert.HasCount(1, p1.UserFields);
+        Assert.IsNotNull(p2);
         Assert.HasCount(2, p2.UserFields);
         Assert.AreEqual("user", p1!.CreatedBy);
         Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
@@ -382,6 +392,7 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         var p1_update = products.FirstOrDefault();
+        Assert.IsNotNull(p1_update);
         p1_update.Name = "update";
 
         //Act
@@ -389,6 +400,7 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.AreEqual("update", p1.Name);
         Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
@@ -413,12 +425,14 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         var p1_update = products.FirstOrDefault();
+        Assert.IsNotNull(p1_update);
         p1_update.Name = "update";
         //Act
         await _myRepository.UpdateAsync(p1_update);
         var p1 = _myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.AreEqual("update", p1.Name);
         Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
@@ -447,6 +461,7 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.AreEqual("update", p1.Name);
         Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
@@ -464,6 +479,7 @@ public class MongoRepositoryTests
 
         var p1 = _myRepository.GetById("1");
 
+        Assert.IsNotNull(p1);
         Assert.AreEqual(3, p1.Count);
     }
 
@@ -547,6 +563,7 @@ public class MongoRepositoryTests
         var p = _myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p);
         Assert.AreEqual("update", p.UserFields.FirstOrDefault(x => x.Key == "key")!.Value);
         Assert.AreEqual("user", p!.UpdatedBy);
         Assert.IsTrue(p!.UpdatedOnUtc.HasValue);

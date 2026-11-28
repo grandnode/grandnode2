@@ -45,6 +45,7 @@ public class MessageTemplateSeedTests
         foreach (var t in MessageTemplateSeed.Build("ea"))
         {
             //templates added after the baseline was taken have nothing to lose
+            Assert.IsNotNull(t.Name);
             if (!baseline.ContainsKey(t.Name)) continue;
             var now = Tokens(t.Subject + t.Body);
             var lost = baseline[t.Name].Where(x => !now.Contains(x)).ToList();

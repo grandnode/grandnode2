@@ -80,7 +80,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
     [TestMethod]
     public async Task ProductPicturePopupGet_ProductNotFound_ReturnsContent()
     {
-        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product?)null);
 
         var result = await _controller.ProductPicturePopup("p1", "pic1");
 
@@ -127,7 +127,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var model = new ProductModel.ProductPictureModel { Id = "pic1" };
         _productPictureViewModelServiceMock.Setup(s => s.PrepareProductPictureModel(product, pp))
-            .ReturnsAsync((model, (Picture)null));
+            .ReturnsAsync((model, (Picture?)null));
 
         var result = await _controller.ProductPicturePopup("p1", "pic1");
 
@@ -141,7 +141,7 @@ public class BaseProductPictureControllerTests : ProductControllerTestsBase<Base
     [TestMethod]
     public async Task ProductPicturePopupPost_ProductNotFound_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.ProductPictureModel { ProductId = "p1", Id = "pic1" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ProductPicturePopup(model));

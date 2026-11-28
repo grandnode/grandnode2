@@ -15,7 +15,8 @@ public class ContactAttributeExtensionsTests
         var ca3 = new ContactAttribute { AttributeControlType = AttributeControlType.Datepicker };
         var ca4 = new ContactAttribute { AttributeControlType = AttributeControlType.FileUpload };
         var ca5 = new ContactAttribute { AttributeControlType = AttributeControlType.DropdownList };
-        ContactAttribute ca6 = null;
+        //null exercises the guard of the method under test
+        ContactAttribute ca6 = null!;
         Assert.IsFalse(ca.ShouldHaveValues());
         Assert.IsFalse(ca6.ShouldHaveValues());
         Assert.IsFalse(ca2.ShouldHaveValues());
@@ -32,7 +33,8 @@ public class ContactAttributeExtensionsTests
         var ca3 = new ContactAttribute { AttributeControlType = AttributeControlType.Datepicker };
         var ca4 = new ContactAttribute { AttributeControlType = AttributeControlType.FileUpload };
         var ca5 = new ContactAttribute { AttributeControlType = AttributeControlType.DropdownList };
-        ContactAttribute ca6 = null;
+        //null exercises the guard of the method under test
+        ContactAttribute ca6 = null!;
         Assert.IsFalse(ca.CanBeUsedAsCondition());
         Assert.IsFalse(ca6.CanBeUsedAsCondition());
         Assert.IsFalse(ca2.CanBeUsedAsCondition());

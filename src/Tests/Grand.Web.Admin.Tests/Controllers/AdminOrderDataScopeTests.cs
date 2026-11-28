@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class AdminOrderDataScopeTests
 {
-    private static AdminOrderDataScope Build(bool isSalesManager, string currentCustomerSeId)
+    private static AdminOrderDataScope Build(bool isSalesManager, string? currentCustomerSeId)
     {
         var customer = new Customer { SeId = currentCustomerSeId };
         var workContextMock = new Mock<IWorkContext>();
@@ -57,7 +57,7 @@ public class AdminOrderDataScopeTests
     {
         var scope = Build(isSalesManager: false, currentCustomerSeId: "se-1");
 
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 
     [TestMethod]

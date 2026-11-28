@@ -11,8 +11,7 @@ public class LiteDBContextTests
     private LiteDBRepository<SampleCollection> _repository;
     private LiteDBContext _context;
 
-    [TestInitialize]
-    public void Init()
+    public LiteDBContextTests()
     {
         _database = new LiteDatabase(new MemoryStream());
         _repository = new LiteDBRepository<SampleCollection>(_database, new AuditInfoProvider());

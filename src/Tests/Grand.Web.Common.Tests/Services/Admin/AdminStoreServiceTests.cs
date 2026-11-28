@@ -16,8 +16,7 @@ public class AdminStoreServiceTests
     private Mock<IContextAccessor> _contextAccessorMock;
     private AdminStoreService _adminStoreService;
 
-    [TestInitialize]
-    public void Init()
+    public AdminStoreServiceTests()
     {
         _storeServiceMock = new Mock<IStoreService>();
         _contextAccessorMock = new Mock<IContextAccessor>();
@@ -75,7 +74,7 @@ public class AdminStoreServiceTests
             StoreId = ""
         });
         _contextAccessorMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(customer);
-        _storeServiceMock.Setup(s => s.GetStoreById("store3")).ReturnsAsync((Store)null);
+        _storeServiceMock.Setup(s => s.GetStoreById("store3")).ReturnsAsync((Store?)null);
 
         // Act
         var result = await _adminStoreService.GetActiveStore();

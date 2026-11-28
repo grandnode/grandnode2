@@ -172,7 +172,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     [TestMethod]
     public async Task RelatedProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRelatedProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
@@ -375,7 +375,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     [TestMethod]
     public async Task SimilarProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
@@ -485,7 +485,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     [TestMethod]
     public async Task CrossSellProductDelete_ProductNotFound_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.CrossSellProductModel { ProductId = "p1", Id = "p2" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.CrossSellProductDelete(model));
@@ -572,7 +572,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     [TestMethod]
     public async Task CrossSellProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
@@ -683,7 +683,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     [TestMethod]
     public async Task RecommendedProductDelete_ProductNotFound_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.RecommendedProductModel { ProductId = "p1", Id = "p2" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.RecommendedProductDelete(model));
@@ -770,7 +770,7 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     [TestMethod]
     public async Task RecommendedProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));

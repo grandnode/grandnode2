@@ -22,8 +22,7 @@ public class MigrationAddAdminPortalInfoPageTests
     private IServiceProvider _serviceProvider;
     private MigrationAddAdminPortalInfoPage _migration;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationAddAdminPortalInfoPageTests()
     {
         _pageRepository = new LiteDBRepositoryMock<Page>();
         _pageLayoutRepository = new LiteDBRepositoryMock<PageLayout>();

@@ -27,8 +27,7 @@ public class BaseShippingMethodControllerTests
     private Mock<IStoreService> _storeServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseShippingMethodControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<ShippingMethodProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -56,7 +55,7 @@ public class BaseShippingMethodControllerTests
     public async Task Create_GlobalScope_DoesNotForceStoreId()
     {
         var controller = Build(new GlobalAdminDataScope<ShippingMethod>());
-        ShippingMethod inserted = null;
+        ShippingMethod? inserted = null;
         _shippingMethodServiceMock.Setup(s => s.InsertShippingMethod(It.IsAny<ShippingMethod>()))
             .Callback<ShippingMethod>(m => inserted = m).Returns(Task.CompletedTask);
 
@@ -77,7 +76,7 @@ public class BaseShippingMethodControllerTests
         var scope = new StoreShippingMethodDataScope(contextAccessor.Object);
         var controller = Build(scope);
 
-        ShippingMethod inserted = null;
+        ShippingMethod? inserted = null;
         _shippingMethodServiceMock.Setup(s => s.InsertShippingMethod(It.IsAny<ShippingMethod>()))
             .Callback<ShippingMethod>(m => inserted = m).Returns(Task.CompletedTask);
 

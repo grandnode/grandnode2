@@ -31,7 +31,7 @@ public class MerchandiseReturnUploadsTests
             { Id = x.Id, Quantity = x.Quantity, MerchandiseReturnReasonId = x.Reason }).ToList();
     }
 
-    private string Error(List<MerchandiseReturnModel.OrderItemModel> items,
+    private string? Error(List<MerchandiseReturnModel.OrderItemModel> items,
         Dictionary<string, IList<IFormFile>> photos)
     {
         return MerchandiseReturnUploads.PhotosError(items, photos, _reasons, Images);
@@ -122,6 +122,7 @@ public class MerchandiseReturnUploadsTests
         Assert.AreEqual("r1", download.ReferenceId);
         Assert.AreEqual("c1", download.CustomerId);
         Assert.AreEqual(DownloadType.MerchandiseReturn, download.DownloadType);
+        Assert.IsNotNull(download.DownloadBinary);
         Assert.AreEqual(10, download.DownloadBinary.Length);
     }
 }

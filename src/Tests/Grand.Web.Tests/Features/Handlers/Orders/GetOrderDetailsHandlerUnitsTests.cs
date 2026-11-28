@@ -32,8 +32,7 @@ public class GetOrderDetailsHandlerUnitsTests
     private GetOrderDetailsHandler _handler;
     private readonly Order _order = new() { Id = "o1", CustomerId = "buyer" };
 
-    [TestInitialize]
-    public void Init()
+    public GetOrderDetailsHandlerUnitsTests()
     {
         var product = new Product { Id = "p1", Name = "p" };
         var productService = new Mock<IProductService>();

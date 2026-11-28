@@ -11,8 +11,8 @@ public class AuditDiffTests
 {
     private static readonly ISet<string> NoIgnored = new HashSet<string>();
 
-    private static IList<AuditChange> Compare(BsonDocument before, BsonDocument after, string entityType = "Product",
-        ISet<string> ignored = null)
+    private static IList<AuditChange> Compare(BsonDocument? before, BsonDocument? after, string entityType = "Product",
+        ISet<string>? ignored = null)
     {
         var isSetting = entityType == "Setting";
         return AuditDiff.Compare(entityType, AuditSnapshot.Flatten(before, isSetting),
@@ -202,7 +202,7 @@ public class AuditDiffTests
         var changes = Compare(new BsonDocument("FullDescription", "short"),
             new BsonDocument("FullDescription", new string('x', 5000)));
 
-        Assert.AreEqual(1024, changes[0].NewValue.Length);
+        Assert.AreEqual(1024, changes[0].NewValue?.Length);
         Assert.IsTrue(changes[0].Truncated);
     }
 

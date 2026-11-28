@@ -31,8 +31,7 @@ public class OrderPlacementServiceTests
     private List<IOrderPlacementRuleProvider> _rules;
     private OrderPlacementService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderPlacementServiceTests()
     {
         _rules = [];
         var customer = new Customer { Id = "c1" };
@@ -59,7 +58,7 @@ public class OrderPlacementServiceTests
     }
 
     private Mock<IOrderPlacementRuleProvider> Rule(OrderPlacementRuleResult result, int priority = 0,
-        IList<string> stores = null, IList<string> groups = null)
+        IList<string>? stores = null, IList<string>? groups = null)
     {
         var rule = new Mock<IOrderPlacementRuleProvider>();
         rule.SetupGet(x => x.SystemName).Returns("Rule");
@@ -137,7 +136,7 @@ public class OrderPlacementServiceTests
     [TestMethod]
     public async Task Evaluate_PassesTheOrderBeingPlacedToTheRule()
     {
-        OrderPlacementContext seen = null;
+        OrderPlacementContext? seen = null;
         var rule = Rule(OrderPlacementRuleResult.Allow());
         rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()))
             .Callback<OrderPlacementContext, CancellationToken>((c, _) => seen = c)
@@ -145,6 +144,7 @@ public class OrderPlacementServiceTests
 
         await Evaluate();
 
+        Assert.IsNotNull(seen);
         Assert.AreSame(_cart, seen.Cart);
         Assert.AreSame(_calculation, seen.Calculation);
         Assert.AreSame(_language, seen.Language);
@@ -188,13 +188,13 @@ public class OrderPlacementServiceTests
         Assert.AreEqual(OrderPlacementDecision.Block, result.Decision);
         CollectionAssert.AreEqual(new[] { RuleFailedText }, result.Reasons.ToArray());
         _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<InvalidOperationException>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<InvalidOperationException>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
     public async Task Evaluate_ProviderReturnsNothing_Blocks()
     {
-        Rule(null);
+        Rule(null!);
 
         var result = await Evaluate();
 
@@ -292,7 +292,7 @@ public class OrderPlacementServiceTests
             _service.Evaluate(_cart, _calculation, _language, "Payments.CashOnDelivery", source.Token));
 
         _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Never);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Never);
     }
 
     [TestMethod]

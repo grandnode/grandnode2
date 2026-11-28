@@ -21,8 +21,7 @@ public class InStoreReturnProviderTests
     private Mock<IPickupPointService> _pickupPointService;
     private IReturnShippingProvider _provider;
 
-    [TestInitialize]
-    public void Init()
+    public InStoreReturnProviderTests()
     {
         _pickupPointService = new Mock<IPickupPointService>();
         _pickupPointService.Setup(x => x.LoadActivePickupPoints("s1")).ReturnsAsync([
@@ -105,8 +104,10 @@ public class InStoreReturnProviderTests
             "instore", new Dictionary<string, string> { ["pickupPointId"] = "p1" });
 
         Assert.AreEqual(0, result.Errors.Count);
+        Assert.IsNotNull(result.DropOffPoint);
         Assert.AreEqual("p1", result.DropOffPoint.Id);
         Assert.AreEqual("w1", result.DropOffPoint.WarehouseId);
+        Assert.IsNotNull(result.DropOffPoint.Address);
         Assert.AreEqual("Main 1", result.DropOffPoint.Address.Address1);
     }
 

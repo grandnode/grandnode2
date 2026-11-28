@@ -15,8 +15,7 @@ public class ValidateMinShoppingCartSubtotalAmountCommandHandlerTests
     private OrderSettings _orderSettings;
     private Mock<IShoppingCartSubTotalService> _shoppingCartSubTotalServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ValidateMinShoppingCartSubtotalAmountCommandHandlerTests()
     {
         _shoppingCartSubTotalServiceMock = new Mock<IShoppingCartSubTotalService>();
         _orderSettings = new OrderSettings { MinOrderSubtotalAmount = 10 };
@@ -37,8 +36,8 @@ public class ValidateMinShoppingCartSubtotalAmountCommandHandlerTests
 
         _shoppingCartSubTotalServiceMock
             .Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(), false)).Returns(() =>
-                Task.FromResult(new Grand.Business.Core.Utilities.Checkout.ShoppingCartSubTotal(20, null, 100, 100,
-                    null)));
+                Task.FromResult(new Grand.Business.Core.Utilities.Checkout.ShoppingCartSubTotal(20, [], 100, 100,
+                    [])));
         //Act
         var result = await _handler.Handle(command, CancellationToken.None);
         //Assert

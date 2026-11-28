@@ -22,8 +22,7 @@ public class CopyProductServiceTests
     private Mock<ISlugService> _slugServiceMock;
     private ISeNameService _seNameService;
     
-    [TestInitialize]
-    public void Init()
+    public CopyProductServiceTests()
     {
         _productServiceMock = new Mock<IProductService>();
         _langServiceMock = new Mock<ILanguageService>();

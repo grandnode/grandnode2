@@ -35,8 +35,7 @@ public class PluginControllerTests
     private Mock<IServiceProvider> _serviceProvider;
     private PluginController _controller;
 
-    [TestInitialize]
-    public void Setup()
+    public PluginControllerTests()
     {
         _contentRoot = Path.Combine(Path.GetTempPath(), "grand-plugin-controller-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_contentRoot);
@@ -399,7 +398,7 @@ public class PluginControllerTests
     ///     An installed plugin as loading leaves one that failed: with its load error and without a plugin type,
     ///     so no instance can be created
     /// </summary>
-    private static PluginInfo BrokenPlugin(FileInfo mainAssembly)
+    private static PluginInfo BrokenPlugin(FileInfo? mainAssembly)
     {
         return new PluginInfo(mainAssembly, null, null) {
             SystemName = SystemName,
@@ -413,7 +412,7 @@ public class PluginControllerTests
     ///     Runs with the plugin state store on a database in memory, listing <paramref name="installed" /> (by
     ///     default the plugin) as installed
     /// </summary>
-    private static async Task WithInstalledStore(Func<IPluginStateStore, Task> test, string[] installed = null)
+    private static async Task WithInstalledStore(Func<IPluginStateStore, Task> test, string[]? installed = null)
     {
         using var database = new LiteDatabase(new MemoryStream());
         var store = new LiteDBPluginStateStore(() => "Filename=:memory:");

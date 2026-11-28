@@ -27,7 +27,9 @@ public class OrderSchemaPropertyTests
         var billing = properties.Single(x => x.PropertyName == "BillingCountry");
         var shipping = properties.Single(x => x.PropertyName == "ShippingCountry");
 
+        Assert.IsNotNull(billing.GetProperty);
         Assert.AreEqual("Poland", billing.GetProperty(order));
+        Assert.IsNotNull(shipping.GetProperty);
         Assert.IsNull(shipping.GetProperty(order));
         Assert.AreEqual("", billing.GetProperty(noAddresses));
         Assert.AreEqual("", shipping.GetProperty(noAddresses));

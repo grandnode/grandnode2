@@ -24,14 +24,14 @@ public class GetHomepageBrandsHandlerTests
     private GetHomepageBrandsHandler _handler;
     private Mock<IBrandService> _brandServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public GetHomepageBrandsHandlerTests()
     {
         _brandServiceMock = new Mock<IBrandService>();
         _brandServiceMock.Setup(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
                 It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync((string _, CatalogAccess access, int _, int _) => {
                 var brands = new List<Brand> { new() { Id = "public", ShowOnHomePage = true } };
+                Assert.IsNotNull(access.Customer);
                 if (access.Customer.Groups.Contains("vip"))
                     brands.Add(new Brand { Id = "vip-only", ShowOnHomePage = true });
                 return new PagedList<Brand>(brands, 0, int.MaxValue);

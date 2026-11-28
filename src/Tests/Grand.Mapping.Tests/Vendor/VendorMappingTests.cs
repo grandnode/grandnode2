@@ -11,8 +11,7 @@ public class VendorMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public VendorMappingTests()
     {
         var config = new MapperConfiguration(cfg =>
         {

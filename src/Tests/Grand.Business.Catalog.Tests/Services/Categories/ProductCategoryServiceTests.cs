@@ -23,8 +23,7 @@ public class ProductCategoryServiceTests
     private ProductCategoryService _productCategoryService;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public ProductCategoryServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _mediatorMock = new Mock<IMediator>();
@@ -116,7 +115,7 @@ public class ProductCategoryServiceTests
 
         //Assert
         Assert.HasCount(1, pc1);
-        Assert.AreEqual(10, pc1.FirstOrDefault().DisplayOrder);
+        Assert.AreEqual(10, pc1.First().DisplayOrder);
     }
 
     [TestMethod]
@@ -142,7 +141,7 @@ public class ProductCategoryServiceTests
 
         //Assert
         Assert.HasCount(1, pc1);
-        Assert.AreEqual(5, pc1.FirstOrDefault().DisplayOrder);
+        Assert.AreEqual(5, pc1.First().DisplayOrder);
     }
 
     [TestMethod]

@@ -34,7 +34,7 @@ public class ProductEmailAFriendValidatorTests
         groupService.Setup(group => group.IsGuest(It.IsAny<Customer>())).ReturnsAsync(false);
         var productService = new Mock<IProductService>();
         productService.Setup(product => product.GetProductById("product-id", false))
-            .ReturnsAsync((Product)null);
+            .ReturnsAsync((Product?)null);
 
         var validator = new ProductEmailAFriendValidator(
             new List<IValidatorConsumer<ProductEmailAFriendModel>>(),

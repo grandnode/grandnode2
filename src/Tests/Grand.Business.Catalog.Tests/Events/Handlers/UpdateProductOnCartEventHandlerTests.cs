@@ -15,8 +15,7 @@ public class UpdateProductOnCartEventHandlerTests
     private UpdateProductOnCartEventHandler _handler;
     private IRepository<Customer> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public UpdateProductOnCartEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Customer>();
         _handler = new UpdateProductOnCartEventHandler(_repository);

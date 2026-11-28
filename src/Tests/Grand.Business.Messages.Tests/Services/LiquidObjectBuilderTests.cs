@@ -14,8 +14,7 @@ public class LiquidObjectBuilderTests
 {
     private Mock<IMediator> _mediatorMock;
 
-    [TestInitialize]
-    public void Init()
+    public LiquidObjectBuilderTests()
     {
         _mediatorMock = new Mock<IMediator>();
     }
@@ -39,11 +38,11 @@ public class LiquidObjectBuilderTests
 
 
         Assert.IsNotNull(liquidObject.Vendor);
-        Assert.IsTrue((liquidObject.Vendor as LiquidVendor).Name.Equals(vendor.Name));
+        Assert.IsTrue(string.Equals(Assert.IsInstanceOfType<LiquidVendor>(liquidObject.Vendor).Name, vendor.Name));
         Assert.IsNotNull(liquidObject.VendorReview as LiquidVendorReview);
-        Assert.IsTrue((liquidObject.VendorReview as LiquidVendorReview).VendorName.Equals(vendor.Name));
+        Assert.IsTrue(string.Equals(Assert.IsInstanceOfType<LiquidVendorReview>(liquidObject.VendorReview).VendorName, vendor.Name));
         Assert.IsTrue(
-            (liquidObject.OutOfStockSubscription as LiquidOutOfStockSubscription).ProductName.Equals(product.Name));
+            string.Equals(Assert.IsInstanceOfType<LiquidOutOfStockSubscription>(liquidObject.OutOfStockSubscription).ProductName, product.Name));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<INotification>(), default), Times.Exactly(3));
     }
 }

@@ -15,8 +15,7 @@ public class ProductCacheEventHandlerTests
     private Mock<ICacheBase> _cacheMock;
     private ProductCacheEventHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public ProductCacheEventHandlerTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _handler = new ProductCacheEventHandler(_cacheMock.Object);

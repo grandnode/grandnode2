@@ -58,8 +58,7 @@ public class ProductViewModelServiceTests
     private Mock<IStockMovementService> _stockMovementServiceMock;
     private Mock<ISettingService> _settingServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public ProductViewModelServiceTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => { cfg.AddProfile<ProductProfile>(); });
         AutoMapperConfig.Init(mapperConfig);
@@ -86,11 +85,11 @@ public class ProductViewModelServiceTests
         contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
 
         var currencyServiceMock = new Mock<ICurrencyService>();
-        currencyServiceMock.Setup(c => c.GetCurrencyById(It.IsAny<string>())).ReturnsAsync((Currency)null);
+        currencyServiceMock.Setup(c => c.GetCurrencyById(It.IsAny<string>())).ReturnsAsync((Currency?)null);
         currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>())).ReturnsAsync(new List<Currency>());
-        _measureServiceMock.Setup(m => m.GetMeasureWeightById(It.IsAny<string>())).ReturnsAsync((MeasureWeight)null);
+        _measureServiceMock.Setup(m => m.GetMeasureWeightById(It.IsAny<string>())).ReturnsAsync((MeasureWeight?)null);
         _measureServiceMock.Setup(m => m.GetMeasureDimensionById(It.IsAny<string>()))
-            .ReturnsAsync((MeasureDimension)null);
+            .ReturnsAsync((MeasureDimension?)null);
         _measureServiceMock.Setup(m => m.GetAllMeasureWeights()).ReturnsAsync(new List<MeasureWeight>());
         _measureServiceMock.Setup(m => m.GetAllMeasureUnits()).ReturnsAsync(new List<MeasureUnit>());
 
@@ -121,10 +120,10 @@ public class ProductViewModelServiceTests
 
         // Default: Admin's Global scope - no default store/vendor, homepage option and store dropdown both show.
         _scopeMock = new Mock<IAdminDataScope<Product>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
         _scopeMock.Setup(s => s.ShowStoreSelector).Returns(true);
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
         _scopeMock.Setup(s => s.CanFeatureOnHomepage).Returns(true);
 
         _productViewModelService = new ProductViewModelService(
@@ -595,7 +594,7 @@ public class ProductViewModelServiceTests
     [TestMethod]
     public async Task PrepareProductListModel_VendorScope_HidesHomepageOptionAndStoreDropdown()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
         _scopeMock.Setup(s => s.ShowStoreSelector).Returns(false);
         _scopeMock.Setup(s => s.CanFeatureOnHomepage).Returns(false);
@@ -660,7 +659,7 @@ public class ProductViewModelServiceTests
     public async Task InsertBulkEdit_StoreScope_CreatesSimpleProductInTheStore()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
-        Product inserted = null;
+        Product? inserted = null;
         _productServiceMock.Setup(p => p.InsertProduct(It.IsAny<Product>()))
             .Callback<Product>(p =>
             {

@@ -36,8 +36,7 @@ public class CheckoutClaimServiceTests
     private List<CustomAttribute> _attributes;
     private PlaceOrderContainer _details;
 
-    [TestInitialize]
-    public void Init()
+    public CheckoutClaimServiceTests()
     {
         _inventoryManageServiceMock = new Mock<IInventoryManageService>();
         _discountServiceMock = new Mock<IDiscountService>();
@@ -172,7 +171,7 @@ public class CheckoutClaimServiceTests
     [TestMethod]
     public async Task Claim_DiscountNoLongerExists_IsNotRecorded()
     {
-        _discountServiceMock.Setup(x => x.GetDiscountById("d1")).ReturnsAsync((Discount)null);
+        _discountServiceMock.Setup(x => x.GetDiscountById("d1")).ReturnsAsync((Discount?)null);
 
         var claim = await _service.Claim(_details, "CODE1");
 

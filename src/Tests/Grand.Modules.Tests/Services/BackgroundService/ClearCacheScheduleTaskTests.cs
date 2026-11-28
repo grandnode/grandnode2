@@ -11,8 +11,7 @@ public class ClearCacheScheduleTaskTests
     private Mock<ICacheBase> _cacheMock;
     private ClearCacheScheduleTask _task;
 
-    [TestInitialize]
-    public void Init()
+    public ClearCacheScheduleTaskTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _task = new ClearCacheScheduleTask(_cacheMock.Object);

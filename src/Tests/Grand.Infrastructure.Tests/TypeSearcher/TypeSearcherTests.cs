@@ -183,7 +183,7 @@ public class TypeSearcherTests
 
     private static PluginInfo SamplePluginInfo(bool installed)
     {
-        return new PluginInfo(null, typeof(SampleBasePlugin).Assembly, typeof(SampleBasePlugin)) {
+        return new PluginInfo(null!, typeof(SampleBasePlugin).Assembly, typeof(SampleBasePlugin)) {
             SystemName = "SamplePlugin",
             Installed = installed
         };

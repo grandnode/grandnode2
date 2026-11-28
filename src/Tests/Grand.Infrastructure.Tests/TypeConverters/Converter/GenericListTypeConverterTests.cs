@@ -29,7 +29,7 @@ public class GenericListTypeConverterTests
     [TestMethod]
     public void ConvertFromTest_List_string()
     {
-        var mylist = (List<string>)_stringconverter.ConvertFrom("str1, str2");
+        var mylist = Assert.IsInstanceOfType<List<string>>(_stringconverter.ConvertFrom("str1, str2"));
         Assert.IsNotNull(mylist);
         Assert.IsNotEmpty(mylist);
     }
@@ -37,7 +37,7 @@ public class GenericListTypeConverterTests
     [TestMethod]
     public void ConvertFromTest_List_int()
     {
-        var mylist = (List<int>)_intconverter.ConvertFrom("1, 2");
+        var mylist = Assert.IsInstanceOfType<List<int>>(_intconverter.ConvertFrom("1, 2"));
         Assert.IsNotNull(mylist);
         Assert.IsNotEmpty(mylist);
     }
@@ -45,7 +45,7 @@ public class GenericListTypeConverterTests
     [TestMethod]
     public void ConvertFromTest_list_double()
     {
-        var mylist = (List<double>)_doubleconverter.ConvertFrom("1.1, 2");
+        var mylist = Assert.IsInstanceOfType<List<double>>(_doubleconverter.ConvertFrom("1.1, 2"));
         Assert.IsNotNull(mylist);
         Assert.HasCount(2, mylist);
     }

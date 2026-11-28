@@ -19,8 +19,7 @@ public class TaxCategoryServiceTests
     private IRepository<TaxCategory> _repository;
     private TaxCategoryService _taxCategoryService;
 
-    [TestInitialize]
-    public void Init()
+    public TaxCategoryServiceTests()
     {
         _repository = new MongoDBRepositoryTest<TaxCategory>();
         _mediatorMock = new Mock<IMediator>();

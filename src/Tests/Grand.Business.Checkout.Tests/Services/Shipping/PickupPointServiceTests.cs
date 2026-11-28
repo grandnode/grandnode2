@@ -18,8 +18,7 @@ public class PickupPointServiceTests
     private Mock<IRepository<PickupPoint>> _repositoryMock;
     private IPickupPointService _service;
 
-    [TestInitialize]
-    public void Init()
+    public PickupPointServiceTests()
     {
         _repositoryMock = new Mock<IRepository<PickupPoint>>();
         _mediatorMock = new Mock<IMediator>();
@@ -38,7 +37,7 @@ public class PickupPointServiceTests
     [TestMethod]
     public void InsertPickupPoint_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertPickupPoint(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertPickupPoint(null!));
     }
 
     [TestMethod]
@@ -52,7 +51,7 @@ public class PickupPointServiceTests
     [TestMethod]
     public void UpdatePickupPoint_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdatePickupPoint(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdatePickupPoint(null!));
     }
 
     [TestMethod]
@@ -66,6 +65,6 @@ public class PickupPointServiceTests
     [TestMethod]
     public void DeletePickupPoint_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeletePickupPoint(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeletePickupPoint(null!));
     }
 }

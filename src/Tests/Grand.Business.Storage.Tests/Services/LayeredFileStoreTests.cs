@@ -11,8 +11,7 @@ public class LayeredFileStoreTests
     private LayeredFileStore _store;
     private string _webRoot;
 
-    [TestInitialize]
-    public void Init()
+    public LayeredFileStoreTests()
     {
         _root = Path.Combine(Path.GetTempPath(), "layered-" + Guid.NewGuid().ToString("N"));
         _media = Path.Combine(_root, "media");
@@ -53,6 +52,7 @@ public class LayeredFileStoreTests
         //Act
         var result = await _store.GetFileInfo("assets/custom/style.css");
         //Assert
+        Assert.IsNotNull(result);
         Assert.StartsWith(_media, result.PhysicalPath);
     }
 
@@ -106,6 +106,7 @@ public class LayeredFileStoreTests
         //Act
         var result = _store.GetDirectoryInfo(Path.Combine("assets", "images", "uploaded"));
         //Assert
+        Assert.IsNotNull(result);
         Assert.AreEqual(Path.Combine(_media, "assets", "images", "uploaded"), result.PhysicalPath);
         Assert.AreEqual("assets/images/uploaded", result.Path.Replace("\\", "/"));
     }
@@ -131,7 +132,7 @@ public class LayeredFileStoreTests
         var result = _store.GetDirectoryContent("assets/custom");
         //Assert
         Assert.HasCount(2, result);
-        Assert.IsTrue(result.All(e => e.PhysicalPath.StartsWith(_media)));
+        Assert.IsTrue(result.All(e => e.PhysicalPath != null && e.PhysicalPath.StartsWith(_media)));
     }
 
     [TestMethod]

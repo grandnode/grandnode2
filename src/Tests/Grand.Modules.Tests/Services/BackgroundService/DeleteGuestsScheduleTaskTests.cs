@@ -13,8 +13,7 @@ public class DeleteGuestsScheduleTaskTests
     private SystemSettings _settings;
     private DeleteGuestsScheduleTask _task;
 
-    [TestInitialize]
-    public void Init()
+    public DeleteGuestsScheduleTaskTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _settings = new SystemSettings();

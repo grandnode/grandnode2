@@ -17,8 +17,7 @@ public class RecentlyViewedProductsServiceTests
     private IRepository<RecentlyViewedProduct> _repository;
     private RecentlyViewedProductsService _service;
 
-    [TestInitialize]
-    public void Init()
+    public RecentlyViewedProductsServiceTests()
     {
         _repository = new MongoDBRepositoryTest<RecentlyViewedProduct>();
         _productServiceMock = new Mock<IProductService>();

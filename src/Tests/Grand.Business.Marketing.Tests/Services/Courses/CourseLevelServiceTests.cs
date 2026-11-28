@@ -15,8 +15,7 @@ public class CourseLevelServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<CourseLevel> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CourseLevelServiceTests()
     {
         _repository = new MongoDBRepositoryTest<CourseLevel>();
         _mediatorMock = new Mock<IMediator>();

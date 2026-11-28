@@ -36,8 +36,7 @@ public class PaymentControllerTests
     private Mock<IShippingMethodService> _shippingMethodServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public PaymentControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
@@ -96,9 +95,10 @@ public class PaymentControllerTests
 
         var jsonResult = result as JsonResult;
         Assert.IsNotNull(jsonResult);
-        var data = (DataSourceResult)jsonResult.Value;
+        var data = Assert.IsInstanceOfType<DataSourceResult>(jsonResult.Value);
+        Assert.IsNotNull(data);
         Assert.AreEqual(1, data.Total);
-        var model = ((IEnumerable<PaymentMethodModel>)data.Data).First();
+        var model = Assert.IsInstanceOfType<IEnumerable<PaymentMethodModel>>(data.Data).First();
         Assert.AreEqual("Payments.TestMethod", model.SystemName);
         Assert.IsTrue(model.IsActive);
         //the provider ships no Store-area screen, so no configuration link is offered
@@ -147,7 +147,7 @@ public class PaymentControllerTests
     public async Task MethodUpdate_UnknownMethod_NotSaveSetting()
     {
         _paymentServiceMock.Setup(p => p.LoadPaymentMethodBySystemName(It.IsAny<string>()))
-            .Returns((IPaymentProvider)null);
+            .Returns((IPaymentProvider?)null);
         _settingServiceMock.Setup(s => s.LoadSetting<PaymentSettings>(StoreId)).ReturnsAsync(new PaymentSettings());
 
         var result = await _controller.MethodUpdate(new PaymentMethodModel

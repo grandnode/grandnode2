@@ -11,8 +11,7 @@ public class DeleteMerchandiseReturnCommandHandlerTests
 {
     private Mock<IMerchandiseReturnWorkflowService> _workflowServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public DeleteMerchandiseReturnCommandHandlerTests()
     {
         _workflowServiceMock = new Mock<IMerchandiseReturnWorkflowService>();
     }

@@ -105,7 +105,7 @@ public class PluginDependencyCycleTests
         : IOrderPlacementRuleProvider
     {
         public IOrderCalculationService OrderCalculationService { get; } = orderCalculationService;
-        public string ConfigurationUrl => null;
+        public string? ConfigurationUrl => null;
         public string SystemName => "Test.Rule";
         public string FriendlyName => SystemName;
         public int Priority => 0;

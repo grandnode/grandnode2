@@ -18,8 +18,7 @@ public class ProductCourseServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public ProductCourseServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _courseRepository = new MongoDBRepositoryTest<Course>();
@@ -67,7 +66,7 @@ public class ProductCourseServiceTests
 
         //Arrange
         Assert.IsNotNull(_repository.Table.FirstOrDefault(x => x.Id == "1"));
-        Assert.AreEqual("2", _repository.Table.FirstOrDefault(x => x.Id == "1").CourseId);
+        Assert.AreEqual("2", _repository.Table.First(x => x.Id == "1").CourseId);
         _mediatorMock.Verify(m => m.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == "1"),
             It.IsAny<CancellationToken>()), Times.Once);
     }

@@ -16,8 +16,7 @@ public class CookiePreferenceTests
 {
     private CookiePreference _cookiePreferences;
 
-    [TestInitialize]
-    public void Init()
+    public CookiePreferenceTests()
     {
         var cookie1 = new Mock<IConsentCookie>();
         var cookie2 = new Mock<IConsentCookie>();
@@ -53,7 +52,7 @@ public class CookiePreferenceTests
         customer.UserFields.Add(new UserField(){ StoreId = store.Id, Key = SystemCustomerFieldNames.ConsentCookies, Value = valueStr});
         var result1 = await _cookiePreferences.IsEnable(customer, store, "cookie1");
         var result2 = await _cookiePreferences.IsEnable(customer, store, "cookie2");
-        Assert.IsTrue(result1.Value);
-        Assert.IsFalse(result2.Value);
+        Assert.IsTrue(result1);
+        Assert.IsFalse(result2);
     }
 }

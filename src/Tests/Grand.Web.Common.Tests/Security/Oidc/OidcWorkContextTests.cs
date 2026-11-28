@@ -38,8 +38,7 @@ public class OidcWorkContextTests
     private DefaultHttpContext _httpContext;
     private Mock<IHttpContextAccessor> _accessor;
 
-    [TestInitialize]
-    public void Setup()
+    public OidcWorkContextTests()
     {
         _customerService = new Mock<ICustomerService>();
         _customerService.Setup(c => c.GetCustomerBySystemName(SystemCustomerNames.Anonymous))
@@ -175,7 +174,7 @@ public class OidcWorkContextTests
     public async Task RefusedToken_NoOtherCredential_AnonymousNotNewGuest()
     {
         TokenRefused();
-        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer?)null);
 
         var customer = await CreateSetter().CurrentCustomerForTest(new Store());
 
@@ -202,7 +201,7 @@ public class OidcWorkContextTests
         var secretKey = new SymmetricSecurityKey(new byte[32]);
         _httpContext.Request.Headers.Authorization = "Bearer " + OidcTestHost.Token(key: secretKey,
             algorithm: SecurityAlgorithms.HmacSha256, issuer: "https://grandnode.api");
-        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer)null);
+        _authentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync((Customer?)null);
         _apiAuthentication.Setup(a => a.GetAuthenticatedCustomer()).ReturnsAsync(new Customer { Id = "api", Active = true });
         TokenValidatedFor(new Customer { Id = "token", Active = true });
 
@@ -222,11 +221,10 @@ public class OidcWorkContextTests
             languageService, storeService, aclService, vendorService, taxSettings, config, serviceProvider,
             NullLogger<WorkContextSetter>.Instance)
     {
-        public Customer OriginalCustomerForTest =>
-            (Customer)typeof(WorkContextSetter)
-                .GetField("_originalCustomerIfImpersonated",
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .GetValue(this);
+        public Customer? OriginalCustomerForTest =>
+            (Customer?)(typeof(WorkContextSetter).GetField("_originalCustomerIfImpersonated", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                           ?? throw new InvalidOperationException("WorkContextSetter has no _originalCustomerIfImpersonated field"))
+            .GetValue(this);
 
         public Task<Customer> CurrentCustomerForTest(Store store) => CurrentCustomer(store);
     }

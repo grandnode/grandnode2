@@ -15,8 +15,7 @@ public class ContactUsServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<ContactUs> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public ContactUsServiceTests()
     {
         _repository = new MongoDBRepositoryTest<ContactUs>();
         _mediatorMock = new Mock<IMediator>();

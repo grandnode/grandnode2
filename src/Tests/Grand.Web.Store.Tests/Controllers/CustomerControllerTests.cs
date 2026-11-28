@@ -40,8 +40,7 @@ public class CustomerControllerTests
     private Mock<IContextAccessor> _contextAccessorMock;
     private Mock<IAdminDataScope<Customer>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerControllerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _customerViewModelServiceMock = new Mock<ICustomerViewModelService>();
@@ -82,8 +81,8 @@ public class CustomerControllerTests
         public Task ApplyPostConstraintsPublic(CustomerModel model) => ApplyPostConstraints(model);
     }
 
-    private TestableCustomerController BuildStoreController(IGroupService groupService = null,
-        IAdminDataScope<Customer> scope = null)
+    private TestableCustomerController BuildStoreController(IGroupService? groupService = null,
+        IAdminDataScope<Customer>? scope = null)
     {
         var controller = new TestableCustomerController(
             _customerServiceMock.Object,
@@ -112,13 +111,13 @@ public class CustomerControllerTests
         var actionContext = new ActionContext(new DefaultHttpContext(), new RouteData(),
             new ControllerActionDescriptor { ControllerName = controllerName, ActionName = actionName });
         var context = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(),
-            new Dictionary<string, object>(), null);
+            new Dictionary<string, object?>(), new object());
         var nextCalled = false;
 
         await filter.OnActionExecutionAsync(context, () =>
         {
             nextCalled = true;
-            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), null));
+            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), new object()));
         });
 
         return (context, nextCalled);
@@ -271,7 +270,7 @@ public class CustomerControllerTests
         // must end up empty, never the attacker-supplied group list.
         var groupServiceMock = new Mock<IGroupService>();
         groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered))
-            .ReturnsAsync((CustomerGroup)null);
+            .ReturnsAsync((CustomerGroup?)null);
         var scopeMock = new Mock<IAdminDataScope<Customer>>();
         scopeMock.Setup(s => s.DefaultStoreId).Returns("legit-store-1");
         var controller = BuildStoreController(groupService: groupServiceMock.Object, scope: scopeMock.Object);

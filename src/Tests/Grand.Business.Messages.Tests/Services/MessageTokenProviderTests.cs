@@ -8,8 +8,7 @@ public class MessageTokenProviderTests
 {
     private MessageTokenProvider _provider;
 
-    [TestInitialize]
-    public void Init()
+    public MessageTokenProviderTests()
     {
         _provider = new MessageTokenProvider();
     }

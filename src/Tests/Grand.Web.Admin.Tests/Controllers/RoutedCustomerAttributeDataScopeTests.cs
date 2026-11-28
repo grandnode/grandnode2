@@ -22,8 +22,7 @@ public class RoutedCustomerAttributeDataScopeTests
     private GlobalAdminDataScope<CustomerAttribute> _globalScope = null!;
     private StoreAdminDataScope<CustomerAttribute> _storeScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedCustomerAttributeDataScopeTests()
     {
         var contextAccessor = new Mock<IContextAccessor>();
         var workContext = new Mock<IWorkContext>();

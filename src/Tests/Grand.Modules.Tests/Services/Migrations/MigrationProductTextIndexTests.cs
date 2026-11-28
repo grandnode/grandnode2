@@ -15,8 +15,7 @@ public class MigrationProductTextIndexTests
 {
     private Mock<IDatabaseContext> _context;
 
-    [TestInitialize]
-    public void Setup()
+    public MigrationProductTextIndexTests()
     {
         _context = new Mock<IDatabaseContext>();
     }

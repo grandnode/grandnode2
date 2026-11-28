@@ -30,8 +30,7 @@ public class ShippingControllerTests
     private Mock<IShippingMethodService> _shippingMethodServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public ShippingControllerTests()
     {
         _shippingMethodServiceMock = new Mock<IShippingMethodService>();
         _countryServiceMock = new Mock<ICountryService>();

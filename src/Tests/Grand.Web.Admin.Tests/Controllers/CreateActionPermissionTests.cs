@@ -35,6 +35,6 @@ public class CreateActionPermissionTests
 
     private static bool IsPost(MethodInfo method) => method.IsDefined(typeof(HttpPostAttribute), false);
 
-    private static string RequiredAction(MethodInfo method) =>
+    private static string? RequiredAction(MethodInfo method) =>
         method.GetCustomAttribute<PermissionAuthorizeActionAttribute>()?.PermissionAction;
 }

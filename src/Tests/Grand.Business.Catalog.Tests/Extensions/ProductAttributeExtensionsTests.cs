@@ -14,7 +14,8 @@ public class ProductAttributeExtensionsTests
         var pam3 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.Datepicker };
         var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
         var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
-        ProductAttributeMapping pam6 = null;
+        //null exercises the guard of the method under test
+        ProductAttributeMapping pam6 = null!;
         Assert.IsFalse(pam.ShouldHaveValues());
         Assert.IsFalse(pam2.ShouldHaveValues());
         Assert.IsFalse(pam3.ShouldHaveValues());
@@ -32,7 +33,8 @@ public class ProductAttributeExtensionsTests
         var pam3 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.Datepicker };
         var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
         var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
-        ProductAttributeMapping pam6 = null;
+        //null exercises the guard of the method under test
+        ProductAttributeMapping pam6 = null!;
         Assert.IsTrue(pam.ValidationRulesAllowed());
         Assert.IsTrue(pam2.ValidationRulesAllowed());
         Assert.IsTrue(pam4.ValidationRulesAllowed());
@@ -49,7 +51,8 @@ public class ProductAttributeExtensionsTests
         var pam3 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.Datepicker };
         var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
         var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
-        ProductAttributeMapping pam6 = null;
+        //null exercises the guard of the method under test
+        ProductAttributeMapping pam6 = null!;
         Assert.IsFalse(pam.CanBeUsedAsCondition());
         Assert.IsFalse(pam2.CanBeUsedAsCondition());
         Assert.IsFalse(pam4.CanBeUsedAsCondition());
@@ -66,7 +69,8 @@ public class ProductAttributeExtensionsTests
         var pam3 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.Datepicker };
         var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
         var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
-        ProductAttributeMapping pam6 = null;
+        //null exercises the guard of the method under test
+        ProductAttributeMapping pam6 = null!;
         var pam7 = new ProductAttributeMapping { Combination = true };
         Assert.IsTrue(pam.IsNonCombinable());
         Assert.IsTrue(pam2.IsNonCombinable());

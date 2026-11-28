@@ -25,8 +25,7 @@ public class ProductAddPopupViewModelServiceTests
     private Mock<IAdminDataScope<Product>> _scopeMock;
     private ProductAddPopupViewModelService _productAddPopupViewModelService;
 
-    [TestInitialize]
-    public void Setup()
+    public ProductAddPopupViewModelServiceTests()
     {
         _productServiceMock = new Mock<IProductService>();
         _vendorServiceMock = new Mock<IVendorService>();
@@ -44,9 +43,9 @@ public class ProductAddPopupViewModelServiceTests
 
         // Default: Admin's Global scope - no default store/vendor, store dropdown shows.
         _scopeMock = new Mock<IAdminDataScope<Product>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _scopeMock.Setup(s => s.ShowStoreSelector).Returns(true);
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
 
         _productAddPopupViewModelService = new ProductAddPopupViewModelService(
             _productServiceMock.Object,

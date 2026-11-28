@@ -13,8 +13,7 @@ public class StoreAccessServiceTests
     private StoreInformationSettings _storeInformationSettings;
     private StoreAccessService _service;
 
-    [TestInitialize]
-    public void Init()
+    public StoreAccessServiceTests()
     {
         _permissionServiceMock = new Mock<IRequestPermissionService>();
         _storeInformationSettings = new StoreInformationSettings();

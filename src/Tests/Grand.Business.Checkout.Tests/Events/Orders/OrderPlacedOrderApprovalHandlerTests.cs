@@ -31,10 +31,9 @@ public class OrderPlacedOrderApprovalHandlerTests
     private Order _order;
     private Mock<ILogger<OrderPlacedOrderApprovalHandler>> _logger;
     private Customer _owner;
-    private OrderApproval _inserted;
+    private OrderApproval? _inserted;
 
-    [TestInitialize]
-    public void Init()
+    public OrderPlacedOrderApprovalHandlerTests()
     {
         _approvalService = new Mock<IOrderApprovalService>();
         _approvalService.Setup(x => x.Insert(It.IsAny<OrderApproval>())).Callback<OrderApproval>(a => _inserted = a)
@@ -92,12 +91,12 @@ public class OrderPlacedOrderApprovalHandlerTests
                 It.IsAny<string>(), "store", "owner", It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<string[]>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<ShoppingCartType?>(), It.IsAny<int>(),
-                It.IsAny<int>(), It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(),
+                It.IsAny<int>(), It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>(),
                 It.IsAny<string[]>(), It.IsAny<bool>()))
             .ReturnsAsync(new PagedList<Customer>(staff.ToList(), 0, int.MaxValue, staff.Length));
     }
 
-    private static Customer Approver(string id, bool active = true, bool deleted = false, string email = null)
+    private static Customer Approver(string id, bool active = true, bool deleted = false, string? email = null)
     {
         return new Customer {
             Id = id, OwnerId = "owner", SubAccountRole = SubAccountRole.Approver, Active = active, Deleted = deleted,
@@ -173,6 +172,7 @@ public class OrderPlacedOrderApprovalHandlerTests
         await _handler.Handle(new OrderPlacedEvent(_order), CancellationToken.None);
 
         var recipients = new List<Customer>();
+        Assert.IsNotNull(_inserted);
         _messages.Verify(x => x.SendOrderApprovalRequestedMessage(_inserted, _buyer, Capture.In(recipients),
             It.IsAny<Store>(), "en", null), Times.Exactly(2));
         CollectionAssert.AreEquivalent(new[] { "owner", "a1" }, recipients.Select(x => x.Id).ToList());
@@ -187,19 +187,19 @@ public class OrderPlacedOrderApprovalHandlerTests
         await _handler.Handle(new OrderPlacedEvent(_order), CancellationToken.None);
 
         _logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
     public async Task Handle_BuyerMissing_CompletesAndLogs()
     {
-        _customerService.Setup(x => x.GetCustomerById("buyer")).ReturnsAsync((Customer)null);
+        _customerService.Setup(x => x.GetCustomerById("buyer")).ReturnsAsync((Customer?)null);
 
         await _handler.Handle(new OrderPlacedEvent(_order), CancellationToken.None);
 
         _approvalService.Verify(x => x.Insert(It.IsAny<OrderApproval>()), Times.Never);
         _logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]

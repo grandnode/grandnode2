@@ -13,7 +13,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedWarehouseDataScopeTests
 {
-    private static RoutedWarehouseDataScope Build(string area)
+    private static RoutedWarehouseDataScope Build(string? area)
     {
         var httpContext = new DefaultHttpContext();
         if (area != null)

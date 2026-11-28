@@ -14,8 +14,7 @@ public class ShoppingCartItemDeletedEventHandlerTests
     private Mock<IProductReservationService> _productReservationServiceMock;
     private ShoppingCartItemDeletedEventHandler _shoppingCartItemDeletedEventHandler;
 
-    [TestInitialize]
-    public void Init()
+    public ShoppingCartItemDeletedEventHandlerTests()
     {
         _productReservationServiceMock = new Mock<IProductReservationService>();
         _shoppingCartItemDeletedEventHandler =

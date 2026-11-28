@@ -51,7 +51,7 @@ public class OidcTokenChecksTests
     {
         CollectionAssert.AreEqual(new[] { "grandnode.api" },
             OidcTokenChecks.MissingScopes(With(new Claim("scope", "GrandNode.Api")), ["grandnode.api"]).ToArray());
-        Assert.AreEqual(0, OidcTokenChecks.MissingScopes(With(), null).Count);
+        Assert.AreEqual(0, OidcTokenChecks.MissingScopes(With(), null!).Count);
     }
 
     [TestMethod]

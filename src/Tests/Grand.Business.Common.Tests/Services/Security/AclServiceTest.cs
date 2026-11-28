@@ -12,8 +12,7 @@ public class AclServiceTest
     private AclService _aclService;
     private CatalogSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public AclServiceTest()
     {
         _settings = new CatalogSettings();
         _accessControlConfig = new AccessControlConfig();
@@ -23,8 +22,8 @@ public class AclServiceTest
     [TestMethod]
     public void Authorize_ReturnFalse()
     {
-        Product product = null;
-        Assert.IsFalse(_aclService.Authorize(product, "id"));
+        Product product;
+        Assert.IsFalse(_aclService.Authorize((Product)null!, "id"));
         product = new Product {
             LimitedToStores = true
         };
@@ -58,6 +57,6 @@ public class AclServiceTest
 
         Assert.IsFalse(_aclService.Authorize(product, "this-store"), "the store is not among the entity's stores");
         Assert.IsTrue(_aclService.Authorize(product, ""), "fail-open: no store means no check");
-        Assert.IsTrue(_aclService.Authorize(product, (string)null), "fail-open: no store means no check");
+        Assert.IsTrue(_aclService.Authorize(product, (string?)null), "fail-open: no store means no check");
     }
 }

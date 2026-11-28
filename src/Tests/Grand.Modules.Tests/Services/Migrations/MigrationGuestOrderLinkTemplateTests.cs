@@ -27,8 +27,7 @@ public class MigrationGuestOrderLinkTemplateTests
     private IServiceProvider _serviceProvider;
     private LiteDBRepositoryMock<MessageTemplate> _templates;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationGuestOrderLinkTemplateTests()
     {
         _templates = new LiteDBRepositoryMock<MessageTemplate>();
         _emailAccounts = new LiteDBRepositoryMock<EmailAccount>();

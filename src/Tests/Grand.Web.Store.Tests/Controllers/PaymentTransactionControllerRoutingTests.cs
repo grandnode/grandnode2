@@ -23,7 +23,7 @@ public class PaymentTransactionControllerRoutingTests
     [TestMethod]
     public void StorePaymentTransactionController_HasAreaAttributeWithStoreArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(typeof(PaymentTransactionController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(typeof(PaymentTransactionController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(Constants.AreaStore, areaAttr.RouteValue);
     }

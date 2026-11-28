@@ -25,8 +25,7 @@ public class CustomerActivityAttributeTests
     private Mock<IWorkContext> _workContext;
     private Mock<IGuestCustomerPersistence> _persistence;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerActivityAttributeTests()
     {
         //the test App_Data/Settings.cfg has a connection string, so the filter sees an installed database
         DataSettingsManager.Initialize(Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile));
@@ -48,12 +47,12 @@ public class CustomerActivityAttributeTests
         httpContext.Connection.RemoteIpAddress = IPAddress.Parse("10.0.0.1");
         var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
         var executing = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(),
-            new Dictionary<string, object>(), null);
+            new Dictionary<string, object?>(), new object());
         var filter = new CustomerActivityAttribute.CustomerActivityFilter(_customerService.Object,
             _contextAccessor.Object, new CustomerSettings { StoreLastVisitedPage = true }, _persistence.Object);
 
         await filter.OnActionExecutionAsync(executing,
-            () => Task.FromResult(new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), null)));
+            () => Task.FromResult(new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), new object())));
     }
 
     [TestMethod]

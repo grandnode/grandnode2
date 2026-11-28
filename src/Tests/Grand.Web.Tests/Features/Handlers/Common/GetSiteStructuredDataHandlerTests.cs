@@ -19,8 +19,7 @@ public class GetSiteStructuredDataHandlerTests
     private StoreInformationSettings _storeInformationSettings;
     private GetSiteStructuredDataHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetSiteStructuredDataHandlerTests()
     {
         _countryServiceMock = new Mock<ICountryService>();
         _countryServiceMock.Setup(x => x.GetAllCountriesForShipping(It.IsAny<string>(), "store-1", false))
@@ -62,6 +61,7 @@ public class GetSiteStructuredDataHandlerTests
 
         var result = await _handler.Handle(new GetSiteStructuredData { Store = _store }, default);
 
+        Assert.IsNotNull(result.ReturnPolicy);
         Assert.IsTrue(result.ReturnPolicy.UnlimitedWindow);
     }
 
@@ -74,6 +74,7 @@ public class GetSiteStructuredDataHandlerTests
 
         var result = await _handler.Handle(new GetSiteStructuredData { Store = _store }, default);
 
+        Assert.IsNotNull(result.ReturnPolicy);
         Assert.AreEqual("https://schema.org/FreeReturn", result.ReturnPolicy.ReturnFees);
         Assert.AreEqual("https://schema.org/ReturnByMail", result.ReturnPolicy.ReturnMethod);
     }
@@ -85,6 +86,7 @@ public class GetSiteStructuredDataHandlerTests
 
         var result = await _handler.Handle(new GetSiteStructuredData { Store = _store }, default);
 
+        Assert.IsNotNull(result.ReturnPolicy);
         Assert.IsNull(result.ReturnPolicy.ReturnFees);
         Assert.IsNull(result.ReturnPolicy.ReturnMethod);
     }
@@ -98,6 +100,7 @@ public class GetSiteStructuredDataHandlerTests
 
         var result = await _handler.Handle(new GetSiteStructuredData { Store = _store }, default);
 
+        Assert.IsNotNull(result.ReturnPolicy);
         Assert.AreEqual(14, result.ReturnPolicy.ReturnDays);
     }
 
@@ -109,6 +112,7 @@ public class GetSiteStructuredDataHandlerTests
 
         var result = await _handler.Handle(new GetSiteStructuredData { Store = _store }, default);
 
+        Assert.IsNotNull(result.ReturnPolicy);
         Assert.IsNull(result.ReturnPolicy.ReturnDays);
     }
 }

@@ -12,7 +12,7 @@ public class OrderExtensionsTests
     public void IsDownloadAllowed_ReturnExpectedResult()
     {
         var order1 = new Order { PaymentStatusId = PaymentStatus.Paid, PaidDateUtc = DateTime.UtcNow };
-        Order order2 = null;
+        Order? order2 = null;
         var product1 = new Product
             { DownloadActivationTypeId = DownloadActivationType.WhenOrderIsPaid, IsDownload = true };
         var product2 = new Product { DownloadActivationTypeId = DownloadActivationType.Manually, IsDownload = true };
@@ -21,9 +21,9 @@ public class OrderExtensionsTests
 
         Assert.IsTrue(order1.IsDownloadAllowed(orderItem, product1));
         Assert.IsTrue(order1.IsDownloadAllowed(orderItem, product2));
-        Assert.IsFalse(order1.IsDownloadAllowed(null, product1));
+        Assert.IsFalse(order1.IsDownloadAllowed(null!, product1));
         Assert.IsFalse(order1.IsDownloadAllowed(orderItem, null));
-        Assert.IsFalse(order1.IsDownloadAllowed(null, null));
+        Assert.IsFalse(order1.IsDownloadAllowed(null!, null));
         Assert.IsFalse(order1.IsDownloadAllowed(orderItem, product3));
         Assert.IsFalse(order2.IsDownloadAllowed(orderItem, product2));
     }
@@ -32,7 +32,7 @@ public class OrderExtensionsTests
     public void IsLicenseDownloadAllowed_ReturnExpectedResults()
     {
         var order1 = new Order { PaymentStatusId = PaymentStatus.Paid, PaidDateUtc = DateTime.UtcNow };
-        Order order2 = null;
+        Order? order2 = null;
         var product1 = new Product
             { DownloadActivationTypeId = DownloadActivationType.WhenOrderIsPaid, IsDownload = true };
         var product2 = new Product { DownloadActivationTypeId = DownloadActivationType.Manually, IsDownload = true };
@@ -59,7 +59,8 @@ public class OrderExtensionsTests
     [TestMethod]
     public void HasItemsToAddToShipment_NullOrder_ThrowException()
     {
-        Order order = null;
+        //null exercises the guard of the method under test
+        Order order = null!;
         Assert.ThrowsExactly<ArgumentNullException>(() => order.HasItemsToAddToShipment());
     }
 
@@ -77,7 +78,8 @@ public class OrderExtensionsTests
     [TestMethod]
     public void OrderTagExists_NullOrder_ThrowException()
     {
-        Order order = null;
+        //null exercises the guard of the method under test
+        Order order = null!;
         Assert.ThrowsExactly<ArgumentNullException>(() => order.HasItemsToAddToShipment());
     }
 }

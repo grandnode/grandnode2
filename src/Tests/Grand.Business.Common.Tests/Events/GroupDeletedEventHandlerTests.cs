@@ -22,8 +22,7 @@ public class GroupDeletedEventHandlerTests
 
     private IRepository<Customer> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public GroupDeletedEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Customer>();
         _product = new MongoDBRepositoryTest<Product>();

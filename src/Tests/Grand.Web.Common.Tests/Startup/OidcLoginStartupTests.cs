@@ -12,7 +12,7 @@ public class OidcLoginStartupTests
 {
     private static ServiceCollection ConfigureServices(string authority, string clientId)
     {
-        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string> {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
             ["OidcResourceServer:Enabled"] = "true",
             ["OidcResourceServer:Authority"] = authority,
             ["OidcLogin:ClientId"] = clientId
@@ -22,7 +22,7 @@ public class OidcLoginStartupTests
         return services;
     }
 
-    private static ServiceDescriptor Find(IServiceCollection services, Type serviceType) =>
+    private static ServiceDescriptor? Find(IServiceCollection services, Type serviceType) =>
         services.SingleOrDefault(x => x.ServiceType == serviceType);
 
     [TestMethod]
@@ -33,7 +33,7 @@ public class OidcLoginStartupTests
         Assert.AreEqual(typeof(OidcLoginProvider), Find(services, typeof(IExternalAuthenticationProvider))?.ImplementationType);
         Assert.AreEqual(typeof(OidcTokenRefresher), Find(services, typeof(IOidcTokenRefresher))?.ImplementationType);
         Assert.AreEqual(typeof(OidcSignOutProvider), Find(services, typeof(IExternalSignOutProvider))?.ImplementationType);
-        Assert.AreEqual(ServiceLifetime.Scoped, Find(services, typeof(IExternalAuthenticationProvider)).Lifetime);
+        Assert.AreEqual(ServiceLifetime.Scoped, Find(services, typeof(IExternalAuthenticationProvider))?.Lifetime);
         Assert.AreEqual(ServiceLifetime.Singleton, Find(services, typeof(OidcLogoutTokenValidator))?.Lifetime);
         Assert.AreEqual(ServiceLifetime.Scoped, Find(services, typeof(OidcProfileSynchronizer))?.Lifetime);
     }

@@ -23,8 +23,7 @@ public class PersistGuestCustomerAttributeTests
     private readonly List<string> _order = [];
     private Mock<IGuestCustomerPersistence> _persistence;
 
-    [TestInitialize]
-    public void Setup()
+    public PersistGuestCustomerAttributeTests()
     {
         //the test App_Data/Settings.cfg has a connection string, so the filters see an installed database
         DataSettingsManager.Initialize(Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile));
@@ -40,11 +39,11 @@ public class PersistGuestCustomerAttributeTests
         httpContext.Request.QueryString = new QueryString(query);
         var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
         var executing = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(),
-            new Dictionary<string, object>(), null);
+            new Dictionary<string, object?>(), new object());
         return (executing, () =>
         {
             onAction();
-            return Task.FromResult(new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), null));
+            return Task.FromResult(new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), new object()));
         });
     }
 

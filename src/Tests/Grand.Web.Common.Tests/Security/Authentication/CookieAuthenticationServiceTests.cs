@@ -34,8 +34,7 @@ public class CookieAuthenticationServiceTests
     private Mock<IOidcLinkService> _linkService;
     private IDataProtectionProvider _dataProtectionProvider;
 
-    [TestInitialize]
-    public void Init()
+    public CookieAuthenticationServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
 
@@ -81,7 +80,7 @@ public class CookieAuthenticationServiceTests
     public async Task SignIn_NullCustomer_ThrowException()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () =>
-            await _cookieAuthService.SignIn(null, false));
+            await _cookieAuthService.SignIn(null!, false));
     }
 
 
@@ -118,12 +117,13 @@ public class CookieAuthenticationServiceTests
         var principals =
             new ClaimsPrincipal(new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme));
         _authServiceMock.Setup(c => c.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
-            .Returns(() => Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
+            .ReturnsAsync(() => AuthenticateResult.Success(new AuthenticationTicket(principals, "")));
         _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
 
         var customer = await _cookieAuthService.GetAuthenticatedCustomer();
+        Assert.IsNotNull(customer);
         Assert.AreEqual(customer.Username, expectedCustomer.Username);
     }
 
@@ -160,9 +160,9 @@ public class CookieAuthenticationServiceTests
         var principals =
             new ClaimsPrincipal(new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme));
         _authServiceMock.Setup(c => c.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
-            .Returns(() => Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
+            .ReturnsAsync(() => AuthenticateResult.Success(new AuthenticationTicket(principals, "")));
         _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
         //guest
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));
         var customer = await _cookieAuthService.GetAuthenticatedCustomer();
@@ -194,7 +194,7 @@ public class CookieAuthenticationServiceTests
     [TestMethod]
     public async Task SignIn_WithOidcSession_AddsClaim()
     {
-        ClaimsPrincipal signedIn = null;
+        ClaimsPrincipal? signedIn = null;
         _authServiceMock.Setup(x => x.SignInAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<ClaimsPrincipal>(),
                 It.IsAny<AuthenticationProperties>()))
             .Callback((HttpContext _, string _, ClaimsPrincipal p, AuthenticationProperties _) => signedIn = p)
@@ -204,7 +204,9 @@ public class CookieAuthenticationServiceTests
 
         await _cookieAuthService.SignIn(customer, false, "session-1");
 
+        Assert.IsNotNull(signedIn);
         var claim = signedIn.FindFirst(OidcSessionDefaults.SessionIdClaimType);
+        Assert.IsNotNull(claim);
         Assert.AreEqual("session-1", claim.Value);
         Assert.AreEqual("grandnode", claim.Issuer);
     }
@@ -268,7 +270,7 @@ public class CookieAuthenticationServiceTests
     public async Task GetLegacyCustomerGuid_ProtectedCookie_Null()
     {
         await _cookieAuthService.SetCustomerGuid(Guid.NewGuid());
-        var value = _httpContext.Response.Headers.SetCookie.Last().Split(";")[0].Split("=", 2)[1];
+        var value = _httpContext.Response.Headers.SetCookie.Last()?.Split(";")[0].Split("=", 2)[1];
         _httpContext.Request.Headers.Cookie = $".Grand.Customer={value}";
 
         Assert.IsNull(await _cookieAuthService.GetLegacyCustomerGuid());
@@ -461,14 +463,14 @@ public class CookieAuthenticationServiceTests
 
     private (Customer customer, Func<ClaimsPrincipal> signedIn) PrepareSignIn(string customerId)
     {
-        ClaimsPrincipal signedIn = null;
+        ClaimsPrincipal? signedIn = null;
         _authServiceMock.Setup(x => x.SignInAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<ClaimsPrincipal>(),
                 It.IsAny<AuthenticationProperties>()))
             .Callback((HttpContext _, string _, ClaimsPrincipal p, AuthenticationProperties _) => signedIn = p)
             .Returns(Task.CompletedTask);
         var customer = new Customer { Id = customerId, Email = "a@b.c" };
         customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.PasswordToken, Value = "token", StoreId = "" });
-        return (customer, () => signedIn);
+        return (customer, () => signedIn ?? throw new AssertFailedException("Nothing was signed in"));
     }
 
     //re-sign-in (password, e-mail or username change) keeps the session of a provider sign-in

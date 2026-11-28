@@ -27,8 +27,7 @@ public class MigrationMerchandiseReturnNoteStoreOwnerTemplateTests
     private IServiceProvider _serviceProvider;
     private LiteDBRepositoryMock<MessageTemplate> _templates;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationMerchandiseReturnNoteStoreOwnerTemplateTests()
     {
         _templates = new LiteDBRepositoryMock<MessageTemplate>();
         _emailAccounts = new LiteDBRepositoryMock<EmailAccount>();

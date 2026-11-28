@@ -12,7 +12,7 @@ namespace Grand.Infrastructure.Tests.Plugins.Fixtures;
 public sealed class PluginStateStoreFixture : IDisposable
 {
     private readonly LiteDatabase _database = new(new MemoryStream());
-    private readonly IPluginStateStore _previous = PluginManager.StateStore;
+    private readonly IPluginStateStore? _previous = PluginManager.StateStore;
 
     public PluginStateStoreFixture()
     {

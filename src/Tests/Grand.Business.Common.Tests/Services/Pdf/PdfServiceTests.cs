@@ -43,8 +43,7 @@ public class PdfServiceTests
     private PdfService _service;
     private Mock<IStoreFilesContext> _storeFilesContextMock;
 
-    [TestInitialize]
-    public void Init()
+    public PdfServiceTests()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _productServiceMock = new Mock<IProductService>();
@@ -222,6 +221,7 @@ public class PdfServiceTests
     {
         //Arrange
         var order = CreateOrder();
+        Assert.IsNotNull(order.BillingAddress);
         order.BillingAddress.FirstName = "中文";
         //Act
         var text = await PrintOrders([order]);
@@ -424,11 +424,11 @@ public class PdfServiceTests
     public async Task SaveOrderToBinary_StoresThePdfAsADownloadTheStorefrontCannotServe()
     {
         //Arrange
-        byte[] uploaded = null;
+        byte[]? uploaded = null;
         _storeFilesContextMock.Setup(s => s.BucketUploadFromBytes(It.IsAny<string>(), It.IsAny<byte[]>()))
             .Callback<string, byte[]>((_, bytes) => uploaded = bytes)
             .ReturnsAsync("object");
-        Download inserted = null;
+        Download? inserted = null;
         _downloadRepositoryMock.Setup(r => r.InsertAsync(It.IsAny<Download>()))
             .Callback<Download>(d => inserted = d);
         //Act
@@ -441,6 +441,7 @@ public class PdfServiceTests
         Assert.AreEqual("application/pdf", inserted.ContentType);
         //the download action rejects an empty guid, and only an owner or an admin gets past it anyway
         Assert.AreEqual(Guid.Empty, inserted.DownloadGuid);
+        Assert.IsNotNull(uploaded);
         using var pdf = PdfDocument.Open(uploaded);
         Assert.AreEqual(1, pdf.NumberOfPages);
     }
@@ -640,6 +641,7 @@ public class PdfServiceTests
     {
         var order = CreateOrder();
         var merchandiseReturn = ReturnOf(order);
+        Assert.IsNotNull(merchandiseReturn.ReturnShipping);
         merchandiseReturn.ReturnShipping.ReturnAddress = null;
         merchandiseReturn.ReturnShipping.DropOffPoint = new ReturnDropOffPoint
             { Name = "Shop Piotrkowska", OpeningHours = "Mon-Fri 9-17" };

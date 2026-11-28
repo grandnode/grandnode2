@@ -19,8 +19,7 @@ public class SubAccountEditValidatorTests
     private Mock<IGroupService> _groupService;
     private SubAccountEditValidator _validator;
 
-    [TestInitialize]
-    public void Init()
+    public SubAccountEditValidatorTests()
     {
         _culture = CultureInfo.CurrentCulture;
         CultureInfo.CurrentCulture = new CultureInfo("en-US");
@@ -48,7 +47,7 @@ public class SubAccountEditValidatorTests
     [TestCleanup]
     public void Restore() => CultureInfo.CurrentCulture = _culture;
 
-    private static SubAccountEditModel Model(string email = "new@x.com") =>
+    private static SubAccountEditModel Model(string? email = "new@x.com") =>
         new() { Id = "c1", Email = email, FirstName = "A", LastName = "B" };
 
     [TestMethod]

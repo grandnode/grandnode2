@@ -10,7 +10,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedProductReviewDataScopeTests
 {
-    private static RoutedProductReviewDataScope CreateScope(string area)
+    private static RoutedProductReviewDataScope CreateScope(string? area)
     {
         var httpContext = new DefaultHttpContext();
         httpContext.Request.RouteValues = new RouteValueDictionary { ["area"] = area };

@@ -27,8 +27,7 @@ public class LoginControllerExternalSignInTests
     private Mock<IGroupService> _groupService = null!;
     private LoginController _controller = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public LoginControllerExternalSignInTests()
     {
         _externalAuthenticationService = new Mock<IExternalAuthenticationService>();
         _groupService = new Mock<IGroupService>();

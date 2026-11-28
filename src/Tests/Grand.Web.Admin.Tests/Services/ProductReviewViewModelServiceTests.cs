@@ -20,8 +20,7 @@ public class ProductReviewViewModelServiceTests
     private Mock<IProductService> _productService;
     private ProductReviewViewModelService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ProductReviewViewModelServiceTests()
     {
         _mediator = new Mock<IMediator>();
         _productReviewService = new Mock<IProductReviewService>();

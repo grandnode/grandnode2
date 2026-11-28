@@ -17,8 +17,7 @@ public class SettingServiceTests
     private Mock<IRepository<Setting>> _repositoryMock;
     private SettingService _service;
 
-    [TestInitialize]
-    public void Init()
+    public SettingServiceTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<Setting>>();
@@ -36,7 +35,7 @@ public class SettingServiceTests
     [TestMethod]
     public void InsertSetting_NullArgument_TrhowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertSetting(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertSetting(null!));
     }
 
     [TestMethod]
@@ -50,7 +49,7 @@ public class SettingServiceTests
     [TestMethod]
     public void UpdateSetting_NullArgument_TrhowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateSetting(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateSetting(null!));
     }
 
     [TestMethod]
@@ -64,7 +63,7 @@ public class SettingServiceTests
     [TestMethod]
     public void DeleteSetting_NullArgument_TrhowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteSetting(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteSetting(null!));
     }
 
     [TestMethod]
@@ -136,7 +135,9 @@ public class SettingServiceTests
     {
         var service = ServiceWithCache(Row("store1", "store", "my.key"));
 
-        Assert.AreEqual("store", (await service.GetSettingByKey<TestSettings>("My.Key", storeId: "store1")).Value);
+        var testSettings = await service.GetSettingByKey<TestSettings>("My.Key", storeId: "store1");
+        Assert.IsNotNull(testSettings);
+        Assert.AreEqual("store", testSettings.Value);
         var fallback = new TestSettings { Value = "default" };
         Assert.AreSame(fallback, await service.GetSettingByKey("missing", fallback, "store1"));
     }
@@ -173,11 +174,11 @@ public class SettingServiceTests
 
     public class TestSettings : ISettings
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     public class OtherSettings : ISettings
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 }

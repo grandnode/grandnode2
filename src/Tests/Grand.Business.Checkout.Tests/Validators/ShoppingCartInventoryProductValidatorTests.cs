@@ -19,8 +19,7 @@ public class ShoppingCartInventoryProductValidatorTests
     private Mock<IProductService> _productServiceMock;
     private ShoppingCartInventoryProductValidator _validator;
 
-    [TestInitialize]
-    public void Init()
+    public ShoppingCartInventoryProductValidatorTests()
     {
         //the resource name comes back as the message, so a test can tell the warnings apart
         var translationService = new Mock<ITranslationService>();
@@ -31,15 +30,15 @@ public class ShoppingCartInventoryProductValidatorTests
             new StockQuantityService(), new ShoppingCartSettings());
     }
 
-    private async Task<IList<string>> Validate(Product product, int quantity, Customer customer = null,
-        IList<CustomAttribute> attributes = null)
+    private async Task<IList<string>> Validate(Product product, int quantity, Customer? customer = null,
+        IList<CustomAttribute>? attributes = null)
     {
         product.OrderMinimumQuantity = 1;
         product.OrderMaximumQuantity = 100;
         var result = await _validator.ValidateAsync(new ShoppingCartInventoryProductValidatorRecord(
             customer ?? new Customer(), product,
             new ShoppingCartItem {
-                Id = "line", ProductId = product.Id, Quantity = quantity, Attributes = attributes,
+                Id = "line", ProductId = product.Id, Quantity = quantity, Attributes = attributes ?? [],
                 ShoppingCartTypeId = ShoppingCartType.ShoppingCart
             },
             Language));

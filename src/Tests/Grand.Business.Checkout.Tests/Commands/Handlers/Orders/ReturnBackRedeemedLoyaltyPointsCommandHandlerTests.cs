@@ -20,8 +20,7 @@ public class ReturnBackRedeemedLoyaltyPointsCommandHandlerTests
     private Mock<IStoreService> _storeServiceMock;
     private Mock<ITranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ReturnBackRedeemedLoyaltyPointsCommandHandlerTests()
     {
         _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();
         _translationServiceMock = new Mock<ITranslationService>();

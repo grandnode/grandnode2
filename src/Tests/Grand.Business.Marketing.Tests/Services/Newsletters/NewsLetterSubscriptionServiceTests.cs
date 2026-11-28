@@ -21,8 +21,7 @@ public class NewsLetterSubscriptionServiceTests
     private INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private Mock<IRepository<NewsLetterSubscription>> _subscriptionRepository;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public NewsLetterSubscriptionServiceTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _subscriptionRepository = new Mock<IRepository<NewsLetterSubscription>>();

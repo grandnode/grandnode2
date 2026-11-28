@@ -22,8 +22,7 @@ public class AuctionServiceTests
     private Mock<IWorkContext> _workContextMock;
     private Mock<IStoreContext> _storeContextMock;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public AuctionServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Bid>();
         _productrepository = new MongoDBRepositoryTest<Product>();
@@ -161,7 +160,7 @@ public class AuctionServiceTests
         //Act
         await _auctionService.UpdateBid(bid1);
         //Assert
-        Assert.AreEqual(12, _repository.Table.FirstOrDefault().Amount);
+        Assert.AreEqual(12, _repository.Table.First().Amount);
     }
 
     [TestMethod]
@@ -192,7 +191,7 @@ public class AuctionServiceTests
         await _auctionService.UpdateHighestBid(product, 15, "sample");
 
         //Assert
-        Assert.AreEqual(15, _productrepository.Table.FirstOrDefault(x => x.Id == product.Id).HighestBid);
+        Assert.AreEqual(15, _productrepository.Table.First(x => x.Id == product.Id).HighestBid);
     }
 
     [TestMethod]
@@ -231,7 +230,7 @@ public class AuctionServiceTests
         await _auctionService.UpdateAuctionEnded(product1, true, true);
 
         //Assert
-        Assert.IsTrue(_productrepository.Table.FirstOrDefault(x => x.Id == product1.Id).AuctionEnded);
+        Assert.IsTrue(_productrepository.Table.First(x => x.Id == product1.Id).AuctionEnded);
     }
 
     [TestMethod]

@@ -21,8 +21,7 @@ public class RoutedShipmentDataScopeTests
     private StoreShipmentDataScope _storeScope = null!;
     private VendorShipmentDataScope _vendorScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedShipmentDataScopeTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { StaffStoreId = StaffStoreId });

@@ -45,8 +45,7 @@ public class BaseCategoryControllerTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Category>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseCategoryControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<CategoryProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -57,7 +56,7 @@ public class BaseCategoryControllerTests
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Category>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         var languageServiceMock = new Mock<ILanguageService>();
         languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>())).ReturnsAsync(new List<Grand.Domain.Localization.Language>());
@@ -113,7 +112,7 @@ public class BaseCategoryControllerTests
     [TestMethod]
     public async Task ListPost_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _categoryViewModelServiceMock
             .Setup(v => v.PrepareCategoryListModel(It.IsAny<CategoryListModel>(), 1, 10))
             .ReturnsAsync((Enumerable.Empty<CategoryModel>(), 0));
@@ -129,7 +128,7 @@ public class BaseCategoryControllerTests
     [TestMethod]
     public async Task EditGet_CategoryNotFound_RedirectsToList()
     {
-        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category)null);
+        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category?)null);
 
         var result = await _controller.Edit("missing");
 
@@ -168,7 +167,7 @@ public class BaseCategoryControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.AreEqual("Widgets", ((CategoryModel)view.Model).Name);
+        Assert.AreEqual("Widgets", Assert.IsInstanceOfType<CategoryModel>(view.Model).Name);
     }
 
     // --- Edit (POST) -------------------------------------------------------------------------------
@@ -202,6 +201,7 @@ public class BaseCategoryControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("c1", redirect.RouteValues["id"]);
         _categoryViewModelServiceMock.Verify(v => v.DeleteCategory(It.IsAny<Category>()), Times.Never);
     }
@@ -226,7 +226,7 @@ public class BaseCategoryControllerTests
     [TestMethod]
     public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var inserted = new Category { Id = "new-1" };
         var submitted = new CategoryModel { Name = "N", Stores = ["explicit-store"] };
         _categoryViewModelServiceMock
@@ -258,7 +258,7 @@ public class BaseCategoryControllerTests
     [TestMethod]
     public async Task PicturePopupGet_CategoryNotFound_ReturnsNotExistContent()
     {
-        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category)null);
+        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category?)null);
 
         var result = await _controller.PicturePopup("missing");
 
@@ -286,7 +286,7 @@ public class BaseCategoryControllerTests
     [TestMethod]
     public async Task PicturePopupPost_CategoryNotFound_ThrowsArgumentException()
     {
-        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category)null);
+        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category?)null);
 
         var model = new PictureModel { ObjectId = "missing", Id = "pic-1" };
 
@@ -364,7 +364,8 @@ public class BaseCategoryControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
     }
 
@@ -387,7 +388,8 @@ public class BaseCategoryControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _categoryViewModelServiceMock.Verify(v => v.UpdateProductCategoryModel(It.IsAny<CategoryModel.CategoryProductModel>()), Times.Never);
     }
@@ -398,7 +400,7 @@ public class BaseCategoryControllerTests
         var category = new Category { Id = "c1" };
         _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
         _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var model = new CategoryModel.AddCategoryProductModel { CategoryId = "c1", SelectedProductIds = ["p1", "p2"] };
 
         await _controller.ProductAddPopup(model);
@@ -472,7 +474,7 @@ public class BaseCategoryControllerTests
     [TestMethod]
     public async Task ProductAddPopupList_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _categoryViewModelServiceMock
             .Setup(v => v.PrepareProductModel(It.IsAny<CategoryModel.AddCategoryProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
@@ -502,7 +504,8 @@ public class BaseCategoryControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _categoryViewModelServiceMock.Verify(v => v.DeleteProductCategoryModel(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
@@ -527,7 +530,7 @@ public class BaseCategoryControllerTests
     [TestMethod]
     public async Task ImportFromXlsx_GlobalScope_CallsImportManager()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var importManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IImportManager<Grand.Business.Core.Dto.CategoryDto>>();
         var fileMock = new Mock<IFormFile>();
         fileMock.Setup(f => f.Length).Returns(100);

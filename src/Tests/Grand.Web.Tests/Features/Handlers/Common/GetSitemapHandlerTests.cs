@@ -27,8 +27,7 @@ public class GetSitemapHandlerTests
     private Mock<IPageService> _pageServiceMock;
     private GetSitemapHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetSitemapHandlerTests()
     {
         _pageServiceMock = new Mock<IPageService>();
 

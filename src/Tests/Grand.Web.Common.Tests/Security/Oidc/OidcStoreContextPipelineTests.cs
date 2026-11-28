@@ -36,12 +36,13 @@ public class OidcStoreContextPipelineTests
     };
 
     private OidcTestHost _host;
-    private HttpClient _client;
+    private HttpClient? _client;
     private Mock<IOidcCustomerResolver> _resolver;
     private Mock<IWorkContextSetter> _workContextSetter;
+    //set when the test host starts
+    private HttpClient Client => _client ?? throw new InvalidOperationException("The test host has not started");
 
-    [TestInitialize]
-    public async Task Init()
+    public OidcStoreContextPipelineTests()
     {
         _resolver = new Mock<IOidcCustomerResolver>();
         _resolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
@@ -50,6 +51,11 @@ public class OidcStoreContextPipelineTests
         _workContextSetter.Setup(x => x.InitializeWorkContext(It.IsAny<string>())).ReturnsAsync(Mock.Of<IWorkContext>());
 
         _host = new OidcTestHost();
+    }
+
+    [TestInitialize]
+    public async Task Init()
+    {
         _client = await _host.Start(OidcTestHost.Config(),
             services: s =>
             {
@@ -82,12 +88,12 @@ public class OidcStoreContextPipelineTests
     [TestCleanup]
     public async Task Cleanup() => await _host.DisposeAsync();
 
-    private async Task<string> Get(string path, string token = null, string storeCookie = null)
+    private async Task<string> Get(string path, string? token = null, string? storeCookie = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, path);
         if (token != null) request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         if (storeCookie != null) request.Headers.Add("Cookie", $"{CommonHelper.StoreCookieName}={storeCookie}");
-        using var response = await _client.SendAsync(request);
+        using var response = await Client.SendAsync(request);
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadAsStringAsync();
     }

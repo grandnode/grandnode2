@@ -29,8 +29,7 @@ public class MigrationMerchandiseReturnStatusTemplatesTests
     private IServiceProvider _serviceProvider;
     private LiteDBRepositoryMock<MessageTemplate> _templates;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationMerchandiseReturnStatusTemplatesTests()
     {
         _templates = new LiteDBRepositoryMock<MessageTemplate>();
         var emailAccounts = new LiteDBRepositoryMock<EmailAccount>();

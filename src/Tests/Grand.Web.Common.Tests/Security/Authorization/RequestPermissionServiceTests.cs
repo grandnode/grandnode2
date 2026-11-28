@@ -15,8 +15,7 @@ public class RequestPermissionServiceTests
     private Mock<IPermissionService> _permissionServiceMock;
     private RequestPermissionService _service;
 
-    [TestInitialize]
-    public void Init()
+    public RequestPermissionServiceTests()
     {
         _contextAccessorMock = new Mock<IContextAccessor>();
         _permissionServiceMock = new Mock<IPermissionService>();
@@ -27,7 +26,7 @@ public class RequestPermissionServiceTests
     public async Task Authorize_SystemName_UsesCustomerOfTheRequest()
     {
         var customer = new Customer();
-        _contextAccessorMock.Setup(c => c.CurrentWorkContext.CurrentCustomer).Returns(customer);
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext).Returns(Mock.Of<IWorkContext>(w => w.CurrentCustomer == customer));
         _permissionServiceMock.Setup(x => x.Authorize("ManageProducts", customer)).ReturnsAsync(true);
 
         Assert.IsTrue(await _service.Authorize("ManageProducts"));
@@ -38,7 +37,7 @@ public class RequestPermissionServiceTests
     {
         var customer = new Customer();
         var permission = new Permission { SystemName = "ManageProducts" };
-        _contextAccessorMock.Setup(c => c.CurrentWorkContext.CurrentCustomer).Returns(customer);
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext).Returns(Mock.Of<IWorkContext>(w => w.CurrentCustomer == customer));
         _permissionServiceMock.Setup(x => x.Authorize(permission, customer)).ReturnsAsync(true);
 
         Assert.IsTrue(await _service.Authorize(permission));
@@ -47,7 +46,7 @@ public class RequestPermissionServiceTests
     [TestMethod]
     public async Task Authorize_WithoutWorkContext_PassesNoCustomer()
     {
-        _contextAccessorMock.Setup(c => c.CurrentWorkContext).Returns((IWorkContext)null);
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext).Returns((IWorkContext?)null);
 
         Assert.IsFalse(await _service.Authorize("ManageProducts"));
         Assert.IsFalse(await _service.Authorize(new Permission { SystemName = "ManageProducts" }));

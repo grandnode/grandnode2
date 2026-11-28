@@ -47,7 +47,7 @@ public static class CoreTestConfiguration
 
     public static DatabaseNamespace DatabaseNamespace { get; } = GetDatabaseNamespace();
 
-    public static TraceSource TraceSource { get; private set; }
+    public static TraceSource? TraceSource { get; private set; }
 
     // static methods
     public static ClusterBuilder ConfigureCluster()
@@ -117,7 +117,8 @@ public static class CoreTestConfiguration
     {
         var testMethodInfo = GetTestMethodInfoFromCallStack();
         var collectionName = TruncateCollectionNameIfTooLong(DatabaseNamespace,
-            testMethodInfo.DeclaringType.Name + "-" + testMethodInfo.Name);
+            (testMethodInfo.DeclaringType ?? throw new InvalidOperationException("The test method has no declaring type")).Name
+            + "-" + testMethodInfo.Name);
         return new CollectionNamespace(DatabaseNamespace, collectionName);
     }
 
@@ -149,11 +150,8 @@ public static class CoreTestConfiguration
         var stackTrace = new StackTrace();
         for (var index = 0; index < stackTrace.FrameCount; index++)
         {
-            var frame = stackTrace.GetFrame(index);
-            var methodInfo = frame.GetMethod();
-            var declaringType = methodInfo.DeclaringType;
-            var testFixtureAttribute = declaringType.GetCustomAttribute<TestFixtureAttribute>(false);
-            if (testFixtureAttribute != null) return declaringType;
+            var declaringType = stackTrace.GetFrame(index)?.GetMethod()?.DeclaringType;
+            if (declaringType?.GetCustomAttribute<TestFixtureAttribute>(false) != null) return declaringType;
         }
 
         throw new Exception("No [TestFixture] found on the call stack.");
@@ -164,8 +162,7 @@ public static class CoreTestConfiguration
         var stackTrace = new StackTrace();
         for (var index = 0; index < stackTrace.FrameCount; index++)
         {
-            var frame = stackTrace.GetFrame(index);
-            var methodInfo = frame.GetMethod() as MethodInfo;
+            var methodInfo = stackTrace.GetFrame(index)?.GetMethod() as MethodInfo;
             if (methodInfo != null)
             {
                 var testAttribute = methodInfo.GetCustomAttribute<TestAttribute>(false);

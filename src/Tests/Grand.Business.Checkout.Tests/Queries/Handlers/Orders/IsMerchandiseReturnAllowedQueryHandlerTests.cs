@@ -21,8 +21,7 @@ public class IsMerchandiseReturnAllowedQueryHandlerTests
     private OrderSettings _orderSettings;
     private Shipment _shipment;
 
-    [TestInitialize]
-    public void Init()
+    public IsMerchandiseReturnAllowedQueryHandlerTests()
     {
         _order = new Order { CreatedOnUtc = DateTime.UtcNow };
         _order.OrderItems.Add(new OrderItem { Id = "a", ProductId = "p", Quantity = 2 });

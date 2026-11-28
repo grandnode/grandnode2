@@ -11,8 +11,7 @@ public class PluginManifestReaderTests
 
     private string _folder;
 
-    [TestInitialize]
-    public void Init()
+    public PluginManifestReaderTests()
     {
         _folder = Path.Combine(Path.GetTempPath(), "grand-plugin-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_folder);
@@ -57,6 +56,7 @@ public class PluginManifestReaderTests
 
         var manifest = PluginManifestReader.Read(path);
 
+        Assert.IsNotNull(manifest);
         Assert.AreEqual("2.3", manifest.SupportedVersion);
     }
 

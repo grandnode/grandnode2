@@ -51,8 +51,7 @@ public class BaseHomeControllerTests
     private Mock<ICountryService> _countryServiceMock = null!;
     private Mock<IRequestTranslationService> _translationServiceMock = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseHomeControllerTests()
     {
         _countryServiceMock = new Mock<ICountryService>();
         _translationServiceMock = new Mock<IRequestTranslationService>();

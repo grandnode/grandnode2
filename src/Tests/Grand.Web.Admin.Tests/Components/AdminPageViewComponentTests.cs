@@ -24,8 +24,7 @@ public class AdminPageViewComponentTests
     private Mock<IHtmlSanitizationService> _sanitizerMock;
     private AdminPageViewComponent _component;
 
-    [TestInitialize]
-    public void Init()
+    public AdminPageViewComponentTests()
     {
         _pageServiceMock = new Mock<IPageService>();
         _permissionServiceMock = new Mock<IRequestPermissionService>();
@@ -40,7 +39,7 @@ public class AdminPageViewComponentTests
             _sanitizerMock.Object, contextAccessorMock.Object, NullLogger<AdminPageViewComponent>.Instance);
     }
 
-    private void SetupPage(Page page)
+    private void SetupPage(Page? page)
     {
         _pageServiceMock.Setup(x => x.GetPageBySystemName(SystemName, "")).ReturnsAsync(page);
     }

@@ -40,8 +40,7 @@ public class OidcCustomerResolverLoginTests
 
     private Mock<IOidcLinkService> _linkService;
 
-    [TestInitialize]
-    public void Init()
+    public OidcCustomerResolverLoginTests()
     {
         _linkService = new Mock<IOidcLinkService>();
         _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(true);
@@ -62,12 +61,12 @@ public class OidcCustomerResolverLoginTests
             .ReturnsAsync((Customer c) => { c.Id = "new1"; return c; });
     }
 
-    private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication> links = null) =>
+    private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication>? links = null) =>
         new(links ?? _links, _customerService.Object, _customerManagerService.Object, _settingService.Object,
             _groupService.Object, _permissionService.Object, _mediator.Object, _config, _loginConfig, _customerConfig, NullLogger<OidcCustomerResolver>.Instance, _linkService.Object);
 
     private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName,
-        string storeId = null, bool byEmail = false) =>
+        string? storeId = null, bool byEmail = false) =>
         _links.InsertAsync(new ExternalAuthentication {
             CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub, StoreId = storeId,
             LinkedByEmail = byEmail
@@ -82,7 +81,7 @@ public class OidcCustomerResolverLoginTests
 
     [TestMethod]
     public async Task NoSubject_Refused_InvalidIdentity() =>
-        Assert.AreEqual(OidcLoginRefusal.InvalidIdentity, (await Resolver().ResolveForLogin(null, "a@b.c", true, Store, Language)).Refusal);
+        Assert.AreEqual(OidcLoginRefusal.InvalidIdentity, (await Resolver().ResolveForLogin(null!, "a@b.c", true, Store, Language)).Refusal);
 
     [TestMethod]
     public async Task ProviderChanged_Linked_RefusedNothingLoaded()
@@ -111,7 +110,7 @@ public class OidcCustomerResolverLoginTests
         var customer = new Customer { Id = "c1", Active = true };
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(customer);
         await Link("c1");
-        var result = await Resolver().ResolveForLogin("sub-1", null, false, Store, Language);
+        var result = await Resolver().ResolveForLogin("sub-1", null!, false, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         Assert.AreSame(customer, result.Customer);
     }
@@ -136,6 +135,7 @@ public class OidcCustomerResolverLoginTests
         var result = await Resolver().ResolveForLogin("sub-1", "John@Example.com", true, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(link);
         Assert.AreEqual("c1", link.CustomerId);
         Assert.AreEqual(OidcCustomerResolver.ProviderSystemName, link.ProviderSystemName);
         Assert.IsTrue(link.LinkedByEmail);
@@ -273,8 +273,11 @@ public class OidcCustomerResolverLoginTests
         _customerService.Setup(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(staff);
         var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
+        Assert.IsNotNull(result.Customer);
         Assert.AreEqual("c1", result.Customer.Id);
-        Assert.IsTrue((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
+        var externalAuthentication = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(externalAuthentication);
+        Assert.IsTrue(externalAuthentication.LinkedByEmail);
     }
 
     [TestMethod]
@@ -329,6 +332,7 @@ public class OidcCustomerResolverLoginTests
         var result = await Resolver().ResolveForLogin("sub-new", "New@Shop.com", true, Store, Language);
 
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
+        Assert.IsNotNull(result.Customer);
         Assert.AreEqual("new1", result.Customer.Id);
         Assert.IsTrue(result.Customer.Active);
         _customerManagerService.Verify(x => x.RegisterCustomer(It.Is<RegistrationRequest>(r =>
@@ -459,6 +463,7 @@ public class OidcCustomerResolverLoginTests
     {
         Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "A@B.c", Store));
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(link);
         Assert.AreEqual("c1", link.CustomerId);
         Assert.AreEqual("a@b.c", link.Email);
     }
@@ -467,7 +472,9 @@ public class OidcCustomerResolverLoginTests
     public async Task LinkIdentity_NotMadeByEmail()
     {
         await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store);
-        Assert.IsFalse((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
+        var externalAuthentication = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(externalAuthentication);
+        Assert.IsFalse(externalAuthentication.LinkedByEmail);
     }
 
     [TestMethod]
@@ -476,7 +483,9 @@ public class OidcCustomerResolverLoginTests
         //the password sign-in that LinkRequired asked for stands behind the existing link
         await Link("c1", byEmail: true);
         Assert.AreEqual(OidcLinkResult.Linked, await Resolver().LinkIdentity(new Customer { Id = "c1" }, "sub-1", "a@b.c", Store));
-        Assert.IsFalse((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
+        var externalAuthentication = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(externalAuthentication);
+        Assert.IsFalse(externalAuthentication.LinkedByEmail);
     }
 
     [TestMethod]
@@ -507,8 +516,8 @@ public class OidcCustomerResolverLoginTests
     {
         var links = new Mock<IRepository<ExternalAuthentication>>();
         links.SetupSequence(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>()))
-            .ReturnsAsync((ExternalAuthentication)null) //subject not linked
-            .ReturnsAsync((ExternalAuthentication)null) //customer has no other link
+            .ReturnsAsync((ExternalAuthentication?)null) //subject not linked
+            .ReturnsAsync((ExternalAuthentication?)null) //customer has no other link
             .ReturnsAsync(new ExternalAuthentication { CustomerId = "winner", ExternalIdentifier = "sub-1" });
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new InvalidOperationException("duplicate"));
         Assert.AreEqual(OidcLinkResult.SubjectLinkedToOtherCustomer,
@@ -526,6 +535,7 @@ public class OidcCustomerResolverLoginTests
         var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
 
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
+        Assert.IsNotNull(result.Customer);
         Assert.AreEqual("c1", result.Customer.Id);
         Assert.AreEqual(Store, LinksOf("sub-1").Single(x => x.CustomerId == "c1").StoreId);
         _customerService.Verify(x => x.GetCustomerById("c9"), Times.Never);
@@ -584,6 +594,7 @@ public class OidcCustomerResolverLoginTests
         var result = await Resolver().ResolveForLogin("sub-1", "a@b.c", true, Store, Language);
 
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
+        Assert.IsNotNull(result.Customer);
         Assert.AreEqual("c1", result.Customer.Id);
         Assert.AreEqual(Store, LinksOf("sub-1").Single(x => x.CustomerId == "c1").StoreId);
         Assert.AreEqual(OidcLoginOutcome.SignIn, (await Resolver().ResolveForLogin("sub-1", "a@b.c", true, "store2", Language)).Outcome);
@@ -605,7 +616,7 @@ public class OidcCustomerResolverLoginTests
     /// </summary>
     private sealed class RacingLinks : MongoDBRepositoryTest<ExternalAuthentication>
     {
-        public Func<Task> BeforeInsert { get; set; }
+        public Func<Task>? BeforeInsert { get; set; }
 
         public override async Task<ExternalAuthentication> InsertAsync(ExternalAuthentication entity)
         {
@@ -629,7 +640,7 @@ public class OidcCustomerResolverLoginTests
     {
         var links = new Mock<IRepository<ExternalAuthentication>>();
         links.Setup(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>()))
-            .ReturnsAsync((ExternalAuthentication)null);
+            .ReturnsAsync((ExternalAuthentication?)null);
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new InvalidOperationException("duplicate"));
         links.Setup(x => x.GetByIdAsync(OidcCustomerResolver.OidcLinkId("c1"))).ReturnsAsync(new ExternalAuthentication {
             Id = OidcCustomerResolver.OidcLinkId("c1"), CustomerId = "c1",

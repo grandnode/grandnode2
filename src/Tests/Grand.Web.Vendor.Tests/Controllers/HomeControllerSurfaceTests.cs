@@ -37,7 +37,7 @@ public class HomeControllerSurfaceTests
     [TestMethod]
     public void VendorHomeController_HasAreaAttributeWithVendorArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(typeof(HomeController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(typeof(HomeController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(Constants.AreaVendor, areaAttr.RouteValue);
     }

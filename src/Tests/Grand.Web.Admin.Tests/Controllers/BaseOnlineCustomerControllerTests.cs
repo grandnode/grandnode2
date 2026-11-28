@@ -28,8 +28,8 @@ public class BaseOnlineCustomerControllerTests
         IContextAccessor contextAccessor)
         : BaseOnlineCustomerController(customerService, dateTimeService, customerSettings, translationService, contextAccessor)
     {
-        public string SalesEmployeeIdFilterOverride { get; set; }
-        protected override string SalesEmployeeIdFilter => SalesEmployeeIdFilterOverride;
+        public string? SalesEmployeeIdFilterOverride { get; set; }
+        protected override string? SalesEmployeeIdFilter => SalesEmployeeIdFilterOverride;
     }
 
     private Mock<ICustomerService> _customerServiceMock = null!;
@@ -38,8 +38,7 @@ public class BaseOnlineCustomerControllerTests
     private Mock<IContextAccessor> _contextAccessorMock = null!;
     private CustomerSettings _customerSettings = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseOnlineCustomerControllerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _dateTimeServiceMock = new Mock<IDateTimeService>();
@@ -56,7 +55,7 @@ public class BaseOnlineCustomerControllerTests
         _contextAccessorMock.Setup(c => c.WorkContext).Returns(workContext.Object);
     }
 
-    private TestOnlineCustomerController CreateController(string salesEmployeeIdFilter = null)
+    private TestOnlineCustomerController CreateController(string? salesEmployeeIdFilter = null)
     {
         return new TestOnlineCustomerController(
             _customerServiceMock.Object,
@@ -116,7 +115,8 @@ public class BaseOnlineCustomerControllerTests
         var result = await controller.List(new DataSourceRequest { Page = 1, PageSize = 10 });
 
         var gridModel = (DataSourceResult)((JsonResult)result).Value!;
-        var items = (List<OnlineCustomerModel>)gridModel.Data;
+        var items = Assert.IsInstanceOfType<List<OnlineCustomerModel>>(gridModel.Data);
+        Assert.IsNotNull(items);
         Assert.AreEqual(2, items.Count);
         Assert.AreEqual("customer@example.com", items[0].CustomerInfo);
         Assert.AreEqual("Admin.Customers.Guest", items[1].CustomerInfo);
@@ -138,7 +138,8 @@ public class BaseOnlineCustomerControllerTests
         var result = await controller.List(new DataSourceRequest { Page = 1, PageSize = 10 });
 
         var gridModel = (DataSourceResult)((JsonResult)result).Value!;
-        var items = (List<OnlineCustomerModel>)gridModel.Data;
+        var items = Assert.IsInstanceOfType<List<OnlineCustomerModel>>(gridModel.Data);
+        Assert.IsNotNull(items);
         Assert.AreEqual("Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage.Disabled", items[0].LastVisitedPage);
     }
 }

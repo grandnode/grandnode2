@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedCollectionDataScopeTests
 {
-    private static RoutedCollectionDataScope Build(string area)
+    private static RoutedCollectionDataScope Build(string? area)
     {
         var httpContext = new DefaultHttpContext();
         if (area != null)

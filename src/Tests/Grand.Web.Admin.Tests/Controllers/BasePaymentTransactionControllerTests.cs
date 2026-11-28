@@ -63,8 +63,7 @@ public class BasePaymentTransactionControllerTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BasePaymentTransactionControllerTests()
     {
         _paymentTransactionServiceMock = new Mock<IPaymentTransactionService>();
         _orderServiceMock = new Mock<IOrderService>();
@@ -144,7 +143,7 @@ public class BasePaymentTransactionControllerTests
     [TestMethod]
     public async Task List_Post_AdminScope_DoesNotForceStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         SetupSearch();
 
         var model = new PaymentTransactionListModel();
@@ -156,8 +155,9 @@ public class BasePaymentTransactionControllerTests
     [TestMethod]
     public async Task List_ListsPaymentMethodsAfterAll()
     {
-        var model = (PaymentTransactionListModel)((ViewResult)await _controller.List()).Model;
+        var model = Assert.IsInstanceOfType<PaymentTransactionListModel>(((ViewResult)await _controller.List()).Model);
 
+        Assert.IsNotNull(model);
         Assert.AreEqual(2, model.AvailablePaymentMethods.Count);
         Assert.AreEqual(" ", model.AvailablePaymentMethods[0].Value);
         Assert.AreEqual("Payments.OnAccount", model.AvailablePaymentMethods[1].Value);
@@ -195,7 +195,7 @@ public class BasePaymentTransactionControllerTests
     public async Task List_Post_UnknownOrderNumber_ReturnsEmptyWithoutSearching()
     {
         SetupSearch();
-        _orderServiceMock.Setup(s => s.GetOrderByNumber(999)).ReturnsAsync((Order)null);
+        _orderServiceMock.Setup(s => s.GetOrderByNumber(999)).ReturnsAsync((Order?)null);
         var command = new DataSourceRequest { Page = 1, PageSize = int.MaxValue };
 
         foreach (var orderNumber in new[] { "999", "abc" })
@@ -282,7 +282,7 @@ public class BasePaymentTransactionControllerTests
 
         Assert.IsNotNull(result);
         Assert.AreEqual("Edit", result!.ActionName);
-        Assert.AreEqual("pt-1", result!.RouteValues["id"]);
+        Assert.AreEqual("pt-1", result!.RouteValues?["id"]);
     }
 
     [TestMethod]
@@ -323,7 +323,7 @@ public class BasePaymentTransactionControllerTests
         Assert.AreEqual(80, model.MaxAmountToRefund);
     }
 
-    private async Task<PaymentTransactionModel> EditModel(PaymentTransaction transaction, Order order)
+    private async Task<PaymentTransactionModel?> EditModel(PaymentTransaction transaction, Order? order)
     {
         _paymentTransactionServiceMock.Setup(s => s.GetById(transaction.Id)).ReturnsAsync(transaction);
         _orderServiceMock.Setup(s => s.GetOrderByGuid(transaction.OrderGuid)).ReturnsAsync(order);
@@ -331,7 +331,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.Edit(transaction.Id) as ViewResult;
 
         Assert.IsNotNull(result);
-        return (PaymentTransactionModel)result!.Model;
+        return Assert.IsInstanceOfType<PaymentTransactionModel>(result!.Model);
     }
 
     [TestMethod]
@@ -346,6 +346,7 @@ public class BasePaymentTransactionControllerTests
             Temp = true, UpdatedOnUtc = new DateTime(2026, 11, 19, 8, 0, 0, DateTimeKind.Utc)
         }, null);
 
+        Assert.IsNotNull(model);
         Assert.AreEqual(4.2, model.CurrencyRate);
         Assert.AreEqual("A1", model.AuthorizationTransactionCode);
         Assert.AreEqual("ok", model.AuthorizationTransactionResult);
@@ -363,14 +364,20 @@ public class BasePaymentTransactionControllerTests
     {
         var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 40 };
 
-        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountDue);
+        var paymentTransactionModel = await EditModel(transaction, null);
+        Assert.IsNotNull(paymentTransactionModel);
+        Assert.AreEqual(0, paymentTransactionModel.AmountDue);
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default)).ReturnsAsync(true);
-        Assert.AreEqual(60, (await EditModel(transaction, null)).AmountDue);
+        var paymentTransactionModel2 = await EditModel(transaction, null);
+        Assert.IsNotNull(paymentTransactionModel2);
+        Assert.AreEqual(60, paymentTransactionModel2.AmountDue);
 
         //a checkout never completed owes nothing
         transaction.Temp = true;
-        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountDue);
+        var paymentTransactionModel3 = await EditModel(transaction, null);
+        Assert.IsNotNull(paymentTransactionModel3);
+        Assert.AreEqual(0, paymentTransactionModel3.AmountDue);
     }
 
     [TestMethod]
@@ -378,10 +385,13 @@ public class BasePaymentTransactionControllerTests
     {
         var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 40, RefundedAmount = 10 };
 
-        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountRefundable);
+        var paymentTransactionModel = await EditModel(transaction, null);
+        Assert.IsNotNull(paymentTransactionModel);
+        Assert.AreEqual(0, paymentTransactionModel.AmountRefundable);
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<CanPartiallyRefundOfflineQuery>(), default)).ReturnsAsync(true);
         var model = await EditModel(transaction, null);
+        Assert.IsNotNull(model);
         Assert.AreEqual(90, model.AmountRefundable);
         Assert.AreEqual(model.MaxAmountToRefund, model.AmountRefundable);
     }
@@ -395,6 +405,7 @@ public class BasePaymentTransactionControllerTests
         var model = await EditModel(new PaymentTransaction { Id = "pt-1", TransactionAmount = 1, PaidAmount = 0.7 + 0.1 + 0.1 + 0.1 },
             null);
 
+        Assert.IsNotNull(model);
         Assert.AreEqual(0, model.AmountDue);
         Assert.AreEqual(0, model.MaxAmountToPaid);
     }
@@ -410,6 +421,7 @@ public class BasePaymentTransactionControllerTests
             BillingAddress = new Address { Company = "", FirstName = "Jan", LastName = "Nowak" }
         });
 
+        Assert.IsNotNull(model);
         Assert.AreEqual("Pending", model.OrderStatus);
         Assert.AreEqual("Partially paid", model.OrderPaymentStatus);
         Assert.AreEqual(100, model.OrderTotal);
@@ -424,6 +436,7 @@ public class BasePaymentTransactionControllerTests
             Id = "order-1", BillingAddress = new Address { Company = "ACME", FirstName = "Jan", LastName = "Nowak" }
         });
 
+        Assert.IsNotNull(model);
         Assert.AreEqual("ACME", model.BillingName);
     }
 
@@ -432,11 +445,15 @@ public class BasePaymentTransactionControllerTests
     {
         var transaction = new PaymentTransaction { Id = "pt-1", StoreId = "s1" };
 
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        Assert.AreEqual("Main", (await EditModel(transaction, null)).StoreName);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
+        var paymentTransactionModel = await EditModel(transaction, null);
+        Assert.IsNotNull(paymentTransactionModel);
+        Assert.AreEqual("Main", paymentTransactionModel.StoreName);
 
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("s1");
-        Assert.IsNull((await EditModel(transaction, null)).StoreName);
+        var paymentTransactionModel2 = await EditModel(transaction, null);
+        Assert.IsNotNull(paymentTransactionModel2);
+        Assert.IsNull(paymentTransactionModel2.StoreName);
     }
 
     [TestMethod]
@@ -446,6 +463,7 @@ public class BasePaymentTransactionControllerTests
             new PaymentTransaction { Id = "pt-1", OrderGuid = Guid.NewGuid(), PaymentMethodSystemName = "Payments.Gone" },
             null);
 
+        Assert.IsNotNull(model);
         Assert.IsNull(model.OrderStatus);
         Assert.IsNull(model.OrderTotal);
         Assert.IsNull(model.BillingName);
@@ -475,7 +493,7 @@ public class BasePaymentTransactionControllerTests
 
         Assert.IsNotNull(result);
         Assert.AreEqual("Edit", result!.ActionName);
-        Assert.AreEqual("pt-1", result!.RouteValues["id"]);
+        Assert.AreEqual("pt-1", result!.RouteValues?["id"]);
     }
 
     [TestMethod]
@@ -521,7 +539,7 @@ public class BasePaymentTransactionControllerTests
         _mediatorMock.Verify(m => m.Send(It.IsAny<PartiallyRefundOfflineCommand>(), default), Times.Never);
     }
 
-    private Order SetupOrder(string purchaseOrderNumber, DateTime? dueDate)
+    private Order SetupOrder(string? purchaseOrderNumber, DateTime? dueDate)
     {
         var orderGuid = Guid.NewGuid();
         var order = new Order {

@@ -160,33 +160,33 @@ public class LiteDBMapperWarmupTests
 
     private interface IWarmContract
     {
-        string Code { get; set; }
+        string? Code { get; set; }
     }
 
     private abstract class WarmBase
     {
-        public string Key { get; set; }
+        public string? Key { get; set; }
     }
 
     private class WarmRoot : WarmBase, IWarmContract, IDisposable
     {
-        public string Code { get; set; }
+        public string? Code { get; set; }
         public void Dispose() { }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public DateTime Created { get; set; }
         public WarmKind Kind { get; set; }
-        public Uri Link { get; set; }
+        public Uri? Link { get; set; }
         public IList<WarmListItem> Items { get; set; } = new List<WarmListItem>();
-        public WarmArrayItem[] Array { get; set; }
-        public Dictionary<string, WarmDictionaryValue> Values { get; set; }
+        public WarmArrayItem[]? Array { get; set; }
+        public Dictionary<string, WarmDictionaryValue>? Values { get; set; }
         public WarmStruct? Maybe { get; set; }
         //a type that contains itself must not loop forever
-        public WarmRoot Parent { get; set; }
+        public WarmRoot? Parent { get; set; }
     }
 
     private class WarmListItem
     {
-        public WarmDeep Deep { get; set; }
+        public WarmDeep? Deep { get; set; }
     }
 
     private class WarmArrayItem;

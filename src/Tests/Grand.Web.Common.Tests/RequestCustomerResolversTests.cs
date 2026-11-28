@@ -45,7 +45,9 @@ public class RequestCustomerResolversTests
 
         var resolver = new AllowAnonymousCustomerResolver(AccessorWith(context), customers.Object);
 
-        Assert.AreEqual("anonymous", (await resolver.Resolve()).Id);
+        var customer = await resolver.Resolve();
+        Assert.IsNotNull(customer);
+        Assert.AreEqual("anonymous", customer.Id);
     }
 
     [TestMethod]
@@ -66,7 +68,9 @@ public class RequestCustomerResolversTests
 
         var resolver = new CookieCustomerResolver(authentication.Object);
 
-        Assert.AreEqual("cookie", (await resolver.Resolve()).Id);
+        var customer = await resolver.Resolve();
+        Assert.IsNotNull(customer);
+        Assert.AreEqual("cookie", customer.Id);
     }
 
     [TestMethod]
@@ -184,7 +188,9 @@ public class RequestCustomerResolversTests
         var resolver = new SearchEngineCustomerResolver(classifier.Object, customers.Object,
             AccessorWith(new DefaultHttpContext()));
 
-        Assert.AreEqual("crawler", (await resolver.Resolve()).Id);
+        var customer = await resolver.Resolve();
+        Assert.IsNotNull(customer);
+        Assert.AreEqual("crawler", customer.Id);
     }
 
     [TestMethod]
@@ -224,7 +230,9 @@ public class RequestCustomerResolversTests
         var resolver = new ApiUserCustomerResolver(Mock.Of<IApiAuthenticationService>(), AccessorWith(context),
             customers.Object);
 
-        Assert.AreEqual("anonymous", (await resolver.Resolve()).Id);
+        var customer = await resolver.Resolve();
+        Assert.IsNotNull(customer);
+        Assert.AreEqual("anonymous", customer.Id);
     }
 
     [TestMethod]
@@ -251,7 +259,9 @@ public class RequestCustomerResolversTests
         var resolver = new ApiUserCustomerResolver(api.Object, AccessorWith(new DefaultHttpContext()),
             Mock.Of<ICustomerService>());
 
-        Assert.AreEqual("api", (await resolver.Resolve()).Id);
+        var customer = await resolver.Resolve();
+        Assert.IsNotNull(customer);
+        Assert.AreEqual("api", customer.Id);
     }
 
     [TestMethod]
@@ -288,7 +298,7 @@ public class RequestCustomerResolversTests
         customers.Verify(c => c.GetCustomerByGuid(It.IsAny<Guid>()), Times.Never);
     }
 
-    private static IHttpContextAccessor AccessorWith(HttpContext context)
+    private static IHttpContextAccessor AccessorWith(HttpContext? context)
     {
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.Setup(a => a.HttpContext).Returns(context);

@@ -14,8 +14,7 @@ public class ScimCustomerDeletedEventHandlerTests
     private IRepository<ScimGroup> _groups;
     private ScimCustomerDeletedEventHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public ScimCustomerDeletedEventHandlerTests()
     {
         _users = new MongoDBRepositoryTest<ScimUser>();
         _groups = new MongoDBRepositoryTest<ScimGroup>();

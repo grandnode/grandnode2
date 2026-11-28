@@ -41,7 +41,7 @@ public class CustomerNoteControllerTests : CustomerControllerTestsBase<CustomerN
     [TestMethod]
     public async Task CustomerNoteAdd_CustomerOutOfScope_ReturnsFalse_NothingInserted()
     {
-        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.CustomerNoteAdd("missing", "", false, "title", "message");
 

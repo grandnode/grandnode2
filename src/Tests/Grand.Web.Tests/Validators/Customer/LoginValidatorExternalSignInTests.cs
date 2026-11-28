@@ -30,8 +30,7 @@ public class LoginValidatorExternalSignInTests
     private Mock<IExternalAuthenticationProvider> _provider;
     private Mock<IRequestTranslationService> _translation;
 
-    [TestInitialize]
-    public void Init()
+    public LoginValidatorExternalSignInTests()
     {
         _policy = new Mock<IExternalSignInPolicy>();
         _policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))

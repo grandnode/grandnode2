@@ -42,8 +42,7 @@ public class LoginControllerTwoFactorTests
     private TestSession _session = null!;
     private LoginController _controller = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public LoginControllerTwoFactorTests()
     {
         _customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.TwoFactorEnabled, Value = "True", StoreId = "" });
         _manager = new Mock<ICustomerManagerService>();

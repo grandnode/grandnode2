@@ -24,8 +24,7 @@ public class StartupHealthCheckTests
 
     private string _settingsPath = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public StartupHealthCheckTests()
     {
         InstanceField.SetValue(null, null);
         _settingsPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.txt");

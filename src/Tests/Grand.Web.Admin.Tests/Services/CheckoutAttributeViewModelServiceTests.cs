@@ -22,8 +22,7 @@ public class CheckoutAttributeViewModelServiceTests
     private Mock<ICheckoutAttributeService> _checkoutAttributeServiceMock;
     private CheckoutAttributeViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public CheckoutAttributeViewModelServiceTests()
     {
         _checkoutAttributeServiceMock = new Mock<ICheckoutAttributeService>();
         var parserMock = new Mock<ICheckoutAttributeParser>();

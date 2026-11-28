@@ -14,8 +14,7 @@ public class HistoryServiceTests
     private IHistoryService _historyService;
     private Mock<IRepository<HistoryObject>> _mockHistoryRepository;
 
-    [TestInitialize]
-    public void Init()
+    public HistoryServiceTests()
     {
         _mockHistoryRepository = new Mock<IRepository<HistoryObject>>();
         _historyService = new HistoryService(_mockHistoryRepository.Object);
@@ -24,7 +23,7 @@ public class HistoryServiceTests
     [TestMethod]
     public void SaveObject_NullObject_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _historyService.SaveObject<Product>(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _historyService.SaveObject<Product>(null!),
             "entity");
     }
 
@@ -33,7 +32,7 @@ public class HistoryServiceTests
     {
         var product = new Product { Id = "1" };
         await _historyService.SaveObject(product);
-        _mockHistoryRepository.Verify(c => c.InsertAsync(It.Is<HistoryObject>(h => h.Object.Id.Equals(product.Id))),
+        _mockHistoryRepository.Verify(c => c.InsertAsync(It.Is<HistoryObject>(h => h.Object != null && h.Object.Id.Equals(product.Id))),
             Times.Once);
     }
 }

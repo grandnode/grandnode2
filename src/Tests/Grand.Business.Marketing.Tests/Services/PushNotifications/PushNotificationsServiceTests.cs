@@ -23,8 +23,7 @@ public class PushNotificationsServiceTests
     private IRepository<PushRegistration> _repositoryPushRegistration;
 
 
-    [TestInitialize]
-    public void Init()
+    public PushNotificationsServiceTests()
     {
         _repositoryPushRegistration = new MongoDBRepositoryTest<PushRegistration>();
         _repositoryPushMessage = new MongoDBRepositoryTest<PushMessage>();
@@ -99,7 +98,7 @@ public class PushNotificationsServiceTests
         await _pushNotificationsService.UpdatePushReceiver(pushRegistration);
 
         //Assert
-        Assert.IsTrue(_repositoryPushRegistration.Table.FirstOrDefault(x => x.Id == pushRegistration.Id).Allowed);
+        Assert.IsTrue(_repositoryPushRegistration.Table.First(x => x.Id == pushRegistration.Id).Allowed);
     }
 
     [TestMethod]
@@ -232,7 +231,7 @@ public class PushNotificationsServiceTests
             .Returns(async (HttpRequestMessage request, CancellationToken ct) => {
                 using var body = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(ct));
                 var ids = body.RootElement.GetProperty("registration_ids").EnumerateArray()
-                    .Select(x => x.GetString()).ToArray();
+                    .Select(x => x.GetString() ?? "").ToArray();
                 requests.Add(ids);
                 return new HttpResponseMessage(HttpStatusCode.OK) {
                     Content = new StringContent(JsonSerializer.Serialize(new JsonResponse { success = ids.Length }))

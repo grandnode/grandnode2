@@ -14,8 +14,7 @@ public class StoreContextSetterTests
     private Mock<ISettingService> _settingServiceMock;
     private StoreContextSetter _setter;
 
-    [TestInitialize]
-    public void Setup()
+    public StoreContextSetterTests()
     {
         _storeServiceMock = new Mock<IStoreService>();
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());

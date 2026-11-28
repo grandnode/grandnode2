@@ -29,8 +29,7 @@ public class CurrencyServiceTests
     private Mock<IRepository<Currency>> tempCurrencyRepository;
     private Mock<IMediator> tempEventPublisher;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public CurrencyServiceTests()
     {
         var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
@@ -151,8 +150,8 @@ public class CurrencyServiceTests
     [TestMethod]
     public void ConvertToPrimaryExchangeRateCurrency_CannotLoadPrimaryExchange_ThrowException()
     {
-        _cacheManager.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Currency>>>()))
-            .Returns(Task.FromResult<Currency>(null));
+        _cacheManager.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Currency?>>>()))
+            .Returns(Task.FromResult<Currency?>(null));
         Assert.ThrowsExactlyAsync<Exception>(async () =>
             await _currencyService.ConvertToPrimaryExchangeRateCurrency(100, currencyEUR));
     }
@@ -164,6 +163,7 @@ public class CurrencyServiceTests
         _cacheManager.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Currency>>>()))
             .Returns(Task.FromResult(currencyUSD));
         var result = await _currencyService.GetPrimaryStoreCurrency();
+        Assert.IsNotNull(result);
         Assert.AreEqual(result.Id, currencyUSD.Id);
     }
 

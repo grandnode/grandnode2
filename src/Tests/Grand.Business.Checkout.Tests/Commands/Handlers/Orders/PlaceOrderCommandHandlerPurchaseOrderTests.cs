@@ -38,8 +38,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
     private TestHandler _handler;
     private Mock<IPaymentProvider> _provider;
 
-    [TestInitialize]
-    public void Init()
+    public PlaceOrderCommandHandlerPurchaseOrderTests()
     {
         var placementService = new Mock<IOrderPlacementService>();
         var translation = new Mock<ITranslationService>();
@@ -99,6 +98,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
         var result = await _handler.Handle(_command, CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(_handler.LastHeader);
         Assert.AreEqual("PO-2026/17", _handler.LastHeader.PurchaseOrderNumber);
     }
 
@@ -110,6 +110,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
         var result = await _handler.Handle(_command, CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(_handler.LastHeader);
         Assert.IsNull(_handler.LastHeader.PurchaseOrderNumber);
     }
 
@@ -122,6 +123,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
         var result = await _handler.Handle(_command, CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(_handler.LastHeader);
         Assert.IsNull(_handler.LastHeader.PurchaseOrderNumber);
     }
 
@@ -134,6 +136,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
         var result = await _handler.Handle(_command, CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(_handler.LastHeader);
         Assert.AreEqual(due, _handler.LastHeader.PaymentDueDateUtc);
     }
 
@@ -143,6 +146,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
         var result = await _handler.Handle(_command, CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(_handler.LastHeader);
         Assert.IsNull(_handler.LastHeader.PaymentDueDateUtc);
     }
 
@@ -175,7 +179,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
 
         public int PaymentCalls { get; private set; }
         public DateTime? PaymentDueDateUtc { get; set; }
-        public Order LastHeader { get; private set; }
+        public Order? LastHeader { get; private set; }
 
         protected override Task<PlaceOrderContainer> PreparePlaceOrderDetails(PlaceOrderCommand command)
         {

@@ -25,12 +25,11 @@ public class CustomerMessageProviderServiceOrderApprovalTests
     private readonly Store _store = new() { Id = "store1", Url = "https://store.example/" };
     private Mock<IMediator> _mediatorMock;
     private Mock<IMessageTemplateService> _messageTemplateServiceMock;
-    private QueuedEmail _queued;
+    private QueuedEmail? _queued;
     private Mock<IQueuedEmailService> _queuedEmailServiceMock;
     private CustomerMessageProviderService _service;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerMessageProviderServiceOrderApprovalTests()
     {
         _messageTemplateServiceMock = new Mock<IMessageTemplateService>();
         _queuedEmailServiceMock = new Mock<IQueuedEmailService>();
@@ -89,6 +88,7 @@ public class CustomerMessageProviderServiceOrderApprovalTests
 
         await _service.SendOrderApprovalDecidedMessage(_approval, guest, _store, "en", null, "guest@example.com");
 
+        Assert.IsNotNull(_queued);
         Assert.AreEqual("guest@example.com", _queued.To);
     }
 
@@ -101,6 +101,7 @@ public class CustomerMessageProviderServiceOrderApprovalTests
             "Sales", "Admin", "en");
 
         Assert.AreEqual(1, result);
+        Assert.IsNotNull(_queued);
         Assert.AreEqual("sales@example.com", _queued.To);
         Assert.AreEqual("Sales", _queued.ToName);
     }
@@ -112,6 +113,7 @@ public class CustomerMessageProviderServiceOrderApprovalTests
 
         await _service.SendOrderApprovalStaffMessage(_approval, _buyer, _store, null, null, "Admin", "en");
 
+        Assert.IsNotNull(_queued);
         Assert.AreEqual("shop@example.com", _queued.To);
         Assert.AreEqual("Shop", _queued.ToName);
     }
@@ -165,6 +167,7 @@ public class CustomerMessageProviderServiceOrderApprovalTests
 
         //Assert
         Assert.AreEqual(1, result);
+        Assert.IsNotNull(_queued);
         Assert.AreEqual("buyer@example.com", _queued.To);
         Assert.AreEqual(Reference.Customer, _queued.Reference);
         Assert.AreEqual("buyer1", _queued.ObjectId);
@@ -197,13 +200,13 @@ public class CustomerMessageProviderServiceOrderApprovalTests
 
         //Assert
         _mediatorMock.Verify(x => x.Send(
-            It.Is<GetOrderApprovalTokensCommand>(c => c.Host.Url == "https://primary.example/"), default), Times.Once);
+            It.Is<GetOrderApprovalTokensCommand>(c => c.Host != null && c.Host.Url == "https://primary.example/"), default), Times.Once);
     }
 
     [TestMethod]
     public async Task SendRequested_NullApproval_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            _service.SendOrderApprovalRequestedMessage(null, _buyer, _approver, _store, "en"));
+            _service.SendOrderApprovalRequestedMessage(null!, _buyer, _approver, _store, "en"));
     }
 }

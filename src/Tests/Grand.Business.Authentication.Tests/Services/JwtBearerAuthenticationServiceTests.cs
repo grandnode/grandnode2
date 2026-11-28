@@ -22,8 +22,7 @@ public class JwtBearerAuthenticationServiceTests
     private Mock<IUserApiService> _userApiServiceMock;
     private OidcLoginConfig _oidcLoginConfig;
 
-    [TestInitialize]
-    public void Init()
+    public JwtBearerAuthenticationServiceTests()
     {
         _customerService = new Mock<ICustomerService>();
         _userApiServiceMock = new Mock<IUserApiService>();
@@ -75,7 +74,7 @@ public class JwtBearerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult<Customer>(null));
+            .Returns(() => Task.FromResult<Customer?>(null));
         var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Email not exists/or not active in the customer table",
@@ -94,7 +93,7 @@ public class JwtBearerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Customer { Active = false }));
+            .ReturnsAsync(() => new Customer { Active = false });
         var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Email not exists/or not active in the customer table",
@@ -113,9 +112,9 @@ public class JwtBearerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Customer { Active = true }));
+            .ReturnsAsync(() => new Customer { Active = true });
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new UserApi { IsActive = false, Token = "123" }));
+            .ReturnsAsync(() => new UserApi { IsActive = false, Token = "123" });
         var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("User api not exists/or not active in the user api table",
@@ -134,9 +133,9 @@ public class JwtBearerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Customer { Active = true }));
+            .ReturnsAsync(() => new Customer { Active = true });
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "321" }));
+            .ReturnsAsync(() => new UserApi { IsActive = true, Token = "321" });
         var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Wrong token, generate again", await _jwtBearerAuthenticationService.ErrorMessage());
@@ -154,9 +153,9 @@ public class JwtBearerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Customer { Active = true }));
+            .ReturnsAsync(() => new Customer { Active = true });
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "123" }));
+            .ReturnsAsync(() => new UserApi { IsActive = true, Token = "123" });
         var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsTrue(result);
     }
@@ -173,9 +172,9 @@ public class JwtBearerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Customer { Active = true }));
+            .ReturnsAsync(() => new Customer { Active = true });
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "123" }));
+            .ReturnsAsync(() => new UserApi { IsActive = true, Token = "123" });
 
         var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
 

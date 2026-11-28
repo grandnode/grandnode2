@@ -23,8 +23,7 @@ public class GetMerchandiseReturnShippingOffersHandlerTests
     private GetMerchandiseReturnShippingOffersHandler _handler;
     private List<ReturnShippingOffer> _offers;
 
-    [TestInitialize]
-    public void Init()
+    public GetMerchandiseReturnShippingOffersHandlerTests()
     {
         _offers = [];
         _fromText = "from {0}";
@@ -47,9 +46,9 @@ public class GetMerchandiseReturnShippingOffersHandlerTests
             currencyService.Object, priceFormatter.Object, translationService.Object);
     }
 
-    private async Task<(IList<ReturnShippingOfferModel> Models, IDictionary<string, object> FormValues)> Handle()
+    private async Task<(IList<ReturnShippingOfferModel> Models, IDictionary<string, object?>? FormValues)> Handle()
     {
-        IDictionary<string, object> formValues = null;
+        IDictionary<string, object?>? formValues = null;
         var models = await _handler.Handle(new GetMerchandiseReturnShippingOffers {
             Order = _order,
             Model = new MerchandiseReturnModel(),
@@ -80,6 +79,7 @@ public class GetMerchandiseReturnShippingOffersHandlerTests
         var (models, formValues) = await Handle();
 
         Assert.AreEqual("/Point.Form", models[0].FormUrl);
+        Assert.IsNotNull(formValues);
         Assert.AreEqual("o1", formValues["orderId"]);
         Assert.IsFalse(formValues.ContainsKey("free"));
         Assert.AreEqual("EUR6", models[0].Cost);
@@ -93,6 +93,7 @@ public class GetMerchandiseReturnShippingOffersHandlerTests
         var (models, formValues) = await Handle();
 
         Assert.AreEqual("Free", models[0].Cost);
+        Assert.IsNotNull(formValues);
         Assert.AreEqual(true, formValues["free"]);
     }
 
@@ -104,6 +105,7 @@ public class GetMerchandiseReturnShippingOffersHandlerTests
         var (models, formValues) = await Handle();
 
         Assert.AreEqual("from EUR0", models[0].Cost);
+        Assert.IsNotNull(formValues);
         Assert.IsFalse(formValues.ContainsKey("free"));
     }
 

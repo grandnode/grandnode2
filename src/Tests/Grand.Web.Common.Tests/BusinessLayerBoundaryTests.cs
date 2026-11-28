@@ -29,7 +29,7 @@ public class BusinessLayerBoundaryTests
     {
         var violations = BusinessAssemblies
             .SelectMany(assembly => assembly.GetReferencedAssemblies()
-                .Where(reference => reference.Name.StartsWith("Microsoft.AspNetCore", StringComparison.Ordinal) &&
+                .Where(reference => reference.Name != null && reference.Name.StartsWith("Microsoft.AspNetCore", StringComparison.Ordinal) &&
                                     !reference.Name.StartsWith(AllowedAspNetCorePrefix, StringComparison.Ordinal))
                 .Select(reference => $"{assembly.GetName().Name} -> {reference.Name}"))
             .ToList();

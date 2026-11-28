@@ -31,8 +31,7 @@ public class MarkAsPaidCommandHandlerTests
     private Mock<IPaymentTransactionHistoryService> _historyMock;
     private Mock<IResourceLock> _resourceLockMock;
 
-    [TestInitialize]
-    public void Init()
+    public MarkAsPaidCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
@@ -77,8 +76,8 @@ public class MarkAsPaidCommandHandlerTests
         //Arrange
         var command = new MarkAsPaidCommand { PaymentTransaction = new PaymentTransaction() };
         _mediatorMock.Setup(x => x.Send(It.IsAny<CanCaptureQuery>(), default))
-            .Returns(Task.FromResult(true));
-        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).Returns(Task.FromResult(new Order()));
+            .ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
         _mediatorMock.Setup(x => x.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default))
             .Returns(Task.FromResult(true));
 

@@ -18,12 +18,15 @@ public class RepositoryPagedQueryTests
     private IRepository<SampleCollection> _liteDb;
     private IRepository<SampleCollection> _mongoRepository;
 
-    [TestInitialize]
-    public async Task Init()
+    public RepositoryPagedQueryTests()
     {
         _mongoRepository = new MongoDBRepositoryTest<SampleCollection>();
         _liteDb = new LiteDBRepositoryMock<SampleCollection>();
+    }
 
+    [TestInitialize]
+    public async Task Init()
+    {
         foreach (var repository in new[] { _mongoRepository, _liteDb })
             for (var i = 1; i <= 25; i++)
                 await repository.InsertAsync(new SampleCollection { Name = $"sample {i:00}", Count = i });
@@ -192,6 +195,7 @@ public class RepositoryPagedQueryTests
         var result = await repository.FirstOrDefaultAsync(
             repository.Table.Where(x => x.Count <= 3).OrderByDescending(x => x.Count));
 
+        Assert.IsNotNull(result);
         Assert.AreEqual(3, result.Count);
     }
 
@@ -237,7 +241,7 @@ public class RepositoryPagedQueryTests
         var repository = Repository(provider);
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            repository.PagedAsync<SampleCollection>(null, 0, 10));
+            repository.PagedAsync<SampleCollection>(null!, 0, 10));
     }
 
     /// <summary>

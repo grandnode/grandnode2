@@ -22,8 +22,7 @@ public class CustomerGroupControllerTests
     private Mock<IMediator> _mediatorMock;
     private CustomerGroupController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerGroupControllerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         var customer = new Customer { Id = "admin" };
@@ -44,7 +43,7 @@ public class CustomerGroupControllerTests
         };
     }
 
-    private void SetupStoredGroup(CustomerGroupDto group)
+    private void SetupStoredGroup(CustomerGroupDto? group)
     {
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetGenericQuery<CustomerGroupDto, CustomerGroup>>(),
                 It.IsAny<CancellationToken>()))

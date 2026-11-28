@@ -22,8 +22,7 @@ public class QueuedEmailServiceTests
     private Mock<IRepository<QueuedEmail>> _repository;
     private QueuedEmailService _service;
 
-    [TestInitialize]
-    public void Init()
+    public QueuedEmailServiceTests()
     {
         _repository = new Mock<IRepository<QueuedEmail>>();
         _repository.Setup(c => c.ToListAsync(It.IsAny<IQueryable<QueuedEmail>>(), It.IsAny<CancellationToken>()))
@@ -114,12 +113,13 @@ public class QueuedEmailServiceTests
     [TestMethod]
     public async Task DeleteCustomerEmail_AnEmailWithAnInvoiceIsLeftToTheInvoiceDeletion()
     {
-        Expression<Func<QueuedEmail, bool>> filter = null;
+        Expression<Func<QueuedEmail, bool>>? filter = null;
         _repository.Setup(c => c.DeleteManyAsync(It.IsAny<Expression<Func<QueuedEmail, bool>>>()))
             .Callback<Expression<Func<QueuedEmail, bool>>>(f => filter = f);
 
         await _service.DeleteCustomerEmail("a@b.c");
 
+        Assert.IsNotNull(filter);
         var matches = filter.Compile();
         Assert.IsTrue(matches(new QueuedEmail { To = "a@b.c" }));
         Assert.IsFalse(matches(new QueuedEmail { To = "other@b.c" }));
@@ -137,12 +137,13 @@ public class QueuedEmailServiceTests
     [TestMethod]
     public async Task DeleteAllEmails_AnEmailWithAnInvoiceIsLeftToTheInvoiceDeletion()
     {
-        Expression<Func<QueuedEmail, bool>> filter = null;
+        Expression<Func<QueuedEmail, bool>>? filter = null;
         _repository.Setup(c => c.DeleteManyAsync(It.IsAny<Expression<Func<QueuedEmail, bool>>>()))
             .Callback<Expression<Func<QueuedEmail, bool>>>(f => filter = f);
 
         await _service.DeleteAllEmails();
 
+        Assert.IsNotNull(filter);
         var matches = filter.Compile();
         Assert.IsTrue(matches(new QueuedEmail()));
         //queued after the invoices were read, so its invoice was not deleted
@@ -246,7 +247,7 @@ public class QueuedEmailServiceTests
             invoiceEmail,
             new QueuedEmail { Reference = Reference.Order, ObjectId = "order" },
             new QueuedEmail { Reference = Reference.Order, ObjectId = "other", InvoiceDownloadId = "other" });
-        IEnumerable<QueuedEmail> deleted = null;
+        IEnumerable<QueuedEmail>? deleted = null;
         _repository.Setup(c => c.DeleteAsync(It.IsAny<IEnumerable<QueuedEmail>>()))
             .Callback<IEnumerable<QueuedEmail>>(emails => deleted = emails.ToList());
 
@@ -254,6 +255,7 @@ public class QueuedEmailServiceTests
 
         _downloadServiceMock.Verify(c => c.DeleteDownloadById("mine"), Times.Once);
         _downloadServiceMock.Verify(c => c.DeleteDownloadById(It.IsAny<string>()), Times.Once);
+        Assert.IsNotNull(deleted);
         CollectionAssert.AreEqual(new[] { invoiceEmail.Id }, deleted.Select(x => x.Id).ToArray());
     }
 
@@ -273,7 +275,7 @@ public class QueuedEmailServiceTests
             Filename = "order_1", Extension = ".pdf", ContentType = "application/pdf", DownloadBinary = binary
         };
         _downloadServiceMock.Setup(c => c.GetDownloadById(invoice.Id)).ReturnsAsync(invoice);
-        Download copy = null;
+        Download? copy = null;
         _downloadServiceMock.Setup(c => c.InsertDownload(It.IsAny<Download>())).Callback<Download>(d => copy = d);
 
         var result = await _service.CopyInvoiceDownload(invoice.Id);
@@ -310,6 +312,6 @@ public class QueuedEmailServiceTests
             It.IsAny<EventId>(),
             It.IsAny<It.IsAnyType>(),
             It.IsAny<Exception>(),
-            (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), times);
+            (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()), times);
     }
 }

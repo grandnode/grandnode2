@@ -21,8 +21,7 @@ public class MerchandiseReturnValidatorTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IMerchandiseReturnService> _merchandiseReturnService;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnValidatorTests()
     {
         //the store offers no reasons or actions unless a test gives it some
         _merchandiseReturnService = new Mock<IMerchandiseReturnService>();
@@ -35,7 +34,7 @@ public class MerchandiseReturnValidatorTests
             .ReturnsAsync(new List<CustomAttribute>());
     }
 
-    private MerchandiseReturnValidator Validator(OrderSettings orderSettings = null)
+    private MerchandiseReturnValidator Validator(OrderSettings? orderSettings = null)
     {
         var addressAttributeParser = new Mock<IAddressAttributeParser>();
         addressAttributeParser.Setup(x => x.GetAttributeWarnings(It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()))

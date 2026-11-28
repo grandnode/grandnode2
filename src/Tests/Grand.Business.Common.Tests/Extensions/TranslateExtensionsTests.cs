@@ -29,7 +29,8 @@ public class TranslateExtensionsTests
     [TestMethod]
     public void GetTranslation_NullArgument_ThrowException()
     {
-        Product product = null;
+        //null exercises the guard of the method under test
+        Product product = null!;
         Assert.ThrowsExactly<ArgumentNullException>(() => product.GetTranslation(c => c.Name, "PL"));
     }
 

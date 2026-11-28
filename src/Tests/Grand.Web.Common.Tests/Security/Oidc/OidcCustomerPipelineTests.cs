@@ -19,16 +19,20 @@ namespace Grand.Web.Common.Tests.Security.Oidc;
 [TestClass]
 public class OidcCustomerPipelineTests
 {
-    private OidcTestHost _host;
-    private HttpClient _client;
+    private OidcTestHost? _host;
+    private HttpClient? _client;
     private Mock<IOidcCustomerResolver> _resolver;
     private Mock<IPermissionService> _permissions;
+    //set when the test host starts
+    private HttpClient Client => _client ?? throw new InvalidOperationException("The test host has not started");
+    //set when the test host starts
+    private OidcTestHost Host => _host ?? throw new InvalidOperationException("The test host has not started");
 
-    private async Task Start(OidcResourceServerConfig config = null, Action<IServiceCollection> extra = null)
+    private async Task Start(OidcResourceServerConfig? config = null, Action<IServiceCollection>? extra = null)
     {
-        if (_host != null) await _host.DisposeAsync();
+        if (_host != null) await Host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(config ?? OidcTestHost.Config(),
+        _client = await Host.Start(config ?? OidcTestHost.Config(),
             services: s =>
             {
                 s.AddSingleton(_resolver.Object);
@@ -48,21 +52,25 @@ public class OidcCustomerPipelineTests
             });
     }
 
-    [TestInitialize]
-    public async Task Init()
+    public OidcCustomerPipelineTests()
     {
         _resolver = new Mock<IOidcCustomerResolver>();
         _resolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
             .ReturnsAsync(OidcCustomerResult.Success(new Customer { Id = "c1", Active = true }));
         _permissions = new Mock<IPermissionService>();
         _permissions.Setup(x => x.Authorize(It.IsAny<Permission>(), It.IsAny<Customer>())).ReturnsAsync(true);
+    }
+
+    [TestInitialize]
+    public async Task Init()
+    {
         await Start();
     }
 
     [TestCleanup]
-    public async Task Cleanup() => await _host.DisposeAsync();
+    public async Task Cleanup() => await Host.DisposeAsync();
 
-    private Task<HttpResponseMessage> Get(string path, string token = null) => OidcTestHost.Send(_client, path, token);
+    private Task<HttpResponseMessage> Get(string path, string? token = null) => OidcTestHost.Send(Client, path, token);
 
     [TestMethod]
     public async Task ValidToken_CustomerInItems_StoreFromHost()

@@ -34,6 +34,7 @@ public class GoogleReCaptchaValidatorTests
 
         var result = await validator.Validate("token");
 
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.Success);
     }
 
@@ -61,6 +62,7 @@ public class GoogleReCaptchaValidatorTests
 
         var result = await validator.Validate("token");
 
+        Assert.IsNotNull(result);
         Assert.IsFalse(result.Success);
         Assert.AreEqual("Unknown error", result.ErrorCodes.Single());
     }

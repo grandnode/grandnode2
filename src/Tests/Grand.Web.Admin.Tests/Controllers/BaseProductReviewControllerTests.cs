@@ -51,8 +51,7 @@ public class BaseProductReviewControllerTests
         return controller;
     }
 
-    [TestInitialize]
-    public void Setup()
+    public BaseProductReviewControllerTests()
     {
         _viewModelService = new Mock<IProductReviewViewModelService>();
         _productReviewService = new Mock<IProductReviewService>();
@@ -63,7 +62,7 @@ public class BaseProductReviewControllerTests
     [TestMethod]
     public async Task ListGet_Admin_CallsPrepareProductReviewListModel_ReturnsPopulatedModel()
     {
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var listModel = new ProductReviewListModel { AvailableStores = { new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = "", Text = "All" } } };
         _viewModelService.Setup(s => s.PrepareProductReviewListModel("")).ReturnsAsync(listModel);
 
@@ -90,7 +89,7 @@ public class BaseProductReviewControllerTests
     [TestMethod]
     public async Task ListPost_Admin_PreservesCallerSubmittedSearchStoreId()
     {
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _viewModelService
             .Setup(s => s.PrepareProductReviewsModel(It.IsAny<ProductReviewListModel>(), 1, 10))
             .ReturnsAsync((Enumerable.Empty<ProductReviewModel>(), 0));
@@ -118,7 +117,7 @@ public class BaseProductReviewControllerTests
     [TestMethod]
     public async Task EditGet_NotFound_RedirectsToList()
     {
-        _productReviewService.Setup(s => s.GetProductReviewById("missing")).ReturnsAsync((ProductReview)null);
+        _productReviewService.Setup(s => s.GetProductReviewById("missing")).ReturnsAsync((ProductReview?)null);
 
         var result = await CreateController().Edit("missing") as RedirectToActionResult;
 
@@ -219,7 +218,7 @@ public class BaseProductReviewControllerTests
     [TestMethod]
     public async Task Delete_NotFound_RedirectsToList()
     {
-        _productReviewService.Setup(s => s.GetProductReviewById("missing")).ReturnsAsync((ProductReview)null);
+        _productReviewService.Setup(s => s.GetProductReviewById("missing")).ReturnsAsync((ProductReview?)null);
 
         var result = await CreateController().Delete("missing") as RedirectToActionResult;
 
@@ -286,7 +285,7 @@ public class BaseProductReviewControllerTests
     [TestMethod]
     public async Task ApproveSelected_Admin_PassesEmptyStringNotNull()
     {
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         await CreateController().ApproveSelected(new List<string> { "pr-1:prod-1" });
 
@@ -306,7 +305,7 @@ public class BaseProductReviewControllerTests
     [TestMethod]
     public async Task ApproveSelected_NullSelectedIds_DoesNotCallService()
     {
-        await CreateController().ApproveSelected(null);
+        await CreateController().ApproveSelected(null!);
 
         _viewModelService.Verify(s => s.ApproveSelected(It.IsAny<IEnumerable<string>>(), It.IsAny<string>()), Times.Never);
     }

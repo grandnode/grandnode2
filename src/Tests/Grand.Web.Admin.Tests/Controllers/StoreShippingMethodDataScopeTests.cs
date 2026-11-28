@@ -47,7 +47,7 @@ public class StoreShippingMethodDataScopeTests
     public async Task HasAccess_NullEntity_False()
     {
         var scope = Build("store-1");
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 
     [TestMethod]

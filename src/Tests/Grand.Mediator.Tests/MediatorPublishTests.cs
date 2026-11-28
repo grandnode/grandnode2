@@ -10,8 +10,7 @@ public class MediatorPublishTests
     private ExecutionLog _log;
     private ServiceProvider _provider;
 
-    [TestInitialize]
-    public void Init()
+    public MediatorPublishTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<ExecutionLog>();
@@ -118,6 +117,6 @@ public class MediatorPublishTests
     public async Task Publish_Null_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await Mediator.Publish((SampleEvent)null));
+            async () => await Mediator.Publish((SampleEvent)null!));
     }
 }

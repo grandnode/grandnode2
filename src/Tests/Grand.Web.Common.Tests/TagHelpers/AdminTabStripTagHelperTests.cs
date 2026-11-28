@@ -22,10 +22,9 @@ public class AdminTabStripTagHelperTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IUserAgentClassifier> _userAgentMock;
     private ViewContext _viewContext;
-    private Action<AdminTabStripCreated> _onPublish;
+    private Action<AdminTabStripCreated>? _onPublish;
 
-    [TestInitialize]
-    public void Init()
+    public AdminTabStripTagHelperTests()
     {
         _onPublish = null;
         _mediatorMock = new Mock<IMediator>();

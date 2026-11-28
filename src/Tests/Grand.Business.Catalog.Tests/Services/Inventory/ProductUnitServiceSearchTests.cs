@@ -17,8 +17,7 @@ public class ProductUnitServiceSearchTests
     private readonly IRepository<Order> _orders = new MongoDBRepositoryTest<Order>();
     private ProductUnitService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ProductUnitServiceSearchTests()
     {
         _service = StockTestFixture.UnitService(_fixture.Batches, _fixture.Serials, _fixture.Products,
             journal: _fixture.Journal, shipments: _fixture.Shipments, orders: _orders);
@@ -82,7 +81,7 @@ public class ProductUnitServiceSearchTests
     private int _revision;
 
     private Task Entry(string warehouseId, InventoryMovementType type, int inQty, int outQty,
-        Shipment shipment = null, string batchNumber = "L1", params string[] serialNumbers) =>
+        Shipment? shipment = null, string? batchNumber = "L1", params string[] serialNumbers) =>
         _fixture.Journal.InsertAsync(new InventoryJournal {
             ProductId = "p1", CombinationId = "", WarehouseId = warehouseId, BatchNumber = batchNumber,
             SerialNumbers = serialNumbers, ObjectType = shipment == null ? "InventoryDocument" : nameof(Shipment),

@@ -25,8 +25,7 @@ public class AuthorizeAdminAttributeTests
     private Mock<IGroupService> _groupService;
     private Mock<IRequestPermissionService> _permissionService;
 
-    [TestInitialize]
-    public void Init()
+    public AuthorizeAdminAttributeTests()
     {
         DataSettingsManager.Initialize(Path.Join(Path.GetTempPath(), "grand-admin-filter-tests-settings.json"));
         DataSettingsManager.Instance.LoadDataSettings(new DataSettings { ConnectionString = "mongodb://localhost" });

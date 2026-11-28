@@ -26,8 +26,7 @@ public class SendYourselfReturnProviderTests
     private Mock<ISettingService> _settingService;
     private Mock<IVendorService> _vendorService;
 
-    [TestInitialize]
-    public void Init()
+    public SendYourselfReturnProviderTests()
     {
         _settingService = new Mock<ISettingService>();
         _settingService.Setup(x => x.LoadSetting<ReturnShippingProviderSettings>("s1"))

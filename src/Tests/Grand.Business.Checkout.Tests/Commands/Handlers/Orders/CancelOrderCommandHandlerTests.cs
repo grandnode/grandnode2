@@ -29,8 +29,7 @@ public class CancelOrderCommandHandlerTests
     private Mock<IProductService> _productServiceMock;
     private Mock<IShipmentService> _shipmentServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public CancelOrderCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
@@ -52,7 +51,7 @@ public class CancelOrderCommandHandlerTests
     public void Handle_OrderNull_ThrowException()
     {
         var command = new CancelOrderCommand {
-            Order = null
+            Order = null!
         };
         Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _handler.Handle(command, default));
     }

@@ -54,7 +54,7 @@ public class BaseCustomerLoyaltyPointsControllerTests
     [TestMethod]
     public async Task LoyaltyPointsHistorySelect_Denied_ThrowsArgumentException()
     {
-        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(() => Controller.LoyaltyPointsHistorySelect("missing"));
         CustomerLoyaltyPointsViewModelServiceMock.Verify(v => v.PrepareLoyaltyPointsHistoryModel(It.IsAny<string>()), Times.Never);

@@ -24,8 +24,7 @@ public class AuditingLiteDBRepositoryTests
     private AuditTracker _tracker;
     private List<AuditEntry> _written;
 
-    [TestInitialize]
-    public void Init()
+    public AuditingLiteDBRepositoryTests()
     {
         _database = new LiteDatabase(new MemoryStream());
         _written = [];
@@ -62,7 +61,9 @@ public class AuditingLiteDBRepositoryTests
         await _tracker.FlushAsync();
 
         Assert.AreEqual(0, _written.Count);
-        Assert.AreEqual(20, (await _repository.GetByIdAsync(gadget.Id)).Price);
+        var gadget2 = await _repository.GetByIdAsync(gadget.Id);
+        Assert.IsNotNull(gadget2);
+        Assert.AreEqual(20, gadget2.Price);
     }
 
     [TestMethod]
@@ -205,14 +206,14 @@ public class AuditingLiteDBRepositoryTests
 
     public class Gadget : BaseEntity
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int Price { get; set; }
         public IList<GadgetItem> Items { get; set; } = [];
     }
 
     public class GadgetItem
     {
-        public string Id { get; set; }
+        public string? Id { get; set; }
         public int Qty { get; set; }
     }
 }

@@ -50,7 +50,7 @@ public class AttributeFamilyControllerRoutingTests
     {
         foreach (var (controller, _, name) in ControllerPairs)
         {
-            var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(controller, typeof(AreaAttribute), false);
+            var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(controller, typeof(AreaAttribute), false));
             Assert.IsNotNull(areaAttr, $"Store.{name} is missing [Area].");
             Assert.AreEqual(Constants.AreaStore, areaAttr.RouteValue,
                 $"Store.{name}'s [Area] does not have Constants.AreaStore value.");
@@ -96,8 +96,8 @@ public class AttributeFamilyControllerRoutingTests
     {
         // CustomerAttribute in Store deliberately has [PermissionAuthorize(PermissionSystemName.CustomerAttributes)]
         // on the concrete Store controller, preserving a different permission value than Admin's PermissionSystemName.Settings
-        var attr = (PermissionAuthorizeAttribute)Attribute.GetCustomAttribute(
-            typeof(CustomerAttributeController), typeof(PermissionAuthorizeAttribute), false);
+        var attr = Assert.IsInstanceOfType<PermissionAuthorizeAttribute>(Attribute.GetCustomAttribute(
+            typeof(CustomerAttributeController), typeof(PermissionAuthorizeAttribute), false));
 
         Assert.IsNotNull(attr, "Store.CustomerAttributeController is missing [PermissionAuthorize].");
         Assert.AreEqual(PermissionSystemName.CustomerAttributes, attr.Permission,

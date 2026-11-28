@@ -295,7 +295,7 @@ public class BaseProductPriceControllerTests : ProductControllerTestsBase<BasePr
     [TestMethod]
     public async Task TierPriceCreatePopup_Post_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.TierPriceModel { ProductId = "missing" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.TierPriceCreatePopup(model));
@@ -354,7 +354,7 @@ public class BaseProductPriceControllerTests : ProductControllerTestsBase<BasePr
     [TestMethod]
     public async Task TierPriceEditPopup_Get_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.TierPriceEditPopup("tp1", "missing"));
     }

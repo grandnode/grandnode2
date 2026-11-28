@@ -16,11 +16,6 @@ public class PluginExtensionsTests
     {
         var pluginPaths = Path.Combine(TestContext.CurrentContext.TestDirectory, CommonPath.AppData, CommonPath.InstalledPluginsFile);
         PluginPaths.Initialize(pluginPaths);
-    }
-
-    [TestInitialize]
-    public void Init()
-    {
         _stateStore = new PluginStateStoreFixture();
     }
 
@@ -235,6 +230,7 @@ public class PluginExtensionsTests
     {
         //an assembly no plugin context holds is matched by name, as before plugins had contexts of their own
         var name = typeof(SampleBasePlugin).Assembly.GetName().Name;
+        Assert.IsNotNull(name);
         var uninstalled = new PluginInfo { SystemName = "Uninstalled", AssemblyNames = new HashSet<string> { name } };
         var installed = new PluginInfo
             { SystemName = "Installed", Installed = true, AssemblyNames = new HashSet<string> { name } };
@@ -255,7 +251,7 @@ public class PluginExtensionsTests
 
     private static PluginInfo SamplePluginInfo(bool installed)
     {
-        return new PluginInfo(null, typeof(SampleBasePlugin).Assembly, typeof(SampleBasePlugin)) {
+        return new PluginInfo(null!, typeof(SampleBasePlugin).Assembly, typeof(SampleBasePlugin)) {
             SystemName = "SamplePlugin",
             Installed = installed
         };

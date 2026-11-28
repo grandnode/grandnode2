@@ -21,8 +21,7 @@ public class GetRegisterHandlerTests
 {
     private GetRegisterHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetRegisterHandlerTests()
     {
         var countryServiceMock = new Mock<ICountryService>();
         countryServiceMock.Setup(s => s.GetAllCountries(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
@@ -42,7 +41,7 @@ public class GetRegisterHandlerTests
             new TaxSettings(), new CaptchaSettings());
     }
 
-    private Task<RegisterModel> Handle(string defaultCountryId, RegisterModel model = null)
+    private Task<RegisterModel> Handle(string defaultCountryId, RegisterModel? model = null)
     {
         return _handler.Handle(new GetRegister {
             Model = model,

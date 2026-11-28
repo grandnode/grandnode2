@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedPageDataScopeTests
 {
-    private static RoutedPageDataScope Build(string area, out Mock<IAdminDataScope<Page>> globalMock, out Mock<IAdminDataScope<Page>> storeMock)
+    private static RoutedPageDataScope Build(string? area, out Mock<IAdminDataScope<Page>>? globalMock, out Mock<IAdminDataScope<Page>>? storeMock)
     {
         var httpContext = new DefaultHttpContext();
         if (area != null)

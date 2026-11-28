@@ -25,13 +25,13 @@ public class StartupApplicationTests
         try
         {
             PluginManager.ReferencedPlugins = [
-                new PluginInfo(null, typeof(SampleBasePlugin).Assembly, typeof(SampleBasePlugin)) {
+                new PluginInfo(null!, typeof(SampleBasePlugin).Assembly, typeof(SampleBasePlugin)) {
                     SystemName = "SamplePlugin",
                     Installed = true
                 }
             ];
             var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string> { ["Database:UseLiteDb"] = "true" })
+                .AddInMemoryCollection(new Dictionary<string, string?> { ["Database:UseLiteDb"] = "true" })
                 .Build();
 
             new StartupApplication().ConfigureServices(new ServiceCollection(), configuration);

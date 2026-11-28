@@ -20,8 +20,7 @@ public class RoutedPaymentTransactionDataScopeTests
     private AdminPaymentTransactionDataScope _adminScope = null!;
     private StorePaymentTransactionDataScope _storeScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedPaymentTransactionDataScopeTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { StaffStoreId = StaffStoreId });

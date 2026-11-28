@@ -28,8 +28,7 @@ public class MigrationPaymentDueRemindersTests
     private readonly LiteDBRepositoryMock<MessageTemplate> _templates = new();
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationPaymentDueRemindersTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IRepository<MessageTemplate>>(_templates);

@@ -21,7 +21,7 @@ public class GetMerchandiseReturnsHandlerTests
     public async Task GetMerchandiseReturnsHandler_OrderId_QueriesByOrder()
     {
         //Arrange - a guest's grant lists the returns of its order, not those of a customer
-        GetMerchandiseReturnQuery query = null;
+        GetMerchandiseReturnQuery? query = null;
         var mediator = new Mock<IMediator>();
         mediator.Setup(x => x.Send(It.IsAny<GetMerchandiseReturnQuery>(), It.IsAny<CancellationToken>()))
             .Callback<IRequest<IPagedList<MerchandiseReturn>>, CancellationToken>((q, _) =>
@@ -39,6 +39,7 @@ public class GetMerchandiseReturnsHandlerTests
         }, CancellationToken.None);
 
         //Assert
+        Assert.IsNotNull(query);
         Assert.AreEqual("o1", query.OrderId);
         Assert.AreEqual("s1", query.StoreId);
         Assert.AreEqual("", query.CustomerId);

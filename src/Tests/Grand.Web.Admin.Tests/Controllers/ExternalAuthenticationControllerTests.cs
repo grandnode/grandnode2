@@ -39,7 +39,7 @@ public class ExternalAuthenticationControllerTests
         Assert.IsTrue(model.ClientSecretSet);
         //the secret itself never reaches the page
         foreach (var property in typeof(OidcLinksModel).GetProperties().Where(x => x.PropertyType == typeof(string)))
-            Assert.IsFalse(((string)property.GetValue(model))?.Contains("s3cr3t") ?? false, property.Name);
+            Assert.IsFalse(Assert.IsInstanceOfType<string>(property.GetValue(model))?.Contains("s3cr3t") ?? false, property.Name);
     }
 
     [TestMethod]

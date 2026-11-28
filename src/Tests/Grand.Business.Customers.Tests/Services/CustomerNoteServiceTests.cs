@@ -15,8 +15,7 @@ public class CustomerNoteServiceTests
     private CustomerNoteService _noteService;
     private Mock<IRepository<CustomerNote>> _repositoryMock;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerNoteServiceTests()
     {
         _repositoryMock = new Mock<IRepository<CustomerNote>>();
         _mediatorMock = new Mock<IMediator>();

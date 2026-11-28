@@ -94,6 +94,7 @@ public class ScimFixture
             .Returns(async (Customer c, string key, string value, string _) =>
             {
                 var stored = await Customers.GetByIdAsync(c.Id);
+                Assert.IsNotNull(stored);
                 stored.UserFields = stored.UserFields.Where(x => x.Key != key).ToList();
                 if (!string.IsNullOrEmpty(value))
                     stored.UserFields.Add(new UserField { Key = key, Value = value, StoreId = "" });
@@ -116,6 +117,7 @@ public class ScimFixture
             .Returns(async (Customer c, PasswordFormat _, string newPassword) =>
             {
                 var stored = await Customers.GetOneAsync(x => x.Id == c.Id);
+                Assert.IsNotNull(stored);
                 stored.Password = "hash:" + newPassword;
                 stored.UserFields = stored.UserFields.Where(x => x.Key != SystemCustomerFieldNames.PasswordToken).ToList();
                 stored.UserFields.Add(new UserField {
@@ -180,7 +182,7 @@ public class ScimFixture
             PermissionService.Object, Resolver.Object, LinkService.Object, RoleSync(), AccountLock(), Mediator.Object, Config,
             LoginConfig, CustomerConfig, NullLogger<ScimUserService>.Instance);
 
-    public ScimGroupService GroupServiceUnderTest(ScimRoleSync roleSync = null) =>
+    public ScimGroupService GroupServiceUnderTest(ScimRoleSync? roleSync = null) =>
         new(Groups, Users, GroupService.Object, StoreService.Object, VendorService.Object, roleSync ?? RoleSync(),
             Mediator.Object, NullLogger<ScimGroupService>.Instance);
 
@@ -195,9 +197,9 @@ public class ScimFixture
         return await Customers.InsertAsync(customer);
     }
 
-    public Task<Customer> Reload(string id) => Customers.GetByIdAsync(id);
+    public Task<Customer?> Reload(string id) => Customers.GetByIdAsync(id);
 
     public static ScimUserData Data(string userName = "jan@example.com", string externalId = "oid-1", bool active = true,
-        string email = null, string given = "Jan", string family = "Nowak") =>
+        string? email = null, string given = "Jan", string family = "Nowak") =>
         new(userName, externalId, email, given, family, active);
 }

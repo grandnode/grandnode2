@@ -27,8 +27,7 @@ public class MigrationOrderApprovalStaffTemplateTests
     private IServiceProvider _serviceProvider;
     private LiteDBRepositoryMock<MessageTemplate> _templates;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationOrderApprovalStaffTemplateTests()
     {
         _templates = new LiteDBRepositoryMock<MessageTemplate>();
         _emailAccounts = new LiteDBRepositoryMock<EmailAccount>();

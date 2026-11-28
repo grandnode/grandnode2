@@ -19,8 +19,7 @@ public class GenerateSitemapXmlTaskTests
     private Mock<IMediator> _mediatorMock;
     private GenerateSitemapXmlTask _task;
 
-    [TestInitialize]
-    public void Init()
+    public GenerateSitemapXmlTaskTests()
     {
         var languages = new List<Language> {
             new() { Id = "1", UniqueSeoCode = "en" },

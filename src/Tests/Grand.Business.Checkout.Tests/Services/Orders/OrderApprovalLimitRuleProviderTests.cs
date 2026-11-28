@@ -24,8 +24,7 @@ public class OrderApprovalLimitRuleProviderTests
     private int _totalCalls;
     private Mock<ITranslationService> _translation;
 
-    [TestInitialize]
-    public void Init()
+    public OrderApprovalLimitRuleProviderTests()
     {
         _customerSettings = new CustomerSettings { HideSubAccountsTab = false };
         _total = 150;
@@ -49,7 +48,7 @@ public class OrderApprovalLimitRuleProviderTests
     }
 
     private static Customer Buyer(double? limit = 100, SubAccountRole role = SubAccountRole.Buyer,
-        string ownerId = "owner1")
+        string? ownerId = "owner1")
     {
         return new Customer { Id = "buyer1", OwnerId = ownerId, SubAccountRole = role, OrderApprovalLimit = limit };
     }

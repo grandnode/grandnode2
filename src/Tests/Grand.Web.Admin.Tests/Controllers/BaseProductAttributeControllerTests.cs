@@ -41,8 +41,7 @@ public class BaseProductAttributeControllerTests
     private Mock<ILanguageService> _languageService = null!;
     private TestProductAttributeController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseProductAttributeControllerTests()
     {
         _productService = new Mock<IProductService>();
         _attributeService = new Mock<IProductAttributeService>();

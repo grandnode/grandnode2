@@ -9,8 +9,7 @@ public class ProductExtensionsAttributeParserTests
 {
     private List<CustomAttribute> customAtr;
 
-    [TestInitialize]
-    public void Init()
+    public ProductExtensionsAttributeParserTests()
     {
         customAtr = [
             new CustomAttribute { Key = "key1", Value = "value1" },
@@ -66,7 +65,7 @@ public class ProductExtensionsAttributeParserTests
     public void ParseValues_ReturnExpectedValues()
     {
         var result = ProductExtensions.ParseValues(customAtr, "key1");
-        Assert.IsTrue(result.Any(c => c.Equals("value1")));
+        Assert.IsTrue(result.Any(c => string.Equals(c, "value1")));
     }
 
     [TestMethod]
@@ -75,7 +74,7 @@ public class ProductExtensionsAttributeParserTests
         var result =
             ProductExtensions.AddProductAttribute(customAtr, new ProductAttributeMapping { Id = "key6" }, "value6");
         Assert.HasCount(5, result);
-        Assert.IsTrue(result.Last().Value.Equals("value6"));
+        Assert.IsTrue(string.Equals(result.Last().Value, "value6"));
     }
 
     [TestMethod]
@@ -83,6 +82,6 @@ public class ProductExtensionsAttributeParserTests
     {
         var result = ProductExtensions.RemoveProductAttribute(customAtr, new ProductAttributeMapping { Id = "key1" });
         Assert.HasCount(3, result);
-        Assert.IsFalse(result.Any(c => c.Key.Equals("key1")));
+        Assert.IsFalse(result.Any(c => string.Equals(c.Key, "key1")));
     }
 }

@@ -10,7 +10,7 @@ namespace Grand.Business.Messages.Tests.DotLiquidDrops;
 [TestClass]
 public class LiquidCustomerTests
 {
-    private static Customer CustomerWithToken(string area = null)
+    private static Customer CustomerWithToken(string? area = null)
     {
         var customer = new Customer { Email = "a+b@example.com" };
         customer.UserFields.Add(new UserField

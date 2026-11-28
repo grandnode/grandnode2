@@ -25,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Globalization;
 using System.Security.Claims;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Web.Tests.Controllers;
 
@@ -39,7 +40,7 @@ public class OidcLoginControllerTests
     private Mock<IOidcCustomerResolver> _resolver;
     private Mock<IGrandAuthenticationService> _auth;
     private Mock<IOidcSessionService> _sessions;
-    private Dictionary<string, string> _externalItems;
+    private Dictionary<string, string?> _externalItems;
     private Mock<IMediator> _mediator;
     private Mock<IExternalAuthenticationService> _externalAuth;
     private Mock<IAuthenticationSchemeProvider> _schemes;
@@ -66,11 +67,10 @@ public class OidcLoginControllerTests
         public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
         public void Remove(string key) => _data.Remove(key);
         public void Set(string key, byte[] value) => _data[key] = value;
-        public bool TryGetValue(string key, out byte[] value) => _data.TryGetValue(key, out value);
+        public bool TryGetValue(string key, [NotNullWhen(true)] out byte[]? value) => _data.TryGetValue(key, out value);
     }
 
-    [TestInitialize]
-    public void Init()
+    public OidcLoginControllerTests()
     {
         _external = new Mock<IExternalRegistrationContext>();
         _resolver = new Mock<IOidcCustomerResolver>();
@@ -99,7 +99,7 @@ public class OidcLoginControllerTests
         _httpAuth.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(() => AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity("test")),
                 new AuthenticationProperties { IssuedUtc = _ticketIssued }, GrandCookieAuthenticationDefaults.AuthenticationScheme)));
-        _externalItems = new Dictionary<string, string> {
+        _externalItems = new Dictionary<string, string?> {
             [OidcLoginSessionData.RefreshTokenItem] = "rt-1", [OidcLoginSessionData.SidItem] = "sid-1"
         };
         _httpAuth.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme))
@@ -141,12 +141,12 @@ public class OidcLoginControllerTests
     [TestMethod]
     public async Task Login_NotConfigured_Failed()
     {
-        _schemes.Setup(x => x.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme)).ReturnsAsync((AuthenticationScheme)null);
+        _schemes.Setup(x => x.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme)).ReturnsAsync((AuthenticationScheme?)null);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Login("/")).RouteName);
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains(
+            It.Is<It.IsAnyType>((v, _) => $"{v}".Contains(
                 "or the application was not restarted after the settings changed")),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -159,7 +159,7 @@ public class OidcLoginControllerTests
     [TestMethod]
     public async Task Callback_NoPending_Failed()
     {
-        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
+        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity?)null);
         Assert.AreEqual("OidcLoginFailed", ((RedirectToRouteResult)await _controller.Callback("/")).RouteName);
     }
 
@@ -482,7 +482,7 @@ public class OidcLoginControllerTests
         _resolver.Setup(x => x.ResolveForLogin(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<Language>()))
             .ReturnsAsync(OidcLoginResult.SignIn(customer));
         _sessions.Setup(x => x.Start(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
 
         var result = (RedirectToRouteResult)await _controller.Callback("/");
 

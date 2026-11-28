@@ -16,8 +16,7 @@ public class LoyaltyPointsServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<LoyaltyPointsHistory> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public LoyaltyPointsServiceTests()
     {
 
         var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);

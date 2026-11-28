@@ -30,8 +30,7 @@ public class CategoryServiceCacheKeyTests
     private IRepository<Category> _categoryRepository;
     private CategoryService _categoryService;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public CategoryServiceCacheKeyTests()
     {
         _categoryRepository = new MongoDBRepositoryTest<Category>();
         var mediator = new Mock<IMediator>();

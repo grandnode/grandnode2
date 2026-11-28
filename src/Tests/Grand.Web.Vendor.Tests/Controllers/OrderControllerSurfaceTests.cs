@@ -43,7 +43,7 @@ public class OrderControllerSurfaceTests
     [TestMethod]
     public void VendorOrderController_HasAreaAttributeWithVendorArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(typeof(OrderController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(typeof(OrderController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(Constants.AreaVendor, areaAttr.RouteValue);
     }

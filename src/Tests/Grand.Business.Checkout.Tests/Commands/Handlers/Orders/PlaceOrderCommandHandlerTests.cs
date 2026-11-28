@@ -38,8 +38,7 @@ public class PlaceOrderCommandHandlerTests
     private Mock<ICheckoutAttributeFormatter> _checkoutAttributeFormatterMock;
     private PlaceOrderCommandHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public PlaceOrderCommandHandlerTests()
     {
         _checkoutAttributeFormatterMock = new Mock<ICheckoutAttributeFormatter>();
         var currencyService = new Mock<ICurrencyService>();
@@ -142,8 +141,8 @@ public class PlaceOrderCommandHandlerTests
 
     private const string ChangedText = "Some items are no longer available";
 
-    private Mock<IPaymentTransactionService> _paymentTransactions;
-    private Mock<IPaymentTransactionHistoryService> _history;
+    private Mock<IPaymentTransactionService>? _paymentTransactions;
+    private Mock<IPaymentTransactionHistoryService>? _history;
 
     private (ClaimTestHandler handler, Mock<ICheckoutClaimService> claims, Mock<IOrderService> orders,
         Mock<IInventoryManageService> inventory, Mock<IGiftVoucherService> giftVouchers,
@@ -175,7 +174,7 @@ public class PlaceOrderCommandHandlerTests
         var claims = new Mock<ICheckoutClaimService>();
         claims.Setup(x => x.Claim(It.IsAny<PlaceOrderContainer>(), It.IsAny<string>()))
             .Callback(() => calls.Add("claim"))
-            .ReturnsAsync((PlaceOrderContainer d, string _) => new CheckoutClaim { CustomerId = "", OrderCode = "", StoreId = "", OrderId = d.OrderId, Succeeded = true });
+            .ReturnsAsync((PlaceOrderContainer d, string _) => new CheckoutClaim { CustomerId = "", OrderCode = "", StoreId = "", OrderId = d.OrderId ?? "", Succeeded = true });
         var orders = new Mock<IOrderService>();
         var inventory = new Mock<IInventoryManageService>();
         var giftVouchers = new Mock<IGiftVoucherService>();
@@ -234,6 +233,7 @@ public class PlaceOrderCommandHandlerTests
 
         await handler.Handle(ClaimCommand(details), CancellationToken.None);
 
+        Assert.IsNotNull(_paymentTransactions);
         _paymentTransactions.Verify(x => x.SetError("tx", It.Is<List<string>>(e => e.Contains(ChangedText))),
             Times.Once);
     }
@@ -242,7 +242,7 @@ public class PlaceOrderCommandHandlerTests
     public async Task Handle_OrderInsertedButItsNotificationThrows_KeepsClaim()
     {
         var (handler, claims, orders, _, _, _, details, _) = ClaimSetup();
-        Order inserted = null;
+        Order? inserted = null;
         //the order is written, then a handler of its inserted event throws out of InsertOrder
         orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o)
             .ThrowsAsync(new Exception("handler failed"));
@@ -298,6 +298,7 @@ public class PlaceOrderCommandHandlerTests
         await handler.Handle(ClaimCommand(details), CancellationToken.None);
 
         //what the gateway did stays visible, and the transaction is not taken for an abandoned checkout
+        Assert.IsNotNull(_paymentTransactions);
         _paymentTransactions.Verify(x => x.UpdatePaymentTransaction(It.Is<PaymentTransaction>(t =>
             t.Id == "tx" && !t.Temp && t.TransactionAmount == details.OrderTotal)), Times.Once);
     }
@@ -318,13 +319,14 @@ public class PlaceOrderCommandHandlerTests
     public async Task Handle_OrderPlaced_KeepsClaimAndUsesItsOrderId()
     {
         var (handler, claims, orders, _, _, _, details, _) = ClaimSetup();
-        Order inserted = null;
+        Order? inserted = null;
         orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o);
 
         var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
         Assert.IsFalse(string.IsNullOrEmpty(details.OrderId));
+        Assert.IsNotNull(inserted);
         Assert.AreEqual(details.OrderId, inserted.Id);
         claims.Verify(x => x.Claim(details, "CODE1"), Times.Once);
         claims.Verify(x => x.Release(It.IsAny<CheckoutClaim>()), Times.Never);
@@ -354,6 +356,8 @@ public class PlaceOrderCommandHandlerTests
 
         Assert.IsEmpty(result.Errors);
         //kept off the order notes: no order is passed
+        Assert.IsNotNull(_history);
+        Assert.IsNotNull(result.PaymentTransaction);
         _history.Verify(x => x.Record(result.PaymentTransaction, null, PaymentTransactionEntryType.Payment, 100,
             "Payments.Card", null, null), Times.Once);
     }
@@ -366,6 +370,8 @@ public class PlaceOrderCommandHandlerTests
 
         var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
 
+        Assert.IsNotNull(_history);
+        Assert.IsNotNull(result.PaymentTransaction);
         _history.Verify(x => x.Record(result.PaymentTransaction, null, PaymentTransactionEntryType.Authorization, 100,
             "Payments.Card", null, null), Times.Once);
     }
@@ -378,12 +384,13 @@ public class PlaceOrderCommandHandlerTests
         var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(_history);
         _history.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
             It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>()), Times.Never);
     }
 
-    private Mock<IRecurringPaymentService> _recurringPayments;
+    private Mock<IRecurringPaymentService>? _recurringPayments;
 
     //a product billed every month until cancelled; the payment method is checked by an order placement rule
     private (ClaimTestHandler handler, Mock<IOrderService> orders, Mock<ICustomerService> customers,
@@ -401,13 +408,15 @@ public class PlaceOrderCommandHandlerTests
     public async Task Handle_RecurringOrder_CreatesPendingRecurringPaymentForTheOrder()
     {
         var (handler, orders, _, details) = RecurringSetup();
-        Order inserted = null;
+        Order? inserted = null;
         orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o);
 
         var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(inserted);
         Assert.AreEqual(1, inserted.RecurringCycleNumber);
+        Assert.IsNotNull(_recurringPayments);
         _recurringPayments.Verify(x => x.InsertRecurringPayment(It.Is<RecurringPayment>(rp =>
             rp.InitialOrderId == inserted.Id && rp.StoreId == "store" && rp.CustomerId == "buyer" &&
             rp.PaymentMethodSystemName == "Payments.Card" && rp.CycleLength == 1 &&
@@ -419,12 +428,14 @@ public class PlaceOrderCommandHandlerTests
     public async Task Handle_StandardOrder_CreatesNoRecurringPayment()
     {
         var (handler, _, orders, _, _, _, details, _) = ClaimSetup();
-        Order inserted = null;
+        Order? inserted = null;
         orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o);
 
         await handler.Handle(ClaimCommand(details), CancellationToken.None);
 
+        Assert.IsNotNull(inserted);
         Assert.AreEqual(0, inserted.RecurringCycleNumber);
+        Assert.IsNotNull(_recurringPayments);
         _recurringPayments.Verify(x => x.InsertRecurringPayment(It.IsAny<RecurringPayment>()), Times.Never);
     }
 
@@ -433,6 +444,7 @@ public class PlaceOrderCommandHandlerTests
     {
         //an error shown with the cart still full would let the buyer place and pay a second order
         var (handler, _, customers, details) = RecurringSetup();
+        Assert.IsNotNull(_recurringPayments);
         _recurringPayments.Setup(x => x.InsertRecurringPayment(It.IsAny<RecurringPayment>()))
             .ThrowsAsync(new Exception("write failed"));
 
@@ -478,7 +490,7 @@ public class PlaceOrderCommandHandlerTests
 
         public int PaymentCalls { get; private set; }
         public bool Declined { get; set; }
-        public ProcessPaymentResult PaymentResult { get; set; }
+        public ProcessPaymentResult? PaymentResult { get; set; }
 
         protected override Task<PlaceOrderContainer> PreparePlaceOrderDetails(PlaceOrderCommand command)
         {

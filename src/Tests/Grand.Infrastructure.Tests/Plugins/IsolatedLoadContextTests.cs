@@ -14,11 +14,10 @@ namespace Grand.Infrastructure.Tests.Plugins;
 public class IsolatedLoadContextTests
 {
     private PluginFolderFixture _fixture;
-    private IEnumerable<PluginInfo> _referencedPlugins;
-    private PluginLoadSnapshot _loadSnapshot;
+    private IEnumerable<PluginInfo>? _referencedPlugins;
+    private PluginLoadSnapshot? _loadSnapshot;
 
-    [TestInitialize]
-    public void Init()
+    public IsolatedLoadContextTests()
     {
         _fixture = new PluginFolderFixture();
         _referencedPlugins = PluginManager.ReferencedPlugins;
@@ -74,6 +73,7 @@ public class IsolatedLoadContextTests
 
         var plugin = Plugin("Isolated.Host");
         Assert.IsNull(plugin.LoadError);
+        Assert.IsNotNull(plugin.PluginType);
         var instance = Activator.CreateInstance(plugin.PluginType);
         Assert.IsInstanceOfType<IPlugin>(instance);
         Assert.AreSame(typeof(IPlugin).Assembly,
@@ -191,6 +191,7 @@ public class IsolatedLoadContextTests
         Load("Isolated.Find");
 
         var plugin = Plugin("Isolated.Find");
+        Assert.IsNotNull(plugin.PluginType);
         Assert.AreSame(plugin, PluginManager.FindPlugin(plugin.PluginType));
         Assert.AreSame(plugin, PluginManager.FindPlugin(PluginFolderFixture.Loaded(plugin, "Isolated.Find.Core")));
         Assert.IsNull(PluginManager.FindPlugin(typeof(IsolatedLoadContextTests)));
@@ -199,7 +200,7 @@ public class IsolatedLoadContextTests
     private IMvcCoreBuilder Load(string installed)
     {
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string> {
+            .AddInMemoryCollection(new Dictionary<string, string?> {
                 ["Extensions:InstalledPlugins"] = installed
             })
             .Build();
@@ -212,11 +213,12 @@ public class IsolatedLoadContextTests
     }
 
     private static PluginInfo Plugin(string systemName) =>
-        PluginManager.ReferencedPlugins.Single(x => x.SystemName == systemName);
+        (PluginManager.ReferencedPlugins ?? []).Single(x => x.SystemName == systemName);
 
-    private static string Run(PluginInfo plugin)
+    private static string? Run(PluginInfo plugin)
     {
         Assert.IsNull(plugin.LoadError);
-        return (string)plugin.ReferencedAssembly.GetType("Entry", true)!.GetMethod("Run")!.Invoke(null, null);
+        Assert.IsNotNull(plugin.ReferencedAssembly);
+        return Assert.IsInstanceOfType<string>(plugin.ReferencedAssembly.GetType("Entry", true)!.GetMethod("Run")!.Invoke(null, null));
     }
 }

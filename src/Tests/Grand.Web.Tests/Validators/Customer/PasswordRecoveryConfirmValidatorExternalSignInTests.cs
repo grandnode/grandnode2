@@ -23,8 +23,7 @@ public class PasswordRecoveryConfirmValidatorExternalSignInTests
     private Mock<IExternalSignInPolicy> _signInPolicy;
     private PasswordRecoveryConfirmValidator _validator;
 
-    [TestInitialize]
-    public void Init()
+    public PasswordRecoveryConfirmValidatorExternalSignInTests()
     {
         _customer = new Customer { Id = "c1", Email = "u@x.com", Active = true };
         _customer.UserFields.Add(new UserField

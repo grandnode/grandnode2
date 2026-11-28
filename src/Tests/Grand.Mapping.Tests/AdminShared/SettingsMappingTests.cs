@@ -27,8 +27,7 @@ public class SettingsMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public SettingsMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<CatalogSettingsProfile>();

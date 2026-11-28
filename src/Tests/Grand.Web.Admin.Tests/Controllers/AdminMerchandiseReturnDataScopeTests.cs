@@ -54,6 +54,6 @@ public class AdminMerchandiseReturnDataScopeTests
     {
         var scope = Build(isSalesManager: false, currentCustomerSeId: "se-1");
 
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 }

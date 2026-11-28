@@ -10,7 +10,8 @@ public class CustomerAttributeExtensionsTests
     [TestMethod]
     public void ShouldHaveValues_NullCustomerAttribute_ReturnFalse()
     {
-        CustomerAttribute customerAttribute = null;
+        //null exercises the guard of the method under test
+        CustomerAttribute customerAttribute = null!;
         Assert.IsFalse(customerAttribute.ShouldHaveValues());
     }
 

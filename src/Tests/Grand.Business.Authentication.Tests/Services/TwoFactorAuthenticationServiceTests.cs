@@ -20,8 +20,7 @@ public class TwoFactorAuthenticationServiceTests
     private Mock<ICustomerService> _customerServiceMock;
     private Mock<IResourceLock> _resourceLockMock;
 
-    [TestInitialize]
-    public void Init()
+    public TwoFactorAuthenticationServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _sMsVerificationService = new Mock<IEnumerable<ISMSVerificationService>>();

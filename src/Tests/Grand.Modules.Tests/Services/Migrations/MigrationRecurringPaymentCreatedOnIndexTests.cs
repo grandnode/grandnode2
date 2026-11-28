@@ -17,8 +17,7 @@ public class MigrationRecurringPaymentCreatedOnIndexTests
     private readonly LiteDBRepositoryMock<RecurringPayment> _repository = new();
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationRecurringPaymentCreatedOnIndexTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IRepository<RecurringPayment>>(_repository);

@@ -50,8 +50,7 @@ public class MerchandiseReturnControllerGuestTests
     private IDataProtectionProvider _provider;
     private Mock<IMerchandiseReturnWorkflowService> _workflow;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnControllerGuestTests()
     {
         var work = new Mock<IWorkContext>();
         work.Setup(x => x.CurrentCustomer).Returns(_visitor);
@@ -276,7 +275,7 @@ public class MerchandiseReturnControllerGuestTests
     {
         var result = (ViewResult)await _controller.MerchandiseReturnDetails("r1");
 
-        Assert.IsTrue(((MerchandiseReturnDetailsModel)result.Model).Guest);
+        Assert.IsTrue(Assert.IsInstanceOfType<MerchandiseReturnDetailsModel>(result.Model).Guest);
     }
 
     [TestMethod]
@@ -297,14 +296,16 @@ public class MerchandiseReturnControllerGuestTests
         _mediator.Setup(x => x.Send(It.IsAny<GetMerchandiseReturns>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new CustomerMerchandiseReturnsModel());
 
-        var allowed = (CustomerMerchandiseReturnsModel)((ViewResult)await _controller.CustomerMerchandiseReturns())
-            .Model;
+        var allowed = Assert.IsInstanceOfType<CustomerMerchandiseReturnsModel>(((ViewResult)await _controller.CustomerMerchandiseReturns())
+            .Model);
         _mediator.Setup(x => x.Send(It.IsAny<IsMerchandiseReturnAllowedQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
-        var returned = (CustomerMerchandiseReturnsModel)((ViewResult)await _controller.CustomerMerchandiseReturns())
-            .Model;
+        var returned = Assert.IsInstanceOfType<CustomerMerchandiseReturnsModel>(((ViewResult)await _controller.CustomerMerchandiseReturns())
+            .Model);
 
+        Assert.IsNotNull(allowed);
         Assert.AreEqual("o1", allowed.ReturnOrderId);
+        Assert.IsNotNull(returned);
         Assert.IsNull(returned.ReturnOrderId);
         Assert.IsTrue(allowed.Guest);
     }

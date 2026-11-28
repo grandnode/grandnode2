@@ -45,8 +45,7 @@ public class InventoryDocumentControllerTests
     private Mock<IBrandService> _brandService;
     private InventoryDocumentViewModelService _viewModelService;
 
-    [TestInitialize]
-    public void Setup()
+    public InventoryDocumentControllerTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "staff", StaffStoreId = StoreId });
@@ -331,7 +330,7 @@ public class InventoryDocumentControllerTests
         });
 
         Assert.AreEqual(tracked.Id, document.Lines.Single().ProductId);
-        StringAssert.Contains(string.Join(" ", (IList<string>)result.ViewData["AddNotices"]), "Mug");
+        StringAssert.Contains(string.Join(" ", Assert.IsInstanceOfType<IList<string>>(result.ViewData["AddNotices"])), "Mug");
         _documentService.Verify(x => x.UpdateDraft(document), Times.Once);
     }
 
@@ -361,7 +360,7 @@ public class InventoryDocumentControllerTests
 
         var result = (JsonResult)await _controller.ProductCombinations(document.Id, product.Id);
 
-        Assert.AreEqual(0, ((IList<InventoryDocumentCombinationModel>)result.Value).Count);
+        Assert.AreEqual(0, Assert.IsInstanceOfType<IList<InventoryDocumentCombinationModel>>(result.Value).Count);
     }
 
     [TestMethod]
@@ -455,7 +454,7 @@ public class InventoryDocumentControllerTests
             DocumentTypeId = InventoryDocumentType.ReturnReceipt, StoreId = StoreId, WarehouseId = "",
             Lines = { new InventoryDocumentLine { ProductId = product.Id, Quantity = 2 } }
         };
-        IList<ReturnReceiptInspection> passed = null;
+        IList<ReturnReceiptInspection>? passed = null;
         _documentService.Setup(x => x.CreateReturnReceipt("return", "staff",
                 It.IsAny<IList<ReturnReceiptInspection>>()))
             .Callback<string, string, IList<ReturnReceiptInspection>>((_, _, inspection) => passed = inspection)
@@ -472,6 +471,7 @@ public class InventoryDocumentControllerTests
         });
 
         AssertRedirectedTo(result, "Edit");
+        Assert.IsNotNull(passed);
         Assert.AreEqual(new ReturnReceiptInspection("item1", product.Id, 1, "Dented"), passed.Single());
         Assert.AreEqual("w-own", receipt.WarehouseId);
         _documentService.Verify(x => x.UpdateDraft(receipt), Times.Once);

@@ -32,8 +32,7 @@ public class OidcSessionServiceTests
 
     private readonly Customer _customer = new() { Id = "c1" };
 
-    [TestInitialize]
-    public void Init()
+    public OidcSessionServiceTests()
     {
         _sessions = new MongoDBRepositoryTest<OidcSession>();
         _cache = new Mock<ICacheBase>();
@@ -59,12 +58,12 @@ public class OidcSessionServiceTests
     private string Protect(string token) =>
         _dataProtection.CreateProtector(OidcSessionDefaults.RefreshTokenPurpose).Protect(token);
 
-    private string Unprotect(string token) =>
-        _dataProtection.CreateProtector(OidcSessionDefaults.RefreshTokenPurpose).Unprotect(token);
+    private string Unprotect(string? token) =>
+        _dataProtection.CreateProtector(OidcSessionDefaults.RefreshTokenPurpose).Unprotect(token ?? throw new AssertFailedException("No refresh token is stored"));
 
     //a session as it would be stored, with clocks moved back by the given amounts
     private async Task<OidcSession> Session(TimeSpan? age = null, TimeSpan? idle = null, TimeSpan? sinceValidated = null,
-        string refreshToken = "rt-1", string sid = "sid-1", string subject = "sub-1", string customerId = "c1")
+        string? refreshToken = "rt-1", string sid = "sid-1", string subject = "sub-1", string customerId = "c1")
     {
         var now = DateTime.UtcNow;
         var session = new OidcSession {
@@ -84,7 +83,9 @@ public class OidcSessionServiceTests
     public async Task Start_Customer_RefreshTokenProtected()
     {
         var id = await Service().Start(_customer, "sub-1", "sid-1", "rt-1", "s1");
+        Assert.IsNotNull(id);
         var session = Stored(id);
+        Assert.IsNotNull(session.ProtectedRefreshToken);
         Assert.AreEqual("rt-1", Unprotect(session.ProtectedRefreshToken));
         Assert.AreEqual("sid-1", session.Sid);
     }
@@ -94,8 +95,10 @@ public class OidcSessionServiceTests
     {
         _staff = true;
         var id = await Service().Start(_customer, "sub-1", null, "rt-1", "s1");
+        Assert.IsNotNull(id);
         var session = Stored(id);
         Assert.AreNotEqual("rt-1", session.ProtectedRefreshToken);
+        Assert.IsNotNull(session.ProtectedRefreshToken);
         Assert.AreEqual("rt-1", Unprotect(session.ProtectedRefreshToken));
         Assert.AreEqual("", session.Sid);
     }
@@ -362,6 +365,7 @@ public class OidcSessionServiceTests
         var session = await Session(sinceValidated: Interval);
         Assert.IsTrue(await Service().Validate(session.Id, _customer));
         var stored = Stored(session.Id);
+        Assert.IsNotNull(stored.ProtectedRefreshToken);
         Assert.AreEqual("rt-2", Unprotect(stored.ProtectedRefreshToken));
         Assert.IsTrue(stored.LastValidatedUtc > DateTime.UtcNow.AddMinutes(-1));
     }
@@ -553,6 +557,7 @@ public class OidcSessionServiceTests
 
         Assert.IsTrue(await Service().Validate(session.Id, _customer));
         var stored = Stored(session.Id);
+        Assert.IsNotNull(stored.ProtectedRefreshToken);
         Assert.AreEqual("rt-2", Unprotect(stored.ProtectedRefreshToken));
         Assert.IsNull(stored.RefreshLeaseId);
         Assert.IsNull(stored.RefreshLeaseUntilUtc);

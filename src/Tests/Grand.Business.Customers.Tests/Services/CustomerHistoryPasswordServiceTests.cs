@@ -15,8 +15,7 @@ public class CustomerHistoryPasswordServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<CustomerHistoryPassword> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerHistoryPasswordServiceTests()
     {
         _repository = new MongoDBRepositoryTest<CustomerHistoryPassword>();
         _mediatorMock = new Mock<IMediator>();

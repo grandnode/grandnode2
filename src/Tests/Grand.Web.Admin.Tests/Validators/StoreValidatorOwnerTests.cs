@@ -14,8 +14,7 @@ public class StoreValidatorOwnerTests
 
     private StoreValidator _validator;
 
-    [TestInitialize]
-    public void Init()
+    public StoreValidatorOwnerTests()
     {
         var translation = new Mock<IRequestTranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => key);
@@ -27,7 +26,7 @@ public class StoreValidatorOwnerTests
         _validator = new StoreValidator([], translation.Object, storeService.Object);
     }
 
-    private static StoreModel Model(string ownerCustomerId)
+    private static StoreModel Model(string? ownerCustomerId)
     {
         return new StoreModel {
             Id = "s1", Name = "Store", Shortcut = "st", Url = "https://store.example/",

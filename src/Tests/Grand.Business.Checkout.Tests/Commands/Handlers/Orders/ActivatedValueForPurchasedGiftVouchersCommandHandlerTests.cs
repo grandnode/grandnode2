@@ -19,8 +19,7 @@ public class ActivatedValueForPurchasedGiftVouchersCommandHandlerTests
     private Mock<ILanguageService> _langService;
     private Mock<IOrderMessageProviderService> _messageProviderMock;
 
-    [TestInitialize]
-    public void Init()
+    public ActivatedValueForPurchasedGiftVouchersCommandHandlerTests()
     {
         _giftVoucherMock = new Mock<IGiftVoucherService>();
         _langService = new Mock<ILanguageService>();

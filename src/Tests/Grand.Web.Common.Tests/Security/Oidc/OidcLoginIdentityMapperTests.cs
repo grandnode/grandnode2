@@ -17,6 +17,7 @@ public class OidcLoginIdentityMapperTests
     {
         var id = OidcLoginIdentityMapper.Map(P(("sub", "s1"), ("email", "A@B.c"), ("email_verified", "True"),
             ("given_name", "Ann"), ("family_name", "Bell")), new OidcClaimNames());
+        Assert.IsNotNull(id);
         Assert.AreEqual("ExternalAuth.OpenIdConnect", id.ProviderSystemName);
         Assert.AreEqual("s1", id.Subject);
         Assert.AreEqual("A@B.c", id.Email);
@@ -33,7 +34,7 @@ public class OidcLoginIdentityMapperTests
     {
         var claims = new List<(string, string)> { ("sub", "s1"), ("email", "a@b.c") };
         if (value != null) claims.Add(("email_verified", value));
-        Assert.IsFalse(OidcLoginIdentityMapper.Map(P(claims.ToArray()), new OidcClaimNames()).EmailVerified);
+        Assert.IsFalse(OidcLoginIdentityMapper.Map(P(claims.ToArray()), new OidcClaimNames())?.EmailVerified);
     }
 
     [TestMethod]
@@ -41,6 +42,7 @@ public class OidcLoginIdentityMapperTests
     {
         var names = new OidcClaimNames { Subject = "oid", Email = "upn", EmailVerified = "ev" };
         var id = OidcLoginIdentityMapper.Map(P(("oid", "o1"), ("upn", "u@b.c"), ("ev", "true")), names);
+        Assert.IsNotNull(id);
         Assert.AreEqual("o1", id.Subject);
         Assert.AreEqual("u@b.c", id.Email);
         Assert.IsTrue(id.EmailVerified);
@@ -66,6 +68,7 @@ public class OidcLoginIdentityMapperTests
         Assert.IsFalse(props.IsPersistent);
         Assert.IsFalse(props.AllowRefresh);
         //the properties keep whole seconds
+        Assert.IsTrue(props.ExpiresUtc.HasValue);
         Assert.IsTrue((now.AddMinutes(15) - props.ExpiresUtc.Value).Duration() < TimeSpan.FromSeconds(1));
     }
 

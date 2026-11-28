@@ -61,6 +61,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
         var view = result as ViewResult;
         Assert.IsNotNull(view);
         var model = view.Model as CustomerListModel;
+        Assert.IsNotNull(model);
         Assert.IsTrue(model.UsernamesEnabled);
         Assert.IsTrue(model.CompanyEnabled);
         CustomerViewModelServiceMock.Verify(v => v.PrepareCustomerListModel(), Times.Once);
@@ -69,7 +70,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
     [TestMethod]
     public async Task CustomerList_GlobalScope_UsesSubmittedGroupIds()
     {
-        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         CustomerViewModelServiceMock
             .Setup(v => v.PrepareCustomerList(It.IsAny<CustomerListModel>(),
                 new[] { "group-1" }, null, 1, 10, ""))
@@ -111,7 +112,9 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
         var result = await Controller.Create();
 
         var view = result as ViewResult;
+        Assert.IsNotNull(view);
         var model = view.Model as CustomerModel;
+        Assert.IsNotNull(model);
         Assert.IsTrue(model.Active);
         Assert.AreEqual("", model.StoreId ?? ""); // never forced for Admin (default no-op hook)
     }
@@ -133,14 +136,15 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
 
         var result = await Controller.Create();
 
-        var model = (CustomerModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<CustomerModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual(0, model.AvailableStores.Count);
     }
 
     [TestMethod]
     public async Task CreateGet_GlobalScope_KeepsAvailableStores()
     {
-        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         CustomerViewModelServiceMock
             .Setup(v => v.PrepareCustomerModel(It.IsAny<CustomerModel>(), null, false))
             .Callback<CustomerModel, Customer, bool>((m, _, _) =>
@@ -149,7 +153,8 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
 
         var result = await Controller.Create();
 
-        var model = (CustomerModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<CustomerModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual(1, model.AvailableStores.Count);
     }
 
@@ -168,7 +173,8 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
 
         var result = await Controller.Edit("c1");
 
-        var model = (CustomerModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<CustomerModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual(0, model.AvailableStores.Count);
     }
 
@@ -178,7 +184,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
         var customer = new Customer { Id = "c1" };
         CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
         ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
-        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         CustomerViewModelServiceMock
             .Setup(v => v.PrepareCustomerModel(It.IsAny<CustomerModel>(), customer, false))
             .Callback<CustomerModel, Customer, bool>((m, _, _) =>
@@ -187,7 +193,8 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
 
         var result = await Controller.Edit("c1");
 
-        var model = (CustomerModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<CustomerModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual(1, model.AvailableStores.Count);
     }
 
@@ -210,7 +217,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
     [TestMethod]
     public async Task LoadAuthorizedCustomer_NotFound_ReturnsRedirectToList()
     {
-        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer?)null);
 
         (await Controller.LoadAuthorizedCustomerPublic("missing")).TryGet(out var customer, out var denied);
 
@@ -266,7 +273,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
     [TestMethod]
     public async Task EditGet_Denied_RedirectsToList()
     {
-        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.Edit("missing");
 

@@ -25,8 +25,7 @@ public class ExternalRegistrationContextTests
     private static readonly ExternalRegistrationIdentity Identity =
         new(OidcResourceServerDefaults.ProviderSystemName, "sub-1", "john@example.com", true, "John", "Doe");
 
-    [TestInitialize]
-    public void Init()
+    public ExternalRegistrationContextTests()
     {
         _auth = new Mock<IAuthenticationService>();
         _resolver = new Mock<IOidcCustomerResolver>();
@@ -38,7 +37,7 @@ public class ExternalRegistrationContextTests
     private ExternalRegistrationContext Context() =>
         new(new HttpContextAccessor { HttpContext = _http }, _resolver.Object, NullLogger<ExternalRegistrationContext>.Instance);
 
-    private void Cookie(ClaimsPrincipal principal) =>
+    private void Cookie(ClaimsPrincipal? principal) =>
         _auth.Setup(x => x.AuthenticateAsync(_http, Scheme)).ReturnsAsync(principal == null
             ? AuthenticateResult.NoResult()
             : AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme)));
@@ -69,7 +68,9 @@ public class ExternalRegistrationContextTests
     public async Task UnverifiedFlag_RoundTrips()
     {
         Cookie(ExternalRegistrationContext.CreatePrincipal(Identity with { EmailVerified = false }));
-        Assert.IsFalse((await Context().GetPending()).EmailVerified);
+        var externalRegistrationIdentity = await Context().GetPending();
+        Assert.IsNotNull(externalRegistrationIdentity);
+        Assert.IsFalse(externalRegistrationIdentity.EmailVerified);
     }
 
     [TestMethod]

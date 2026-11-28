@@ -21,8 +21,7 @@ public class LocalizedEditorTagHelperTests
 {
     private ViewContext _viewContext;
 
-    [TestInitialize]
-    public void Init()
+    public LocalizedEditorTagHelperTests()
     {
         var languageService = new Mock<ILanguageService>();
         languageService.Setup(x => x.GetLanguageById("en"))
@@ -45,7 +44,7 @@ public class LocalizedEditorTagHelperTests
     {
         var helper = new LocalizedEditorTagHelper {
             Name = "brand-info-localized",
-            LanguagesIds = languageIds.ToList(),
+            LanguagesIds = [.. languageIds],
             ViewContext = _viewContext,
             LocalizedTemplate = i => new HelperResult(writer => writer.WriteAsync($"<div>locale {i}</div>"))
         };

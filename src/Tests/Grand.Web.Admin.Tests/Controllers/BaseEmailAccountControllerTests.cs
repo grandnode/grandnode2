@@ -36,8 +36,7 @@ public class BaseEmailAccountControllerTests
     private Mock<IEmailAccountService> _emailAccountServiceMock = null!;
     private Mock<IRequestTranslationService> _translationServiceMock = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseEmailAccountControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<EmailAccountProfile>());
         AutoMapperConfig.Init(mapperConfig);

@@ -43,13 +43,12 @@ public class BaseOrderControllerTests
     private Mock<IAdminDataScope<Order>> _scopeMock;
     private Mock<IPdfService> _pdfServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseOrderControllerTests()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _orderViewModelServiceMock = new Mock<IOrderViewModelService>();
         _scopeMock = new Mock<IAdminDataScope<Order>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _pdfServiceMock = new Mock<IPdfService>();
 
         var translationServiceMock = new Mock<IRequestTranslationService>();
@@ -97,7 +96,7 @@ public class BaseOrderControllerTests
     [TestMethod]
     public async Task ListGet_GlobalScope_PassesEmptyStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _orderViewModelServiceMock
             .Setup(v => v.PrepareOrderListModel(null, null, null, null, "", null))
             .ReturnsAsync(new OrderListModel());
@@ -124,7 +123,7 @@ public class BaseOrderControllerTests
     [TestMethod]
     public async Task ListPost_GlobalScope_LeavesSubmittedStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _orderViewModelServiceMock
             .Setup(v => v.PrepareOrderModel(It.IsAny<OrderListModel>(), 1, 10))
             .ReturnsAsync((Enumerable.Empty<OrderModel>(), 0));
@@ -138,7 +137,7 @@ public class BaseOrderControllerTests
     [TestMethod]
     public async Task ListPost_VendorScope_ForcesModelVendorId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-A");
         _orderViewModelServiceMock
             .Setup(v => v.PrepareOrderModel(It.IsAny<OrderListModel>(), 1, 10))
@@ -153,7 +152,7 @@ public class BaseOrderControllerTests
     [TestMethod]
     public async Task LoadAuthorizedOrder_NotFound_ReturnsRedirectToList()
     {
-        _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order)null);
+        _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order?)null);
 
         (await _controller.LoadAuthorizedOrderPublic("missing")).TryGet(out var order, out var denied);
 
@@ -195,7 +194,7 @@ public class BaseOrderControllerTests
     [TestMethod]
     public async Task EditGet_NotFound_RedirectsToList()
     {
-        _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order)null);
+        _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order?)null);
 
         var result = await _controller.Edit("missing");
 

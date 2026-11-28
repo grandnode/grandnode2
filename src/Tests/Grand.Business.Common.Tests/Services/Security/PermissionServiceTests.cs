@@ -21,8 +21,7 @@ public class PermissionServiceTests
     private Mock<IRepository<Permission>> _permissionRepositoryMock;
     private PermissionService _service;
 
-    [TestInitialize]
-    public void Init()
+    public PermissionServiceTests()
     {
         _permissionRepositoryMock = new Mock<IRepository<Permission>>();
         _permissionActionRepositoryMock = new Mock<IRepository<PermissionAction>>();
@@ -49,7 +48,8 @@ public class PermissionServiceTests
     [TestMethod]
     public async Task Authorize_NullPermission_ReturnFalse()
     {
-        Permission permission = null;
+        //null exercises the guard of the method under test
+        Permission permission = null!;
         var fakeCustomer = new Customer();
         fakeCustomer.Groups.Add("group1");
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>()))
@@ -63,18 +63,18 @@ public class PermissionServiceTests
     public async Task Authorize_NullCustomer_ReturnFalse()
     {
         Assert.IsFalse(await _service.Authorize(new Permission { SystemName = "permission" }, null));
-        Assert.IsFalse(await _service.Authorize("permission", (Customer)null));
+        Assert.IsFalse(await _service.Authorize("permission", (Customer?)null));
         _groupServiceMock.VerifyNoOtherCalls();
     }
 
-    private Customer CustomerAuthorizedFor(string groupId, PermissionAction deniedAction)
+    private Customer CustomerAuthorizedFor(string groupId, PermissionAction? deniedAction)
     {
         var customer = new Customer();
         customer.Groups.Add(groupId);
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>()))
-            .Returns(Task.FromResult(true));
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<PermissionAction>>>()))
-            .Returns(Task.FromResult(deniedAction));
+            .ReturnsAsync(true);
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<PermissionAction?>>>()))
+            .ReturnsAsync(deniedAction);
         _groupServiceMock.Setup(c => c.GetAllByIds(It.Is<string[]>(ids => ids.SequenceEqual(new[] { groupId }))))
             .Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup> { new() { Id = groupId } }));
         return customer;

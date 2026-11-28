@@ -29,8 +29,7 @@ public class GetCustomerOrderListHandlerTests
     private Mock<IMediator> _mediator;
     private List<Order> _orders = [];
 
-    [TestInitialize]
-    public void Init()
+    public GetCustomerOrderListHandlerTests()
     {
         _customer = new Customer { Id = "buyer" };
         _currency = new Currency { Id = "c1", CurrencyCode = "EUR" };
@@ -82,6 +81,7 @@ public class GetCustomerOrderListHandlerTests
 
         var model = await Handle();
 
+        Assert.IsNotNull(model.TradeCredit);
         Assert.AreEqual("2000 EUR", model.TradeCredit.CreditLimit);
         Assert.AreEqual("800 EUR", model.TradeCredit.Outstanding);
         Assert.AreEqual("1200 EUR", model.TradeCredit.Available);

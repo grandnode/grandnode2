@@ -14,8 +14,7 @@ public class GetProductArchByIdQueryHandlerTests
 
     private GetProductArchByIdQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetProductArchByIdQueryHandlerTests()
     {
         _productDeletedRepository = new Mock<IRepository<ProductDeleted>>();
 

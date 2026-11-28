@@ -21,8 +21,7 @@ public class PartiallyPaidOfflineCommandHandlerTests
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
     private Mock<IPaymentTransactionHistoryService> _historyMock;
 
-    [TestInitialize]
-    public void Init()
+    public PartiallyPaidOfflineCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
@@ -39,8 +38,8 @@ public class PartiallyPaidOfflineCommandHandlerTests
         //Arrange
         var command = new PartiallyPaidOfflineCommand { PaymentTransaction = new PaymentTransaction() };
         _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyPaidOfflineQuery>(), default))
-            .Returns(Task.FromResult(true));
-        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).Returns(Task.FromResult(new Order()));
+            .ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
         //Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
