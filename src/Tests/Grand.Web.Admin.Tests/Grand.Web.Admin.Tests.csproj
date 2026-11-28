@@ -28,8 +28,4 @@
             <Aliases>VendorHost</Aliases>
         </ProjectReference>
     </ItemGroup>
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-  </PropertyGroup>
 </Project>

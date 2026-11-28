@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Mapper;

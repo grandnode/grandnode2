@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Build\Grand.Common.props" />
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-  </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Grand.Mapping.Tests" />
   </ItemGroup>

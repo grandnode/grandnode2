@@ -1,5 +1,3 @@
-#nullable enable
-
 using System.Reflection;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Customers;

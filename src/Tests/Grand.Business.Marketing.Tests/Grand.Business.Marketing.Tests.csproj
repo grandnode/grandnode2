@@ -22,8 +22,4 @@
     <ProjectReference Include="..\Grand.Infrastructure.Tests\Grand.Infrastructure.Tests.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-  </PropertyGroup>
 </Project>

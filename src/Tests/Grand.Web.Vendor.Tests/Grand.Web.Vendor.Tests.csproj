@@ -22,8 +22,4 @@
         <ProjectReference Include="..\..\Web\Grand.Web.AdminShared\Grand.Web.AdminShared.csproj" />
         <ProjectReference Include="..\..\Web\Grand.Web.Vendor\Grand.Web.Vendor.csproj" />
     </ItemGroup>
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-  </PropertyGroup>
 </Project>

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Blogs;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Services;

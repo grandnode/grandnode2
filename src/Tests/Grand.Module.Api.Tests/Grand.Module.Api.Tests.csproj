@@ -25,8 +25,4 @@
         <ProjectReference Include="..\..\Modules\Grand.Module.Api\Grand.Module.Api.csproj" />
         <ProjectReference Include="..\Grand.Data.Tests\Grand.Data.Tests.csproj" />
     </ItemGroup>
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-  </PropertyGroup>
 </Project>

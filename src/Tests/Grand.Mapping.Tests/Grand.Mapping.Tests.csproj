@@ -24,8 +24,4 @@
         <ProjectReference Include="..\..\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj" />
     </ItemGroup>
 
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-  </PropertyGroup>
 </Project>

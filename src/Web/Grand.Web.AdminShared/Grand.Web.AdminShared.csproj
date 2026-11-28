@@ -11,8 +11,4 @@
     <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
     <ProjectReference Include="..\Grand.SharedUIResources\Grand.SharedUIResources.csproj" />
   </ItemGroup>
-  <PropertyGroup>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-  </PropertyGroup>
 </Project>

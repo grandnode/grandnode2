@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Services;

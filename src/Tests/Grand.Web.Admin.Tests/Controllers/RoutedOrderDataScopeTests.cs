@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
