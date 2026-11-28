@@ -193,8 +193,10 @@ public class StripeCheckoutService : IStripeCheckoutService
         }
         catch (StripeException e)
         {
-            _logger.LogError(e, "StripeException");
-            return false;
+            //the webhook answers with an error, so Stripe shows the endpoint failing and sends the event again: a wrong
+            //or rotated signing secret must not drop payments silently
+            _logger.LogError(e, "Stripe webhook: the event's signature could not be verified");
+            throw;
         }
 
         //a recurring payment event that fails throws, so the webhook answers with an error and Stripe sends it
