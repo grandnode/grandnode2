@@ -56,27 +56,30 @@ public class WidgetSliderComponent : ViewComponent
     public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
     {
         var model = new PublicInfoModel();
+        //the category, collection and brand zones show the slides of the page's entity; a zone rendered without one
+        //would otherwise show every slide of that type
+        var entityId = additionalData?.ToString();
         if (widgetZone == SliderWidgetDefaults.WidgetZoneHomePage)
         {
             var slides = await _sliderService.GetPictureSliders(SliderType.HomePage);
             await PrepareModel(slides, model);
         }
 
-        if (widgetZone == SliderWidgetDefaults.WidgetZoneCategoryPage)
+        if (widgetZone == SliderWidgetDefaults.WidgetZoneCategoryPage && !string.IsNullOrEmpty(entityId))
         {
-            var slides = await _sliderService.GetPictureSliders(SliderType.Category, additionalData?.ToString());
+            var slides = await _sliderService.GetPictureSliders(SliderType.Category, entityId);
             await PrepareModel(slides, model);
         }
 
-        if (widgetZone == SliderWidgetDefaults.WidgetZoneCollectionPage)
+        if (widgetZone == SliderWidgetDefaults.WidgetZoneCollectionPage && !string.IsNullOrEmpty(entityId))
         {
-            var slides = await _sliderService.GetPictureSliders(SliderType.Collection, additionalData?.ToString());
+            var slides = await _sliderService.GetPictureSliders(SliderType.Collection, entityId);
             await PrepareModel(slides, model);
         }
 
-        if (widgetZone == SliderWidgetDefaults.WidgetZoneBrandPage)
+        if (widgetZone == SliderWidgetDefaults.WidgetZoneBrandPage && !string.IsNullOrEmpty(entityId))
         {
-            var slides = await _sliderService.GetPictureSliders(SliderType.Brand, additionalData?.ToString());
+            var slides = await _sliderService.GetPictureSliders(SliderType.Brand, entityId);
             await PrepareModel(slides, model);
         }
 
