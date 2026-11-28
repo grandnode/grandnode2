@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "IIS Express": {
+    "Admin panel only (IIS Express)": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "https://localhost:44343/admin",
@@ -16,7 +16,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },    
-    "Kestrel": {
+    "Admin panel only (Kestrel)": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "https://localhost:5011/admin",

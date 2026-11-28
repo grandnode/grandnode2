@@ -132,6 +132,10 @@ dotnet build GrandNode.slnx
 dotnet run --project src/Web/Grand.Web
 ```
 
+`Grand.Web` is the project to run: one process serves the storefront and the Admin (`/admin`), Store (`/store`) and
+Vendor (`/vendor`) panels. The `Grand.Web.Admin`, `Grand.Web.Store` and `Grand.Web.Vendor` projects can also run on
+their own, for installations that host a panel separately; you don't need them to work locally.
+
 Build the whole solution once before the first run: plugins and modules copy themselves into the web project's
 output when they are built. Run with `ASPNETCORE_ENVIRONMENT=Development` (the launch profiles already set it),
 otherwise the admin panel loads without its CSS and JavaScript.
