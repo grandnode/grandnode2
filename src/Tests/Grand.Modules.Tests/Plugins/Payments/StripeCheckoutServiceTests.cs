@@ -634,7 +634,9 @@ public class StripeCheckoutServiceTests
     [TestMethod]
     public async Task WebHook_BadSignature_IsRefused()
     {
-        Assert.IsFalse(await _service.WebHookProcessPayment("t=1,v1=00", """{"id":"evt_1","object":"event"}"""));
+        //an error, so the webhook answers 400 and Stripe sends the event again
+        await Assert.ThrowsAsync<StripeException>(() =>
+            _service.WebHookProcessPayment("t=1,v1=00", """{"id":"evt_1","object":"event"}"""));
 
         _mediator.VerifyNoOtherCalls();
     }
