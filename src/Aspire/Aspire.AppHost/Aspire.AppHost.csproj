@@ -20,6 +20,7 @@
 		<PackageReference Include="Aspire.Hosting.AppHost" />
 		<PackageReference Include="Aspire.Hosting.MongoDB" />
 		<PackageReference Include="Aspire.Hosting.Redis" />
+		<PackageReference Include="CommunityToolkit.Aspire.Hosting.OpenTelemetryCollector" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" />
