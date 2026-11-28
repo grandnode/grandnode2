@@ -54,7 +54,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
 
         var discount = await GetDiscountById(discountId);
         if (discount == null)
-            throw new ArgumentException("Discount could not be loaded");
+            return Content("Failed to load discount.");
 
         if (!CanView(discount, _contextAccessor.WorkContext.CurrentCustomer))
             return Content("Access denied");
@@ -92,7 +92,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
 
         var discount = await GetDiscountById(discountId);
         if (discount == null)
-            throw new ArgumentException("Discount could not be loaded");
+            return Content("Failed to load discount.");
 
         if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
             return Content("Access denied");
