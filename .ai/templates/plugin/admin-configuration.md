@@ -15,7 +15,7 @@ namespace {SystemName}.Models;
 
 public class ConfigurationModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
     [GrandResourceDisplayName("Plugins.{Group}.{Name}.DisplayOrder")]
     public int DisplayOrder { get; set; }
