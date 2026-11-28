@@ -47,12 +47,10 @@ public class CountryStateZipTaxProvider : ITaxProvider
     /// <returns>Tax</returns>
     public async Task<TaxResult> GetTaxRate(TaxRequest calculateTaxRequest)
     {
+        //without an address (a guest who has not given one, no default tax address) there is no rate to look up:
+        //no tax, and nothing wrong to report - an error here was logged on every price shown
         if (calculateTaxRequest.Address == null)
-        {
-            var errorResult = new TaxResult();
-            errorResult.Errors.Add("Address is not set");
-            return errorResult;
-        }
+            return new TaxResult();
 
         var allTaxRates = await GetAllTaxRatesFromCache();
 
