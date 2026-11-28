@@ -120,6 +120,10 @@ public class ShippingPointController : BaseShippingController
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Edit(ShippingPointModel model)
     {
+        //a point deleted meanwhile, or an unknown id: nothing to save, as in the Store area
+        if (await _shippingPointService.GetStoreShippingPointById(model.Id) == null)
+            return RedirectToAction("Configure");
+
         if (ModelState.IsValid)
         {
             var shippingPoint = model.ToEntity();
