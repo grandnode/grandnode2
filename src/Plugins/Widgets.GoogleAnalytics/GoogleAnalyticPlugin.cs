@@ -1,6 +1,9 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Plugins;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Grand.Modules.Tests")]
 
 namespace Widgets.GoogleAnalytics;
 
