@@ -104,13 +104,22 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
         if (shippingMethodName != _translationService.GetResource("Shipping.ShippingPoint.PluginName"))
             throw new ArgumentException("shippingMethodName");
 
+        //only a point the current store lists (its own or one of every store): a posted id of another store's point is
+        //not accepted, nor its pickup fee
+        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
         var chosenShippingOption = await _shippingPointService.GetStoreShippingPointById(shippingOptionId);
-        if (chosenShippingOption == null)
+        if (chosenShippingOption == null ||
+            (!string.IsNullOrEmpty(chosenShippingOption.StoreId) && chosenShippingOption.StoreId != storeId))
             return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
 
-        //override price 
-        var offeredShippingOptions = _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, _contextAccessor.StoreContext.CurrentStore.Id);
-        offeredShippingOptions.First(x => x.Name == shippingMethodName).Rate =
+        //the options offered on the shipping step must include this method; stored ones of an earlier visit may not
+        var offeredShippingOptions = _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, storeId);
+        var offeredShippingPoint = offeredShippingOptions?.FirstOrDefault(x => x.Name == shippingMethodName);
+        if (offeredShippingPoint == null)
+            return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
+
+        //override price
+        offeredShippingPoint.Rate =
             await _currencyService.ConvertFromPrimaryStoreCurrency(chosenShippingOption.PickupFee,
                 _contextAccessor.WorkContext.WorkingCurrency);
 
