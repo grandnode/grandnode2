@@ -57,20 +57,14 @@ public class DiscountRulesHasOneProductController : BaseDiscountRulePluginContro
         return null;
     }
 
-    private async Task<Discount> GetDiscountAsync(string discountId)
-    {
-        var discount = await _discountService.GetDiscountById(discountId);
-        if (discount == null)
-            throw new ArgumentException("Discount could not be loaded");
-        return discount;
-    }
-
     public async Task<IActionResult> Configure(string discountId, string discountRequirementId)
     {
         var authResult = await AuthorizeAsync(StandardPermission.ManageDiscounts);
         if (authResult != null) return authResult;
 
-        var discount = await GetDiscountAsync(discountId);
+        var discount = await _discountService.GetDiscountById(discountId);
+        if (discount == null)
+            return Content("Failed to load discount.");
         if (!CanView(discount, _contextAccessor.WorkContext.CurrentCustomer))
             return Content("Access denied");
 
@@ -104,7 +98,9 @@ public class DiscountRulesHasOneProductController : BaseDiscountRulePluginContro
         var authResult = await AuthorizeAsync(StandardPermission.ManageDiscounts);
         if (authResult != null) return authResult;
 
-        var discount = await GetDiscountAsync(discountId);
+        var discount = await _discountService.GetDiscountById(discountId);
+        if (discount == null)
+            return Content("Failed to load discount.");
         if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
             return Content("Access denied");
 
