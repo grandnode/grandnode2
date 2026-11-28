@@ -57,7 +57,7 @@ public class GetEstimateShippingHandler : IRequestHandler<GetEstimateShipping, E
                 ? request.Customer.ShippingAddress.StateProvinceId
                 : model.StateProvinceId;
         var states = !string.IsNullOrEmpty(defaultEstimateCountryId)
-            ? await _countryService.GetStateProvincesByCountryId(defaultEstimateCountryId, request.Language.Id) ?? []
+            ? await _countryService.GetStateProvincesByCountryId(defaultEstimateCountryId, request.Language.Id)
             : new List<StateProvince>();
         if (states.Any())
             foreach (var s in states)

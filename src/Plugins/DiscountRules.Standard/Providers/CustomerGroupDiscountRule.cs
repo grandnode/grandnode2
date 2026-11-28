@@ -20,9 +20,6 @@ public class CustomerGroupDiscountRule : IDiscountRule
         //invalid by default
         var result = new DiscountRuleValidationResult();
 
-        if (request.Customer == null)
-            return result;
-
         if (string.IsNullOrEmpty(request.DiscountRule.Metadata))
             return result;
 

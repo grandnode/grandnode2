@@ -41,8 +41,6 @@ public class ShoppingCartDiscountRule : IDiscountRule
             return result;
         }
 
-        if (request.Customer == null) return result;
-
         var cart = request.Customer.ShoppingCartItems
             .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
             .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, request.Store.Id)

@@ -57,7 +57,7 @@ public class TaxCountryStateZipController : BaseAdminPluginController
         if (defaultCountry != null)
         {
             var states = await _countryService.GetStateProvincesByCountryId(defaultCountry.Id);
-            foreach (var s in states ?? [])
+            foreach (var s in states)
                 model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id });
         }
 

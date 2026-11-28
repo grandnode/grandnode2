@@ -105,7 +105,7 @@ public class GetRegisterHandler : IRequestHandler<GetRegister, RegisterModel>
             if (_customerSettings.StateProvinceEnabled)
             {
                 //states
-                var states = await _countryService.GetStateProvincesByCountryId(model.CountryId, request.Language.Id) ?? [];
+                var states = await _countryService.GetStateProvincesByCountryId(model.CountryId, request.Language.Id);
                 model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 
                 foreach (var s in states)

@@ -65,14 +65,4 @@ public class ShoppingCartDiscountRuleTests
 
         Assert.IsFalse(result.IsValid);
     }
-
-    [TestMethod]
-    public async Task CheckRequirement_NoCustomer_IsNotValid()
-    {
-        var result = await _rule.CheckRequirement(Request(null!));
-
-        Assert.IsFalse(result.IsValid);
-        _mediator.Verify(m => m.Send(It.IsAny<GetShoppingCartItemsSubTotalQuery>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
 }

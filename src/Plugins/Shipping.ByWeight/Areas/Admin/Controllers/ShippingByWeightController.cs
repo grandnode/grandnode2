@@ -299,7 +299,7 @@ public class ShippingByWeightController : BaseShippingController
             ? await _countryService.GetStateProvincesByCountryId(selectedCountry.Id)
             : new List<StateProvince>();
         model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "" });
-        foreach (var s in states ?? [])
+        foreach (var s in states)
             model.AvailableStates.Add(new SelectListItem
                 { Text = s.Name, Value = s.Id, Selected = selectedState != null && s.Id == selectedState.Id });
 
