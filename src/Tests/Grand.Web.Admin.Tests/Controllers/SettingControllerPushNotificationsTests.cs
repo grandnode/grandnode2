@@ -27,10 +27,9 @@ public class SettingControllerPushNotificationsTests
     private const string Template = "var config = {\napiKey: \"\",\nappId: \"\",\nauthDomain: \"\",\ndatabaseURL: \"\",\nprojectId: \"\",\nstorageBucket: \"\",\nmessagingSenderId: \"\",\n};";
     private SettingController _controller;
     private Mock<IMediaFileStore> _fileStore;
-    private string _written;
+    private string? _written;
 
-    [TestInitialize]
-    public void Init()
+    public SettingControllerPushNotificationsTests()
     {
         AutoMapperConfig.Init(new MapperConfiguration(cfg => cfg.AddProfile<PushNotificationsSettingsProfile>()));
         var settingService = new Mock<ISettingService>();

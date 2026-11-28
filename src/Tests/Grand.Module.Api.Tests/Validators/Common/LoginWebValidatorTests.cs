@@ -152,7 +152,7 @@ public class LoginWebValidatorTests
             .ReturnsAsync(new Customer { Active = true });
 
         var result = await CreateValidator(apiEnabled: true)
-            .ValidateAsync(new LoginWebModel { Email = "user@x.com", Password = null });
+            .ValidateAsync(new LoginWebModel { Email = "user@x.com", Password = null! });
 
         Assert.IsFalse(result.IsValid);
     }

@@ -21,8 +21,7 @@ public class CampaignControllerTests
     private Mock<ICampaignService> _campaignService = null!;
     private CampaignController _controller = null!;
 
-    [TestInitialize]
-    public void Init()
+    public CampaignControllerTests()
     {
         _campaignService = new Mock<ICampaignService>();
         _campaignService.Setup(x => x.GetCampaignById("c1")).ReturnsAsync(new Campaign { Id = "c1" });
