@@ -8,6 +8,7 @@ using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
+using System.Text.Encodings.Web;
 
 namespace Widgets.GoogleAnalytics.Components;
 
@@ -182,13 +183,12 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
         return analyticsTrackingScript;
     }
 
-    private static string FixIllegalJavaScriptChars(string text)
+    //the value goes inside a quoted string of an inline script: quotes, backslashes and markup must not end it
+    internal static string FixIllegalJavaScriptChars(string text)
     {
         if (string.IsNullOrEmpty(text))
             return text;
 
-        //replace ' with \' (http://stackoverflow.com/questions/4292761/need-to-url-encode-labels-when-tracking-events-with-google-analytics)
-        text = text.Replace("'", "\\'");
-        return text;
+        return JavaScriptEncoder.Default.Encode(text);
     }
 }
