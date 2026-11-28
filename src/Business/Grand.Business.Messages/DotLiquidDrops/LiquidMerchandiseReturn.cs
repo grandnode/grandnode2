@@ -17,7 +17,7 @@ public class LiquidMerchandiseReturn : Drop
 
     private readonly string url;
 
-    public LiquidMerchandiseReturn(MerchandiseReturn merchandiseReturn, Store store, DomainHost host,
+    public LiquidMerchandiseReturn(MerchandiseReturn merchandiseReturn, Store store, DomainHost? host,
         Order order, MerchandiseReturnNote? merchandiseReturnNote = null)
     {
         _merchandiseReturn = merchandiseReturn;

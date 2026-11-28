@@ -136,7 +136,7 @@ public abstract class BaseCustomerController(
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]
     public async Task<IActionResult> CustomerList(DataSourceRequest command, CustomerListModel model,
-        string[] searchCustomerGroupIds, string[] searchCustomerTagIds)
+        string[] searchCustomerGroupIds, string[]? searchCustomerTagIds)
     {
         var groupIds = searchCustomerGroupIds;
         string[]? tagIds = searchCustomerTagIds;

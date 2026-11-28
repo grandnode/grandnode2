@@ -526,7 +526,7 @@ public class MerchandiseReturnController : BasePublicController
     /// </summary>
     [HttpPost]
     public virtual async Task<IActionResult> MerchandiseReturnAddNote(string merchandiseReturnId, string note,
-        IFormFile file)
+        IFormFile? file)
     {
         var (merchandiseReturn, order, customer) = await CustomerMerchandiseReturn(merchandiseReturnId);
         if (merchandiseReturn == null || order == null || customer == null)

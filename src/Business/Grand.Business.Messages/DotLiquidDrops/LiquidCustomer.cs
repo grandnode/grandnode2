@@ -16,7 +16,7 @@ public class LiquidCustomer : Drop
     private readonly Store _store;
     private readonly string url;
 
-    public LiquidCustomer(Customer customer, Store store, DomainHost host, CustomerNote? customerNote = null)
+    public LiquidCustomer(Customer customer, Store store, DomainHost? host, CustomerNote? customerNote = null)
     {
         _customer = customer;
         _customerNote = customerNote;

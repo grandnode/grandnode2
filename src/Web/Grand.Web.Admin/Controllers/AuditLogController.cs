@@ -39,7 +39,7 @@ public class AuditLogController(
         return RedirectToAction("List");
     }
 
-    public async Task<IActionResult> List(string entityType, string entityId, string operationId)
+    public async Task<IActionResult> List(string? entityType, string? entityId, string? operationId)
     {
         var model = new AuditLogListModel {
             EntityType = entityType,
@@ -120,7 +120,7 @@ public class AuditLogController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    public IActionResult HistoryPopup(string entityType, string entityId, string entityNames)
+    public IActionResult HistoryPopup(string? entityType, string? entityId, string? entityNames)
     {
         return View(new AuditHistoryPopupModel {
             EntityType = entityType, EntityId = entityId, EntityNames = entityNames
@@ -132,8 +132,8 @@ public class AuditLogController(
     /// </summary>
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.List)]
-    public async Task<IActionResult> HistoryList(DataSourceRequest command, string entityType, string entityId,
-        string entityNames)
+    public async Task<IActionResult> HistoryList(DataSourceRequest command, string? entityType, string? entityId,
+        string? entityNames)
     {
         var search = new AuditEntrySearch {
             EntityType = entityType,

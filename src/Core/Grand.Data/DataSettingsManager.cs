@@ -61,7 +61,10 @@ public sealed class DataSettingsManager
         return _dataSettings;
     }
 
-    public DataSettings LoadDataSettings(DataSettings dataSettings)
+    /// <summary>
+    ///     Uses the given settings; null forgets the loaded ones, so the next read takes them from the settings file
+    /// </summary>
+    public DataSettings? LoadDataSettings(DataSettings? dataSettings)
     {
         _dataSettings = dataSettings;
         return _dataSettings;
