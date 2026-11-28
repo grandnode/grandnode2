@@ -34,8 +34,7 @@ public class CheckoutControllerConfirmOrderTests
     private CheckoutController _controller;
     private Mock<IMediator> _mediator;
 
-    [TestInitialize]
-    public void Init()
+    public CheckoutControllerConfirmOrderTests()
     {
         var customer = new Customer { Id = "buyer" };
         var store = new Grand.Domain.Stores.Store { Id = "s1" };

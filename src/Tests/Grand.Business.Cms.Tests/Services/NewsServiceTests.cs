@@ -19,8 +19,7 @@ public class NewsServiceTests
 
     private IRepository<NewsItem> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public NewsServiceTests()
     {
         _repository = new MongoDBRepositoryTest<NewsItem>();
 
@@ -123,7 +122,7 @@ public class NewsServiceTests
         newsItem.Title = "test";
         await _newsService.UpdateNews(newsItem);
         //Assert
-        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == newsItem.Id).Title);
+        Assert.AreEqual("test", _repository.Table.First(x => x.Id == newsItem.Id).Title);
     }
 
     [TestMethod]

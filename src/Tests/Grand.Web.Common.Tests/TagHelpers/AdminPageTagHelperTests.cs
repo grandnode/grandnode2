@@ -31,7 +31,7 @@ public class AdminPageTagHelperTests
         return writer.ToString();
     }
 
-    private static async Task<string> Run(AdminPageTagHelper helper, string body = "", string actions = null)
+    private static async Task<string> Run(AdminPageTagHelper helper, string body = "", string? actions = null)
     {
         var context = new TagHelperContext([], new Dictionary<object, object>(), "id");
 

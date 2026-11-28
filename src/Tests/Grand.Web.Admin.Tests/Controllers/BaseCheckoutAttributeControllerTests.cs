@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -45,8 +43,7 @@ public class BaseCheckoutAttributeControllerTests
     private Mock<IAdminDataScope<CheckoutAttribute>> _scope = null!;
     private TestCheckoutAttributeController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseCheckoutAttributeControllerTests()
     {
         _service = new Mock<ICheckoutAttributeService>();
         _vmService = new Mock<ICheckoutAttributeViewModelService>();

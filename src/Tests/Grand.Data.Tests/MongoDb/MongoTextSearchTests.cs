@@ -12,13 +12,16 @@ public class MongoTextSearchTests
     private MongoDBRepositoryTest<SampleCollection> _repository;
     private MongoDBContext _context;
 
-    [TestInitialize]
-    public async Task Init()
+    public MongoTextSearchTests()
     {
         _repository = new MongoDBRepositoryTest<SampleCollection>();
         _context = new MongoDBContext(
             DriverTestConfiguration.Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName));
+    }
 
+    [TestInitialize]
+    public async Task Init()
+    {
         await _repository.InsertAsync(new SampleCollection { Name = "Smartphone X200", Count = 1 });
         await _repository.InsertAsync(new SampleCollection { Name = "Phone case", Count = 2 });
         await _repository.InsertAsync(new SampleCollection { Name = "Phone holder", Count = 0 });

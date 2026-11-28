@@ -24,8 +24,7 @@ public class GetSearchProductsQueryHandlerTests
     private ICacheBase _cache;
     private GetSearchProductsQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetSearchProductsQueryHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _cache = Cache();
@@ -439,7 +438,7 @@ public class GetSearchProductsQueryHandlerTests
         Assert.AreEqual(3, bags.products.TotalCount);
     }
 
-    private static GetSearchProductsQuery Listing(int pageSize, int pageIndex = 0, string categoryId = null)
+    private static GetSearchProductsQuery Listing(int pageSize, int pageIndex = 0, string? categoryId = null)
     {
         return new GetSearchProductsQuery {
             Customer = new Customer(), CacheListingSummary = true, PageSize = pageSize, PageIndex = pageIndex,
@@ -447,7 +446,7 @@ public class GetSearchProductsQueryHandlerTests
         };
     }
 
-    private async Task InsertVisibleProducts(int count, string categoryId = null)
+    private async Task InsertVisibleProducts(int count, string? categoryId = null)
     {
         for (var i = 0; i < count; i++)
         {

@@ -21,8 +21,7 @@ public class ApplyStockCommandHandlerTests
     private MongoDBRepositoryTest<Warehouse> _warehouseRepository;
     private ApplyStockCommandHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public ApplyStockCommandHandlerTests()
     {
         _stockMovementServiceMock = new Mock<IStockMovementService>();
         _stockMovementServiceMock.Setup(x => x.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()))

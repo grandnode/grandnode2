@@ -29,8 +29,7 @@ public class GetOrderDetailsHandlerApprovalTests
     private OrderApproval _approval;
     private GetOrderDetailsHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetOrderDetailsHandlerApprovalTests()
     {
         _approval = new OrderApproval {
             OrderId = "o1", CustomerId = "buyer", Decider = OrderApprovalDecider.Store,

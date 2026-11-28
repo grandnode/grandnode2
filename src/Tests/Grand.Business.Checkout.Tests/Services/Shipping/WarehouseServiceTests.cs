@@ -18,8 +18,7 @@ public class WarehouseServiceTests
     private Mock<IRepository<Warehouse>> _repositoryMock;
     private IWarehouseService _service;
 
-    [TestInitialize]
-    public void Init()
+    public WarehouseServiceTests()
     {
         _repositoryMock = new Mock<IRepository<Warehouse>>();
         _mediatorMock = new Mock<IMediator>();
@@ -39,7 +38,7 @@ public class WarehouseServiceTests
     [TestMethod]
     public void InsertWarehouse_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertWarehouse(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertWarehouse(null!));
     }
 
     [TestMethod]
@@ -53,7 +52,7 @@ public class WarehouseServiceTests
     [TestMethod]
     public void UpdateWarehouse_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateWarehouse(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateWarehouse(null!));
     }
 
     [TestMethod]
@@ -67,6 +66,6 @@ public class WarehouseServiceTests
     [TestMethod]
     public void DeleteWarehouse_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteWarehouse(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteWarehouse(null!));
     }
 }

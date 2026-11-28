@@ -19,8 +19,7 @@ public class BrandDeletedEventHandlerTests
     private BrandDeletedEventHandler _handler;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public BrandDeletedEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _entityUrlRepository = new MongoDBRepositoryTest<EntityUrl>();

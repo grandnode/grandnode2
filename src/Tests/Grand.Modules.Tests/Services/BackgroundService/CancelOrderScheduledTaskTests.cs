@@ -13,8 +13,7 @@ public class CancelOrderScheduledTaskTests
     private SystemSettings _settings;
     private CancelOrderScheduledTask _task;
 
-    [TestInitialize]
-    public void Init()
+    public CancelOrderScheduledTaskTests()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _settings = new SystemSettings();

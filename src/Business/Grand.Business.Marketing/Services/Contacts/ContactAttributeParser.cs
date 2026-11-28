@@ -165,7 +165,7 @@ public class ContactAttributeParser : IContactAttributeParser
     public virtual async Task<string> FormatAttributes(
         Language language,
         IList<CustomAttribute> customAttributes,
-        DomainHost host,
+        DomainHost? host,
         string separator = "<br />",
         bool htmlEncode = true,
         bool allowHyperlinks = true)

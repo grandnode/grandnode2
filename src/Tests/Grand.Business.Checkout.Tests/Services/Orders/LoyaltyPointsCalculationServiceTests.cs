@@ -33,8 +33,7 @@ public class LoyaltyPointsCalculationServiceTests
     private LoyaltyPointsCalculationService _service;
     private ShoppingCartSettings _shoppingCartSettings;
 
-    [TestInitialize]
-    public void Init()
+    public LoyaltyPointsCalculationServiceTests()
     {
         _currencyServiceMock = new Mock<ICurrencyService>();
         _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();

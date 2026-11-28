@@ -29,8 +29,7 @@ public class ReduceLoyaltyPointsCommandHandlerTests
     private Mock<ITranslationService> _translationServiceMock;
 
 
-    [TestInitialize]
-    public void Init()
+    public ReduceLoyaltyPointsCommandHandlerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();
@@ -57,9 +56,9 @@ public class ReduceLoyaltyPointsCommandHandlerTests
         };
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
         _currencyServiceMock.Setup(c => c.GetCurrencyByCode(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Currency()));
+            .ReturnsAsync(() => new Currency());
         _currencyServiceMock.Setup(c => c.ConvertToPrimaryStoreCurrency(100, It.IsAny<Currency>()))
             .Returns(() => Task.FromResult((double)100));
         //the message is written in the language the order was placed in

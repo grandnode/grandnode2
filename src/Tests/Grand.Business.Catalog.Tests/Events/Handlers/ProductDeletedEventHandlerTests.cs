@@ -27,8 +27,7 @@ public class ProductDeletedEventHandlerTests
     private Mock<ICacheBase> _cacheMock;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public ProductDeletedEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _customerGroupProductRepository = new MongoDBRepositoryTest<CustomerGroupProduct>();

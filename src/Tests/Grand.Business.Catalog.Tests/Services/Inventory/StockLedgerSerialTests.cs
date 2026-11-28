@@ -11,8 +11,7 @@ public class StockLedgerSerialTests
     private static readonly DateTime Warranty = new(2028, 11, 7, 0, 0, 0, DateTimeKind.Utc);
     private UnitTestFixture _fixture;
 
-    [TestInitialize]
-    public void Init()
+    public StockLedgerSerialTests()
     {
         _fixture = new UnitTestFixture();
     }

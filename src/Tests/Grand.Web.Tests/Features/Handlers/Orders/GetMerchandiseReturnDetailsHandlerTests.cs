@@ -25,8 +25,7 @@ public class GetMerchandiseReturnDetailsHandlerTests
     private GetMerchandiseReturnDetailsHandler _handler;
     private List<MerchandiseReturnNote> _notes;
 
-    [TestInitialize]
-    public void Init()
+    public GetMerchandiseReturnDetailsHandlerTests()
     {
         _notes = [];
         var merchandiseReturnService = new Mock<IMerchandiseReturnService>();
@@ -138,7 +137,7 @@ public class GetMerchandiseReturnDetailsHandlerTests
         Assert.AreEqual(canPrintDocument, model.CanPrintDocument);
     }
 
-    private async Task<Grand.Web.Models.Orders.MerchandiseReturnDetailsModel.ReturnShippingModel> Shipping(
+    private async Task<Grand.Web.Models.Orders.MerchandiseReturnDetailsModel.ReturnShippingModel?> Shipping(
         MerchandiseReturnStatus status, ReturnLabelStatus labelStatus)
     {
         var merchandiseReturn = new MerchandiseReturn {
@@ -159,6 +158,7 @@ public class GetMerchandiseReturnDetailsHandlerTests
     {
         var shipping = await Shipping(MerchandiseReturnStatus.Accepted, ReturnLabelStatus.Created);
 
+        Assert.IsNotNull(shipping);
         Assert.AreEqual("Bring code C1", shipping.Instructions);
         Assert.AreEqual("C1", shipping.ReturnCode);
         Assert.IsTrue(shipping.HasLabel);
@@ -171,6 +171,7 @@ public class GetMerchandiseReturnDetailsHandlerTests
     {
         var shipping = await Shipping(status, ReturnLabelStatus.Created);
 
+        Assert.IsNotNull(shipping);
         Assert.IsFalse(shipping.HasLabel);
     }
 
@@ -183,6 +184,7 @@ public class GetMerchandiseReturnDetailsHandlerTests
     {
         var shipping = await Shipping(status, ReturnLabelStatus.Created);
 
+        Assert.IsNotNull(shipping);
         Assert.IsNull(shipping.Instructions);
         Assert.IsNull(shipping.ReturnCode);
     }
@@ -234,6 +236,7 @@ public class GetMerchandiseReturnDetailsHandlerTests
     {
         var shipping = await Shipping(MerchandiseReturnStatus.Pending, ReturnLabelStatus.Cancelled);
 
+        Assert.IsNotNull(shipping);
         Assert.IsNull(shipping.Instructions);
         Assert.IsNull(shipping.ReturnCode);
     }

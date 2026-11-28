@@ -13,8 +13,7 @@ public class ProductUnitServiceTests
     private MongoDBRepositoryTest<ProductSerialNumber> _serials;
     private ProductUnitService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ProductUnitServiceTests()
     {
         _batches = new MongoDBRepositoryTest<ProductBatch>();
         _serials = new MongoDBRepositoryTest<ProductSerialNumber>();

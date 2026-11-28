@@ -18,8 +18,7 @@ public class MigrationRecurringPaymentMenuTests
     private readonly LiteDBRepositoryMock<AdminSiteMap> _siteMap = new();
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationRecurringPaymentMenuTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IRepository<AdminSiteMap>>(_siteMap);

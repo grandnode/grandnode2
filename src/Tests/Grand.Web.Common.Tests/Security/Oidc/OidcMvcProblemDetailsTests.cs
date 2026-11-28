@@ -15,12 +15,18 @@ namespace Grand.Web.Common.Tests.Security.Oidc;
 public class OidcMvcProblemDetailsTests
 {
     private OidcTestHost _host;
-    private HttpClient _client;
+    private HttpClient? _client;
+    //set when the test host starts
+    private HttpClient Client => _client ?? throw new InvalidOperationException("The test host has not started");
+
+    public OidcMvcProblemDetailsTests()
+    {
+        _host = new OidcTestHost();
+    }
 
     [TestInitialize]
     public async Task Init()
     {
-        _host = new OidcTestHost();
         _client = await _host.Start(OidcTestHost.Config(),
             s => s.AddControllers().AddApplicationPart(typeof(OidcProbeController).Assembly),
             endpoints: e => e.MapControllers());
@@ -43,7 +49,7 @@ public class OidcMvcProblemDetailsTests
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer",
                 token == "scope:other" ? OidcTestHost.Token(scope: "other") : token);
 
-        using var response = await _client.SendAsync(request);
+        using var response = await Client.SendAsync(request);
         var body = await response.Content.ReadAsStringAsync();
 
         Assert.AreEqual(status, (int)response.StatusCode);

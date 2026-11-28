@@ -74,7 +74,7 @@ public class DiscountRulesHadSpentAmountController : BaseDiscountRulePluginContr
         if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
             return Content("Access denied");
 
-        DiscountRule discountRequirement = null;
+        DiscountRule? discountRequirement = null;
         if (!string.IsNullOrEmpty(discountRequirementId))
             discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
 

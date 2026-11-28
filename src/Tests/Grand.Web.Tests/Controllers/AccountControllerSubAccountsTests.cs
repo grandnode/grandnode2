@@ -30,8 +30,7 @@ public class AccountControllerSubAccountsTests
     private Mock<IMediator> _mediator;
     private AccountController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public AccountControllerSubAccountsTests()
     {
         _currentCustomer = new Customer { Id = "owner" };
         var work = new Mock<IWorkContext>();
@@ -68,7 +67,7 @@ public class AccountControllerSubAccountsTests
         Assert.AreEqual(routeName, ((RedirectToRouteResult)result).RouteName);
     }
 
-    private static object JsonValue(IActionResult result, string property)
+    private static object? JsonValue(IActionResult result, string property)
     {
         var value = ((JsonResult)result).Value!;
         return value.GetType().GetProperty(property)!.GetValue(value);
@@ -145,7 +144,7 @@ public class AccountControllerSubAccountsTests
     public async Task SubAccountEditGet_SomeoneElsesAccount_RedirectsToList()
     {
         _mediator.Setup(m => m.Send(It.IsAny<GetSubAccount>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((SubAccountEditModel)null);
+            .ReturnsAsync((SubAccountEditModel?)null);
 
         var result = await _controller.SubAccountEdit("foreign");
 

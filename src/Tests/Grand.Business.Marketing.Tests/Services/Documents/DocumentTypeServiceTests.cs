@@ -19,8 +19,7 @@ public class DocumentTypeServiceTests
     private IQueryable<DocumentType> _expectedQueryable;
     private Mock<IMediator> _mediatorMock;
 
-    [TestInitialize]
-    public void Init()
+    public DocumentTypeServiceTests()
     {
         var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
@@ -45,7 +44,7 @@ public class DocumentTypeServiceTests
     [TestMethod]
     public async Task DeleteDocumentType_NullArgument_ThrowException()
     {
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentTypeService.Delete(null),
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentTypeService.Delete(null!),
             "documentType");
     }
 
@@ -67,7 +66,7 @@ public class DocumentTypeServiceTests
     [TestMethod]
     public async Task InsertDocumentType_NullArgument_ThrowException()
     {
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentTypeService.Insert(null),
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentTypeService.Insert(null!),
             "documentType");
     }
 
@@ -90,7 +89,7 @@ public class DocumentTypeServiceTests
     [TestMethod]
     public void UpdateDocumentType_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentTypeService.Update(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentTypeService.Update(null!),
             "documentType");
     }
 }

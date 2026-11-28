@@ -21,8 +21,7 @@ public class CustomerRegisteredEventHandlerTests
     private LoyaltyPointsSettings _loyaltyPointsSettings;
     private Mock<IStoreService> _storeServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerRegisteredEventHandlerTests()
     {
         var translationServiceMock = new Mock<ITranslationService>();
         translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),

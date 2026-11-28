@@ -38,10 +38,10 @@ public sealed class OidcTestHost : IAsyncDisposable
     public static readonly RsaSecurityKey IdpKey = NewKey("idp-1");
     public static readonly RsaSecurityKey ForeignKey = NewKey("idp-1");
 
-    private IHost _host;
+    private IHost? _host;
 
     public static string Token(string audience = "http://localhost/api", string scope = "grandnode.api",
-        SecurityKey key = null, string algorithm = SecurityAlgorithms.RsaSha256, DateTime? expires = null,
+        SecurityKey? key = null, string algorithm = SecurityAlgorithms.RsaSha256, DateTime? expires = null,
         string issuer = Issuer, DateTime? issuedAt = null, params Claim[] extra)
     {
         var claims = new List<Claim> {
@@ -76,7 +76,7 @@ public sealed class OidcTestHost : IAsyncDisposable
         return new RsaSecurityKey(rsa.ExportParameters(true)) { KeyId = keyId };
     }
 
-    public static async Task<HttpResponseMessage> Send(HttpClient client, string path, string token = null, string scheme = "Bearer")
+    public static async Task<HttpResponseMessage> Send(HttpClient client, string path, string? token = null, string scheme = "Bearer")
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, path);
         if (token != null) request.Headers.Authorization = new AuthenticationHeaderValue(scheme, token);
@@ -84,11 +84,11 @@ public sealed class OidcTestHost : IAsyncDisposable
     }
 
     public async Task<HttpClient> Start(OidcResourceServerConfig config,
-        Action<IServiceCollection> services = null,
-        Action<AuthenticationBuilder> auth = null,
-        Action<IEndpointRouteBuilder> endpoints = null,
-        Action<JwtBearerOptions> jwtBearer = null,
-        Action<IApplicationBuilder> afterAuthorization = null)
+        Action<IServiceCollection>? services = null,
+        Action<AuthenticationBuilder>? auth = null,
+        Action<IEndpointRouteBuilder>? endpoints = null,
+        Action<JwtBearerOptions>? jwtBearer = null,
+        Action<IApplicationBuilder>? afterAuthorization = null)
     {
         _host = await new HostBuilder().ConfigureWebHost(web => web
             .UseTestServer()

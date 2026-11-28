@@ -23,8 +23,7 @@ public class MerchandiseReturnMessageProviderServiceTests
     private List<QueuedEmail> _queued;
     private MerchandiseReturnMessageProviderService _service;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnMessageProviderServiceTests()
     {
         _queued = [];
         _messageTemplateServiceMock = new Mock<IMessageTemplateService>();

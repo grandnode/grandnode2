@@ -17,8 +17,7 @@ public class ProductReservationServiceTests
 
     private ProductReservationService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ProductReservationServiceTests()
     {
         _repository = new MongoDBRepositoryTest<ProductReservation>();
         _repositoryCustomerReservationsHelper = new MongoDBRepositoryTest<CustomerReservationsHelper>();
@@ -62,7 +61,7 @@ public class ProductReservationServiceTests
         p.ProductId = "2";
         await _service.UpdateProductReservation(p);
 
-        Assert.AreEqual("2", _repository.Table.FirstOrDefault().ProductId);
+        Assert.AreEqual("2", _repository.Table.First().ProductId);
     }
 
     [TestMethod]

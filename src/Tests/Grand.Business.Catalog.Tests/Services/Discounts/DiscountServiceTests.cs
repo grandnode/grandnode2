@@ -39,8 +39,7 @@ public class DiscountServiceTests
     private Mock<IStoreContext> _storeContextMock;
     private GetDiscountUsageHistoryQueryHandler handler;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public DiscountServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Discount>();
         _discountCouponRepository = new MongoDBRepositoryTest<DiscountCoupon>();
@@ -120,7 +119,7 @@ public class DiscountServiceTests
 
         //Assert
         Assert.IsNotNull(_repository.Table.FirstOrDefault(x => x.Name == "test"));
-        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Name == "test").Name);
+        Assert.AreEqual("test", _repository.Table.First(x => x.Name == "test").Name);
     }
 
     [TestMethod]
@@ -138,7 +137,7 @@ public class DiscountServiceTests
 
         //Assert
         Assert.IsNotNull(_repository.Table.FirstOrDefault(x => x.Name == "test2"));
-        Assert.AreEqual("test2", _repository.Table.FirstOrDefault(x => x.Name == "test2").Name);
+        Assert.AreEqual("test2", _repository.Table.First(x => x.Name == "test2").Name);
     }
 
     [TestMethod]
@@ -377,7 +376,7 @@ public class DiscountServiceTests
 
         //Assert
         Assert.IsNotNull(_discountCouponRepository.Table.FirstOrDefault(x => x.Id == discountCoupon.Id));
-        Assert.IsTrue(_discountCouponRepository.Table.FirstOrDefault(x => x.Id == discountCoupon.Id).Used);
+        Assert.IsTrue(_discountCouponRepository.Table.First(x => x.Id == discountCoupon.Id).Used);
     }
 
     [TestMethod]
@@ -407,9 +406,9 @@ public class DiscountServiceTests
         await _dicountService.CancelDiscount("123");
 
         //Assert
-        Assert.IsTrue(_discountUsageHistoryRepository.Table.FirstOrDefault(x => x.Id == discountUsageHistory.Id)
+        Assert.IsTrue(_discountUsageHistoryRepository.Table.First(x => x.Id == discountUsageHistory.Id)
             .Canceled);
-        Assert.IsFalse(_discountCouponRepository.Table.FirstOrDefault(x => x.Id == discountCoupon.Id).Used);
+        Assert.IsFalse(_discountCouponRepository.Table.First(x => x.Id == discountCoupon.Id).Used);
     }
 
     [TestMethod]
@@ -969,7 +968,7 @@ public class DiscountServiceTests
         return coupon;
     }
 
-    private static DiscountUsageHistory Usage(Discount discount, string customerId = "c1", string couponCode = null)
+    private static DiscountUsageHistory Usage(Discount discount, string customerId = "c1", string? couponCode = null)
     {
         return new DiscountUsageHistory {
             DiscountId = discount.Id, CustomerId = customerId, CouponCode = couponCode,
@@ -1038,6 +1037,7 @@ public class DiscountServiceTests
 
         Assert.AreEqual(1, results.Count(x => x));
         var stored = await _discountCouponRepository.GetByIdAsync(coupon.Id);
+        Assert.IsNotNull(stored);
         Assert.IsTrue(stored.Used);
         Assert.AreEqual(1, stored.Qty);
     }
@@ -1054,6 +1054,7 @@ public class DiscountServiceTests
 
         Assert.AreEqual(0, UsageCount(discount));
         var stored = await _discountCouponRepository.GetByIdAsync(coupon.Id);
+        Assert.IsNotNull(stored);
         Assert.IsFalse(stored.Used);
         Assert.AreEqual(0, stored.Qty);
     }

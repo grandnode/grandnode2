@@ -16,8 +16,7 @@ public class MigrationMerchandiseReturnShippingFlagsTests
     private readonly LiteDBRepositoryMock<MerchandiseReturnReason> _reasons = new();
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationMerchandiseReturnShippingFlagsTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IRepository<MerchandiseReturnReason>>(_reasons);

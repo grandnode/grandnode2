@@ -18,14 +18,13 @@ public class AuditHistoryTagHelperTests
 {
     private Mock<IRequestPermissionService> _permissionService;
 
-    [TestInitialize]
-    public void Setup()
+    public AuditHistoryTagHelperTests()
     {
         _permissionService = new Mock<IRequestPermissionService>();
         _permissionService.Setup(p => p.Authorize(PermissionSystemName.AuditLog)).ReturnsAsync(true);
     }
 
-    private async Task<string> Render(string area, string entityType, string entityId, string entityNames = null)
+    private async Task<string> Render(string? area, string entityType, string? entityId, string? entityNames = null)
     {
         var routeData = new RouteData();
         if (area != null)

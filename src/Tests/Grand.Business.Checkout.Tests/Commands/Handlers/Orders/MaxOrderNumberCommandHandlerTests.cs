@@ -13,8 +13,7 @@ public class MaxOrderNumberCommandHandlerTests
     private MaxOrderNumberCommandHandler _handler;
     private IRepository<Order> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public MaxOrderNumberCommandHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Order>();
 

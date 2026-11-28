@@ -33,7 +33,7 @@ public class FixedRateTestTaxProvider : BasePlugin, ITaxProvider
     /// </summary>
     /// <param name="taxCategoryId">The tax category identifier</param>
     /// <returns>Tax rate</returns>
-    protected double GetTaxRate(string taxCategoryId)
+    protected double GetTaxRate(string? taxCategoryId)
     {
         if (string.IsNullOrEmpty(taxCategoryId))
             return 0;
@@ -48,8 +48,8 @@ public class FixedRateTestTaxProvider : BasePlugin, ITaxProvider
     /// <param name="actionName">Action name</param>
     /// <param name="controllerName">Controller name</param>
     /// <param name="routeValues">Route values</param>
-    public void GetConfigurationRoute(out string actionName, out string controllerName,
-        out RouteValueDictionary routeValues)
+    public void GetConfigurationRoute(out string? actionName, out string? controllerName,
+        out RouteValueDictionary? routeValues)
     {
         actionName = null;
         controllerName = null;

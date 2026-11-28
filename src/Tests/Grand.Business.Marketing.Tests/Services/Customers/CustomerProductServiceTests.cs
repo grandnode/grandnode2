@@ -20,8 +20,7 @@ public class CustomerProductServiceTests
     private IRepository<CustomerProduct> _repositoryCustomerProduct;
     private IRepository<CustomerProductPrice> _repositoryCustomerProductPrice;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerProductServiceTests()
     {
         _repositoryCustomerProductPrice = new MongoDBRepositoryTest<CustomerProductPrice>();
         _repositoryCustomerProduct = new MongoDBRepositoryTest<CustomerProduct>();

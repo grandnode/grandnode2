@@ -56,7 +56,7 @@ public class OidcLoginConfigTests
     [DataRow(null, false)]
     public void IsBreakGlass_TrimmedCaseInsensitive(string email, bool expected)
     {
-        var config = new OidcLoginConfig { BreakGlassAccounts = [" ADMIN@shop.com", "", null] };
+        var config = new OidcLoginConfig { BreakGlassAccounts = [" ADMIN@shop.com", "", null!] };
         Assert.AreEqual(expected, config.IsBreakGlass(email));
     }
 
@@ -64,7 +64,7 @@ public class OidcLoginConfigTests
     [TestMethod]
     public void IsBreakGlass_NullList_False()
     {
-        var config = new OidcLoginConfig { BreakGlassAccounts = null };
+        var config = new OidcLoginConfig { BreakGlassAccounts = null! };
         Assert.IsFalse(config.IsBreakGlass("admin@shop.com"));
     }
 }

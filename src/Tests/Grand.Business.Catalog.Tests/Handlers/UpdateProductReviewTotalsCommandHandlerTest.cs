@@ -23,8 +23,7 @@ public class UpdateProductReviewTotalsCommandHandlerTest
     private UpdateProductReviewTotalsCommandHandler _updateProductReviewTotalsCommandHandler;
 
 
-    [TestInitialize]
-    public void Init()
+    public UpdateProductReviewTotalsCommandHandlerTest()
     {
         var reviews = new List<ProductReview> {
             new() { Id = "1", ReplyText = "text1" },

@@ -48,8 +48,7 @@ public class BaseCollectionControllerTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Collection>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseCollectionControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<CollectionProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -62,7 +61,7 @@ public class BaseCollectionControllerTests
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Collection>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         var languageServiceMock = new Mock<ILanguageService>();
         languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>())).ReturnsAsync(new List<Grand.Domain.Localization.Language>());
@@ -93,7 +92,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task ListGet_GlobalScope_PopulatesAvailableStores()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _storeServiceMock.Setup(s => s.GetAllStores())
             .ReturnsAsync(new List<Store> { new() { Id = "s1", Shortcut = "Store 1" } });
 
@@ -101,8 +100,9 @@ public class BaseCollectionControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        var model = (CollectionListModel)view.Model;
+        var model = Assert.IsInstanceOfType<CollectionListModel>(view.Model);
         // "All" placeholder + the one real store
+        Assert.IsNotNull(model);
         Assert.AreEqual(2, model.AvailableStores.Count);
     }
 
@@ -115,7 +115,8 @@ public class BaseCollectionControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        var model = (CollectionListModel)view.Model;
+        var model = Assert.IsInstanceOfType<CollectionListModel>(view.Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual(0, model.AvailableStores.Count);
         _storeServiceMock.Verify(s => s.GetAllStores(), Times.Never);
     }
@@ -137,7 +138,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task ListPost_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _collectionServiceMock
             .Setup(c => c.GetAllCollections(It.IsAny<string>(),
                 CatalogAccess.IncludingHidden("admin-submitted-store"), 0, 10))
@@ -154,7 +155,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task EditGet_CollectionNotFound_RedirectsToList()
     {
-        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection)null);
+        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection?)null);
 
         var result = await _controller.Edit("missing");
 
@@ -189,7 +190,7 @@ public class BaseCollectionControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.AreEqual("Widgets", ((CollectionModel)view.Model).Name);
+        Assert.AreEqual("Widgets", Assert.IsInstanceOfType<CollectionModel>(view.Model).Name);
     }
 
     // --- Edit (POST) -------------------------------------------------------------------------------
@@ -223,6 +224,7 @@ public class BaseCollectionControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("c1", redirect.RouteValues["id"]);
         _collectionViewModelServiceMock.Verify(v => v.DeleteCollection(It.IsAny<Collection>()), Times.Never);
     }
@@ -247,7 +249,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var inserted = new Collection { Id = "new-1" };
         var submitted = new CollectionModel { Name = "N", Stores = ["explicit-store"] };
         _collectionViewModelServiceMock
@@ -279,7 +281,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task PicturePopupGet_CollectionNotFound_ReturnsNotExistContent()
     {
-        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection)null);
+        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection?)null);
 
         var result = await _controller.PicturePopup("missing");
 
@@ -307,7 +309,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task PicturePopupPost_CollectionNotFound_ThrowsArgumentException()
     {
-        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection)null);
+        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection?)null);
 
         var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "missing", Id = "pic-1" };
 
@@ -371,7 +373,8 @@ public class BaseCollectionControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsFalse(string.IsNullOrEmpty(gridModel.Errors as string));
     }
 
@@ -394,7 +397,8 @@ public class BaseCollectionControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsFalse(string.IsNullOrEmpty(gridModel.Errors as string));
         _collectionViewModelServiceMock.Verify(v => v.ProductUpdate(It.IsAny<CollectionModel.CollectionProductModel>()), Times.Never);
     }
@@ -418,7 +422,8 @@ public class BaseCollectionControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsFalse(string.IsNullOrEmpty(gridModel.Errors as string));
         _collectionViewModelServiceMock.Verify(v => v.ProductDelete(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
@@ -426,7 +431,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task ProductAddPopupGet_PassesScopeDefaultStoreIdOrEmpty()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _collectionViewModelServiceMock
             .Setup(v => v.PrepareAddCollectionProductModel(string.Empty))
             .ReturnsAsync(new CollectionModel.AddCollectionProductModel());
@@ -435,7 +440,7 @@ public class BaseCollectionControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.AreEqual("c1", ((CollectionModel.AddCollectionProductModel)view.Model).CollectionId);
+        Assert.AreEqual("c1", Assert.IsInstanceOfType<CollectionModel.AddCollectionProductModel>(view.Model).CollectionId);
         _collectionViewModelServiceMock.Verify(v => v.PrepareAddCollectionProductModel(string.Empty), Times.Once);
     }
 
@@ -456,7 +461,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task ProductAddPopupList_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _collectionViewModelServiceMock
             .Setup(v => v.PrepareProductModel(It.IsAny<CollectionModel.AddCollectionProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
@@ -489,7 +494,7 @@ public class BaseCollectionControllerTests
         var collection = new Collection { Id = "c1" };
         _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
         _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var model = new CollectionModel.AddCollectionProductModel { CollectionId = "c1", SelectedProductIds = ["p1", "p2"] };
 
         await _controller.ProductAddPopup(model);
@@ -579,7 +584,7 @@ public class BaseCollectionControllerTests
     [TestMethod]
     public async Task ImportFromXlsx_GlobalScope_CallsImportManager()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var importManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IImportManager<Grand.Business.Core.Dto.CollectionDto>>();
         var fileMock = new Mock<IFormFile>();
         fileMock.Setup(f => f.Length).Returns(100);

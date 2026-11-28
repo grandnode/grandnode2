@@ -90,7 +90,7 @@ public interface ICountryService
     /// <param name="countryId">Country identifier</param>
     /// <param name="languageId">Language identifier.</param>
     /// <returns>States</returns>
-    Task<IList<StateProvince>?> GetStateProvincesByCountryId(string? countryId, string? languageId = "");
+    Task<IList<StateProvince>> GetStateProvincesByCountryId(string? countryId, string? languageId = "");
 
     /// <summary>
     ///     Inserts a state/province

@@ -29,7 +29,7 @@ public sealed class UnitTestFixture
         Ledger.Apply(Stored(product), changes);
 
     public static StockChange Change(int quantity, InventoryMovementType type, string warehouseId = "",
-        IList<CustomAttribute> attributes = null) =>
+        IList<CustomAttribute>? attributes = null) =>
         new(attributes ?? [], warehouseId, quantity, false, type, new StockSource("InventoryDocument", "d1", "l1"));
 
     /// <summary>
@@ -37,7 +37,7 @@ public sealed class UnitTestFixture
     ///     stock becomes stock without units
     /// </summary>
     public async Task<Product> Stocked(Product product, InventoryTrackingMode mode,
-        params (string WarehouseId, IList<CustomAttribute> Attributes, int Quantity)[] stock)
+        params (string WarehouseId, IList<CustomAttribute>? Attributes, int Quantity)[] stock)
     {
         product.InventoryTrackingModeId = InventoryTrackingMode.None;
         await Products.InsertAsync(product);
@@ -69,7 +69,7 @@ public sealed class UnitTestFixture
         var stored = Stored(product);
         foreach (var (combinationId, warehouseId, stock) in Buckets(stored))
         {
-            Assert.AreEqual(stock, StockTestFixture.JournalSum(Journal, stored.Id, combinationId, warehouseId),
+            Assert.AreEqual(stock, StockTestFixture.JournalSum(Journal, stored.Id, combinationId, warehouseId ?? ""),
                 $"journal of bucket ({combinationId}, {warehouseId})");
             Assert.IsTrue(stock - SerialsOf(stored).Count(x => x.StatusId == SerialNumberStatus.InStock &&
                                                                 (x.CombinationId ?? "") == combinationId &&
@@ -89,7 +89,7 @@ public sealed class UnitTestFixture
         }
     }
 
-    private static IEnumerable<(string, string, int)> Buckets(Product product)
+    private static IEnumerable<(string, string?, int)> Buckets(Product product)
     {
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
         {

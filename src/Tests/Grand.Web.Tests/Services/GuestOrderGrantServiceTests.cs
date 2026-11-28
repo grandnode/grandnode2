@@ -29,8 +29,7 @@ public class GuestOrderGrantServiceTests
         CookiePrefix = ".Grand.", CookieSecurePolicyAlways = true, CookieSameSite = SameSiteMode.Lax
     };
 
-    [TestInitialize]
-    public void Init()
+    public GuestOrderGrantServiceTests()
     {
         _provider = new EphemeralDataProtectionProvider();
         _customers = new Mock<ICustomerService>();
@@ -39,7 +38,7 @@ public class GuestOrderGrantServiceTests
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(false);
     }
 
-    private static DefaultHttpContext Context(string cookie = null)
+    private static DefaultHttpContext Context(string? cookie = null)
     {
         var context = new DefaultHttpContext();
         if (cookie != null)
@@ -47,7 +46,7 @@ public class GuestOrderGrantServiceTests
         return context;
     }
 
-    private GuestOrderGrantService Create(DefaultHttpContext context = null)
+    private GuestOrderGrantService Create(DefaultHttpContext? context = null)
     {
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.Setup(a => a.HttpContext).Returns(context ?? Context());

@@ -20,8 +20,7 @@ public class MigrationCustomerGuidUniqueIndexTests
     private LiteDBRepository<Customer> _repository;
     private LiteDBContext _context;
 
-    [TestInitialize]
-    public void Setup()
+    public MigrationCustomerGuidUniqueIndexTests()
     {
         _database = new LiteDatabase(new MemoryStream());
         _repository = new LiteDBRepository<Customer>(_database, new AuditInfoProvider());

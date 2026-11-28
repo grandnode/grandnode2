@@ -43,8 +43,7 @@ public class AccountControllerProviderOnlyTests
     private AccountController _controller;
     private Mock<IGuestOrderGrantService> _guestOrderGrant;
 
-    [TestInitialize]
-    public void Init()
+    public AccountControllerProviderOnlyTests()
     {
         _provider = new Mock<IExternalSignInPathProvider>();
         _provider.Setup(p => p.SystemName).Returns("ExternalAuth.OpenIdConnect");
@@ -130,9 +129,10 @@ public class AccountControllerProviderOnlyTests
     [TestMethod]
     public async Task Login_NoSignInPath_ShowsNotice()
     {
-        _provider.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string)null);
+        _provider.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string?)null);
         var result = await _controller.Login(null, "/cart", _providerOnly, _externalAuth.Object);
-        var model = (LoginModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<LoginModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.IsTrue(model.ExternalSignInUnavailable);
     }
 
@@ -144,7 +144,8 @@ public class AccountControllerProviderOnlyTests
 
         var result = await _controller.Login(null, "/cart", _providerOnly, _externalAuth.Object);
 
-        var model = (LoginModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<LoginModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.IsTrue(model.SignedInWithoutAccess);
         _provider.Verify(p => p.GetSignInPath(It.IsAny<string>()), Times.Never);
     }
@@ -156,7 +157,8 @@ public class AccountControllerProviderOnlyTests
 
         var result = await _controller.Login(null, "/cart", new OidcLoginConfig(), _externalAuth.Object);
 
-        var model = (LoginModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<LoginModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.IsFalse(model.SignedInWithoutAccess);
         Assert.IsFalse(model.ExternalSignInUnavailable);
     }
@@ -169,7 +171,7 @@ public class AccountControllerProviderOnlyTests
 
         var result = await _controller.Login(null, "/cart", new OidcLoginConfig(), _externalAuth.Object);
 
-        Assert.IsTrue(((LoginModel)((ViewResult)result).Model).DisplayGuestOrderLink);
+        Assert.IsTrue(Assert.IsInstanceOfType<LoginModel>(((ViewResult)result).Model).DisplayGuestOrderLink);
     }
 
     [TestMethod]
@@ -177,14 +179,14 @@ public class AccountControllerProviderOnlyTests
     {
         var result = await _controller.Login(null, "/cart", new OidcLoginConfig(), _externalAuth.Object);
 
-        Assert.IsFalse(((LoginModel)((ViewResult)result).Model).DisplayGuestOrderLink);
+        Assert.IsFalse(Assert.IsInstanceOfType<LoginModel>(((ViewResult)result).Model).DisplayGuestOrderLink);
     }
 
     [TestMethod]
     public async Task Login_ProviderOnly_FirstProviderWithoutPath_UsesNextProvider()
     {
         var first = new Mock<IExternalSignInPathProvider>();
-        first.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string)null);
+        first.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string?)null);
         _provider.Setup(p => p.GetSignInPath("/cart")).ReturnsAsync("/oidc/login?returnUrl=%2Fcart");
         _externalAuth.Setup(x => x.LoadActiveAuthenticationProviders(It.IsAny<Customer>(), It.IsAny<Grand.Domain.Stores.Store>()))
             .Returns(new List<IExternalAuthenticationProvider> { first.Object, _provider.Object });
@@ -198,7 +200,8 @@ public class AccountControllerProviderOnlyTests
     public async Task Login_Mixed_ShowsForm()
     {
         var result = await _controller.Login(null, "/cart", new OidcLoginConfig(), _externalAuth.Object);
-        var model = (LoginModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<LoginModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.IsFalse(model.ExternalSignInUnavailable);
         _provider.Verify(p => p.GetSignInPath(It.IsAny<string>()), Times.Never);
     }
@@ -206,10 +209,10 @@ public class AccountControllerProviderOnlyTests
     [TestMethod]
     public async Task Register_ProviderOnly_NoPending_RedirectsToProvider()
     {
-        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
+        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity?)null);
         _provider.Setup(p => p.GetSignInPath("/cart")).ReturnsAsync("/oidc/login?returnUrl=%2Fcart");
         var result = (await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly, "/cart")).Result;
-        Assert.AreEqual("/oidc/login?returnUrl=%2Fcart", ((RedirectResult)result).Url);
+        Assert.AreEqual("/oidc/login?returnUrl=%2Fcart", Assert.IsInstanceOfType<RedirectResult>(result).Url);
     }
 
     [TestMethod]
@@ -217,10 +220,10 @@ public class AccountControllerProviderOnlyTests
     {
         _customerSettings.UserRegistrationType = UserRegistrationType.Disabled;
         _providerOnly.AutoProvision = true;
-        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
+        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity?)null);
         _provider.Setup(p => p.GetSignInPath("/cart")).ReturnsAsync("/oidc/login?returnUrl=%2Fcart");
         var result = (await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly, "/cart")).Result;
-        Assert.AreEqual("/oidc/login?returnUrl=%2Fcart", ((RedirectResult)result).Url);
+        Assert.AreEqual("/oidc/login?returnUrl=%2Fcart", Assert.IsInstanceOfType<RedirectResult>(result).Url);
     }
 
     [TestMethod]
@@ -230,7 +233,7 @@ public class AccountControllerProviderOnlyTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
         _provider.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync("/oidc/login");
         var result = (await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly)).Result;
-        Assert.AreEqual("/oidc/login", ((RedirectResult)result).Url);
+        Assert.AreEqual("/oidc/login", Assert.IsInstanceOfType<RedirectResult>(result).Url);
     }
 
     [TestMethod]
@@ -238,25 +241,28 @@ public class AccountControllerProviderOnlyTests
     {
         _customerSettings.UserRegistrationType = UserRegistrationType.Disabled;
         var result = (await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly)).Result;
-        Assert.AreEqual("RegisterResult", ((RedirectToRouteResult)result).RouteName);
+        Assert.AreEqual("RegisterResult", Assert.IsInstanceOfType<RedirectToRouteResult>(result).RouteName);
     }
 
     [TestMethod]
     public async Task Register_ProviderOnly_NoPending_NoSignInPath_ShowsNotice()
     {
-        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
-        _provider.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string)null);
-        var view = (ViewResult)(await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly)).Result;
+        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity?)null);
+        _provider.Setup(p => p.GetSignInPath(It.IsAny<string>())).ReturnsAsync((string?)null);
+        var view = Assert.IsInstanceOfType<ViewResult>((await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly)).Result);
+        Assert.IsNotNull(view);
         Assert.AreEqual("Login", view.ViewName);
-        Assert.IsTrue(((LoginModel)view.Model).ExternalSignInUnavailable);
+        Assert.IsTrue(Assert.IsInstanceOfType<LoginModel>(view.Model).ExternalSignInUnavailable);
     }
 
     [TestMethod]
     public async Task Register_ProviderOnly_Pending_ShowsForm()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending);
-        var view = (ViewResult)(await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly)).Result;
-        var model = (RegisterModel)view.Model;
+        var view = Assert.IsInstanceOfType<ViewResult>((await _controller.Register(_external.Object, _externalAuth.Object, _providerOnly)).Result);
+        Assert.IsNotNull(view);
+        var model = Assert.IsInstanceOfType<RegisterModel>(view.Model);
+        Assert.IsNotNull(model);
         Assert.IsTrue(model.ExternalRegistration);
         Assert.AreEqual("john@example.com", model.Email);
         _provider.Verify(p => p.GetSignInPath(It.IsAny<string>()), Times.Never);
@@ -266,15 +272,15 @@ public class AccountControllerProviderOnlyTests
     public async Task RegisterPost_ProviderOnly_UnverifiedPending_RedirectsToLogin()
     {
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = false });
-        var result = await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, _providerOnly);
+        var result = await _controller.Register(new RegisterModel(), "", _external.Object, _externalAuth.Object, _providerOnly);
         Assert.AreEqual("Login", ((RedirectToRouteResult)result).RouteName);
     }
 
     [TestMethod]
     public async Task RegisterPost_ProviderOnly_NoPending_RedirectsToLogin()
     {
-        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
-        var result = await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, _providerOnly);
+        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity?)null);
+        var result = await _controller.Register(new RegisterModel(), null!, _external.Object, _externalAuth.Object, _providerOnly);
         Assert.AreEqual("Login", ((RedirectToRouteResult)result).RouteName);
     }
 
@@ -307,14 +313,14 @@ public class AccountControllerProviderOnlyTests
     public async Task PasswordRecoveryPost_ProviderOnly_RedirectsToLogin()
     {
         var result = await _controller.PasswordRecovery(new PasswordRecoveryModel { Email = "a@b.c" }, _providerOnly);
-        Assert.AreEqual("Login", ((RedirectToRouteResult)result.Result).RouteName);
+        Assert.AreEqual("Login", Assert.IsInstanceOfType<RedirectToRouteResult>(result.Result).RouteName);
     }
 
     [TestMethod]
     public async Task PasswordRecoveryConfirm_ProviderOnly_RedirectsToLogin()
     {
         var get = await _controller.PasswordRecoveryConfirm("t", "a@b.c", _providerOnly);
-        Assert.AreEqual("Login", ((RedirectToRouteResult)get.Result).RouteName);
+        Assert.AreEqual("Login", Assert.IsInstanceOfType<RedirectToRouteResult>(get.Result).RouteName);
         var post = await _controller.PasswordRecoveryConfirm(new PasswordRecoveryConfirmModel(), _providerOnly);
         Assert.AreEqual("Login", ((RedirectToRouteResult)post).RouteName);
     }
@@ -420,18 +426,21 @@ public class AccountControllerProviderOnlyTests
     [TestMethod]
     public async Task DeleteAccount_ProviderOnly_AsksNoPassword_AlsoOnRedisplay()
     {
-        var get = (DeleteAccountModel)((ViewResult)_controller.DeleteAccount(_providerOnly)).Model;
+        var get = Assert.IsInstanceOfType<DeleteAccountModel>(((ViewResult)_controller.DeleteAccount(_providerOnly)).Model);
+        Assert.IsNotNull(get);
         Assert.IsFalse(get.PasswordRequired);
 
         _controller.ModelState.AddModelError("", "failed");
-        var post = (DeleteAccountModel)((ViewResult)await _controller.DeleteAccount(new DeleteAccountModel(), _providerOnly)).Model;
+        var post = Assert.IsInstanceOfType<DeleteAccountModel>(((ViewResult)await _controller.DeleteAccount(new DeleteAccountModel(), _providerOnly)).Model);
+        Assert.IsNotNull(post);
         Assert.IsFalse(post.PasswordRequired);
     }
 
     [TestMethod]
     public void DeleteAccount_Mixed_AsksPassword()
     {
-        var get = (DeleteAccountModel)((ViewResult)_controller.DeleteAccount(new OidcLoginConfig())).Model;
+        var get = Assert.IsInstanceOfType<DeleteAccountModel>(((ViewResult)_controller.DeleteAccount(new OidcLoginConfig())).Model);
+        Assert.IsNotNull(get);
         Assert.IsTrue(get.PasswordRequired);
     }
 

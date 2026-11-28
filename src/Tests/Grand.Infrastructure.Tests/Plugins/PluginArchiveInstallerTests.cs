@@ -16,8 +16,7 @@ public class PluginArchiveInstallerTests
     private string _plugins;
     private string _build;
 
-    [TestInitialize]
-    public void Init()
+    public PluginArchiveInstallerTests()
     {
         _root = Path.Combine(Path.GetTempPath(), "grand-plugin-tests", Guid.NewGuid().ToString("N"));
         _plugins = Path.Combine(_root, "Plugins");

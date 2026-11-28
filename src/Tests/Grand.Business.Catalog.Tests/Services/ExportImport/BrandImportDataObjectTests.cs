@@ -46,8 +46,7 @@ public class BrandImportDataObjectTests
     private ISeNameService _seNameService;
     private SecurityConfig _securityConfig;
     private Mock<ILogger<BrandImportDataObject>> _loggerMock;
-    [TestInitialize]
-    public void Init()
+    public BrandImportDataObjectTests()
     {
         InitAutoMapper();
         _securityConfig = new SecurityConfig();
@@ -80,13 +79,13 @@ public class BrandImportDataObjectTests
         brands.Add(new BrandDto { Name = "test2", Published = true });
         brands.Add(new BrandDto { Name = "test3", Published = true });
         _brandLayoutServiceMock.Setup(c => c.GetBrandLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new BrandLayout()));
+            .ReturnsAsync(new BrandLayout());
         _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts())
             .Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _brandImportDataObject.Execute(brands);
 
@@ -119,22 +118,22 @@ public class BrandImportDataObjectTests
         brands.Add(new BrandDto { Id = brand3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
         _brandLayoutServiceMock.Setup(c => c.GetBrandLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new BrandLayout()));
+            .ReturnsAsync(new BrandLayout());
         _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts())
             .Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _brandImportDataObject.Execute(brands);
 
         //Assert
         Assert.IsNotEmpty(_repository.Table);
         Assert.HasCount(3, _repository.Table);
-        Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Name);
-        Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).DisplayOrder);
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Published);
+        Assert.AreEqual("update3", _repository.Table.First(x => x.Id == brand3.Id).Name);
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == brand3.Id).DisplayOrder);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == brand3.Id).Published);
     }
 
     [TestMethod]
@@ -152,28 +151,28 @@ public class BrandImportDataObjectTests
         brands.Add(new BrandDto { Id = brand3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
         _brandLayoutServiceMock.Setup(c => c.GetBrandLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new BrandLayout()));
+            .ReturnsAsync(new BrandLayout());
         _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts())
             .Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _brandImportDataObject.Execute(brands);
 
         //Assert
         Assert.IsNotEmpty(_repository.Table);
         Assert.HasCount(3, _repository.Table);
-        Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Name);
-        Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == brand3.Id).DisplayOrder);
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == brand3.Id).Published);
+        Assert.AreEqual("update3", _repository.Table.First(x => x.Id == brand3.Id).Name);
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == brand3.Id).DisplayOrder);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == brand3.Id).Published);
     }
 
     private void SetupLayouts()
     {
         _brandLayoutServiceMock.Setup(c => c.GetBrandLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new BrandLayout()));
+            .ReturnsAsync(new BrandLayout());
         _brandLayoutServiceMock.Setup(c => c.GetAllBrandLayouts())
             .Returns(Task.FromResult<IList<BrandLayout>>(new List<BrandLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
@@ -218,7 +217,7 @@ public class BrandImportDataObjectTests
         var existing = new Brand { Name = "old", SeName = "my-slug" };
         await _brandService.InsertBrand(existing);
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = existing.Id, EntityName = "Brand", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = existing.Id, EntityName = "Brand", Slug = "my-slug" });
 
         var result = await _brandImportDataObject.Import(
             new List<BrandDto> { new() { SeName = "my-slug", Name = "renamed" } }, false);
@@ -234,7 +233,7 @@ public class BrandImportDataObjectTests
     {
         SetupLayouts();
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = "x", EntityName = "Product", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = "x", EntityName = "Product", Slug = "my-slug" });
 
         var result = await _brandImportDataObject.Import(
             new List<BrandDto> { new() { SeName = "my-slug" } }, true);
@@ -355,7 +354,7 @@ public class BrandImportDataObjectTests
         var existing = new Brand { Name = "old", SeName = "my-slug" };
         await _brandService.InsertBrand(existing);
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = existing.Id, EntityName = "Brand", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = existing.Id, EntityName = "Brand", Slug = "my-slug" });
 
         await _brandImportDataObject.Execute(new List<BrandDto> { new() { SeName = "my-slug", Name = "other" } });
 
@@ -415,8 +414,8 @@ public class BrandImportDataObjectTests
 
         Assert.AreEqual("good", _repository.Table.Single().Name);
         _loggerMock.Verify(l => l.Log(LogLevel.Warning, It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("row 2") && v.ToString()!.Contains("Description")),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.Is<It.IsAnyType>((v, _) => $"{v}".Contains("row 2") && $"{v}".Contains("Description")),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -479,13 +478,13 @@ public class BrandImportDataObjectTests
 
         //create and sort instances of mapper configurations
         var instances = mapperConfigurations
-            .Select(mapperConfiguration => (IAutoMapperProfile)Activator.CreateInstance(mapperConfiguration))
+            .Select(mapperConfiguration => Assert.IsInstanceOfType<IAutoMapperProfile>(Activator.CreateInstance(mapperConfiguration)))
             .OrderBy(mapperConfiguration => mapperConfiguration.Order);
 
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
+            foreach (var instance in instances) cfg.AddProfile(Assert.IsInstanceOfType<Grand.Mapping.Profile>(instance));
         });
 
         //register automapper

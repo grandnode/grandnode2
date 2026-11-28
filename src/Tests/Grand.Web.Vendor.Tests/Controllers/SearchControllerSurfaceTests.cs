@@ -24,7 +24,7 @@ public class SearchControllerSurfaceTests
     [TestMethod]
     public void VendorSearchController_HasAreaAttributeWithVendorArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(typeof(SearchController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(typeof(SearchController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(Constants.AreaVendor, areaAttr.RouteValue);
     }

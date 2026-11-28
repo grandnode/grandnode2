@@ -30,8 +30,7 @@ public class LoginValidatorExternalSignInTests
     private Mock<IExternalAuthenticationProvider> _provider;
     private Mock<IRequestTranslationService> _translation;
 
-    [TestInitialize]
-    public void Init()
+    public LoginValidatorExternalSignInTests()
     {
         _policy = new Mock<IExternalSignInPolicy>();
         _policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
@@ -53,7 +52,7 @@ public class LoginValidatorExternalSignInTests
             .Returns("Sign in with {0}");
     }
 
-    private LoginValidator Validator(string area = null)
+    private LoginValidator Validator(string? area = null)
     {
         var services = new ServiceCollection();
         services.AddSingleton(new Mock<IMediator>().Object);

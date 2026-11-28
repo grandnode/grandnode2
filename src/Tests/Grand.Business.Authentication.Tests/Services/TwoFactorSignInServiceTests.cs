@@ -25,8 +25,7 @@ public class TwoFactorSignInServiceTests
     private CustomerSettings _settings;
     private TwoFactorSignInService _service;
 
-    [TestInitialize]
-    public void Init()
+    public TwoFactorSignInServiceTests()
     {
         _stored = new Customer { Id = "c1" };
         _customerService = new Mock<ICustomerService>();

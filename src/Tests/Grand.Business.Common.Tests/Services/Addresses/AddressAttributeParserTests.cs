@@ -15,8 +15,7 @@ public class AddressAttributeParserTests
     private Mock<ITranslationService> _translationService;
     private List<CustomAttribute> customAtr;
 
-    [TestInitialize]
-    public void Init()
+    public AddressAttributeParserTests()
     {
         _atrService = new Mock<IAddressAttributeService>();
         _translationService = new Mock<ITranslationService>();
@@ -33,9 +32,9 @@ public class AddressAttributeParserTests
     public async Task ParseAddressAttributes_ReturnExpectedValues()
     {
         _atrService.Setup(c => c.GetAddressAttributeById("key1"))
-            .Returns(Task.FromResult(new AddressAttribute { Id = "key1" }));
+            .ReturnsAsync(new AddressAttribute { Id = "key1" });
         _atrService.Setup(c => c.GetAddressAttributeById("key2"))
-            .Returns(Task.FromResult(new AddressAttribute { Id = "key2" }));
+            .ReturnsAsync(new AddressAttribute { Id = "key2" });
         var result = await _parser.ParseAddressAttributes(customAtr);
         Assert.HasCount(2, result);
         Assert.AreEqual("key1", result.First().Id);
@@ -47,6 +46,6 @@ public class AddressAttributeParserTests
         var atr = new AddressAttribute { Id = "added" };
         var result = _parser.AddAddressAttribute(customAtr, atr, "new-added-value");
         Assert.HasCount(5, result);
-        Assert.IsTrue(result.Any(c => c.Key.Equals("added")));
+        Assert.IsTrue(result.Any(c => string.Equals(c.Key, "added")));
     }
 }

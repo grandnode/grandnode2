@@ -16,8 +16,7 @@ public class DownloadServiceTests
     private DownloadService _service;
     private Mock<IStoreFilesContext> _storeFilesContext;
 
-    [TestInitialize]
-    public void Init()
+    public DownloadServiceTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _repositoryMock = new Mock<IRepository<Download>>();
@@ -29,9 +28,10 @@ public class DownloadServiceTests
     public async Task GetDownloadById_InvokeExpectedMethod()
     {
         _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>()))
-            .Returns(Task.FromResult(new Download { DownloadUrl = "url", UseDownloadUrl = true }));
+            .ReturnsAsync(new Download { DownloadUrl = "url", UseDownloadUrl = true });
         var result = await _service.GetDownloadById("id");
         _repositoryMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
+        Assert.IsNotNull(result);
         Assert.AreEqual("url", result.DownloadUrl);
     }
 
@@ -46,7 +46,7 @@ public class DownloadServiceTests
     [TestMethod]
     public void InsertDownload_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertDownload(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertDownload(null!));
     }
 
     [TestMethod]
@@ -60,7 +60,7 @@ public class DownloadServiceTests
     [TestMethod]
     public void UpdateDownload_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateDownload(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateDownload(null!));
     }
 
     [TestMethod]
@@ -74,7 +74,7 @@ public class DownloadServiceTests
     [TestMethod]
     public void DeleteDownload_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteDownload(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteDownload(null!));
     }
 
     [TestMethod]

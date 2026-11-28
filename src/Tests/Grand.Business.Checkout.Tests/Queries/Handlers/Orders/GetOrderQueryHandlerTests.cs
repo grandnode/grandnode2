@@ -15,8 +15,7 @@ public class GetOrderQueryHandlerTests
     private GetOrderQueryHandler _handler;
     private MongoDBRepositoryTest<Order> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public GetOrderQueryHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Order>();
         _handler = new GetOrderQueryHandler(_repository);

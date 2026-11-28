@@ -22,8 +22,7 @@ public class BackgroundServiceTaskTests
     private ScheduleTask _task;
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public BackgroundServiceTaskTests()
     {
         _task = new ScheduleTask {
             Id = "1",
@@ -86,7 +85,7 @@ public class BackgroundServiceTaskTests
     public async Task ExecuteAsync_ClaimWon_LeasesTheRunAndReleasesItWhenDone()
     {
         DateTime? claimedRunStartUtc = null, claimedLeasedUntilUtc = null;
-        string claimingInstanceId = null;
+        string? claimingInstanceId = null;
         _scheduleTaskServiceMock.Setup(s => s.TryClaimTaskRun(_task.Id, It.IsAny<DateTime?>(),
                 It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()))
             .Callback<string, DateTime?, DateTime, DateTime, string>((_, _, runStartUtc, leasedUntilUtc, instanceId) => {
@@ -106,6 +105,7 @@ public class BackgroundServiceTaskTests
 
         Assert.AreEqual(LeaseDuration, claimedLeasedUntilUtc - claimedRunStartUtc);
         //released as the instance that claimed the run - a takeover by another instance is left alone
+        Assert.IsNotNull(claimingInstanceId);
         _scheduleTaskServiceMock.Verify(s => s.CompleteTaskRun(_task.Id, claimingInstanceId, It.IsAny<bool>(),
             It.IsAny<DateTime>(), It.IsAny<bool>()), Times.Once);
     }
@@ -148,8 +148,8 @@ public class BackgroundServiceTaskTests
 
         //the real AsyncLocal-backed accessor - a mock cannot show whether the values flow into Execute
         var contextAccessor = new ContextAccessor();
-        IWorkContext seenWorkContext = null;
-        IStoreContext seenStoreContext = null;
+        IWorkContext? seenWorkContext = null;
+        IStoreContext? seenStoreContext = null;
         _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>())).Returns(async (CancellationToken _) => {
             await Task.Yield();
             seenWorkContext = contextAccessor.WorkContext;
@@ -270,7 +270,7 @@ public class BackgroundServiceTaskTests
             It.IsAny<EventId>(),
             It.IsAny<It.IsAnyType>(),
             It.Is<Exception>(e => e is InvalidOperationException),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.AtLeastOnce);
     }
 
@@ -413,7 +413,7 @@ public class BackgroundServiceTaskDecideTests
     private static readonly DateTime UtcNow = new(2026, 8, 16, 12, 0, 0, DateTimeKind.Utc);
     private const string MachineName = "this-machine";
 
-    private static ScheduleTask NewTask(bool enabled = true, string leasedBy = null,
+    private static ScheduleTask NewTask(bool enabled = true, string? leasedBy = null,
         int timeInterval = 60, DateTime? lastStartUtc = null)
     {
         return new ScheduleTask {

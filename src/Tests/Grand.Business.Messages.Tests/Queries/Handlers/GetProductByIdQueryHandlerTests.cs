@@ -11,8 +11,7 @@ public class GetProductByIdQueryHandlerTests
 {
     private GetProductByIdQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetProductByIdQueryHandlerTests()
     {
         var _repository = new MongoDBRepositoryTest<Product>();
         _repository.Insert(new Product { Id = "1" });

@@ -20,8 +20,7 @@ public class DeliveryCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IShipmentService> _shipmentServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public DeliveryCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
@@ -36,7 +35,7 @@ public class DeliveryCommandHandlerTests
     public async Task HandleTest()
     {
         //Arrange
-        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).ReturnsAsync(new Order());
         _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
             .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
         var deliveryCommand = new DeliveryCommand
@@ -51,7 +50,7 @@ public class DeliveryCommandHandlerTests
     public async Task Handle_WithoutDate_StampsNow()
     {
         //Arrange
-        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).ReturnsAsync(new Order());
         _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
             .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
         var shipment = new Shipment { ShippedDateUtc = DateTime.UtcNow };
@@ -66,7 +65,7 @@ public class DeliveryCommandHandlerTests
     public async Task Handle_WithDate_KeepsGivenDate()
     {
         //Arrange
-        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).ReturnsAsync(new Order());
         _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
             .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
         var shipment = new Shipment { ShippedDateUtc = new DateTime(2026, 3, 10, 8, 0, 0, DateTimeKind.Utc) };

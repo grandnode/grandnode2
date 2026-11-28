@@ -21,8 +21,7 @@ public class SlugServiceTests
 
     private SlugService _slugService;
 
-    [TestInitialize]
-    public void Init()
+    public SlugServiceTests()
     {
         _repository = new MongoDBRepositoryTest<EntityUrl>();
 
@@ -65,7 +64,7 @@ public class SlugServiceTests
         entity.Slug = "slug2";
         await _slugService.UpdateEntityUrl(entity);
         //Assert
-        Assert.AreEqual(entity.Slug, _repository.Table.FirstOrDefault(x => x.Id == entity.Id).Slug);
+        Assert.AreEqual(entity.Slug, _repository.Table.First(x => x.Id == entity.Id).Slug);
     }
 
     [TestMethod]

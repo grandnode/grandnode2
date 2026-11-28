@@ -25,11 +25,10 @@ public class OrderPlacedOrderApprovalDeciderTests
     private Mock<ICustomerService> _customerService;
     private CustomerSettings _customerSettings;
     private OrderPlacedOrderApprovalHandler _handler;
-    private OrderApproval _inserted;
+    private OrderApproval? _inserted;
     private Mock<ICustomerMessageProviderService> _messages;
 
-    [TestInitialize]
-    public void Init()
+    public OrderPlacedOrderApprovalDeciderTests()
     {
         var approvalService = new Mock<IOrderApprovalService>();
         approvalService.Setup(x => x.Insert(It.IsAny<OrderApproval>())).Callback<OrderApproval>(a => _inserted = a)
@@ -40,7 +39,7 @@ public class OrderPlacedOrderApprovalDeciderTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(), It.IsAny<string[]>(),
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>(), It.IsAny<string[]>(),
                 It.IsAny<bool>()))
             .ReturnsAsync(new PagedList<Customer>([], 0, int.MaxValue, 0));
         _customerService.Setup(x => x.GetCustomerById("owner"))
@@ -82,6 +81,7 @@ public class OrderPlacedOrderApprovalDeciderTests
     {
         await _handler.Handle(Placed(new Customer { Id = "retail", Email = "r@x.example" }), CancellationToken.None);
 
+        Assert.IsNotNull(_inserted);
         Assert.AreEqual(OrderApprovalDecider.Store, _inserted.Decider);
         Assert.IsNull(_inserted.CompanyOwnerId);
         NoApproverIsAsked();
@@ -92,6 +92,7 @@ public class OrderPlacedOrderApprovalDeciderTests
     {
         await _handler.Handle(Placed(new Customer { Id = "owner", Email = "owner@acme.example" }), CancellationToken.None);
 
+        Assert.IsNotNull(_inserted);
         Assert.AreEqual(OrderApprovalDecider.Store, _inserted.Decider);
         Assert.IsNull(_inserted.CompanyOwnerId);
     }
@@ -103,6 +104,7 @@ public class OrderPlacedOrderApprovalDeciderTests
 
         await _handler.Handle(Placed(buyer), CancellationToken.None);
 
+        Assert.IsNotNull(_inserted);
         Assert.AreEqual(OrderApprovalDecider.Company, _inserted.Decider);
         Assert.AreEqual("owner", _inserted.CompanyOwnerId);
         _messages.Verify(x => x.SendOrderApprovalRequestedMessage(_inserted, buyer,
@@ -118,6 +120,7 @@ public class OrderPlacedOrderApprovalDeciderTests
         await _handler.Handle(Placed(new Customer { Id = "buyer", OwnerId = "owner", Email = "b@acme.example" }),
             CancellationToken.None);
 
+        Assert.IsNotNull(_inserted);
         Assert.AreEqual(OrderApprovalDecider.Store, _inserted.Decider);
         Assert.IsNull(_inserted.CompanyOwnerId);
         NoApproverIsAsked();
@@ -131,6 +134,7 @@ public class OrderPlacedOrderApprovalDeciderTests
 
         await _handler.Handle(placed, CancellationToken.None);
 
+        Assert.IsNotNull(_inserted);
         Assert.AreEqual(OrderApprovalDecider.Store, _inserted.Decider);
         Assert.IsNull(_inserted.CompanyOwnerId);
         NoApproverIsAsked();
@@ -147,6 +151,7 @@ public class OrderPlacedOrderApprovalDeciderTests
         await _handler.Handle(Placed(new Customer { Id = "buyer", OwnerId = "owner", Email = "b@acme.example" }),
             CancellationToken.None);
 
+        Assert.IsNotNull(_inserted);
         Assert.AreEqual(OrderApprovalDecider.Store, _inserted.Decider);
         Assert.IsNull(_inserted.CompanyOwnerId);
         _messages.Verify(x => x.SendOrderApprovalStaffMessage(_inserted, It.IsAny<Customer>(), It.IsAny<Store>(),
@@ -161,6 +166,7 @@ public class OrderPlacedOrderApprovalDeciderTests
 
         await _handler.Handle(placed, CancellationToken.None);
 
+        Assert.IsNotNull(_inserted);
         CollectionAssert.AreEqual(new[] { "over the limit", "restricted goods" }, _inserted.Reasons.ToArray());
     }
 }

@@ -21,8 +21,7 @@ public class ContentMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public ContentMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<BlogCategoryProfile>();

@@ -48,8 +48,7 @@ public class BaseBlogControllerTests
     private Mock<IAdminDataScope<BlogCategory>> _categoryScopeMock;
     private Mock<ILanguageService> _languageServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseBlogControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
@@ -64,9 +63,9 @@ public class BaseBlogControllerTests
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _postScopeMock = new Mock<IAdminDataScope<BlogPost>>();
-        _postScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _postScopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _categoryScopeMock = new Mock<IAdminDataScope<BlogCategory>>();
-        _categoryScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _categoryScopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         _languageServiceMock = new Mock<ILanguageService>();
         _languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
@@ -100,7 +99,7 @@ public class BaseBlogControllerTests
     [TestMethod]
     public async Task EditGet_PostNotFound_RedirectsToList()
     {
-        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost)null);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost?)null);
 
         var result = await _controller.Edit("missing");
 
@@ -135,7 +134,7 @@ public class BaseBlogControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.AreEqual("Hello", ((BlogPostModel)view.Model).Title);
+        Assert.AreEqual("Hello", Assert.IsInstanceOfType<BlogPostModel>(view.Model).Title);
     }
 
     [TestMethod]
@@ -222,6 +221,7 @@ public class BaseBlogControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("p1", redirect.RouteValues["id"]);
         _blogServiceMock.Verify(b => b.DeleteBlogPost(It.IsAny<BlogPost>()), Times.Never);
     }
@@ -234,7 +234,7 @@ public class BaseBlogControllerTests
         _blogViewModelServiceMock
             .Setup(v => v.InsertBlogPostModel(It.IsAny<BlogPostModel>()))
             .ReturnsAsync(inserted)
-            .Callback<BlogPostModel>(m => Assert.AreEqual("store-1", m.Stores.Single()));
+            .Callback<BlogPostModel>(m => Assert.AreEqual("store-1", m.Stores?.Single()));
 
         await _controller.Create(new BlogPostModel { Title = "N" }, false);
 
@@ -244,13 +244,13 @@ public class BaseBlogControllerTests
     [TestMethod]
     public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
     {
-        _postScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _postScopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var inserted = new BlogPost { Id = "new-1" };
         var submitted = new BlogPostModel { Title = "N", Stores = ["explicit-store"] };
         _blogViewModelServiceMock
             .Setup(v => v.InsertBlogPostModel(It.IsAny<BlogPostModel>()))
             .ReturnsAsync(inserted)
-            .Callback<BlogPostModel>(m => Assert.AreEqual("explicit-store", m.Stores.Single()));
+            .Callback<BlogPostModel>(m => Assert.AreEqual("explicit-store", m.Stores?.Single()));
 
         await _controller.Create(submitted, false);
 
@@ -274,7 +274,7 @@ public class BaseBlogControllerTests
     [TestMethod]
     public async Task PicturePopupGet_PostNotFound_ReturnsNotExistContent()
     {
-        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost)null);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost?)null);
 
         var result = await _controller.PicturePopup("missing");
 
@@ -313,7 +313,7 @@ public class BaseBlogControllerTests
     [TestMethod]
     public async Task CategoryListPost_GlobalScope_PassesEmptyString()
     {
-        _categoryScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _categoryScopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _blogServiceMock.Setup(b => b.GetAllBlogCategories("")).ReturnsAsync(new List<BlogCategory>());
 
         await _controller.CategoryList(new DataSourceRequest { Page = 1, PageSize = 10 });
@@ -359,7 +359,8 @@ public class BaseBlogControllerTests
 
         var result = await _controller.Comments("p1", new DataSourceRequest { Page = 1, PageSize = 15 });
 
-        var gridModel = (DataSourceResult)((JsonResult)result).Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(((JsonResult)result).Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _blogViewModelServiceMock.Verify(v => v.PrepareBlogPostCommentsModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
@@ -367,11 +368,12 @@ public class BaseBlogControllerTests
     [TestMethod]
     public async Task CommentsPost_PostNotFound_ReturnsKendoErrorWithoutReadingComments()
     {
-        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost)null);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost?)null);
 
         var result = await _controller.Comments("missing", new DataSourceRequest { Page = 1, PageSize = 15 });
 
-        var gridModel = (DataSourceResult)((JsonResult)result).Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(((JsonResult)result).Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _blogViewModelServiceMock.Verify(v => v.PrepareBlogPostCommentsModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
@@ -387,7 +389,8 @@ public class BaseBlogControllerTests
 
         var result = await _controller.Comments("p1", new DataSourceRequest { Page = 1, PageSize = 15 });
 
-        var gridModel = (DataSourceResult)((JsonResult)result).Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(((JsonResult)result).Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNull(gridModel.Errors);
         Assert.AreEqual(1, gridModel.Total);
     }
@@ -396,12 +399,13 @@ public class BaseBlogControllerTests
     public async Task CommentsPost_NoFilter_ListsTheScopedCommentsWithoutAPostCheck()
     {
         //the "Blog comments" page: no post id, the view-model service narrows to the staff store
-        _blogViewModelServiceMock.Setup(v => v.PrepareBlogPostCommentsModel(null, 1, 15))
+        _blogViewModelServiceMock.Setup(v => v.PrepareBlogPostCommentsModel(null!, 1, 15))
             .ReturnsAsync((new List<BlogCommentModel>(), 0));
 
-        var result = await _controller.Comments(null, new DataSourceRequest { Page = 1, PageSize = 15 });
+        var result = await _controller.Comments(null!, new DataSourceRequest { Page = 1, PageSize = 15 });
 
-        var gridModel = (DataSourceResult)((JsonResult)result).Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(((JsonResult)result).Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNull(gridModel.Errors);
         _blogServiceMock.Verify(b => b.GetBlogPostById(It.IsAny<string>()), Times.Never);
     }
@@ -417,7 +421,8 @@ public class BaseBlogControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
     }
 
@@ -487,7 +492,8 @@ public class BaseBlogControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _blogServiceMock.Verify(b => b.DeleteBlogComment(It.IsAny<Grand.Domain.Blogs.BlogComment>()), Times.Never);
     }
@@ -497,13 +503,14 @@ public class BaseBlogControllerTests
     {
         var comment = new Grand.Domain.Blogs.BlogComment { Id = "cm1", BlogPostId = "missing" };
         _blogServiceMock.Setup(b => b.GetBlogCommentById("cm1")).ReturnsAsync(comment);
-        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost)null);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost?)null);
 
         var result = await _controller.CommentDelete("cm1");
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _postScopeMock.Verify(s => s.HasAccess(It.IsAny<BlogPost>()), Times.Never);
         _blogServiceMock.Verify(b => b.DeleteBlogComment(It.IsAny<Grand.Domain.Blogs.BlogComment>()), Times.Never);
@@ -520,7 +527,8 @@ public class BaseBlogControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
     }
 
@@ -549,7 +557,8 @@ public class BaseBlogControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _blogViewModelServiceMock.Verify(v => v.UpdateProductModel(It.IsAny<BlogProductModel>()), Times.Never);
     }
@@ -567,7 +576,8 @@ public class BaseBlogControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.IsNotNull(gridModel.Errors);
         _blogViewModelServiceMock.Verify(v => v.DeleteProductModel(It.IsAny<string>()), Times.Never);
     }

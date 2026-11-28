@@ -24,8 +24,7 @@ public class DeleteOrderItemCommandHandlerTests
     private Mock<IProductService> _productServiceMock;
     private Mock<IShipmentService> _shipmentServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public DeleteOrderItemCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
@@ -50,8 +49,8 @@ public class DeleteOrderItemCommandHandlerTests
         _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder(It.IsAny<string>())).ReturnsAsync(new List<Shipment>());
         _giftVoucherServiceMock.Setup(c => c.GetGiftVouchersByPurchasedWithOrderItemId(It.IsAny<string>()))
             .ReturnsAsync(new List<GiftVoucher>());
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(() =>
+            new Product { Id = "2", Published = true, Price = 10 });
         //Act
         var result = await _handler.Handle(command, CancellationToken.None);
         //Assert

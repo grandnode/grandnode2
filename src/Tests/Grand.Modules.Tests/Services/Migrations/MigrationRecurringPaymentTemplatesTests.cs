@@ -28,13 +28,12 @@ public class MigrationRecurringPaymentTemplatesTests
         "RecurringPayment.PaymentFailed.StoreOwnerNotification"
     ];
 
-    private Mock<ICacheBase> _cache;
+    private Mock<ICacheBase>? _cache;
     private MigrationRecurringPaymentTemplates _migration;
     private IServiceProvider _serviceProvider;
     private LiteDBRepositoryMock<MessageTemplate> _templates;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationRecurringPaymentTemplatesTests()
     {
         _templates = new LiteDBRepositoryMock<MessageTemplate>();
         _serviceProvider = BuildProvider(_templates);
@@ -69,6 +68,7 @@ public class MigrationRecurringPaymentTemplatesTests
         Assert.AreEqual("mine", _templates.Table.Single(x => x.Name == Edited).Subject);
         Assert.IsTrue(_templates.Table.Where(x => x.Name != Edited)
             .All(x => x.IsActive && !string.IsNullOrEmpty(x.EmailAccountId)));
+        Assert.IsNotNull(_cache);
         _cache.Verify(x => x.RemoveByPrefix(CacheKey.MESSAGETEMPLATES_PATTERN_KEY, It.IsAny<bool>()),
             Times.AtLeastOnce);
     }

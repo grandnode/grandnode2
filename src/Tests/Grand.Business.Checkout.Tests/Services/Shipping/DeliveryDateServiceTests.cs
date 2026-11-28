@@ -18,8 +18,7 @@ public class DeliveryDateServiceTests
     private Mock<IRepository<DeliveryDate>> _repositoryMock;
     private IDeliveryDateService _service;
 
-    [TestInitialize]
-    public void Init()
+    public DeliveryDateServiceTests()
     {
         _repositoryMock = new Mock<IRepository<DeliveryDate>>();
         _mediatorMock = new Mock<IMediator>();
@@ -38,7 +37,7 @@ public class DeliveryDateServiceTests
     [TestMethod]
     public void InsertDeliveryDate_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertDeliveryDate(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertDeliveryDate(null!));
     }
 
     [TestMethod]
@@ -52,7 +51,7 @@ public class DeliveryDateServiceTests
     [TestMethod]
     public void UpdateDeliveryDate_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateDeliveryDate(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateDeliveryDate(null!));
     }
 
     [TestMethod]
@@ -66,6 +65,6 @@ public class DeliveryDateServiceTests
     [TestMethod]
     public void DeleteDeliveryDate_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteDeliveryDate(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteDeliveryDate(null!));
     }
 }

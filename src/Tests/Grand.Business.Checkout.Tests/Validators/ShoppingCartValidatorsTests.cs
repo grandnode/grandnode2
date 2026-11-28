@@ -34,8 +34,7 @@ public class ShoppingCartValidatorsTests
     private IStockQuantityService _stockQuantityService;
     private Mock<ITranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ShoppingCartValidatorsTests()
     {
         _translationServiceMock = new Mock<ITranslationService>();
         _checkoutAttributeParserMock = new Mock<ICheckoutAttributeParser>();
@@ -248,10 +247,10 @@ public class ShoppingCartValidatorsTests
             _productServiceMock.Object, _productAttributeService.Object);
 
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
-            .Returns(() => Task.FromResult(new Product()));
+            .ReturnsAsync(() => new Product());
 
         _productAttributeService.Setup(x => x.GetProductAttributeById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new ProductAttribute { Name = "test" }));
+            .ReturnsAsync(() => new ProductAttribute { Name = "test" });
 
         var product = new Product {
             Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10,
@@ -288,10 +287,10 @@ public class ShoppingCartValidatorsTests
             _productServiceMock.Object, _productAttributeService.Object);
 
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
-            .Returns(() => Task.FromResult(new Product()));
+            .ReturnsAsync(() => new Product());
 
         _productAttributeService.Setup(x => x.GetProductAttributeById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new ProductAttribute { Name = "test" }));
+            .ReturnsAsync(() => new ProductAttribute { Name = "test" });
 
         var product = new Product {
             Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10,
@@ -329,13 +328,13 @@ public class ShoppingCartValidatorsTests
                 new ShoppingCartSettings());
 
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
-            .Returns(() => Task.FromResult(new Product()));
+            .ReturnsAsync(() => new Product());
 
         _productServiceMock.Setup(x => x.GetProductById("1", false))
-            .Returns(() => Task.FromResult(new Product { Id = "1", Name = "test" }));
+            .ReturnsAsync(() => new Product { Id = "1", Name = "test" });
 
         _productServiceMock.Setup(x => x.GetProductById("2", false))
-            .Returns(() => Task.FromResult(new Product { Id = "2", Name = "test" }));
+            .ReturnsAsync(() => new Product { Id = "2", Name = "test" });
 
         var product = new Product {
             Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10,
@@ -370,13 +369,13 @@ public class ShoppingCartValidatorsTests
                 new ShoppingCartSettings());
 
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
-            .Returns(() => Task.FromResult(new Product()));
+            .ReturnsAsync(() => new Product());
 
         _productServiceMock.Setup(x => x.GetProductById("1", false))
-            .Returns(() => Task.FromResult(new Product { Id = "1", Name = "test" }));
+            .ReturnsAsync(() => new Product { Id = "1", Name = "test" });
 
         _productServiceMock.Setup(x => x.GetProductById("2", false))
-            .Returns(() => Task.FromResult(new Product { Id = "2", Name = "test" }));
+            .ReturnsAsync(() => new Product { Id = "2", Name = "test" });
 
         var product = new Product {
             Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10,
@@ -409,10 +408,10 @@ public class ShoppingCartValidatorsTests
                 _productReservationServiceMock.Object);
 
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
-            .Returns(() => Task.FromResult(new Product()));
+            .ReturnsAsync(() => new Product());
 
         _productServiceMock.Setup(x => x.GetProductById("1", false))
-            .Returns(() => Task.FromResult(new Product { Id = "1", Name = "test" }));
+            .ReturnsAsync(() => new Product { Id = "1", Name = "test" });
 
 
         _productReservationServiceMock.Setup(x => x.GetCustomerReservationsHelpers(It.IsAny<string>()))
@@ -468,10 +467,10 @@ public class ShoppingCartValidatorsTests
                 _productReservationServiceMock.Object);
 
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
-            .Returns(() => Task.FromResult(new Product()));
+            .ReturnsAsync(() => new Product());
 
         _productServiceMock.Setup(x => x.GetProductById("1", false))
-            .Returns(() => Task.FromResult(new Product { Id = "1", Name = "test" }));
+            .ReturnsAsync(() => new Product { Id = "1", Name = "test" });
 
 
         _productReservationServiceMock.Setup(x => x.GetCustomerReservationsHelpers(It.IsAny<string>()))
@@ -717,7 +716,7 @@ public class ShoppingCartValidatorsTests
                 _groupServiceMock.Object);
 
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
-            .Returns(() => Task.FromResult(new Product()));
+            .ReturnsAsync(() => new Product());
 
         var product = new Product {
             Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10,
@@ -755,10 +754,10 @@ public class ShoppingCartValidatorsTests
                 _groupServiceMock.Object);
 
         _productServiceMock.Setup(x => x.GetProductById("1", false))
-            .Returns(() => Task.FromResult(new Product
-                { IsRecurring = true, RecurringCyclePeriodId = RecurringCyclePeriod.Weeks }));
+            .ReturnsAsync(() => new Product
+                { IsRecurring = true, RecurringCyclePeriodId = RecurringCyclePeriod.Weeks });
         _productServiceMock.Setup(x => x.GetProductById("2", false))
-            .Returns(() => Task.FromResult(new Product { IsRecurring = false }));
+            .ReturnsAsync(() => new Product { IsRecurring = false });
 
         var product = new Product {
             Id = "1", StockQuantity = 1, OrderMinimumQuantity = 1, OrderMaximumQuantity = 10,

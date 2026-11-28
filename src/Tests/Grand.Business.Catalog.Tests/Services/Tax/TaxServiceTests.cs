@@ -27,10 +27,9 @@ public class TaxServiceTests
     private TaxSettings _taxSettings;
     private IVatService _vatService;
 
-    private IContextAccessor _workContext;
+    private IContextAccessor? _workContext;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public TaxServiceTests()
     {
         var serviceProvider = new Mock<IServiceProvider>();
         serviceProvider.Setup(x => x.GetService(typeof(FixedRateTestTaxProvider)))
@@ -123,7 +122,7 @@ public class TaxServiceTests
         var product = new Product();
         _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
             .Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup>()));
-        var pp = await _taxService.GetProductPrice(product, "0", 1000, true, customer, null, true);
+        var pp = await _taxService.GetProductPrice(product, "0", 1000, true, customer, new(), true);
         var price = pp.productprice;
         Assert.AreEqual(1000, price);
     }
@@ -135,13 +134,13 @@ public class TaxServiceTests
         var product = new Product();
 
         Assert.AreEqual(Math.Round(909.0909090, 2),
-            (await _taxService.GetProductPrice(product, "0", 1000, true, customer, null, true)).productprice);
+            (await _taxService.GetProductPrice(product, "0", 1000, true, customer, new(), true)).productprice);
         Assert.AreEqual(1000,
-            (await _taxService.GetProductPrice(product, "0", 1000, true, customer, null, false)).productprice);
+            (await _taxService.GetProductPrice(product, "0", 1000, true, customer, new(), false)).productprice);
         Assert.AreEqual(Math.Round(909.0909090, 2),
-            (await _taxService.GetProductPrice(product, "0", 1000, false, customer, null, true)).productprice);
+            (await _taxService.GetProductPrice(product, "0", 1000, false, customer, new(), true)).productprice);
         Assert.AreEqual(1000,
-            (await _taxService.GetProductPrice(product, "0", 1000, false, customer, null, false)).productprice);
+            (await _taxService.GetProductPrice(product, "0", 1000, false, customer, new(), false)).productprice);
     }
 
     [TestMethod]
@@ -171,22 +170,22 @@ public class TaxServiceTests
             .Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup>()));
         //these 6 methods..
         var scUnitPriceInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, null, true)).productprice;
+            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, new(), true)).productprice;
         var scUnitPriceExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, null, true))
+            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, new(), true))
             .productprice;
         var scSubTotalInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, true, customer, null, true)).productprice;
+            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, true, customer, new(), true)).productprice;
         var scSubTotalExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, false, customer, null, true)).productprice;
+            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, false, customer, new(), true)).productprice;
         var discountAmountInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, true, customer, null, true))
+            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, true, customer, new(), true))
             .productprice;
         var discountAmountExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, false, customer, null, true))
+            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, false, customer, new(), true))
             .productprice;
         //..should return the same value as this one method's properties are having
-        var result02 = await _taxService.GetTaxProductPrice(product, customer, null, scUnitPrice, scUnitPriceWithoutDiscount,
+        var result02 = await _taxService.GetTaxProductPrice(product, customer, new(), scUnitPrice, scUnitPriceWithoutDiscount,
             1, scSubTotal, discountAmount, true);
 
         Assert.AreEqual(scUnitPriceInclTax, result02.UnitPriceInclTax, "unit price including tax");
@@ -217,24 +216,24 @@ public class TaxServiceTests
         var discountAmount = 7000.00;
 
         var scUnitPriceInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, new(), false))
             .productprice;
         var scUnitPriceExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, new(), false))
             .productprice;
         var scSubTotalInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, true, customer, null, false)).productprice;
+            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, true, customer, new(), false)).productprice;
         var scSubTotalExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, false, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, false, customer, new(), false))
             .productprice;
         var discountAmountInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, true, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, true, customer, new(), false))
             .productprice;
         var discountAmountExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, false, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, false, customer, new(), false))
             .productprice;
 
-        var result02 = await _taxService.GetTaxProductPrice(product, customer, null, scUnitPrice, scUnitPriceWithoutDiscount,
+        var result02 = await _taxService.GetTaxProductPrice(product, customer, new(), scUnitPrice, scUnitPriceWithoutDiscount,
             1, scSubTotal, discountAmount, false);
 
         Assert.AreEqual(scUnitPriceInclTax, result02.UnitPriceInclTax, "unit price including tax");
@@ -264,22 +263,22 @@ public class TaxServiceTests
         var discountAmount = 7000.00;
 
         var scUnitPriceInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, null, true)).productprice;
+            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, new(), true)).productprice;
         var scUnitPriceExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, null, true))
+            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, new(), true))
             .productprice;
         var scSubTotalInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, true, customer, null, true)).productprice;
+            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, true, customer, new(), true)).productprice;
         var scSubTotalExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, false, customer, null, true)).productprice;
+            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, false, customer, new(), true)).productprice;
         var discountAmountInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, true, customer, null, true))
+            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, true, customer, new(), true))
             .productprice;
         var discountAmountExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, false, customer, null, true))
+            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, false, customer, new(), true))
             .productprice;
 
-        var result02 = await _taxService.GetTaxProductPrice(product, customer, null, scUnitPrice, scUnitPriceWithoutDiscount,
+        var result02 = await _taxService.GetTaxProductPrice(product, customer, new(), scUnitPrice, scUnitPriceWithoutDiscount,
             1, scSubTotal, discountAmount, true);
 
         Assert.AreEqual(scUnitPriceInclTax, result02.UnitPriceInclTax, "unit price including tax");
@@ -309,24 +308,24 @@ public class TaxServiceTests
         var discountAmount = 7000.00;
 
         var scUnitPriceInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, new(), false))
             .productprice;
         var scUnitPriceExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, new(), false))
             .productprice;
         var scSubTotalInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, true, customer, null, false)).productprice;
+            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, true, customer, new(), false)).productprice;
         var scSubTotalExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, false, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, scSubTotal, false, customer, new(), false))
             .productprice;
         var discountAmountInclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, true, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, true, customer, new(), false))
             .productprice;
         var discountAmountExclTax =
-            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, false, customer, null, false))
+            (await _taxService.GetProductPrice(product, taxCategoryId, discountAmount, false, customer, new(), false))
             .productprice;
 
-        var result02 = await _taxService.GetTaxProductPrice(product, customer, null, scUnitPrice, scUnitPriceWithoutDiscount,
+        var result02 = await _taxService.GetTaxProductPrice(product, customer, new(), scUnitPrice, scUnitPriceWithoutDiscount,
             1, scSubTotal, discountAmount, false);
 
         Assert.AreEqual(scUnitPriceInclTax, result02.UnitPriceInclTax, "unit price including tax");

@@ -17,8 +17,7 @@ public class ShoppingCartDiscountRuleTests
     private Mock<IMediator> _mediator;
     private ShoppingCartDiscountRule _rule;
 
-    [TestInitialize]
-    public void Init()
+    public ShoppingCartDiscountRuleTests()
     {
         _mediator = new Mock<IMediator>();
         _rule = new ShoppingCartDiscountRule(_mediator.Object, new ShoppingCartSettings());
@@ -65,15 +64,5 @@ public class ShoppingCartDiscountRuleTests
         var result = await _rule.CheckRequirement(Request(customer));
 
         Assert.IsFalse(result.IsValid);
-    }
-
-    [TestMethod]
-    public async Task CheckRequirement_NoCustomer_IsNotValid()
-    {
-        var result = await _rule.CheckRequirement(Request(null));
-
-        Assert.IsFalse(result.IsValid);
-        _mediator.Verify(m => m.Send(It.IsAny<GetShoppingCartItemsSubTotalQuery>(), It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 }

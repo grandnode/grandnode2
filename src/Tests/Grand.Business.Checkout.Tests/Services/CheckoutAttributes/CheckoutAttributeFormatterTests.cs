@@ -29,8 +29,7 @@ public class CheckoutAttributeFormatterTests
     private Mock<ICheckoutAttributeParser> _parserMock;
     private Mock<ITaxService> _taxServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public CheckoutAttributeFormatterTests()
     {
         _parserMock = new Mock<ICheckoutAttributeParser>();
         _taxServiceMock = new Mock<ITaxService>();

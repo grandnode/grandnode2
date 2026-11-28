@@ -72,11 +72,10 @@ public class ProductImportDataObjectTests
     private TaxSettings _taxSettings;
     private Mock<ILogger<ProductImportDataObject>> _loggerMock;
     private List<string> _downloadedUrls;
-    private Func<string, DownloadedImage> _downloadResult;
-    private Action<CancellationToken> _onDownload;
+    private Func<string, DownloadedImage?> _downloadResult;
+    private Action<CancellationToken>? _onDownload;
 
-    [TestInitialize]
-    public void Init()
+    public ProductImportDataObjectTests()
     {
         InitAutoMapper();
         _securityConfig = new SecurityConfig();
@@ -146,34 +145,34 @@ public class ProductImportDataObjectTests
         products.Add(new ProductDto { Name = "test3", Published = true });
 
         _productLayoutServiceMock.Setup(c => c.GetProductLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new ProductLayout()));
+            .ReturnsAsync(new ProductLayout());
         _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts())
             .Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new() }));
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new DeliveryDate()));
+            .ReturnsAsync(new DeliveryDate());
         _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(Task.FromResult<IPagedList<DeliveryDate>>(new PagedList<DeliveryDate>(new List<DeliveryDate> { new() }, 0, int.MaxValue)));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new TaxCategory()));
+            .ReturnsAsync(new TaxCategory());
         _taxServiceMock.Setup(c => c.GetAllTaxCategories())
             .Returns(Task.FromResult<IList<TaxCategory>>(new List<TaxCategory> { new() }));
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new Warehouse()));
+            .ReturnsAsync(new Warehouse());
         _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(Task.FromResult<IPagedList<Warehouse>>(new PagedList<Warehouse>(new List<Warehouse> { new() }, 0, int.MaxValue)));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new MeasureUnit()));
+            .ReturnsAsync(new MeasureUnit());
         _measureServiceMock.Setup(c => c.GetAllMeasureUnits())
             .Returns(Task.FromResult<IList<MeasureUnit>>(new List<MeasureUnit> { new() }));
 
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug", EntityName = "Product" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug", EntityName = "Product" });
 
         //Act
         await _productImportDataObject.Execute(products);
@@ -207,43 +206,43 @@ public class ProductImportDataObjectTests
         products.Add(new ProductDto { Id = product3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
         _productLayoutServiceMock.Setup(c => c.GetProductLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new ProductLayout()));
+            .ReturnsAsync(new ProductLayout());
         _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts())
             .Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new DeliveryDate()));
+            .ReturnsAsync(new DeliveryDate());
         _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(Task.FromResult<IPagedList<DeliveryDate>>(new PagedList<DeliveryDate>(new List<DeliveryDate> { new() }, 0, int.MaxValue)));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new TaxCategory()));
+            .ReturnsAsync(new TaxCategory());
         _taxServiceMock.Setup(c => c.GetAllTaxCategories())
             .Returns(Task.FromResult<IList<TaxCategory>>(new List<TaxCategory> { new() }));
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new Warehouse()));
+            .ReturnsAsync(new Warehouse());
         _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(Task.FromResult<IPagedList<Warehouse>>(new PagedList<Warehouse>(new List<Warehouse> { new() }, 0, int.MaxValue)));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new MeasureUnit()));
+            .ReturnsAsync(new MeasureUnit());
         _measureServiceMock.Setup(c => c.GetAllMeasureUnits())
             .Returns(Task.FromResult<IList<MeasureUnit>>(new List<MeasureUnit> { new() }));
 
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug", EntityName = "Product" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug", EntityName = "Product" });
         //Act
         await _productImportDataObject.Execute(products);
 
         //Assert
         Assert.IsTrue(_repository.Table.Any());
         Assert.AreEqual(3, _repository.Table.Count());
-        Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == product3.Id).Name);
-        Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == product3.Id).DisplayOrder);
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == product3.Id).Published);
+        Assert.AreEqual("update3", _repository.Table.First(x => x.Id == product3.Id).Name);
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == product3.Id).DisplayOrder);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == product3.Id).Published);
     }
 
     [TestMethod]
@@ -261,55 +260,55 @@ public class ProductImportDataObjectTests
         products.Add(new ProductDto { Id = product3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
         _productLayoutServiceMock.Setup(c => c.GetProductLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new ProductLayout()));
+            .ReturnsAsync(new ProductLayout());
         _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts())
             .Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new DeliveryDate()));
+            .ReturnsAsync(new DeliveryDate());
         _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(Task.FromResult<IPagedList<DeliveryDate>>(new PagedList<DeliveryDate>(new List<DeliveryDate> { new() }, 0, int.MaxValue)));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new TaxCategory()));
+            .ReturnsAsync(new TaxCategory());
         _taxServiceMock.Setup(c => c.GetAllTaxCategories())
             .Returns(Task.FromResult<IList<TaxCategory>>(new List<TaxCategory> { new() }));
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new Warehouse()));
+            .ReturnsAsync(new Warehouse());
         _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(Task.FromResult<IPagedList<Warehouse>>(new PagedList<Warehouse>(new List<Warehouse> { new() }, 0, int.MaxValue)));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new MeasureUnit()));
+            .ReturnsAsync(new MeasureUnit());
         _measureServiceMock.Setup(c => c.GetAllMeasureUnits())
             .Returns(Task.FromResult<IList<MeasureUnit>>(new List<MeasureUnit> { new() }));
 
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug", EntityName = "Product" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug", EntityName = "Product" });
         //Act
         await _productImportDataObject.Execute(products);
 
         //Assert
         Assert.IsTrue(_repository.Table.Any());
         Assert.AreEqual(3, _repository.Table.Count());
-        Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == product3.Id).Name);
-        Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == product3.Id).DisplayOrder);
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == product3.Id).Published);
+        Assert.AreEqual("update3", _repository.Table.First(x => x.Id == product3.Id).Name);
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == product3.Id).DisplayOrder);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == product3.Id).Published);
     }
 
     private void SetupLookups()
     {
         _productLayoutServiceMock.Setup(c => c.GetProductLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new ProductLayout()));
+            .ReturnsAsync(new ProductLayout());
         _productLayoutServiceMock.Setup(c => c.GetAllProductLayouts())
             .Returns(Task.FromResult<IList<ProductLayout>>(new List<ProductLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug", EntityName = "Product" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug", EntityName = "Product" });
         _pictureServiceMock.Setup(c => c.InsertPicture(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Reference>(), It.IsAny<string>(),
                 It.IsAny<bool>()))
@@ -810,9 +809,9 @@ public class ProductImportDataObjectTests
 
         Assert.AreEqual("one", _repository.Table.Single().Name);
         _loggerMock.Verify(l => l.Log(LogLevel.Warning, It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("2 row(s)") && v.ToString()!.Contains("row 3") &&
-                                          v.ToString()!.Contains(ImportRowResult.NotProcessedError)),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.Is<It.IsAnyType>((v, _) => $"{v}".Contains("2 row(s)") && $"{v}".Contains("row 3") &&
+                                          $"{v}".Contains(ImportRowResult.NotProcessedError)),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -827,8 +826,8 @@ public class ProductImportDataObjectTests
 
         Assert.AreEqual("good", _repository.Table.Single().Name);
         _loggerMock.Verify(l => l.Log(LogLevel.Warning, It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("row 2") && v.ToString()!.Contains("FullDescription")),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.Is<It.IsAnyType>((v, _) => $"{v}".Contains("row 2") && $"{v}".Contains("FullDescription")),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -895,7 +894,9 @@ public class ProductImportDataObjectTests
 
         Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[0].Status);
         Assert.Contains("Sku 'A1' is already used by product 'first'.", result.Rows[0].Errors);
-        Assert.AreEqual("B1", (await _repository.GetByIdAsync(second.Id)).Sku);
+        var product = await _repository.GetByIdAsync(second.Id);
+        Assert.IsNotNull(product);
+        Assert.AreEqual("B1", product.Sku);
     }
 
     [TestMethod]
@@ -1038,13 +1039,13 @@ public class ProductImportDataObjectTests
 
         //create and sort instances of mapper configurations
         var instances = mapperConfigurations
-            .Select(mapperConfiguration => (IAutoMapperProfile)Activator.CreateInstance(mapperConfiguration))
+            .Select(mapperConfiguration => Assert.IsInstanceOfType<IAutoMapperProfile>(Activator.CreateInstance(mapperConfiguration)))
             .OrderBy(mapperConfiguration => mapperConfiguration.Order);
 
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
+            foreach (var instance in instances) cfg.AddProfile(Assert.IsInstanceOfType<Grand.Mapping.Profile>(instance));
         });
 
         //register automapper

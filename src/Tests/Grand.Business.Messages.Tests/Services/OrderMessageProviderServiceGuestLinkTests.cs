@@ -25,8 +25,7 @@ public class OrderMessageProviderServiceGuestLinkTests
     private List<QueuedEmail> _queued;
     private OrderMessageProviderService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderMessageProviderServiceGuestLinkTests()
     {
         _queued = [];
         _messageTemplateServiceMock = new Mock<IMessageTemplateService>();

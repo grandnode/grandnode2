@@ -42,8 +42,7 @@ public class PlaceOrderCommandHandlerApprovalTests
     private Mock<IMediator> _mediator;
     private Mock<IOrderPlacementService> _placementService;
 
-    [TestInitialize]
-    public void Init()
+    public PlaceOrderCommandHandlerApprovalTests()
     {
         _approvalService = new Mock<IOrderApprovalService>();
         _placementService = new Mock<IOrderPlacementService>();
@@ -77,14 +76,14 @@ public class PlaceOrderCommandHandlerApprovalTests
         _handler = new TestHandler(_details, _approvalService, _placementService, _mediator, translation);
     }
 
-    private void Evaluates(OrderPlacementDecision decision, string paymentMethod, params string[] reasons)
+    private void Evaluates(OrderPlacementDecision decision, string? paymentMethod, params string[] reasons)
     {
         _placementService.Setup(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, paymentMethod,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OrderPlacementEvaluation(decision, reasons));
     }
 
-    private void Requires(bool required, string paymentMethod = "Payments.Card")
+    private void Requires(bool required, string? paymentMethod = "Payments.Card")
     {
         Evaluates(required ? OrderPlacementDecision.RequireApproval : OrderPlacementDecision.Allow, paymentMethod,
             required ? ["over the limit"] : []);
@@ -123,13 +122,14 @@ public class PlaceOrderCommandHandlerApprovalTests
             .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.RequireApproval, ["restricted goods"],
                 true));
         _approvalService.Setup(x => x.IsPaymentMethodAllowed("Payments.Card")).Returns(true);
-        OrderPlacedEvent published = null;
+        OrderPlacedEvent? published = null;
         _mediator.Setup(x => x.Publish(It.IsAny<OrderPlacedEvent>(), It.IsAny<CancellationToken>()))
             .Callback<OrderPlacedEvent, CancellationToken>((e, _) => published = e)
             .Returns(Task.CompletedTask);
 
         await _handler.Handle(_command, CancellationToken.None);
 
+        Assert.IsNotNull(published);
         Assert.IsTrue(published.ApprovalStoreDecides);
     }
 
@@ -170,6 +170,7 @@ public class PlaceOrderCommandHandlerApprovalTests
         var result = await _handler.Handle(_command, CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(_handler.LastHeader);
         Assert.AreEqual((int)OrderStatusSystem.AwaitingApproval, _handler.LastHeader.OrderStatusId);
     }
 
@@ -178,13 +179,14 @@ public class PlaceOrderCommandHandlerApprovalTests
     {
         Evaluates(OrderPlacementDecision.RequireApproval, "Payments.Card", "over the limit", "restricted goods");
         _approvalService.Setup(x => x.IsPaymentMethodAllowed("Payments.Card")).Returns(true);
-        OrderPlacedEvent published = null;
+        OrderPlacedEvent? published = null;
         _mediator.Setup(x => x.Publish(It.IsAny<OrderPlacedEvent>(), It.IsAny<CancellationToken>()))
             .Callback<OrderPlacedEvent, CancellationToken>((e, _) => published = e)
             .Returns(Task.CompletedTask);
 
         await _handler.Handle(_command, CancellationToken.None);
 
+        Assert.IsNotNull(published);
         CollectionAssert.AreEqual(new[] { "over the limit", "restricted goods" }, published.ApprovalReasons.ToArray());
     }
 
@@ -208,7 +210,7 @@ public class PlaceOrderCommandHandlerApprovalTests
         Requires(true, "Payments.CashOnDelivery");
         _approvalService.Setup(x => x.IsPaymentMethodAllowed("Payments.CashOnDelivery")).Returns(true);
         _details.PaymentMethodSystemName = "Payments.CashOnDelivery";
-        OrderNotificationCommand sent = null;
+        OrderNotificationCommand? sent = null;
         _mediator.Setup(x => x.Send(It.IsAny<OrderNotificationCommand>(), It.IsAny<CancellationToken>()))
             .Callback<OrderNotificationCommand, CancellationToken>((c, _) => sent = c);
 
@@ -216,6 +218,7 @@ public class PlaceOrderCommandHandlerApprovalTests
 
         Assert.IsEmpty(result.Errors);
         Assert.AreEqual(1, _handler.PaymentCalls);
+        Assert.IsNotNull(_handler.LastHeader);
         Assert.AreEqual((int)OrderStatusSystem.AwaitingApproval, _handler.LastHeader.OrderStatusId);
         Assert.IsNotNull(sent);
         Assert.IsFalse(sent.NotifyStoreOwnerAndVendors);
@@ -225,14 +228,16 @@ public class PlaceOrderCommandHandlerApprovalTests
     public async Task Handle_ApprovalNotRequired_PlacesPendingOrderAndNotifiesEveryone()
     {
         Requires(false);
-        OrderNotificationCommand sent = null;
+        OrderNotificationCommand? sent = null;
         _mediator.Setup(x => x.Send(It.IsAny<OrderNotificationCommand>(), It.IsAny<CancellationToken>()))
             .Callback<OrderNotificationCommand, CancellationToken>((c, _) => sent = c);
 
         var result = await _handler.Handle(_command, CancellationToken.None);
 
         Assert.IsEmpty(result.Errors);
+        Assert.IsNotNull(_handler.LastHeader);
         Assert.AreEqual((int)OrderStatusSystem.Pending, _handler.LastHeader.OrderStatusId);
+        Assert.IsNotNull(sent);
         Assert.IsTrue(sent.NotifyStoreOwnerAndVendors);
         _approvalService.Verify(x => x.IsPaymentMethodAllowed(It.IsAny<string>()), Times.Never);
     }
@@ -289,7 +294,7 @@ public class PlaceOrderCommandHandlerApprovalTests
 
         public int PaymentCalls { get; private set; }
         public bool PaidResult { get; set; }
-        public Order LastHeader { get; private set; }
+        public Order? LastHeader { get; private set; }
 
         protected override Task<PlaceOrderContainer> PreparePlaceOrderDetails(PlaceOrderCommand command)
         {

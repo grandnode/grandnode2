@@ -17,8 +17,7 @@ public class CustomerMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<CustomerGroupProfile>();

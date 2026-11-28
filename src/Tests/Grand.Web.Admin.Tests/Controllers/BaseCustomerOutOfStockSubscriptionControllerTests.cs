@@ -43,7 +43,7 @@ public class BaseCustomerOutOfStockSubscriptionControllerTests
     public async Task OutOfStockSubscriptionList_StoreScope_DeniedOwnership_ReturnsEmpty()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.OutOfStockSubscriptionList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
 

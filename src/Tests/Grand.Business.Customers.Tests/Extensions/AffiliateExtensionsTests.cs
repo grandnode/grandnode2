@@ -18,8 +18,7 @@ public class AffiliateExtensionsTests
     private Mock<IWorkContext> _workContextMock;
     private Mock<IStoreContext> _storeContextMock;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public AffiliateExtensionsTests()
     {
         _workContextMock = new Mock<IWorkContext>();
         _storeContextMock = new Mock<IStoreContext>();
@@ -30,7 +29,8 @@ public class AffiliateExtensionsTests
     [TestMethod]
     public void GetFullName_NullParameter_ThrowException()
     {
-        Affiliate affiliate = null;
+        //null exercises the guard of the method under test
+        Affiliate affiliate = null!;
         Assert.ThrowsExactly<ArgumentNullException>(() => affiliate.GetFullName());
     }
 
@@ -67,15 +67,16 @@ public class AffiliateExtensionsTests
     [TestMethod]
     public void GenerateUrl_NullAffiliate_ThrowException()
     {
-        Affiliate affiliate = null;
-        Assert.ThrowsExactly<ArgumentNullException>(() => affiliate.GenerateUrl(null), "affiliate");
+        //null exercises the guard of the method under test
+        Affiliate affiliate = null!;
+        Assert.ThrowsExactly<ArgumentNullException>(() => affiliate.GenerateUrl(null!), "affiliate");
     }
 
     [TestMethod]
     public void GenerateUrl_NullWebHelper_ThrowException()
     {
         var affiliate = new Affiliate();
-        Assert.ThrowsExactly<ArgumentNullException>(() => affiliate.GenerateUrl(null), "webHelper");
+        Assert.ThrowsExactly<ArgumentNullException>(() => affiliate.GenerateUrl(null!), "webHelper");
     }
 
     [TestMethod]

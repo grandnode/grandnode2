@@ -21,8 +21,7 @@ public class CustomerTagServiceTests
     private IRepository<CustomerTag> _repositoryCustomerTag;
     private IRepository<CustomerTagProduct> _repositoryCustomerTagProduct;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerTagServiceTests()
     {
         _repositoryCustomerTag = new MongoDBRepositoryTest<CustomerTag>();
         _repositoryCustomerTagProduct = new MongoDBRepositoryTest<CustomerTagProduct>();
@@ -179,7 +178,7 @@ public class CustomerTagServiceTests
         await _customerTagService.InsertTagToCustomer(customerTag.Id, customer.Id);
 
         //Assert
-        Assert.Contains(customerTag.Id, _repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
+        Assert.Contains(customerTag.Id, _repositoryCustomer.Table.First(x => x.Id == customer.Id).CustomerTags
 );
     }
 
@@ -198,7 +197,7 @@ public class CustomerTagServiceTests
         await _customerTagService.DeleteTagFromCustomer(customerTag.Id, customer.Id);
 
         //Assert
-        Assert.DoesNotContain(customerTag.Id, _repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
+        Assert.DoesNotContain(customerTag.Id, _repositoryCustomer.Table.First(x => x.Id == customer.Id).CustomerTags
 );
     }
 
@@ -214,7 +213,7 @@ public class CustomerTagServiceTests
         await _customerTagService.UpdateCustomerTag(customerTag);
 
         //Assert
-        Assert.AreEqual("test2", _repositoryCustomerTag.Table.FirstOrDefault(x => x.Id == customerTag.Id).Name);
+        Assert.AreEqual("test2", _repositoryCustomerTag.Table.First(x => x.Id == customerTag.Id).Name);
     }
 
     [TestMethod]
@@ -308,7 +307,7 @@ public class CustomerTagServiceTests
         await _customerTagService.UpdateCustomerTagProduct(customerTagProduct);
 
         //Assert
-        Assert.AreEqual(10, _repositoryCustomerTagProduct.Table.FirstOrDefault(x => x.Id == customerTagProduct.Id).DisplayOrder);
+        Assert.AreEqual(10, _repositoryCustomerTagProduct.Table.First(x => x.Id == customerTagProduct.Id).DisplayOrder);
     }
 
     [TestMethod]

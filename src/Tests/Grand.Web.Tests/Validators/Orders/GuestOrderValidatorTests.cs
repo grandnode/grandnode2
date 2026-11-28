@@ -14,7 +14,7 @@ namespace Grand.Web.Tests.Validators.Orders;
 [TestClass]
 public class GuestOrderValidatorTests
 {
-    private static GuestOrderValidator Validator(CaptchaSettings captchaSettings = null)
+    private static GuestOrderValidator Validator(CaptchaSettings? captchaSettings = null)
     {
         var translation = new Mock<IRequestTranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns<string>(key => key);
@@ -75,7 +75,7 @@ public class GuestOrderValidatorTests
     public async Task Validator_CaptchaOn_NoCaptcha_Refused()
     {
         var model = Model();
-        model.Captcha = null;
+        model.Captcha = null!;
 
         var result = await Validator(new CaptchaSettings { Enabled = true, ShowOnGuestOrderPage = true })
             .ValidateAsync(model);
@@ -87,7 +87,7 @@ public class GuestOrderValidatorTests
     public async Task Validator_CaptchaOff_NoCaptcha_Valid()
     {
         var model = Model();
-        model.Captcha = null;
+        model.Captcha = null!;
 
         var result = await Validator(new CaptchaSettings { Enabled = true }).ValidateAsync(model);
 

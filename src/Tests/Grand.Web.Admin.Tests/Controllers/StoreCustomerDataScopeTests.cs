@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 public class StoreCustomerDataScopeTests
 {
     private static StoreCustomerDataScope Build(string staffStoreId, bool isRegistered = true,
-        Action<Mock<IGroupService>> groups = null)
+        Action<Mock<IGroupService>>? groups = null)
     {
         var customer = new Customer { StaffStoreId = staffStoreId };
         var workContextMock = new Mock<IWorkContext>();
@@ -111,7 +111,7 @@ public class StoreCustomerDataScopeTests
     {
         var scope = Build("store-1");
 
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 
     [TestMethod]

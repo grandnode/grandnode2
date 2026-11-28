@@ -30,8 +30,7 @@ public class ProductUnitControllerTests
     private readonly Mock<IWarehouseLocationService> _locations = new();
     private ProductUnitController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public ProductUnitControllerTests()
     {
         var productScope = new Mock<IAdminDataScope<Product>>();
         productScope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync(StoreId);
@@ -186,7 +185,7 @@ public class ProductUnitControllerTests
         var result = (await _controller.BatchRecipientList(new DataSourceRequest { Page = 1, PageSize = 10 }, "b1")
             as JsonResult)?.Value as DataSourceResult;
 
-        var rows = ((IEnumerable<BatchRecipientModel>)result!.Data).ToList();
+        var rows = Assert.IsInstanceOfType<IEnumerable<BatchRecipientModel>>(result!.Data).ToList();
         Assert.AreEqual(2, result.Total);
         Assert.AreEqual("own@example.com", rows[0].CustomerEmail);
         Assert.AreEqual("o1", rows[0].OrderId);

@@ -52,8 +52,7 @@ public class BrandControllerTests
         private Mock<IRequestTranslationService> _translationServiceMock;
         private Mock<IAdminDataScope<Brand>> _scopeMock;
 
-        [TestInitialize]
-        public void Setup()
+        public EditWarningCheckTests()
         {
             var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<BrandProfile>());
             AutoMapperConfig.Init(mapperConfig);

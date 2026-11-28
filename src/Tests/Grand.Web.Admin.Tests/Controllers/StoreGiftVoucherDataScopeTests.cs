@@ -48,7 +48,7 @@ public class StoreGiftVoucherDataScopeTests
     public async Task HasAccess_NullEntity_ReturnsFalse()
     {
         var scope = CreateScope("store-1");
-        var result = await scope.HasAccess(null);
+        var result = await scope.HasAccess(null!);
         Assert.IsFalse(result);
     }
 
@@ -88,7 +88,7 @@ public class StoreGiftVoucherDataScopeTests
     public async Task CanView_NullEntity_ReturnsFalse()
     {
         var scope = CreateScope("store-1");
-        var result = await scope.CanView(null);
+        var result = await scope.CanView(null!);
         Assert.IsFalse(result);
     }
 

@@ -93,7 +93,7 @@ public class GetVendorAddressHandler : IRequestHandler<GetVendorAddress, VendorA
             {
                 var states = await _countryService
                     .GetStateProvincesByCountryId(!string.IsNullOrEmpty(model.CountryId) ? model.CountryId : "",
-                        request.Language.Id) ?? [];
+                        request.Language.Id);
 
                 model.AvailableStates.Add(new SelectListItem
                     { Text = _translationService.GetResource("Address.SelectState"), Value = "" });

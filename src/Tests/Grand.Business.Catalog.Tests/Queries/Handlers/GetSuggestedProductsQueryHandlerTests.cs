@@ -21,8 +21,7 @@ public class GetSuggestedProductsQueryHandlerTests
 
     private GetSuggestedProductsQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetSuggestedProductsQueryHandlerTests()
     {
         _casheManagerMock = new Mock<ICacheBase>();
         _productServiceMock = new Mock<IProductService>();

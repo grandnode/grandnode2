@@ -19,8 +19,7 @@ public class CategoryLayoutServiceDbTest
     private Mock<IMediator> _mediatorMock;
     private IRepository<CategoryLayout> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CategoryLayoutServiceDbTest()
     {
         _repository = new MongoDBRepositoryTest<CategoryLayout>();
         _mediatorMock = new Mock<IMediator>();

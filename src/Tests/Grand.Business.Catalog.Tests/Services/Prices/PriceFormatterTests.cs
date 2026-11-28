@@ -34,8 +34,7 @@ public class PriceFormatterTests
     private ITranslationService _translationService;
     private Mock<IContextAccessor> tempWorkContext;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public PriceFormatterTests()
     {
         var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
@@ -86,7 +85,7 @@ public class PriceFormatterTests
             _currencyRepo,
             _aclService,
             _currencySettings,
-            null);
+            new Mock<IMediator>().Object);
 
         _taxSettings = new TaxSettings();
 

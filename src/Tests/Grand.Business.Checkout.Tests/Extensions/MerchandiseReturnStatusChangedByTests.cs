@@ -33,6 +33,6 @@ public class MerchandiseReturnStatusChangedByTests
     [TestMethod]
     public void StatusChangedBy_NoOne_Null()
     {
-        Assert.IsNull(((Customer)null).StatusChangedBy());
+        Assert.IsNull(((Customer)null!).StatusChangedBy());
     }
 }

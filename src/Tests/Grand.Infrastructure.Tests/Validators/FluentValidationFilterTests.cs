@@ -37,12 +37,12 @@ public class ValidationFilterTests
 
         var actionExecutedContext = new ActionExecutedContext(actionContext,
             new List<IFilterMetadata>(),
-            null);
+            new object());
 
         var actionExecutingContext = new ActionExecutingContext(actionContext,
             new List<IFilterMetadata>(),
-            new Dictionary<string, object>(),
-            null);
+            new Dictionary<string, object?>(),
+            new object());
 
         var source = new SourceTest {
             FirstName = "ABCD",
@@ -82,12 +82,12 @@ public class ValidationFilterTests
 
         var actionExecutedContext = new ActionExecutedContext(actionContext,
             new List<IFilterMetadata>(),
-            null);
+            new object());
 
         var actionExecutingContext = new ActionExecutingContext(actionContext,
             new List<IFilterMetadata>(),
-            new Dictionary<string, object>(),
-            null);
+            new Dictionary<string, object?>(),
+            new object());
 
         var source = new SourceTest {
             FirstName = "ABCD"

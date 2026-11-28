@@ -93,7 +93,7 @@ public class SelectedShippingPointController : Controller
     public async Task<IActionResult> ReturnPoints(string orderId, bool free = false)
     {
         var order = string.IsNullOrEmpty(orderId) ? null : await _orderService.GetOrderById(orderId);
-        if (!await CustomerOrder(order))
+        if (order == null || !await CustomerOrder(order))
             return NotFound("The order was not found.");
 
         var points = await _shippingPointService.GetReturnShippingPoints(order.StoreId);
@@ -121,7 +121,7 @@ public class SelectedShippingPointController : Controller
     ///     Whether the order is one the current customer returns items from, in the current store: the rule of the
     ///     storefront's return pages, which a plugin cannot reference
     /// </summary>
-    private async Task<bool> CustomerOrder(Order order)
+    private async Task<bool> CustomerOrder(Order? order)
     {
         if (order == null || order.Deleted || order.StoreId != _contextAccessor.StoreContext.CurrentStore.Id)
             return false;

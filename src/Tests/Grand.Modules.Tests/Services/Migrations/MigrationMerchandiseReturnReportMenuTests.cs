@@ -18,8 +18,7 @@ public class MigrationMerchandiseReturnReportMenuTests
     private readonly LiteDBRepositoryMock<AdminSiteMap> _siteMap = new();
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationMerchandiseReturnReportMenuTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IRepository<AdminSiteMap>>(_siteMap);

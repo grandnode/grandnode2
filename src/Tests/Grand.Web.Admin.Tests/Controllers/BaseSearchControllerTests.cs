@@ -41,8 +41,7 @@ public class BaseSearchControllerTests
     private Customer _customer = null!;
     private Mock<IContextAccessor> _contextAccessorMock = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseSearchControllerTests()
     {
         _categoryServiceMock = new Mock<ICategoryService>();
         _brandServiceMock = new Mock<IBrandService>();
@@ -89,7 +88,7 @@ public class BaseSearchControllerTests
         _categoryServiceMock.Setup(s => s.GetFormattedBreadCrumb(It.IsAny<Category>(), ">>", ""))
             .ReturnsAsync("Books");
 
-        var result = await controller.Category(null, EmptyFilter());
+        var result = await controller.Category(null!, EmptyFilter());
 
         var rows = ReadRows(result);
         Assert.AreEqual(1, rows.Length);
@@ -106,7 +105,7 @@ public class BaseSearchControllerTests
             .Setup(s => s.GetAllCategories(null, null, CatalogAccess.For(_customer, "store-1"), 0, 10))
             .ReturnsAsync(new PagedList<Category>([], 0, 10));
 
-        await controller.Category(null, EmptyFilter());
+        await controller.Category("", EmptyFilter());
 
         _categoryServiceMock.Verify(s => s.GetAllCategories(null, null,
             CatalogAccess.For(_customer, "store-1"), 0, 10), Times.Once);
@@ -120,7 +119,7 @@ public class BaseSearchControllerTests
             .Setup(s => s.GetAllCollections(null, CatalogAccess.For(_customer, ""), 0, 10))
             .ReturnsAsync(new PagedList<Collection>([new Collection { Id = "col-1", Name = "Summer" }], 0, 10));
 
-        var result = await controller.Collection(null, EmptyFilter());
+        var result = await controller.Collection(null!, EmptyFilter());
 
         var rows = ReadRows(result);
         Assert.AreEqual(1, rows.Length);
@@ -137,7 +136,7 @@ public class BaseSearchControllerTests
             .Setup(s => s.GetAllCollections(null, CatalogAccess.For(_customer, "store-1"), 0, 10))
             .ReturnsAsync(new PagedList<Collection>([], 0, 10));
 
-        await controller.Collection(null, EmptyFilter());
+        await controller.Collection("", EmptyFilter());
 
         _collectionServiceMock.Verify(s => s.GetAllCollections(null,
             CatalogAccess.For(_customer, "store-1"), 0, 10), Times.Once);
@@ -151,7 +150,7 @@ public class BaseSearchControllerTests
             .Setup(s => s.GetAllBrands(null, CatalogAccess.For(_customer, ""), 0, 10))
             .ReturnsAsync(new PagedList<Brand>([new Brand { Id = "brand-1", Name = "Acme" }], 0, 10));
 
-        var result = await controller.Brand(null, EmptyFilter());
+        var result = await controller.Brand(null!, EmptyFilter());
 
         var rows = ReadRows(result);
         Assert.AreEqual(1, rows.Length);
@@ -167,7 +166,7 @@ public class BaseSearchControllerTests
             .Setup(s => s.GetAllBrands(null, CatalogAccess.For(_customer, "store-1"), 0, 10))
             .ReturnsAsync(new PagedList<Brand>([], 0, 10));
 
-        await controller.Brand(null, EmptyFilter());
+        await controller.Brand("", EmptyFilter());
 
         _brandServiceMock.Verify(s => s.GetAllBrands(null, CatalogAccess.For(_customer, "store-1"), 0, 10), Times.Once);
     }

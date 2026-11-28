@@ -28,8 +28,7 @@ public class SettingControllerInventoryTests
     private SettingController _controller;
     private Mock<ISettingService> _settingService;
 
-    [TestInitialize]
-    public void Init()
+    public SettingControllerInventoryTests()
     {
         AutoMapperConfig.Init(new MapperConfiguration(cfg => cfg.AddProfile<CatalogSettingsProfile>()));
         _settingService = new Mock<ISettingService>();

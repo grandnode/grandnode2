@@ -26,8 +26,7 @@ public class PageServiceTests
 
     private IRepository<Page> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public PageServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Page>();
 
@@ -115,6 +114,7 @@ public class PageServiceTests
         //Act
         var result = await _pageService.GetPageBySystemName("test", "store-1");
         //Assert
+        Assert.IsNotNull(result);
         Assert.AreEqual(storeCopy.Id, result.Id);
     }
 
@@ -132,6 +132,7 @@ public class PageServiceTests
         //Act
         var result = await _pageService.GetPageBySystemName("test", "store-2");
         //Assert
+        Assert.IsNotNull(result);
         Assert.AreEqual(sharedPage.Id, result.Id);
     }
 
@@ -262,7 +263,7 @@ public class PageServiceTests
         page.SystemName = "test";
         await _pageService.UpdatePage(page);
         //Assert
-        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == page.Id).SystemName);
+        Assert.AreEqual("test", _repository.Table.First(x => x.Id == page.Id).SystemName);
     }
 
     [TestMethod]

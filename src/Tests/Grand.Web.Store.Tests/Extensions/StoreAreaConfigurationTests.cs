@@ -31,7 +31,7 @@ public class StoreAreaConfigurationTests
     [TestMethod]
     public void Exists_NullProvider_ReturnFalse()
     {
-        Assert.IsFalse(StoreAreaConfiguration.Exists(null));
+        Assert.IsFalse(StoreAreaConfiguration.Exists(null!));
     }
 
     [TestMethod]
@@ -50,7 +50,7 @@ public class StoreAreaConfigurationTests
     [TestMethod]
     public void GetConfigurationUrl_NullProvider_ReturnNull()
     {
-        Assert.IsNull(StoreAreaConfiguration.GetConfigurationUrl(null));
+        Assert.IsNull(StoreAreaConfiguration.GetConfigurationUrl(null!));
     }
 }
 

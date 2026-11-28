@@ -24,8 +24,7 @@ public class CollectionControllerTests
     private Mock<IMediator> _mediatorMock;
     private CollectionController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public CollectionControllerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         var customer = new Customer { Id = "admin" };
@@ -46,7 +45,7 @@ public class CollectionControllerTests
         };
     }
 
-    private void SetupStoredCollection(CollectionDto collection)
+    private void SetupStoredCollection(CollectionDto? collection)
     {
         _mediatorMock.Setup(m => m.Send(It.IsAny<GetGenericQuery<CollectionDto, Collection>>(),
                 It.IsAny<CancellationToken>()))
@@ -79,7 +78,7 @@ public class CollectionControllerTests
     public async Task Put_UnknownCollection_ReturnsNotFound()
     {
         _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateCollectionCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((CollectionDto)null);
+            .ReturnsAsync((CollectionDto?)null);
 
         var result = await _controller.Put(new CollectionDto { Id = "missing", Name = "Summer" });
 

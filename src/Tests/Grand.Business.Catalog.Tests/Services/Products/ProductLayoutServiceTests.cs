@@ -19,8 +19,7 @@ public class ProductLayoutServiceTests
     private ProductLayoutService _productLayoutService;
     private IRepository<ProductLayout> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public ProductLayoutServiceTests()
     {
         _repository = new MongoDBRepositoryTest<ProductLayout>();
         _mediatorMock = new Mock<IMediator>();

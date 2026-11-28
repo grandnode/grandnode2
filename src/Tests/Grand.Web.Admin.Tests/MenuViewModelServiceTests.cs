@@ -18,8 +18,7 @@ public class MenuViewModelServiceTests
     private IMapper _mapper;
     private MenuViewModelService _menuViewModelService;
 
-    [TestInitialize]
-    public void SetUp()
+    public MenuViewModelServiceTests()
     {
         _adminSiteMapServiceMock = new Mock<IAdminSiteMapService>();
         _menuViewModelService = new MenuViewModelService(_adminSiteMapServiceMock.Object);
@@ -70,6 +69,7 @@ public class MenuViewModelServiceTests
         var result = await _menuViewModelService.GetMenuById("2");
 
         // Assert
+        Assert.IsNotNull(result);
         Assert.AreEqual("2", result.Id);
         Assert.AreEqual("Item 2", result.SystemName);
     }

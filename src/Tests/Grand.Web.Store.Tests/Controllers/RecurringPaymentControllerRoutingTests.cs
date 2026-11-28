@@ -23,7 +23,7 @@ public class RecurringPaymentControllerRoutingTests
     [TestMethod]
     public void StoreRecurringPaymentController_HasAreaAttributeWithStoreArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(typeof(RecurringPaymentController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(typeof(RecurringPaymentController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(Constants.AreaStore, areaAttr.RouteValue);
     }

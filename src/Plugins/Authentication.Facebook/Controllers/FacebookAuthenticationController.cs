@@ -69,7 +69,12 @@ public class FacebookAuthenticationController : BasePluginController
     {
         //authenticate Facebook user
         var authenticateResult = await HttpContext.AuthenticateAsync(FacebookDefaults.AuthenticationScheme);
-        if (!authenticateResult.Succeeded || !authenticateResult.Principal.Claims.Any())
+        if (!authenticateResult.Succeeded)
+            return RedirectToRoute("Login");
+
+        //without the provider's user id there is no account to sign in to
+        var identifier = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(identifier))
             return RedirectToRoute("Login");
 
         //create external authentication parameters
@@ -77,8 +82,7 @@ public class FacebookAuthenticationController : BasePluginController
             ProviderSystemName = FacebookAuthenticationDefaults.ProviderSystemName,
             AccessToken = await HttpContext.GetTokenAsync(FacebookDefaults.AuthenticationScheme, "access_token"),
             Email = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value,
-            Identifier =
-                authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value,
+            Identifier = identifier,
             Name = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.Name)?.Value,
             Claims = authenticateResult.Principal.Claims.ToList()
         };

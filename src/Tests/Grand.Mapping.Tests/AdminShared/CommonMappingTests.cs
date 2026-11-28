@@ -27,8 +27,7 @@ public class CommonMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public CommonMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<AddressProfile>();

@@ -21,8 +21,7 @@ public class CompanyCreditServiceTests
     private IRepository<Order> _orderRepository;
     private CompanyCreditService _service;
 
-    [TestInitialize]
-    public void Init()
+    public CompanyCreditServiceTests()
     {
         _orderRepository = new MongoDBRepositoryTest<Order>();
         _customerServiceMock = new Mock<ICustomerService>();

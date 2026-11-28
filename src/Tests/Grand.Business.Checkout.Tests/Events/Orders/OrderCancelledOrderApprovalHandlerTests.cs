@@ -16,8 +16,7 @@ public class OrderCancelledOrderApprovalHandlerTests
     private Mock<ILogger<OrderCancelledOrderApprovalHandler>> _logger;
     private Order _order;
 
-    [TestInitialize]
-    public void Init()
+    public OrderCancelledOrderApprovalHandlerTests()
     {
         _approvalService = new Mock<IOrderApprovalService>();
         _logger = new Mock<ILogger<OrderCancelledOrderApprovalHandler>>();
@@ -61,7 +60,7 @@ public class OrderCancelledOrderApprovalHandlerTests
     [TestMethod]
     public async Task Handle_OrderWithoutApproval_DoesNothing()
     {
-        _approvalService.Setup(x => x.GetByOrderId("order")).ReturnsAsync((OrderApproval)null);
+        _approvalService.Setup(x => x.GetByOrderId("order")).ReturnsAsync((OrderApproval?)null);
 
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
@@ -79,6 +78,6 @@ public class OrderCancelledOrderApprovalHandlerTests
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
         _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 }

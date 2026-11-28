@@ -19,8 +19,7 @@ public class ScimAuthorizeFilterTests
     private OidcLoginConfig _loginConfig;
     private OidcResourceServerConfig _resourceServer;
 
-    [TestInitialize]
-    public void Init()
+    public ScimAuthorizeFilterTests()
     {
         _config = new ScimConfig { Token = Token };
         _loginConfig = new OidcLoginConfig { ClientId = "grandnode" };

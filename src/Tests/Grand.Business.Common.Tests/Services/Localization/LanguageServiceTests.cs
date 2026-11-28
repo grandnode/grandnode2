@@ -20,8 +20,7 @@ public class LanguageServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Language> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public LanguageServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Language>();
 
@@ -93,7 +92,7 @@ public class LanguageServiceTests
         language.FlagImageFileName = "en.png";
         await _languageService.UpdateLanguage(language);
         //Assert
-        Assert.AreEqual("en.png", _repository.Table.FirstOrDefault(x => x.Id == language.Id).FlagImageFileName);
+        Assert.AreEqual("en.png", _repository.Table.First(x => x.Id == language.Id).FlagImageFileName);
     }
 
     [TestMethod]

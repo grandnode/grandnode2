@@ -16,8 +16,7 @@ public class MongoQueryableContractTests
 {
     private IRepository<SampleCollection> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public MongoQueryableContractTests()
     {
         _repository = new MongoDBRepositoryTest<SampleCollection>();
     }

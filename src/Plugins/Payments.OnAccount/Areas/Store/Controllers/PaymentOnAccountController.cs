@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Localization;
@@ -36,7 +37,7 @@ public class PaymentOnAccountController : BasePaymentController
     /// <summary>
     ///     The store the current store manager is bound to; AuthorizeStore rejects a customer without one
     /// </summary>
-    private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => _contextAccessor.WorkContext.PanelStoreId();
 
     public async Task<IActionResult> Configure()
     {

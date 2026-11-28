@@ -219,7 +219,7 @@ public class CustomerValidatorsStoreScopingTests
     }
 
     private static (SubAccountEditValidator validator, Mock<ICustomerService> customerService) SubAccountEdit(
-        Customer account, CustomerSettings settings = null)
+        Customer account, CustomerSettings? settings = null)
     {
         var customerService = new Mock<ICustomerService>();
         customerService.Setup(c => c.GetCustomerById(account.Id)).ReturnsAsync(account);

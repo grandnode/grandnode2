@@ -17,8 +17,7 @@ public class LanguageDeletedEventHandlerTests
     private LanguageSettings _languageSettings;
     private Mock<ISettingService> _settingServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public LanguageDeletedEventHandlerTests()
     {
         _languageServiceMock = new Mock<ILanguageService>();
         _settingServiceMock = new Mock<ISettingService>();

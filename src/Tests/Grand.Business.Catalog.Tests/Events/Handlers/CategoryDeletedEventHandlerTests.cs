@@ -23,8 +23,7 @@ public class CategoryDeletedEventHandlerTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CategoryDeletedEventHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _repository = new MongoDBRepositoryTest<Product>();

@@ -27,8 +27,7 @@ public class PartiallyRefundCommandHandlerTests
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
     private Mock<IPaymentTransactionHistoryService> _historyMock;
 
-    [TestInitialize]
-    public void Init()
+    public PartiallyRefundCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
@@ -49,12 +48,12 @@ public class PartiallyRefundCommandHandlerTests
         //Arrange
         var command = new PartiallyRefundCommand { PaymentTransaction = new PaymentTransaction() };
         _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyRefundQuery>(), default))
-            .Returns(Task.FromResult(true));
-        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).Returns(Task.FromResult(new Order()));
+            .ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
         _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).Returns(
             Task.FromResult(new RefundPaymentResult { NewTransactionStatus = TransactionStatus.Refunded }));
         _paymentTransactionMock.Setup(x => x.GetById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new PaymentTransaction()));
+            .ReturnsAsync(new PaymentTransaction());
         //Act
         var result = await _handler.Handle(command, CancellationToken.None);
         //Assert

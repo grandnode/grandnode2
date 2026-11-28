@@ -22,8 +22,7 @@ public class ApiAuthenticationServiceTests
     private Mock<IGroupService> _groupService;
     private Mock<IHttpContextAccessor> _httpContextAccessorMoc;
 
-    [TestInitialize]
-    public void Init()
+    public ApiAuthenticationServiceTests()
     {
         _httpContextAccessorMoc = new Mock<IHttpContextAccessor>();
         _customerService = new Mock<ICustomerService>();
@@ -43,12 +42,12 @@ public class ApiAuthenticationServiceTests
         httpContext.Setup(c => c.Request).Returns(req.Object);
         _httpContextAccessorMoc.Setup(c => c.HttpContext).Returns(httpContext.Object);
         _customerService.Setup(c => c.GetCustomerBySystemName(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(customer));
+            .ReturnsAsync(() => customer);
         var result = await _authService.GetAuthenticatedCustomer();
         Assert.IsNull(result);
     }
 
-    private static HttpContext CreateHttpContext(Action<AuthenticationBuilder> configure, Endpoint endpoint = null)
+    private static HttpContext CreateHttpContext(Action<AuthenticationBuilder>? configure, Endpoint? endpoint = null)
     {
         var services = new ServiceCollection();
         services.AddLogging();

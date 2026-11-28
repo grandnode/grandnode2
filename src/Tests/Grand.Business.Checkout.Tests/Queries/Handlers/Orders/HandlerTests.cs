@@ -13,8 +13,7 @@ public class HandlerTests
 {
     private Mock<IPaymentService> _paymentServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public HandlerTests()
     {
         _paymentServiceMock = new Mock<IPaymentService>();
         _paymentServiceMock.Setup(x => x.SupportCapture(It.IsAny<string>())).Returns(Task.FromResult(true));

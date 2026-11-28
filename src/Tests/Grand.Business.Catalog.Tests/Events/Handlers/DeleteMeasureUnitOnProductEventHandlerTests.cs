@@ -18,8 +18,7 @@ public class DeleteMeasureUnitOnProductEventHandlerTests
     private DeleteMeasureUnitOnProductEventHandler _handler;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public DeleteMeasureUnitOnProductEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _cacheMock = new Mock<ICacheBase>();

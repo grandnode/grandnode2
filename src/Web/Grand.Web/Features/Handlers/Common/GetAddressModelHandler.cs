@@ -138,7 +138,7 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
             if (_addressSettings.StateProvinceEnabled)
             {
                 var states = await _countryService
-                    .GetStateProvincesByCountryId(model.CountryId, language?.Id) ?? [];
+                    .GetStateProvincesByCountryId(model.CountryId, language?.Id);
 
                 model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 

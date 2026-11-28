@@ -23,8 +23,7 @@ public class CustomerValidatorAdministratorsTests
     private Mock<IGroupService> _groupService;
     private CustomerValidator _validator;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerValidatorAdministratorsTests()
     {
         _customerService = new Mock<ICustomerService>();
         _groupService = new Mock<IGroupService>();

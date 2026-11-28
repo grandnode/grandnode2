@@ -35,8 +35,7 @@ public class OrderViewModelServiceMerchandiseReturnsTests
     private Mock<IAdminDataScope<MerchandiseReturn>> _returnScope;
     private OrderViewModelService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderViewModelServiceMerchandiseReturnsTests()
     {
         _order = new Order { Id = "o1", StoreId = "s1" };
         _mediator = new Mock<IMediator>();

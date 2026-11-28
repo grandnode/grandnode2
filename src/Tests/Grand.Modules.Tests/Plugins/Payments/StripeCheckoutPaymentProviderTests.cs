@@ -17,8 +17,7 @@ public class StripeCheckoutPaymentProviderTests
     private Mock<IStripeCheckoutService> _stripeCheckoutService;
     private PaymentTransaction _transaction;
 
-    [TestInitialize]
-    public void Init()
+    public StripeCheckoutPaymentProviderTests()
     {
         _transaction = new PaymentTransaction { AuthorizationTransactionId = "pi_1" };
         _stripeCheckoutService = new Mock<IStripeCheckoutService>();

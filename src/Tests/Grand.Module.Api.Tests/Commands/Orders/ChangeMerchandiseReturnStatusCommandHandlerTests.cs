@@ -12,8 +12,7 @@ public class ChangeMerchandiseReturnStatusCommandHandlerTests
 {
     private Mock<IMerchandiseReturnWorkflowService> _workflowServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ChangeMerchandiseReturnStatusCommandHandlerTests()
     {
         _workflowServiceMock = new Mock<IMerchandiseReturnWorkflowService>();
     }
@@ -25,7 +24,7 @@ public class ChangeMerchandiseReturnStatusCommandHandlerTests
     {
         _workflowServiceMock.Setup(w =>
                 w.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, "note", "staff@x.com"))
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
 
         var result = await CreateHandler().Handle(new ChangeMerchandiseReturnStatusCommand {
             Id = "r1", Status = (int)MerchandiseReturnStatus.Accepted, CustomerNote = "note", ChangedBy = "staff@x.com"

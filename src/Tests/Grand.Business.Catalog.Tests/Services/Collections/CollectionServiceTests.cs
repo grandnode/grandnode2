@@ -24,8 +24,7 @@ public class CollectionServiceTests
     private Mock<IRepository<Collection>> _repositoryMock;
     private CatalogSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public CollectionServiceTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<Collection>>();
@@ -94,18 +93,18 @@ public class CollectionServiceTests
     [TestMethod]
     public void DeleteCollection_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.DeleteCollection(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.DeleteCollection(null!));
     }
 
     [TestMethod]
     public void InsertCollection_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.InsertCollection(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.InsertCollection(null!));
     }
 
     [TestMethod]
     public void UpdateCollection_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.UpdateCollection(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.UpdateCollection(null!));
     }
 }

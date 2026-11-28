@@ -23,8 +23,7 @@ public class ProviderMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public ProviderMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<PaymentMethodProfile>();

@@ -19,8 +19,7 @@ public class LiquidMerchandiseReturnTests
 {
     private GetMerchandiseReturnTokensCommandHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public LiquidMerchandiseReturnTests()
     {
         var currencyService = new Mock<ICurrencyService>();
         currencyService.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(new Currency { CurrencyCode = "EUR" });
@@ -37,7 +36,7 @@ public class LiquidMerchandiseReturnTests
 
 
     private async Task<Grand.Business.Messages.DotLiquidDrops.LiquidMerchandiseReturn> Build(
-        MerchandiseReturnShipping shipping, MerchandiseReturnStatus status = MerchandiseReturnStatus.Pending)
+        MerchandiseReturnShipping? shipping, MerchandiseReturnStatus status = MerchandiseReturnStatus.Pending)
     {
         var merchandiseReturn = new MerchandiseReturn {
             Id = "r1", PickupAddress = new Address(), ReturnShipping = shipping, MerchandiseReturnStatus = status
@@ -46,7 +45,7 @@ public class LiquidMerchandiseReturnTests
             MerchandiseReturn = merchandiseReturn,
             Order = new Order { CustomerCurrencyCode = "EUR" },
             Store = new Store { Url = "https://shop.test/" },
-            Host = null,
+            Host = new DomainHost { Url = "https://shop.test/" },
             Language = new Language { Id = "1" }
         }, CancellationToken.None);
     }

@@ -39,8 +39,7 @@ public class OidcCustomerResolverTests
 
     private Mock<IOidcLinkService> _linkService;
 
-    [TestInitialize]
-    public void Init()
+    public OidcCustomerResolverTests()
     {
         _linkService = new Mock<IOidcLinkService>();
         _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(true);
@@ -61,12 +60,12 @@ public class OidcCustomerResolverTests
             .ReturnsAsync((Customer c) => { c.Id = "new1"; return c; });
     }
 
-    private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication> links = null) =>
+    private OidcCustomerResolver Resolver(IRepository<ExternalAuthentication>? links = null) =>
         new(links ?? _links, _customerService.Object, _customerManagerService.Object, _settingService.Object,
             _groupService.Object, _permissionService.Object, _mediator.Object, _config, _loginConfig, _customerConfig, NullLogger<OidcCustomerResolver>.Instance, _linkService.Object);
 
-    private static ClaimsPrincipal Principal(string sub = "sub-1", string email = "John@Example.com",
-        string emailVerified = "true")
+    private static ClaimsPrincipal Principal(string? sub = "sub-1", string? email = "John@Example.com",
+        string? emailVerified = "true")
     {
         var claims = new List<Claim>();
         if (sub != null) claims.Add(new Claim("sub", sub));
@@ -76,7 +75,7 @@ public class OidcCustomerResolverTests
     }
 
     private Task Link(string customerId, string sub = "sub-1", string provider = OidcCustomerResolver.ProviderSystemName,
-        string storeId = null, bool byEmail = false) =>
+        string? storeId = null, bool byEmail = false) =>
         _links.InsertAsync(new ExternalAuthentication {
             CustomerId = customerId, ProviderSystemName = provider, ExternalIdentifier = sub, StoreId = storeId,
             LinkedByEmail = byEmail
@@ -108,7 +107,9 @@ public class OidcCustomerResolverTests
         await Link("c1", sub: "abc");
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         var principal = new ClaimsPrincipal(new ClaimsIdentity([new Claim("oid", "abc")], "Oidc"));
-        Assert.AreEqual("c1", (await Resolver().Resolve(principal, "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(principal, "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
     }
 
     [TestMethod]
@@ -117,7 +118,9 @@ public class OidcCustomerResolverTests
         await Link("c1");
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(email: null), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(email: null), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
         _customerService.Verify(x => x.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -195,6 +198,7 @@ public class OidcCustomerResolverTests
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
 
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(link);
         Assert.AreEqual("c1", link.CustomerId);
         Assert.AreEqual("ExternalAuth.OpenIdConnect", link.ProviderSystemName);
         Assert.AreEqual("john@example.com", link.Email);
@@ -205,7 +209,9 @@ public class OidcCustomerResolverTests
     {
         _customerConfig.RegisterCustomersPerStore = true;
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
     }
 
     [TestMethod]
@@ -227,13 +233,15 @@ public class OidcCustomerResolverTests
     public async Task NoCustomer_Registers_Links_Publishes()
     {
         _config.AutoRegister = true;
-        RegistrationRequest captured = null;
+        RegistrationRequest? captured = null;
         _customerManagerService.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>()))
             .Callback<RegistrationRequest>(r => captured = r).Returns(Task.CompletedTask);
 
         var result = await Resolver().Resolve(Principal(), "store1");
 
+        Assert.IsNotNull(result.Customer);
         Assert.AreEqual("new1", result.Customer.Id);
+        Assert.IsNotNull(captured);
         Assert.AreEqual("john@example.com", captured.Email);
         Assert.AreEqual("john@example.com", captured.Username);
         Assert.AreEqual(PasswordFormat.Hashed, captured.PasswordFormat);
@@ -241,7 +249,9 @@ public class OidcCustomerResolverTests
         Assert.IsTrue(captured.IsApproved);
         Assert.AreEqual(20, captured.Password.Length);
         Assert.AreEqual("store1", captured.Customer.StoreId);
-        Assert.AreEqual("new1", (await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).CustomerId);
+        var externalAuthentication = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(externalAuthentication);
+        Assert.AreEqual("new1", externalAuthentication.CustomerId);
         _mediator.Verify(x => x.Publish(It.IsAny<CustomerRegisteredEvent>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -263,11 +273,12 @@ public class OidcCustomerResolverTests
     {
         _config.AutoRegister = true;
         _customerSettings.UserRegistrationType = type;
-        RegistrationRequest captured = null;
+        RegistrationRequest? captured = null;
         _customerManagerService.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>()))
             .Callback<RegistrationRequest>(r => captured = r).Returns(Task.CompletedTask);
 
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
+        Assert.IsNotNull(captured);
         Assert.IsTrue(captured.IsApproved);
     }
 
@@ -285,14 +296,15 @@ public class OidcCustomerResolverTests
         _config.AutoRegister = true;
         var links = new Mock<IRepository<ExternalAuthentication>>();
         links.SetupSequence(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>()))
-            .ReturnsAsync((ExternalAuthentication)null)
-            .ReturnsAsync((ExternalAuthentication)null)
+            .ReturnsAsync((ExternalAuthentication?)null)
+            .ReturnsAsync((ExternalAuthentication?)null)
             .ReturnsAsync(new ExternalAuthentication { CustomerId = "winner", ProviderSystemName = "Oidc", ExternalIdentifier = "sub-1" });
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new Exception("duplicate key"));
         _customerService.Setup(x => x.GetCustomerById("winner")).ReturnsAsync(new Customer { Id = "winner", Active = true });
 
         var result = await Resolver(links.Object).Resolve(Principal(), "store1");
 
+        Assert.IsNotNull(result.Customer);
         Assert.AreEqual("winner", result.Customer.Id);
         _customerService.Verify(x => x.DeleteCustomer(It.Is<Customer>(c => c.Id == "new1"), true), Times.Once);
         _mediator.Verify(x => x.Publish(It.IsAny<CustomerRegisteredEvent>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -303,14 +315,16 @@ public class OidcCustomerResolverTests
     {
         var links = new Mock<IRepository<ExternalAuthentication>>();
         links.SetupSequence(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>()))
-            .ReturnsAsync((ExternalAuthentication)null)
-            .ReturnsAsync((ExternalAuthentication)null) //no other identity linked to the matched customer
+            .ReturnsAsync((ExternalAuthentication?)null)
+            .ReturnsAsync((ExternalAuthentication?)null) //no other identity linked to the matched customer
             .ReturnsAsync(new ExternalAuthentication { CustomerId = "c1", ProviderSystemName = "Oidc", ExternalIdentifier = "sub-1" });
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new Exception("duplicate key"));
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
-        Assert.AreEqual("c1", (await Resolver(links.Object).Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver(links.Object).Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
     }
 
     [TestMethod]
@@ -318,7 +332,7 @@ public class OidcCustomerResolverTests
     {
         _config.AutoRegister = true;
         var links = new Mock<IRepository<ExternalAuthentication>>();
-        links.Setup(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>())).ReturnsAsync((ExternalAuthentication)null);
+        links.Setup(x => x.GetOneAsync(It.IsAny<Expression<Func<ExternalAuthentication, bool>>>())).ReturnsAsync((ExternalAuthentication?)null);
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new InvalidOperationException("db down"));
 
         await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => Resolver(links.Object).Resolve(Principal(), "store1"));
@@ -405,7 +419,9 @@ public class OidcCustomerResolverTests
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(TwoFactorCustomer());
 
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
-        Assert.IsTrue((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
+        var externalAuthentication = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(externalAuthentication);
+        Assert.IsTrue(externalAuthentication.LinkedByEmail);
     }
 
     [TestMethod]
@@ -430,6 +446,7 @@ public class OidcCustomerResolverTests
 
         Assert.IsTrue((await Resolver().Resolve(Principal(emailVerified: emailVerified), "store1")).Succeeded);
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(link);
         Assert.AreEqual("c1", link.CustomerId);
         Assert.IsTrue(link.LinkedByEmail);
     }
@@ -493,7 +510,9 @@ public class OidcCustomerResolverTests
         _config.AutoRegister = true;
 
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
-        Assert.IsFalse((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
+        var externalAuthentication = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
+        Assert.IsNotNull(externalAuthentication);
+        Assert.IsFalse(externalAuthentication.LinkedByEmail);
     }
 
     [TestMethod]
@@ -516,7 +535,9 @@ public class OidcCustomerResolverTests
         await Link("c1");
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = customerStoreId });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
     }
 
     [TestMethod]
@@ -525,7 +546,9 @@ public class OidcCustomerResolverTests
         await Link("c1");
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
     }
 
     [TestMethod]
@@ -559,9 +582,15 @@ public class OidcCustomerResolverTests
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
         _customerService.Setup(x => x.GetCustomerById("c2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
 
-        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
-        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c2", oidcCustomerResult.Customer.Id);
+        var oidcCustomerResult2 = await Resolver().Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult2.Customer);
+        Assert.AreEqual("c2", oidcCustomerResult2.Customer.Id);
+        var oidcCustomerResult3 = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult3.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult3.Customer.Id);
 
         var links = LinksOf("sub-1");
         Assert.HasCount(2, links);
@@ -576,7 +605,9 @@ public class OidcCustomerResolverTests
         await Link("c1", storeId: "store1");
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store1" });
 
-        Assert.AreEqual("new1", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("new1", oidcCustomerResult.Customer.Id);
 
         Assert.AreEqual("store2", LinksOf("sub-1").Single(x => x.CustomerId == "new1").StoreId);
     }
@@ -590,8 +621,12 @@ public class OidcCustomerResolverTests
         await Link("c1", storeId: linkStoreId);
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "" });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
+        var oidcCustomerResult2 = await Resolver().Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult2.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult2.Customer.Id);
         Assert.HasCount(1, LinksOf("sub-1"));
     }
 
@@ -601,7 +636,9 @@ public class OidcCustomerResolverTests
         _customerConfig.RegisterCustomersPerStore = true;
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "" });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
 
         Assert.AreEqual("", LinksOf("sub-1").Single().StoreId);
     }
@@ -615,8 +652,12 @@ public class OidcCustomerResolverTests
         _customerService.Setup(x => x.GetCustomerById("global")).ReturnsAsync(new Customer { Id = "global", Active = true });
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store1" });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
-        Assert.AreEqual("global", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
+        var oidcCustomerResult2 = await Resolver().Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult2.Customer);
+        Assert.AreEqual("global", oidcCustomerResult2.Customer.Id);
     }
 
     [TestMethod]
@@ -625,8 +666,12 @@ public class OidcCustomerResolverTests
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store3")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
+        var oidcCustomerResult2 = await Resolver().Resolve(Principal(), "store3");
+        Assert.IsNotNull(oidcCustomerResult2.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult2.Customer.Id);
 
         Assert.AreEqual("", LinksOf("sub-1").Single().StoreId);
     }
@@ -637,7 +682,9 @@ public class OidcCustomerResolverTests
         await Link("c1", storeId: "store2");
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(email: null), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(email: null), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
     }
 
     [TestMethod]
@@ -659,7 +706,9 @@ public class OidcCustomerResolverTests
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
         _customerService.Setup(x => x.GetCustomerById("winner")).ReturnsAsync(new Customer { Id = "winner", Active = true, StoreId = "store2" });
 
-        Assert.AreEqual("winner", (await Resolver(links.Object).Resolve(Principal(), "store2")).Customer.Id);
+        var oidcCustomerResult = await Resolver(links.Object).Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("winner", oidcCustomerResult.Customer.Id);
     }
 
     [TestMethod]
@@ -674,9 +723,15 @@ public class OidcCustomerResolverTests
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
         _customerService.Setup(x => x.GetCustomerById("c2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
 
-        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
-        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c2", oidcCustomerResult.Customer.Id);
+        var oidcCustomerResult2 = await Resolver().Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult2.Customer);
+        Assert.AreEqual("c2", oidcCustomerResult2.Customer.Id);
+        var oidcCustomerResult3 = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult3.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult3.Customer.Id);
 
         var links = LinksOf("sub-1");
         Assert.HasCount(2, links);
@@ -687,7 +742,7 @@ public class OidcCustomerResolverTests
     /// </summary>
     private sealed class RacingLinks : MongoDBRepositoryTest<ExternalAuthentication>
     {
-        public Func<Task> BeforeInsert { get; set; }
+        public Func<Task>? BeforeInsert { get; set; }
 
         public override async Task<ExternalAuthentication> InsertAsync(ExternalAuthentication entity)
         {
@@ -727,7 +782,9 @@ public class OidcCustomerResolverTests
     {
         _config.AutoRegister = true;
 
-        Assert.AreEqual("new1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("new1", oidcCustomerResult.Customer.Id);
 
         Assert.AreEqual(OidcCustomerResolver.OidcLinkId("new1"), LinksOf("sub-1").Single().Id);
     }
@@ -763,7 +820,9 @@ public class OidcCustomerResolverTests
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
-        Assert.AreEqual("c1", (await Resolver(links).Resolve(Principal(), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver(links).Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
         Assert.HasCount(1, LinksOf("sub-1"));
     }
 
@@ -777,7 +836,9 @@ public class OidcCustomerResolverTests
         //My account - remove the external association by its record id
         await _links.DeleteAsync(first);
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(sub: "sub-2"), "store1")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(sub: "sub-2"), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
         var relinked = LinksOf("sub-2").Single();
         Assert.AreEqual(first.Id, relinked.Id);
         Assert.AreEqual("c1", relinked.CustomerId);
@@ -791,8 +852,12 @@ public class OidcCustomerResolverTests
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store1" });
         _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store2")).ReturnsAsync(new Customer { Id = "c2", Active = true, StoreId = "store2" });
 
-        Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
-        Assert.AreEqual("c2", (await Resolver().Resolve(Principal(), "store2")).Customer.Id);
+        var oidcCustomerResult = await Resolver().Resolve(Principal(), "store1");
+        Assert.IsNotNull(oidcCustomerResult.Customer);
+        Assert.AreEqual("c1", oidcCustomerResult.Customer.Id);
+        var oidcCustomerResult2 = await Resolver().Resolve(Principal(), "store2");
+        Assert.IsNotNull(oidcCustomerResult2.Customer);
+        Assert.AreEqual("c2", oidcCustomerResult2.Customer.Id);
 
         var links = LinksOf("sub-1");
         Assert.HasCount(2, links);

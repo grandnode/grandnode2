@@ -25,8 +25,7 @@ public class CustomerValidatorTradeCreditTests
 
     private CustomerValidator _validator;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerValidatorTradeCreditTests()
     {
         var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
@@ -57,7 +56,7 @@ public class CustomerValidatorTradeCreditTests
             new Mock<IAdminDataScope<Customer>>().Object);
     }
 
-    private async Task<List<string>> Errors(double? limit, int? term, string owner = null)
+    private async Task<List<string>> Errors(double? limit, int? term, string? owner = null)
     {
         var result = await _validator.ValidateAsync(new CustomerModel {
             Id = "customer-1", Email = "buyer@example.com", StoreId = "store-1",

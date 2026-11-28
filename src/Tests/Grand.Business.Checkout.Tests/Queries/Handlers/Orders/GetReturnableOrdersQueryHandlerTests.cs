@@ -20,8 +20,7 @@ public class GetReturnableOrdersQueryHandlerTests
     private LiteDBRepositoryMock<MerchandiseReturn> _returns;
     private LiteDBRepositoryMock<Shipment> _shipments;
 
-    [TestInitialize]
-    public void Init()
+    public GetReturnableOrdersQueryHandlerTests()
     {
         _shipments = new LiteDBRepositoryMock<Shipment>();
         _returns = new LiteDBRepositoryMock<MerchandiseReturn>();

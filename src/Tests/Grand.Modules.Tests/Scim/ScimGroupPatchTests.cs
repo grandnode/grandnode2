@@ -9,9 +9,13 @@ namespace Grand.Modules.Tests.Scim;
 [TestClass]
 public class ScimGroupPatchTests
 {
+    private static ScimPatchRequest Patch(string json) =>
+        JsonSerializer.Deserialize<ScimPatchRequest>(json, ScimJson.Options)
+        ?? throw new AssertFailedException("Not a SCIM patch request");
+
     private static ScimGroupChanges Apply(string operationsJson)
     {
-        var ops = JsonSerializer.Deserialize<ScimPatchRequest>("{\"Operations\":" + operationsJson + "}", ScimJson.Options)
+        var ops = Patch("{\"Operations\":" + operationsJson + "}")
             .Operations;
         Assert.IsTrue(ScimGroupPatch.TryApply(ops, out var changes, out var error), error);
         return changes;
@@ -71,8 +75,7 @@ public class ScimGroupPatchTests
     [TestMethod]
     public void UnknownPath_Refused()
     {
-        var ops = JsonSerializer.Deserialize<ScimPatchRequest>(
-            "{\"Operations\":[{\"op\":\"add\",\"path\":\"owners\",\"value\":[]}]}", ScimJson.Options).Operations;
+        var ops = Patch("{\"Operations\":[{\"op\":\"add\",\"path\":\"owners\",\"value\":[]}]}").Operations;
         Assert.IsFalse(ScimGroupPatch.TryApply(ops, out _, out _));
     }
 }

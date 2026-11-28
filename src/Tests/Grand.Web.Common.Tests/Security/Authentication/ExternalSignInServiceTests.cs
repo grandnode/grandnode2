@@ -20,8 +20,7 @@ public class ExternalSignInServiceTests
     private Mock<ITranslationService> _translationServiceMock;
     private ExternalSignInService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ExternalSignInServiceTests()
     {
         _externalAuthenticationServiceMock = new Mock<IExternalAuthenticationService>();
         _authenticationServiceMock = new Mock<IGrandAuthenticationService>();
@@ -32,7 +31,7 @@ public class ExternalSignInServiceTests
             _authenticationServiceMock.Object, _translationServiceMock.Object);
     }
 
-    private Task<IActionResult> Authenticate(ExternalAuthResult result, string returnUrl = null)
+    private Task<IActionResult> Authenticate(ExternalAuthResult result, string? returnUrl = null)
     {
         _externalAuthenticationServiceMock
             .Setup(s => s.Authenticate(It.IsAny<ExternalAuthParam>(), It.IsAny<Customer>(), It.IsAny<Store>(),
@@ -120,7 +119,7 @@ public class ExternalSignInServiceTests
         Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
         Assert.AreEqual("Common", result.ControllerName);
         CollectionAssert.AreEqual(new[] { "Account.AssociatedExternalAuth.AlreadyAssigned@lang1" },
-            ((IEnumerable<string>)result.RouteValues!["Errors"]).ToArray());
+            Assert.IsInstanceOfType<IEnumerable<string>>(result.RouteValues!["Errors"]).ToArray());
         _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
     }
 
@@ -131,7 +130,7 @@ public class ExternalSignInServiceTests
 
         Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
         CollectionAssert.AreEqual(new[] { "Account.AssociatedExternalAuth.RegistrationDisabled@lang1" },
-            ((IEnumerable<string>)result.RouteValues!["Errors"]).ToArray());
+            Assert.IsInstanceOfType<IEnumerable<string>>(result.RouteValues!["Errors"]).ToArray());
         _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
     }
 
@@ -142,7 +141,7 @@ public class ExternalSignInServiceTests
 
         Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
         CollectionAssert.AreEqual(new[] { "Account.AssociatedExternalAuth.EmailAlreadyExists@lang1" },
-            ((IEnumerable<string>)result.RouteValues!["Errors"]).ToArray());
+            Assert.IsInstanceOfType<IEnumerable<string>>(result.RouteValues!["Errors"]).ToArray());
         _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
     }
 
@@ -153,7 +152,7 @@ public class ExternalSignInServiceTests
 
         Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
         CollectionAssert.AreEqual(new[] { "Account.AssociatedExternalAuth.EmailRequired@lang1" },
-            ((IEnumerable<string>)result.RouteValues!["Errors"]).ToArray());
+            Assert.IsInstanceOfType<IEnumerable<string>>(result.RouteValues!["Errors"]).ToArray());
         _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
     }
 

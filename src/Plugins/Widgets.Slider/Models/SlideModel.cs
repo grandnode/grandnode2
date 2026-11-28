@@ -9,13 +9,13 @@ namespace Widgets.Slider.Models;
 public class SlideModel : BaseEntityModel, ILocalizedModel<SlideLocalizedModel>, IStoreLinkModel
 {
     [GrandResourceDisplayName("Widgets.Slider.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Widgets.Slider.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [GrandResourceDisplayName("Widgets.Slider.Link")]
-    public string Link { get; set; }
+    public string? Link { get; set; }
 
     [GrandResourceDisplayName("Widgets.Slider.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -31,19 +31,19 @@ public class SlideModel : BaseEntityModel, ILocalizedModel<SlideLocalizedModel>,
 
     [GrandResourceDisplayName("Widgets.Slider.Picture")]
     [UIHint("Picture")]
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     [UIHint("Category")]
     [GrandResourceDisplayName("Widgets.Slider.Category")]
-    public string CategoryId { get; set; }
+    public string? CategoryId { get; set; }
 
     [UIHint("Collection")]
     [GrandResourceDisplayName("Widgets.Slider.Collection")]
-    public string CollectionId { get; set; }
+    public string? CollectionId { get; set; }
 
     [UIHint("Brand")]
     [GrandResourceDisplayName("Widgets.Slider.Brand")]
-    public string BrandId { get; set; }
+    public string? BrandId { get; set; }
 
     [GrandResourceDisplayName("Widgets.Slider.StartDate")]
     [UIHint("DateTimeNullable")]
@@ -58,18 +58,18 @@ public class SlideModel : BaseEntityModel, ILocalizedModel<SlideLocalizedModel>,
     //Store acl
     [GrandResourceDisplayName("Widgets.Slider.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }
 
 public class SlideLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Widgets.Slider.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Widgets.Slider.Description")]
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

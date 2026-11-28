@@ -17,8 +17,7 @@ public class PictureServiceMediaPathTests
     private PictureService _service;
     private string _webRoot;
 
-    [TestInitialize]
-    public void Init()
+    public PictureServiceMediaPathTests()
     {
         _root = Path.Combine(Path.GetTempPath(), "picture-media-" + Guid.NewGuid().ToString("N"));
         _media = Path.Combine(_root, "media");

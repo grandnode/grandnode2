@@ -12,15 +12,16 @@ using System.Linq.Expressions;
 
 namespace Grand.Business.Common.Tests.Services.Seo
 {
+    //a new instance per test, so the constructor does what [SetUp] did and the fields are always set
+    [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
     public class SeNameServiceTests
     {
-        private Mock<ISlugService> _mockSlugService;
-        private Mock<ILanguageService> _mockLanguageService;
-        private SeoSettings _seoSettings;
-        private SeNameService _seNameService;
+        private readonly Mock<ISlugService> _mockSlugService;
+        private readonly Mock<ILanguageService> _mockLanguageService;
+        private readonly SeoSettings _seoSettings;
+        private readonly SeNameService _seNameService;
 
-        [SetUp]
-        public void Setup()
+        public SeNameServiceTests()
         {
             _mockSlugService = new Mock<ISlugService>();
             _mockLanguageService = new Mock<ILanguageService>();
@@ -40,7 +41,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
         {
             // Arrange - simulate a MongoDB installation where ReservedEntityUrlSlugs was stored as null
             var settingsWithNullSlugs = new SeoSettings {
-                ReservedEntityUrlSlugs = null,
+                ReservedEntityUrlSlugs = null!,
                 ConvertNonWesternChars = false,
                 AllowUnicodeCharsInUrls = false,
                 AllowSlashChar = false,
@@ -50,7 +51,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
                 _mockSlugService.Object, _mockLanguageService.Object, settingsWithNullSlugs);
 
             var entity = new TestEntity { Id = "123" };
-            _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync((EntityUrl)null);
+            _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync((EntityUrl?)null);
 
             // Act & Assert – should not throw ArgumentNullException
             var result = await serviceWithNullSettings.ValidateSeName(entity, "my-page", "My Page", false);
@@ -124,7 +125,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             var result = await _seNameService.ValidateSeName(entity, seName, name, true);
 
             // Assert
-            ClassicAssert.IsTrue(result.StartsWith("en-"));
+            ClassicAssert.IsTrue(result != null && result.StartsWith("en-"));
         }
         
         [Test]
@@ -184,7 +185,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             var result = await _seNameService.ValidateSeName(entity, seName, name, true);
 
             // Assert
-            ClassicAssert.IsTrue(result.StartsWith("reserved-slug-") && result.Length > "reserved-slug-4".Length);
+            ClassicAssert.IsTrue(result != null && result.StartsWith("reserved-slug-") && result.Length > "reserved-slug-4".Length);
         }
         
         [Test]
@@ -193,7 +194,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             // Arrange
             var list = new List<LocalizedModelLocal>();
             var entity = new TestEntity { Id = "1" };
-            Expression<Func<LocalizedModelLocal, string>> keySelector = x => x.SomeProperty;
+            Expression<Func<LocalizedModelLocal, string?>> keySelector = x => x.SomeProperty;
 
             // Act
             var result = await _seNameService.TranslationSeNameProperties(list, entity, keySelector);
@@ -211,7 +212,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             };
             var entity = new TestEntity { Id = "1" };
             var seName = "slug";
-            Expression<Func<LocalizedModelLocal, string>> keySelector = x => x.SomeProperty;
+            Expression<Func<LocalizedModelLocal, string?>> keySelector = x => x.SomeProperty;
 
             _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync(new EntityUrl() { Slug = seName, EntityId = "123", EntityName = "TestEntity" });
 
@@ -236,7 +237,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             
             var entity = new TestTransEntity { Id = "1" };
             var seName = "slug";
-            Expression<Func<LocalizedSlugModelLocal, string>> keySelector = x => x.SomeProperty;
+            Expression<Func<LocalizedSlugModelLocal, string?>> keySelector = x => x.SomeProperty;
 
             _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync(new EntityUrl() { Slug = seName, EntityId = "1", EntityName = "TestTransEntity" });
 
@@ -297,24 +298,24 @@ namespace Grand.Business.Common.Tests.Services.Seo
         }
         class LocalizedModelLocal : ILocalizedModelLocal
         {
-            public string LanguageId { get; set; }
-            public string SomeProperty { get; set; }
+            public string? LanguageId { get; set; }
+            public string? SomeProperty { get; set; }
         }
         
         class LocalizedSlugModelLocal : ILocalizedModelLocal, ISlugModelLocal
         {
-            public string LanguageId { get; set; }
-            public string SomeProperty { get; set; }
-            public string SeName { get; set; }
+            public string? LanguageId { get; set; }
+            public string? SomeProperty { get; set; }
+            public string? SeName { get; set; }
         }
         class TestEntity : BaseEntity, ISlugEntity
         {
             // Implement necessary members of ISlugEntity if needed
-            public string SeName { get; set; }
+            public string? SeName { get; set; }
         }
         class TestTransEntity : BaseEntity, ISlugEntity, ITranslationEntity
         {
-            public string SeName { get; set; }
+            public string? SeName { get; set; }
             public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
         }
     }

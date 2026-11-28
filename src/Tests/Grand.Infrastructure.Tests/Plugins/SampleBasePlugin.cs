@@ -4,7 +4,7 @@ namespace Grand.Infrastructure.Tests.Plugins;
 
 public class SampleBasePlugin : BasePlugin, IPlugin
 {
-    public override PluginInfo PluginInfo { get; set; } = new() {
+    public override PluginInfo? PluginInfo { get; set; } = new() {
         Author = "grandnode",
         DisplayOrder = 0,
         FriendlyName = "sample plugin",

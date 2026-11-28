@@ -33,8 +33,7 @@ public class ShipmentViewModelServiceTests
     private Mock<IDownloadService> _downloadServiceMock;
     private ShipmentViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public ShipmentViewModelServiceTests()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _productServiceMock = new Mock<IProductService>();
@@ -44,16 +43,16 @@ public class ShipmentViewModelServiceTests
         _scopeMock = new Mock<IAdminDataScope<Shipment>>();
         _downloadServiceMock = new Mock<IDownloadService>();
 
-        _measureServiceMock.Setup(m => m.GetMeasureWeightById(It.IsAny<string>())).ReturnsAsync((MeasureWeight)null);
+        _measureServiceMock.Setup(m => m.GetMeasureWeightById(It.IsAny<string>())).ReturnsAsync((MeasureWeight?)null);
         _measureServiceMock.Setup(m => m.GetMeasureDimensionById(It.IsAny<string>()))
-            .ReturnsAsync((MeasureDimension)null);
+            .ReturnsAsync((MeasureDimension?)null);
 
-        _warehouseServiceMock.Setup(w => w.GetWarehouseById(It.IsAny<string>())).ReturnsAsync((Warehouse)null);
+        _warehouseServiceMock.Setup(w => w.GetWarehouseById(It.IsAny<string>())).ReturnsAsync((Warehouse?)null);
 
         // Default: Admin's Global scope - identity passthrough, no default vendor.
         _scopeMock.Setup(s => s.FilterOrderItems(It.IsAny<IEnumerable<OrderItem>>()))
             .Returns((IEnumerable<OrderItem> items) => items);
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
 
         _service = new ShipmentViewModelService(
             _orderServiceMock.Object,
@@ -109,6 +108,7 @@ public class ShipmentViewModelServiceTests
 
         var (shipment, _) = await _service.PrepareShipment(order, [orderItem], model);
 
+        Assert.IsNotNull(shipment);
         CollectionAssert.AreEqual(new[] { "A1", "A2" }, shipment.ShipmentItems.Single().SerialNumbers.ToArray());
     }
 
@@ -132,6 +132,7 @@ public class ShipmentViewModelServiceTests
 
         var (shipment, _) = await _service.PrepareShipment(order, [orderItem], model);
 
+        Assert.IsNotNull(shipment);
         var batch = shipment.ShipmentItems.Single().Batches.Single();
         Assert.AreEqual("L2", batch.Number);
         Assert.AreEqual(2, batch.Quantity);
@@ -262,7 +263,7 @@ public class ShipmentViewModelServiceTests
     public async Task PrepareShipment_NullDefaultVendorId_LeavesVendorIdNull()
     {
         // Arrange
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
 
         var order = new Order { Id = "order1", SeId = "se1", StoreId = "store1" };
         var orderItem = new OrderItem {

@@ -14,8 +14,7 @@ public class BlogPostDeletedEventHandlerTests
     private BlogPostDeletedEventHandler _handler;
     private Mock<ISlugService> _slugServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public BlogPostDeletedEventHandlerTests()
     {
         _slugServiceMock = new Mock<ISlugService>();
         _handler = new BlogPostDeletedEventHandler(_slugServiceMock.Object);

@@ -36,8 +36,8 @@ public class OidcProtectedResourceRegistryTests
 
         Assert.AreEqual(2, registry.Resources.Count);
         Assert.AreEqual(0, registry.Errors.Count);
-        Assert.AreEqual("BackendApi", registry.Match(new PathString("/api/Product")).Name);
-        Assert.AreEqual("Tools", registry.Match(new PathString("/TOOLS")).Name);
+        Assert.AreEqual("BackendApi", registry.Match(new PathString("/api/Product"))?.Name);
+        Assert.AreEqual("Tools", registry.Match(new PathString("/TOOLS"))?.Name);
         Assert.IsNull(registry.Match(new PathString("/apix")));
     }
 

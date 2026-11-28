@@ -12,8 +12,8 @@ public class ExtensionsTests
     public void GetDownloadBits_ReturnExpectedValue()
     {
         var file = new Mock<IFormFile>();
-        MemoryStream test_Stream = null;
-        byte[] expected = null;
+        MemoryStream? test_Stream = null;
+        byte[]? expected = null;
         using (test_Stream = new MemoryStream(Encoding.UTF8.GetBytes("whatever")))
         {
             expected = test_Stream.ToArray();

@@ -23,8 +23,7 @@ public class RefundOfflineCommandHandlerTests
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
     private Mock<IPaymentTransactionHistoryService> _historyMock;
 
-    [TestInitialize]
-    public void Init()
+    public RefundOfflineCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();

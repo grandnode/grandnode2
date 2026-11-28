@@ -27,8 +27,7 @@ public class CashOnDeliveryPaymentProviderTests
     private CashOnDeliveryPaymentSettings _settings;
     private Mock<IShoppingCartSubTotalService> _subTotalService;
 
-    [TestInitialize]
-    public void Init()
+    public CashOnDeliveryPaymentProviderTests()
     {
         _settings = new CashOnDeliveryPaymentSettings();
         _subTotalService = new Mock<IShoppingCartSubTotalService>();

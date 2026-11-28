@@ -9,7 +9,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class VendorVendorReviewDataScopeTests
 {
-    private static VendorVendorReviewDataScope Build(string currentVendorId)
+    private static VendorVendorReviewDataScope Build(string? currentVendorId)
     {
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(w => w.CurrentVendor).Returns(new Vendor { Id = currentVendorId });
@@ -36,7 +36,7 @@ public class VendorVendorReviewDataScopeTests
     public async Task HasAccess_NullEntity_False()
     {
         var scope = Build("vendor-A");
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 
     [TestMethod]
@@ -50,7 +50,7 @@ public class VendorVendorReviewDataScopeTests
     public async Task HasAccess_NullCurrentVendorIdAndNullEntityVendorId_False()
     {
         var scope = Build(null);
-        Assert.IsFalse(await scope.HasAccess(new VendorReview { VendorId = null }));
+        Assert.IsFalse(await scope.HasAccess(new VendorReview { VendorId = null! }));
     }
 
     [TestMethod]

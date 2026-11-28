@@ -26,8 +26,7 @@ public class DeleteOrderCommandHandlerTests
     private Mock<IProductService> _productServiceMock;
     private Mock<IShipmentService> _shipmentServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public DeleteOrderCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();

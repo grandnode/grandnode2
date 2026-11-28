@@ -23,8 +23,7 @@ public class ProductPriceViewModelServiceTests
     private Mock<IStoreService> _storeServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public ProductPriceViewModelServiceTests()
     {
         _groupServiceMock = new Mock<IGroupService>();
         _storeServiceMock = new Mock<IStoreService>();
@@ -32,7 +31,7 @@ public class ProductPriceViewModelServiceTests
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         var currencyServiceMock = new Mock<ICurrencyService>();
-        currencyServiceMock.Setup(c => c.GetCurrencyById(It.IsAny<string>())).ReturnsAsync((Currency)null);
+        currencyServiceMock.Setup(c => c.GetCurrencyById(It.IsAny<string>())).ReturnsAsync((Currency?)null);
         currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>())).ReturnsAsync(new List<Currency>());
 
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
@@ -42,10 +41,10 @@ public class ProductPriceViewModelServiceTests
 
         // Default: Admin's Global scope - no default store/vendor, store dropdown shows.
         _scopeMock = new Mock<IAdminDataScope<Product>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
         _scopeMock.Setup(s => s.ShowStoreSelector).Returns(true);
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
 
         _productPriceViewModelService = new ProductPriceViewModelService(
             currencyServiceMock.Object,
@@ -59,7 +58,7 @@ public class ProductPriceViewModelServiceTests
     [TestMethod]
     public async Task PrepareTierPriceModel_VendorScope_HidesStoreDropdown()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
         _scopeMock.Setup(s => s.ShowStoreSelector).Returns(false);
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {

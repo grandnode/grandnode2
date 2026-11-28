@@ -26,11 +26,10 @@ public class AdminImportWindowTagHelperTests
 {
     private Mock<IContextAccessor> _contextAccessorMock;
     private Mock<IHtmlHelper> _htmlHelperMock;
-    private ImportWindowModel _model;
+    private ImportWindowModel? _model;
     private Mock<ITranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public AdminImportWindowTagHelperTests()
     {
         _model = null;
         var workContextMock = new Mock<IWorkContext>();
@@ -129,6 +128,7 @@ public class AdminImportWindowTagHelperTests
             h.Action = "UploadPlugin";
         });
 
+        Assert.IsNotNull(_model);
         Assert.AreEqual("zippedFile", _model.FileName);
         Assert.AreEqual("importfiledialog", _model.FileId);
         Assert.AreEqual("zippedFile-window", _model.WindowId, "the window id defaults to the posted name");
@@ -143,6 +143,9 @@ public class AdminImportWindowTagHelperTests
         }, "<em>Tip</em>");
 
         using var writer = new StringWriter();
+        Assert.IsNotNull(_model);
+        Assert.IsNotNull(_model.Notes);
+        Assert.IsNotNull(_model);
         _model.Notes.WriteTo(writer, HtmlEncoder.Default);
         Assert.AreEqual("<em>Tip</em>", writer.ToString());
     }
@@ -180,6 +183,7 @@ public class AdminImportWindowTagHelperTests
             h.Action = "UploadPlugin";
         });
 
+        Assert.IsNotNull(_model);
         Assert.AreEqual("Zip file", _model.FileLabel);
     }
 
@@ -197,6 +201,7 @@ public class AdminImportWindowTagHelperTests
             h.Action = "UploadPlugin";
         });
 
+        Assert.IsNotNull(_model);
         Assert.AreEqual("Plik zip", _model.FileLabel);
     }
 

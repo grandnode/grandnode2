@@ -13,8 +13,7 @@ public class StoreAdminDataScopeTests
     private Mock<IContextAccessor> _contextAccessor = null!;
     private const string StaffStoreId = "store-1";
 
-    [TestInitialize]
-    public void Setup()
+    public StoreAdminDataScopeTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { StaffStoreId = StaffStoreId });

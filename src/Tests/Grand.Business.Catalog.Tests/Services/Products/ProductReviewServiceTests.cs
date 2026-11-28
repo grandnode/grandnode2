@@ -15,8 +15,7 @@ public class ProductReviewServiceTests
     private ProductReviewService _productReviewService;
     private IRepository<ProductReview> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public ProductReviewServiceTests()
     {
         _repository = new MongoDBRepositoryTest<ProductReview>();
         _mediatorMock = new Mock<IMediator>();

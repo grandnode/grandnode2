@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -46,7 +47,7 @@ public class ShippingPointController : BaseController
     /// <summary>
     ///     The store the current staff/store-manager is bound to.
     /// </summary>
-    private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => _contextAccessor.WorkContext.PanelStoreId();
 
     public IActionResult Configure()
     {

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -23,8 +21,7 @@ public class RoutedCheckoutAttributeDataScopeTests
     private GlobalAdminDataScope<CheckoutAttribute> _globalScope = null!;
     private StoreAdminDataScope<CheckoutAttribute> _storeScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedCheckoutAttributeDataScopeTests()
     {
         var contextAccessor = new Mock<IContextAccessor>();
         var workContext = new Mock<IWorkContext>();

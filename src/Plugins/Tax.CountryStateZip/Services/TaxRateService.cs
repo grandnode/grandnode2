@@ -66,7 +66,7 @@ public class TaxRateService : ITaxRateService
     ///     Gets all tax rates
     /// </summary>
     /// <returns>Tax rates</returns>
-    public virtual async Task<IPagedList<TaxRate>> GetAllTaxRates(string storeId = "", int pageIndex = 0,
+    public virtual async Task<IPagedList<TaxRate>> GetAllTaxRates(string? storeId = "", int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var key = string.Format(TAXRATE_ALL_KEY, storeId, pageIndex, pageSize);
@@ -90,7 +90,7 @@ public class TaxRateService : ITaxRateService
     /// </summary>
     /// <param name="taxRateId">Tax rate identifier</param>
     /// <returns>Tax rate</returns>
-    public virtual Task<TaxRate> GetTaxRateById(string taxRateId)
+    public virtual Task<TaxRate?> GetTaxRateById(string? taxRateId)
     {
         return _taxRateRepository.GetByIdAsync(taxRateId);
     }

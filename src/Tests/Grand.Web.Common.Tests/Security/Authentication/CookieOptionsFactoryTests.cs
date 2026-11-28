@@ -11,8 +11,7 @@ public class CookieOptionsFactoryTests
     private SecurityConfig _securityConfig;
     private CookieOptionsFactory _cookieOptionsFactory;
 
-    [TestInitialize]
-    public void Setup()
+    public CookieOptionsFactoryTests()
     {
         _securityConfig = new SecurityConfig {
             CookieAuthExpires = 24,
@@ -35,6 +34,7 @@ public class CookieOptionsFactoryTests
         Assert.IsTrue(options.Secure);
 
         // Verify expiration is close to expected (allowing for slight processing time differences)
+        Assert.IsTrue(options.Expires.HasValue);
         var difference = (options.Expires.Value - expectedExpiryDate).TotalMinutes;
         Assert.IsLessThan(1, Math.Abs(difference), "Expiry time should be within 1 minute of expected value");
     }

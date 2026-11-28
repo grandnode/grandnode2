@@ -18,8 +18,7 @@ public class DeliveryDateDeletedEventHandlerTests
     private DeliveryDateDeletedEventHandler _handler;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public DeliveryDateDeletedEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _cacheMock = new Mock<ICacheBase>();

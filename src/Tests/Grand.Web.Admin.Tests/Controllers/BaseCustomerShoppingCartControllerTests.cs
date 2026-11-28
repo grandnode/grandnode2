@@ -42,7 +42,7 @@ public class BaseCustomerShoppingCartControllerTests
     [TestMethod]
     public async Task GetCartList_GlobalScope_UnknownCustomer_ReturnsEmptyGrid()
     {
-        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.GetCartList("missing", 1);
 
@@ -71,7 +71,7 @@ public class BaseCustomerShoppingCartControllerTests
     [TestMethod]
     public async Task DeleteCart_Denied_ThrowsArgumentException_NothingDeleted()
     {
-        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(() => Controller.DeleteCart("sci1", "missing"));
         CustomerShoppingCartViewModelServiceMock.Verify(v => v.DeleteCart(It.IsAny<Customer>(), It.IsAny<string>()), Times.Never);

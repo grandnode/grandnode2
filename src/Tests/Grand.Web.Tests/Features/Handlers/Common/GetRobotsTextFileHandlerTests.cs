@@ -13,8 +13,7 @@ public class GetRobotsTextFileHandlerTests
     private Mock<IRobotsTxtService> _serviceMock;
     private GetRobotsTextFileHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetRobotsTextFileHandlerTests()
     {
         _serviceMock = new Mock<IRobotsTxtService>();
         _handler = new GetRobotsTextFileHandler(_serviceMock.Object);
@@ -32,7 +31,7 @@ public class GetRobotsTextFileHandlerTests
     [TestMethod]
     public async Task StoreHasNone_ServesTheAllStoresOne()
     {
-        _serviceMock.Setup(s => s.GetRobotsTxt("store-2")).ReturnsAsync((RobotsTxt)null);
+        _serviceMock.Setup(s => s.GetRobotsTxt("store-2")).ReturnsAsync((RobotsTxt?)null);
         _serviceMock.Setup(s => s.GetRobotsTxt("")).ReturnsAsync(new RobotsTxt { Text = "global" });
 
         Assert.AreEqual("global", await _handler.Handle(new GetRobotsTextFile { StoreId = "store-2" }, CancellationToken.None));

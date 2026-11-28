@@ -12,8 +12,7 @@ public class PaymentExtensionsTests
 {
     private Mock<IPaymentProvider> _providerMock;
 
-    [TestInitialize]
-    public void Init()
+    public PaymentExtensionsTests()
     {
         _providerMock = new Mock<IPaymentProvider>();
     }
@@ -32,14 +31,16 @@ public class PaymentExtensionsTests
     [TestMethod]
     public void IsPaymentMethodActive_NullSettings_ThrowException()
     {
-        PaymentSettings settings = null;
+        //null exercises the guard of the method under test
+        PaymentSettings settings = null!;
         Assert.ThrowsExactly<ArgumentNullException>(() => _providerMock.Object.IsPaymentMethodActive(settings));
     }
 
     [TestMethod]
     public void IsPaymentMethodActive_NullProvider_ThrowException()
     {
-        IPaymentProvider provider = null;
+        //null exercises the guard of the method under test
+        IPaymentProvider provider = null!;
         var settings = new PaymentSettings();
         Assert.ThrowsExactly<ArgumentNullException>(() => provider.IsPaymentMethodActive(settings));
     }
@@ -83,7 +84,8 @@ public class PaymentExtensionsTests
     [TestMethod]
     public void GetPaymentMethodName_NullProvider_ReturnSystemName()
     {
-        IPaymentProvider provider = null;
+        //null exercises the guard of the method under test
+        IPaymentProvider provider = null!;
         var order = new Order { PaymentMethodSystemName = "Payments.Test" };
         Assert.AreEqual("Payments.Test", provider.GetPaymentMethodName(order));
     }

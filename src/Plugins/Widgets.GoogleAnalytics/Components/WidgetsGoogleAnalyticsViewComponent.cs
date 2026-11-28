@@ -42,7 +42,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
         _categoryService = categoryService;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
+    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object? additionalData = null)
     {
         var globalScript = "";
 
@@ -65,8 +65,8 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
                 return Content("");
 
             //Special case, if we are in last step of checkout, we can use order total for conversion value
-            if (controller.ToString()!.Equals("checkout", StringComparison.OrdinalIgnoreCase) &&
-                action.ToString()!.Equals("completed", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(controller.ToString(), "checkout", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(action.ToString(), "completed", StringComparison.OrdinalIgnoreCase))
             {
                 var lastOrder = await GetLastOrder();
                 globalScript += await GetEcommerceScript(lastOrder);
@@ -84,7 +84,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
         return View("Default", globalScript);
     }
 
-    private async Task<Order> GetLastOrder()
+    private async Task<Order?> GetLastOrder()
     {
         var order = (await _orderService.SearchOrders(_contextAccessor.StoreContext.CurrentStore.Id,
             customerId: _contextAccessor.WorkContext.CurrentCustomer.Id, pageSize: 1)).FirstOrDefault();
@@ -100,7 +100,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
         return analyticsTrackingScript;
     }
 
-    private async Task<string> GetEcommerceScript(Order order)
+    private async Task<string> GetEcommerceScript(Order? order)
     {
         var usCulture = new CultureInfo("en-US");
         var analyticsTrackingScript = _googleAnalyticsEcommerceSettings.TrackingScript + "\n";
@@ -142,14 +142,12 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
             foreach (var item in order.OrderItems)
             {
                 var product = await _productService.GetProductById(item.ProductId);
-                var analyticsEcommerceDetailScript = _googleAnalyticsEcommerceSettings.EcommerceDetailScript;
+                var analyticsEcommerceDetailScript = _googleAnalyticsEcommerceSettings.EcommerceDetailScript ?? "";
                 //get category; the product may have been deleted since the order was placed
                 var category = "";
-                if (product != null && product.ProductCategories.Any())
+                if (product?.ProductCategories.MinBy(x => x.DisplayOrder) is { } productCategory)
                 {
-                    var defaultProductCategory =
-                        await _categoryService.GetCategoryById(product.ProductCategories.MinBy(x => x.DisplayOrder)
-                            .CategoryId);
+                    var defaultProductCategory = await _categoryService.GetCategoryById(productCategory.CategoryId);
                     if (defaultProductCategory != null)
                         category = defaultProductCategory.Name;
                 }
@@ -182,7 +180,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
         return analyticsTrackingScript;
     }
 
-    private static string FixIllegalJavaScriptChars(string text)
+    private static string? FixIllegalJavaScriptChars(string? text)
     {
         if (string.IsNullOrEmpty(text))
             return text;

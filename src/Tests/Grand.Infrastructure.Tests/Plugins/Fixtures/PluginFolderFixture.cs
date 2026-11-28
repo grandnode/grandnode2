@@ -96,7 +96,7 @@ public sealed class PluginFolderFixture : IDisposable
     ///     The assembly of that name in the plugin's own context
     /// </summary>
     public static System.Reflection.Assembly Loaded(PluginInfo plugin, string assemblyName) =>
-        AssemblyLoadContext.GetLoadContext(plugin.ReferencedAssembly)!.Assemblies
+        (AssemblyLoadContext.GetLoadContext(plugin.ReferencedAssembly ?? throw new InvalidOperationException("The plugin is not loaded")) ?? throw new InvalidOperationException("The plugin assembly has no load context")).Assemblies
             .Single(x => x.GetName().Name == assemblyName);
 
     public void Dispose()

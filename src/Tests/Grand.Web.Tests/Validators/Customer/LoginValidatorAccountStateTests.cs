@@ -36,8 +36,7 @@ public class LoginValidatorAccountStateTests
     private Mock<IGroupService> _groups;
     private Mock<IMediator> _mediator;
 
-    [TestInitialize]
-    public void Init()
+    public LoginValidatorAccountStateTests()
     {
         _customerService = new Mock<ICustomerService>();
         _customerService.Setup(c => c.GetCustomerByEmail("a@b.c", It.IsAny<string>())).ReturnsAsync(_customer);

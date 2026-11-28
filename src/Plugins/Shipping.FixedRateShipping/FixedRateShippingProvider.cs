@@ -111,7 +111,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
 
     public ShippingRateCalculationType ShippingRateCalculationType => ShippingRateCalculationType.Off;
 
-    public IShipmentTracker ShipmentTracker => null;
+    public IShipmentTracker? ShipmentTracker => null;
 
     public async Task<IList<string>> ValidateShippingForm(string shippingOption, IDictionary<string, string> data)
     {

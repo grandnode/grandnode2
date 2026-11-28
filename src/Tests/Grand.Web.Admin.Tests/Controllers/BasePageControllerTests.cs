@@ -40,8 +40,7 @@ public class BasePageControllerTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Page>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BasePageControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<PageProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -52,7 +51,7 @@ public class BasePageControllerTests
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _scopeMock = new Mock<IAdminDataScope<Page>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         var languageServiceMock = new Mock<ILanguageService>();
         languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
@@ -96,7 +95,7 @@ public class BasePageControllerTests
     [TestMethod]
     public async Task ListPost_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _pageServiceMock.Setup(p => p.GetAllPages(CatalogAccess.IncludingHidden("admin-submitted-store"))).ReturnsAsync(new List<Page>());
 
         var model = new PageListModel { SearchStoreId = "admin-submitted-store" };
@@ -115,19 +114,19 @@ public class BasePageControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.IsTrue(((PageModel)view.Model).Published);
+        Assert.IsTrue(Assert.IsInstanceOfType<PageModel>(view.Model).Published);
     }
 
     [TestMethod]
     public async Task CreateGet_GlobalScope_PublishedDefaultsFalse()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         var result = await _controller.Create();
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.IsFalse(((PageModel)view.Model).Published);
+        Assert.IsFalse(Assert.IsInstanceOfType<PageModel>(view.Model).Published);
     }
 
     [TestMethod]
@@ -138,7 +137,7 @@ public class BasePageControllerTests
         _pageViewModelServiceMock
             .Setup(v => v.InsertPageModel(It.IsAny<PageModel>()))
             .ReturnsAsync(inserted)
-            .Callback<PageModel>(m => Assert.AreEqual("store-1", m.Stores.Single()));
+            .Callback<PageModel>(m => Assert.AreEqual("store-1", m.Stores?.Single()));
 
         await _controller.Create(new PageModel { SystemName = "N" }, false);
 
@@ -148,13 +147,13 @@ public class BasePageControllerTests
     [TestMethod]
     public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var inserted = new Page { Id = "new-1" };
         var submitted = new PageModel { SystemName = "N", Stores = ["explicit-store"] };
         _pageViewModelServiceMock
             .Setup(v => v.InsertPageModel(It.IsAny<PageModel>()))
             .ReturnsAsync(inserted)
-            .Callback<PageModel>(m => Assert.AreEqual("explicit-store", m.Stores.Single()));
+            .Callback<PageModel>(m => Assert.AreEqual("explicit-store", m.Stores?.Single()));
 
         await _controller.Create(submitted, false);
 
@@ -164,7 +163,7 @@ public class BasePageControllerTests
     [TestMethod]
     public async Task EditGet_PageNotFound_RedirectsToList()
     {
-        _pageServiceMock.Setup(p => p.GetPageById("missing")).ReturnsAsync((Page)null);
+        _pageServiceMock.Setup(p => p.GetPageById("missing")).ReturnsAsync((Page?)null);
 
         var result = await _controller.Edit("missing");
 
@@ -199,7 +198,7 @@ public class BasePageControllerTests
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.IsTrue(((PageModel)view.Model).ShowCopyButton);
+        Assert.IsTrue(Assert.IsInstanceOfType<PageModel>(view.Model).ShowCopyButton);
     }
 
     [TestMethod]
@@ -212,7 +211,8 @@ public class BasePageControllerTests
         var result = await _controller.Edit("p1");
 
         var view = result as ViewResult;
-        Assert.IsTrue(((PageModel)view.Model).ShowCopyButton);
+        Assert.IsNotNull(view);
+        Assert.IsTrue(Assert.IsInstanceOfType<PageModel>(view.Model).ShowCopyButton);
     }
 
     [TestMethod]
@@ -225,7 +225,8 @@ public class BasePageControllerTests
         var result = await _controller.Edit("p1");
 
         var view = result as ViewResult;
-        Assert.IsFalse(((PageModel)view.Model).ShowCopyButton);
+        Assert.IsNotNull(view);
+        Assert.IsFalse(Assert.IsInstanceOfType<PageModel>(view.Model).ShowCopyButton);
     }
 
     [TestMethod]
@@ -254,7 +255,9 @@ public class BasePageControllerTests
             .Setup(v => v.UpdatePageModel(page, It.IsAny<PageModel>()))
             .ReturnsAsync(page)
             .Callback<Page, PageModel>((p, m) => {
-                Assert.AreEqual("store-1", m.Stores.Single());
+                Assert.IsNotNull(m.Stores);
+                Assert.AreEqual("store-1", m.Stores?.Single());
+                Assert.IsNotNull(m.CustomerGroups);
                 Assert.AreEqual("existing-group", m.CustomerGroups.Single());
             });
 
@@ -266,7 +269,7 @@ public class BasePageControllerTests
     [TestMethod]
     public async Task EditPost_GlobalScope_LeavesCustomerGroupsAndStoresUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         var page = new Page { Id = "p1", CustomerGroups = ["existing-group"] };
         _pageServiceMock.Setup(p => p.GetPageById("p1")).ReturnsAsync(page);
         _scopeMock.Setup(s => s.HasAccess(page)).ReturnsAsync(true);
@@ -274,6 +277,7 @@ public class BasePageControllerTests
             .Setup(v => v.UpdatePageModel(page, It.IsAny<PageModel>()))
             .ReturnsAsync(page)
             .Callback<Page, PageModel>((p, m) => {
+                Assert.IsNotNull(m.CustomerGroups);
                 Assert.AreEqual("admin-submitted-group", m.CustomerGroups.Single());
             });
 

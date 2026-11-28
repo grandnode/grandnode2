@@ -10,12 +10,12 @@ public class AuthSchemaMock : IAuthenticationHandler
         throw new NotImplementedException();
     }
 
-    public Task ChallengeAsync(AuthenticationProperties properties)
+    public Task ChallengeAsync(AuthenticationProperties? properties)
     {
         throw new NotImplementedException();
     }
 
-    public Task ForbidAsync(AuthenticationProperties properties)
+    public Task ForbidAsync(AuthenticationProperties? properties)
     {
         throw new NotImplementedException();
     }

@@ -19,5 +19,5 @@ public class OrderSettingsExtensionsTests
 
     [TestMethod]
     public void NullConfig_StoredValue() =>
-        Assert.IsTrue(new OrderSettings { AnonymousCheckoutAllowed = true }.AnonymousCheckoutAllowed(null));
+        Assert.IsTrue(new OrderSettings { AnonymousCheckoutAllowed = true }.AnonymousCheckoutAllowed(null!));
 }

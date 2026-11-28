@@ -24,9 +24,9 @@ public class GrandAuthenticationServiceDefaultsTests
 
         public Task SignOut() => Task.CompletedTask;
 
-        public Task<Customer> GetAuthenticatedCustomer() => Task.FromResult<Customer>(null);
+        public Task<Customer?> GetAuthenticatedCustomer() => Task.FromResult<Customer?>(null);
 
-        public Task<string> GetCustomerGuid() => Task.FromResult<string>(null);
+        public Task<string?> GetCustomerGuid() => Task.FromResult<string?>(null);
 
         public Task SetCustomerGuid(Guid customerGuid) => Task.CompletedTask;
     }

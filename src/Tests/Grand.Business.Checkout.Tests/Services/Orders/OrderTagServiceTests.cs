@@ -20,8 +20,7 @@ public class OrderTagServiceTests
     private IRepository<OrderTag> _orderTagRepository;
     private OrderTagService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderTagServiceTests()
     {
         _orderTagRepository = new MongoDBRepositoryTest<OrderTag>();
         _orderRepository = new MongoDBRepositoryTest<Order>();
@@ -101,7 +100,7 @@ public class OrderTagServiceTests
         await _service.UpdateOrderTag(orderTag);
 
         //Assert
-        Assert.AreEqual("test", _orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Name);
+        Assert.AreEqual("test", _orderTagRepository.Table.First(x => x.Id == orderTag.Id).Name);
     }
 
     [TestMethod]
@@ -131,9 +130,9 @@ public class OrderTagServiceTests
         await _service.AttachOrderTag(orderTag.Id, order.Id);
 
         //Assert
-        Assert.IsTrue(_orderRepository.Table.FirstOrDefault(x => x.Id == order.Id).OrderTags
+        Assert.IsTrue(_orderRepository.Table.First(x => x.Id == order.Id).OrderTags
             .Any(z => z == orderTag.Id));
-        Assert.AreEqual(1, _orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Count);
+        Assert.AreEqual(1, _orderTagRepository.Table.First(x => x.Id == orderTag.Id).Count);
     }
 
     [TestMethod]
@@ -152,8 +151,8 @@ public class OrderTagServiceTests
 
         //Assert
         Assert.IsFalse(
-            _orderRepository.Table.FirstOrDefault(x => x.Id == order.Id).OrderTags.Any(z => z == orderTag.Id));
-        Assert.AreEqual(0, _orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Count);
+            _orderRepository.Table.First(x => x.Id == order.Id).OrderTags.Any(z => z == orderTag.Id));
+        Assert.AreEqual(0, _orderTagRepository.Table.First(x => x.Id == orderTag.Id).Count);
     }
 
     [TestMethod]

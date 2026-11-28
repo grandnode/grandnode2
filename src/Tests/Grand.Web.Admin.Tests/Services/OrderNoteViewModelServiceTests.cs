@@ -18,8 +18,7 @@ public class OrderNoteViewModelServiceTests
     private OrderNoteViewModelService _service;
     private readonly Order _order = new() { Id = "o1" };
 
-    [TestInitialize]
-    public void Setup()
+    public OrderNoteViewModelServiceTests()
     {
         _orderService = new Mock<IOrderService>();
         _downloadService = new Mock<IDownloadService>();

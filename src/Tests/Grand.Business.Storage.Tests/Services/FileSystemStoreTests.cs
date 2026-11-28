@@ -10,8 +10,7 @@ public class FileSystemStoreTests
     private readonly string myFile = "sample.txt";
     private FileSystemStore _store;
 
-    [TestInitialize]
-    public void Init()
+    public FileSystemStoreTests()
     {
         _store = new FileSystemStore(TestContext.CurrentContext.TestDirectory);
     }
@@ -210,6 +209,7 @@ public class FileSystemStoreTests
         //Arrange
         var fileStoreEntry = await _store.GetFileInfo(myFile);
         //Act
+        Assert.IsNotNull(fileStoreEntry);
         var stream = await _store.GetFileStream(fileStoreEntry);
         //Assert
         stream.Position = 0;

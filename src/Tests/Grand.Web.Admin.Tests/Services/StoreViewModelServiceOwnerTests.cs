@@ -22,8 +22,7 @@ public class StoreViewModelServiceOwnerTests
     private Mock<IMediator> _mediator;
     private StoreViewModelService _service;
 
-    [TestInitialize]
-    public void Init()
+    public StoreViewModelServiceOwnerTests()
     {
         var groupService = new Mock<IGroupService>();
         groupService.Setup(x => x.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Administrators))
@@ -43,7 +42,7 @@ public class StoreViewModelServiceOwnerTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(), It.IsAny<string[]>(),
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>(), It.IsAny<string[]>(),
                 It.IsAny<bool>()))
             .ReturnsAsync(new PagedList<Customer>(administrators, 0, int.MaxValue, administrators.Count));
 
@@ -51,7 +50,7 @@ public class StoreViewModelServiceOwnerTests
         var managers = new List<Customer> { Staff("manager", "managers", staffStoreId: "s1", email: "manager@x.example") };
         _mediator = new Mock<IMediator>();
         _mediator.Setup(x => x.Send(
-                It.Is<GetCustomerQuery>(q => q.StaffStoreId == "s1" && q.CustomerGroupIds.Single() == "managers"),
+                It.Is<GetCustomerQuery>(q => q.StaffStoreId == "s1" && q.CustomerGroupIds != null && q.CustomerGroupIds.Single() == "managers"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedList<Customer>(managers, 0, int.MaxValue, managers.Count));
 
@@ -60,8 +59,8 @@ public class StoreViewModelServiceOwnerTests
             new Mock<ICurrencyService>().Object, customerService.Object, groupService.Object, _mediator.Object);
     }
 
-    private static Customer Staff(string id, string groupId, string staffStoreId = null, bool active = true,
-        bool deleted = false, string email = null)
+    private static Customer Staff(string id, string groupId, string? staffStoreId = null, bool active = true,
+        bool deleted = false, string? email = null)
     {
         var customer = new Customer {
             Id = id, StaffStoreId = staffStoreId, Active = active, Deleted = deleted, Email = email ?? $"{id}@x.example"

@@ -13,14 +13,18 @@ namespace Grand.Web.Common.Tests.Security.Oidc;
 [TestClass]
 public class OidcPipelineTests
 {
-    private OidcTestHost _host;
-    private HttpClient _client;
+    private OidcTestHost? _host;
+    private HttpClient? _client;
+    //set when the test host starts
+    private HttpClient Client => _client ?? throw new InvalidOperationException("The test host has not started");
+    //set when the test host starts
+    private OidcTestHost Host => _host ?? throw new InvalidOperationException("The test host has not started");
 
-    private async Task Start(OidcResourceServerConfig config = null, params Store[] stores)
+    private async Task Start(OidcResourceServerConfig? config = null, params Store[] stores)
     {
-        if (_host != null) await _host.DisposeAsync();
+        if (_host != null) await Host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(config ?? OidcTestHost.Config(),
+        _client = await Host.Start(config ?? OidcTestHost.Config(),
             stores.Length > 0 ? s => s.AddSingleton(OidcTestHost.StoreService(stores)) : null);
     }
 
@@ -28,7 +32,7 @@ public class OidcPipelineTests
     public Task Init() => Start();
 
     [TestCleanup]
-    public async Task Cleanup() => await _host.DisposeAsync();
+    public async Task Cleanup() => await Host.DisposeAsync();
 
     [TestMethod]
     public async Task ForeignHostHeader_TokenForThatHost_401()
@@ -36,14 +40,14 @@ public class OidcPipelineTests
         using var request = new HttpRequestMessage(HttpMethod.Get, "/api/ping");
         request.Headers.Host = "evil.test";
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", OidcTestHost.Token(audience: "http://evil.test/api"));
-        using var response = await _client.SendAsync(request);
+        using var response = await Client.SendAsync(request);
         Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [TestMethod]
     public async Task RootMetadata_ReturnsDocumentBody()
     {
-        using var response = await _client.GetAsync("/.well-known/oauth-protected-resource");
+        using var response = await Client.GetAsync("/.well-known/oauth-protected-resource");
         var body = await response.Content.ReadAsStringAsync();
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         StringAssert.Contains(body, "\"resource\":\"http://localhost\"");
@@ -62,8 +66,8 @@ public class OidcPipelineTests
         Assert.AreEqual(HttpStatusCode.Unauthorized, withoutToken.StatusCode);
     }
 
-    private Task<HttpResponseMessage> Get(string path, string token = null, string scheme = "Bearer") =>
-        OidcTestHost.Send(_client, path, token, scheme);
+    private Task<HttpResponseMessage> Get(string path, string? token = null, string scheme = "Bearer") =>
+        OidcTestHost.Send(Client, path, token, scheme);
 
     [TestMethod]
     public async Task ValidToken_200()
@@ -177,20 +181,20 @@ public class OidcPipelineTests
     [TestMethod]
     public async Task Metadata_ServedAnd404ForUnknown()
     {
-        using var response = await _client.GetAsync("/.well-known/oauth-protected-resource/api");
+        using var response = await Client.GetAsync("/.well-known/oauth-protected-resource/api");
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         StringAssert.Contains(await response.Content.ReadAsStringAsync(), "\"resource\":\"http://localhost/api\"");
-        using var root = await _client.GetAsync("/.well-known/oauth-protected-resource");
+        using var root = await Client.GetAsync("/.well-known/oauth-protected-resource");
         Assert.AreEqual(HttpStatusCode.OK, root.StatusCode);
-        using var unknown = await _client.GetAsync("/.well-known/oauth-protected-resource/other");
+        using var unknown = await Client.GetAsync("/.well-known/oauth-protected-resource/other");
         Assert.AreEqual(HttpStatusCode.NotFound, unknown.StatusCode);
     }
 
-    private async Task<string> MetadataResource(string path, string host = null)
+    private async Task<string?> MetadataResource(string path, string? host = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, path);
         if (host != null) request.Headers.Host = host;
-        using var response = await _client.SendAsync(request);
+        using var response = await Client.SendAsync(request);
         if (response.StatusCode != HttpStatusCode.OK) return ((int)response.StatusCode).ToString();
         using var json = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         return json.RootElement.GetProperty("resource").GetString();
@@ -243,9 +247,9 @@ public class OidcPipelineTests
     public async Task StoreWithoutUrl_Metadata404AndWarning_TokenRejected()
     {
         var logs = new ListLoggerProvider();
-        await _host.DisposeAsync();
+        await Host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(OidcTestHost.Config(), s =>
+        _client = await Host.Start(OidcTestHost.Config(), s =>
         {
             s.AddSingleton(OidcTestHost.StoreService(new Store { Id = "store1" }));
             s.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider>(logs);
@@ -263,9 +267,9 @@ public class OidcPipelineTests
     {
         //an anonymous request naming an unknown host is not a configuration problem: no warning it could flood
         var logs = new ListLoggerProvider();
-        await _host.DisposeAsync();
+        await Host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(OidcTestHost.Config(), s =>
+        _client = await Host.Start(OidcTestHost.Config(), s =>
         {
             s.AddSingleton(OidcTestHost.StoreService(
                 new Store { Id = "A", Url = "http://a.test/", Domains = [new DomainHost { HostName = "a.test" }] },
@@ -295,9 +299,9 @@ public class OidcPipelineTests
     public async Task AuthorizationServerUnreachable_503_NotInvalidToken()
     {
         var logs = new ListLoggerProvider();
-        await _host.DisposeAsync();
+        await Host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(OidcTestHost.Config(), s => s.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider>(logs),
+        _client = await Host.Start(OidcTestHost.Config(), s => s.AddSingleton<Microsoft.Extensions.Logging.ILoggerProvider>(logs),
             jwtBearer: o =>
             {
                 //the configuration manager built from Authority, over a backchannel that cannot reach the identity provider
@@ -318,9 +322,9 @@ public class OidcPipelineTests
     [TestMethod]
     public async Task AuthorizationServerReachable_ForgedToken401_ValidToken200()
     {
-        await _host.DisposeAsync();
+        await Host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(OidcTestHost.Config(), jwtBearer: o =>
+        _client = await Host.Start(OidcTestHost.Config(), jwtBearer: o =>
         {
             o.Configuration = null;
             o.Backchannel = new HttpClient(new DiscoveryHandler());
@@ -337,9 +341,9 @@ public class OidcPipelineTests
     public async Task AuthorizationServerBackAfterOutage_503Then200AndForged401()
     {
         var handler = new SwitchableHandler();
-        await _host.DisposeAsync();
+        await Host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(OidcTestHost.Config(), jwtBearer: o =>
+        _client = await Host.Start(OidcTestHost.Config(), jwtBearer: o =>
         {
             o.Configuration = null;
             o.Backchannel = new HttpClient(handler);
@@ -407,11 +411,11 @@ internal sealed class ListLoggerProvider : Microsoft.Extensions.Logging.ILoggerP
 
     private sealed class Logger(ListLoggerProvider provider) : Microsoft.Extensions.Logging.ILogger
     {
-        public IDisposable BeginScope<TState>(TState state) where TState : notnull => null;
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
         public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => true;
 
         public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, Microsoft.Extensions.Logging.EventId eventId,
-            TState state, Exception exception, Func<TState, Exception, string> formatter) =>
+            TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
             provider.Messages.Enqueue($"{logLevel}: {formatter(state, exception)}");
     }
 }

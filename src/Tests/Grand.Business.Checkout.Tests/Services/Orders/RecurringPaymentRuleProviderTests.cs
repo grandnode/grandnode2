@@ -23,8 +23,7 @@ public class RecurringPaymentRuleProviderTests
     private double? _total;
     private int _totalCalls;
 
-    [TestInitialize]
-    public void Init()
+    public RecurringPaymentRuleProviderTests()
     {
         _total = 30;
         _totalCalls = 0;
@@ -43,7 +42,7 @@ public class RecurringPaymentRuleProviderTests
             translation.Object);
     }
 
-    private OrderPlacementContext Context(string paymentMethod)
+    private OrderPlacementContext Context(string? paymentMethod)
     {
         var calculation = new CalculationContext(new Customer { Id = "buyer1" }, new Store { Id = "s1" },
             new Currency { CurrencyCode = "EUR" }, TaxDisplayType.IncludingTax);

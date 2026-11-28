@@ -9,8 +9,7 @@ public class MediaFileStoreFactoryTests
     private string _root;
     private string _webRoot;
 
-    [TestInitialize]
-    public void Init()
+    public MediaFileStoreFactoryTests()
     {
         _root = Path.Combine(Path.GetTempPath(), "mediafactory-" + Guid.NewGuid().ToString("N"));
         _webRoot = Path.Combine(_root, "wwwroot");

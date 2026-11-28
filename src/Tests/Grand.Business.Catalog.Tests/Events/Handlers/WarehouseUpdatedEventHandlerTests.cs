@@ -15,8 +15,7 @@ public class WarehouseUpdatedEventHandlerTests
     private WarehouseUpdatedEventHandler _handler;
     private IRepository<ProductSerialNumber> _serials;
 
-    [TestInitialize]
-    public void Init()
+    public WarehouseUpdatedEventHandlerTests()
     {
         _batches = new MongoDBRepositoryTest<ProductBatch>();
         _serials = new MongoDBRepositoryTest<ProductSerialNumber>();

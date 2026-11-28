@@ -14,10 +14,10 @@ namespace Grand.Web.Common.Tests.Middleware;
 [TestClass]
 public class ContextMiddlewareTests
 {
-    private Mock<IStoreContextSetter> _storeContextSetter;
-    private Mock<IWorkContextSetter> _workContextSetter;
+    private Mock<IStoreContextSetter>? _storeContextSetter;
+    private Mock<IWorkContextSetter>? _workContextSetter;
 
-    private async Task<bool> Invoke(string routePattern, Action<HttpContext> request = null, params object[] metadata)
+    private async Task<bool> Invoke(string routePattern, Action<HttpContext>? request = null, params object[] metadata)
     {
         _storeContextSetter = new Mock<IStoreContextSetter>();
         var storeContext = new Mock<IStoreContext>();
@@ -51,7 +51,9 @@ public class ContextMiddlewareTests
     public async Task ProtectedResourceMetadata_NoStoreOrWorkContext(string routePattern)
     {
         Assert.IsTrue(await Invoke(routePattern));
+        Assert.IsNotNull(_storeContextSetter);
         _storeContextSetter.Verify(x => x.InitializeStoreContext(It.IsAny<string>()), Times.Never);
+        Assert.IsNotNull(_workContextSetter);
         _workContextSetter.Verify(x => x.InitializeWorkContext(It.IsAny<string>()), Times.Never);
     }
 
@@ -61,6 +63,7 @@ public class ContextMiddlewareTests
     public async Task RouteOnlyPrefixedByMetadataPath_InitializesStoreAndWorkContext(string routePattern)
     {
         Assert.IsTrue(await Invoke(routePattern));
+        Assert.IsNotNull(_workContextSetter);
         _workContextSetter.Verify(x => x.InitializeWorkContext("store1"), Times.Once);
     }
 
@@ -69,7 +72,9 @@ public class ContextMiddlewareTests
     public async Task NoRequestContextMetadata_NoStoreOrWorkContext()
     {
         Assert.IsTrue(await Invoke("oidc/backchannel-logout", null, NoRequestContextMetadata.Instance));
+        Assert.IsNotNull(_storeContextSetter);
         _storeContextSetter.Verify(x => x.InitializeStoreContext(It.IsAny<string>()), Times.Never);
+        Assert.IsNotNull(_workContextSetter);
         _workContextSetter.Verify(x => x.InitializeWorkContext(It.IsAny<string>()), Times.Never);
     }
 
@@ -77,6 +82,7 @@ public class ContextMiddlewareTests
     public async Task OtherRoute_InitializesStoreAndWorkContext()
     {
         Assert.IsTrue(await Invoke("/api/{controller}"));
+        Assert.IsNotNull(_workContextSetter);
         _workContextSetter.Verify(x => x.InitializeWorkContext("store1"), Times.Once);
     }
 
@@ -84,6 +90,7 @@ public class ContextMiddlewareTests
     public async Task NoPinnedStore_StoreContextFromCookieOrHost()
     {
         Assert.IsTrue(await Invoke("/api/{controller}"));
+        Assert.IsNotNull(_storeContextSetter);
         _storeContextSetter.Verify(x => x.InitializeStoreContext(null), Times.Once);
     }
 
@@ -91,6 +98,7 @@ public class ContextMiddlewareTests
     public async Task PinnedStore_PassedToTheStoreContext()
     {
         Assert.IsTrue(await Invoke("/api/{controller}", http => RequestStorePin.Set(http, "store2")));
+        Assert.IsNotNull(_storeContextSetter);
         _storeContextSetter.Verify(x => x.InitializeStoreContext("store2"), Times.Once);
     }
 }

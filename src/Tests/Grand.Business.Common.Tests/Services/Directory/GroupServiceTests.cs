@@ -20,8 +20,7 @@ public class GroupServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<CustomerGroup> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public GroupServiceTests()
     {
         _repository = new MongoDBRepositoryTest<CustomerGroup>();
 
@@ -91,7 +90,7 @@ public class GroupServiceTests
         customerGroup.SystemName = systemName;
         await _groupService.UpdateCustomerGroup(customerGroup);
         //Assert
-        Assert.AreEqual(systemName, _repository.Table.FirstOrDefault(x => x.Id == customerGroup.Id).SystemName);
+        Assert.AreEqual(systemName, _repository.Table.First(x => x.Id == customerGroup.Id).SystemName);
     }
 
     [TestMethod]

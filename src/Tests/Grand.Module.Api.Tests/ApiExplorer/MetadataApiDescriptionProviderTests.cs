@@ -251,10 +251,10 @@ public class MetadataApiDescriptionProviderTests
 
     private static ControllerParameterDescriptor CreateControllerParameter(
         System.Reflection.ParameterInfo parameterInfo,
-        BindingSource bindingSource)
+        BindingSource? bindingSource)
     {
         return new ControllerParameterDescriptor {
-            Name = parameterInfo.Name,
+            Name = parameterInfo.Name ?? "",
             ParameterType = parameterInfo.ParameterType,
             ParameterInfo = parameterInfo,
             BindingInfo = bindingSource == null ? null : new BindingInfo { BindingSource = bindingSource }

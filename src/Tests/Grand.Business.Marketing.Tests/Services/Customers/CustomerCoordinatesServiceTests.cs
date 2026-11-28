@@ -16,8 +16,7 @@ public class CustomerCoordinatesServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Customer> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerCoordinatesServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Customer>();
         _mediatorMock = new Mock<IMediator>();
@@ -58,8 +57,8 @@ public class CustomerCoordinatesServiceTests
         //Act
         await _customerCoordinatesService.SaveGeoCoordinate(customer, 1, 2);
         //Assert
-        Assert.AreEqual(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Coordinates.X);
-        Assert.AreEqual(2, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Coordinates.Y);
+        Assert.AreEqual(1, _repository.Table.First(x => x.Id == customer.Id).Coordinates?.X);
+        Assert.AreEqual(2, _repository.Table.First(x => x.Id == customer.Id).Coordinates?.Y);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<CustomerCoordinatesEvent>(), default), Times.Once);
     }
 }

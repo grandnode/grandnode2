@@ -27,8 +27,7 @@ public class InsertMerchandiseReturnNoteCommandHandlerTests
     private OrderSettings _orderSettings;
     private Mock<IMerchandiseReturnService> _returns;
 
-    [TestInitialize]
-    public void Init()
+    public InsertMerchandiseReturnNoteCommandHandlerTests()
     {
         _notes = [];
         _returns = new Mock<IMerchandiseReturnService>();
@@ -43,7 +42,7 @@ public class InsertMerchandiseReturnNoteCommandHandlerTests
             _orderSettings, NullLogger<InsertMerchandiseReturnNoteCommandHandler>.Instance);
     }
 
-    private Task<string> Handle(MerchandiseReturnStatus status, string note, IFormFile file = null)
+    private Task<string?> Handle(MerchandiseReturnStatus status, string note, IFormFile? file = null)
     {
         return _handler.Handle(new InsertMerchandiseReturnNoteCommand {
             MerchandiseReturn = new MerchandiseReturn { Id = "r1", MerchandiseReturnStatus = status },

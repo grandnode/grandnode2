@@ -21,15 +21,19 @@ public class AuditServiceTests
     private Mock<IMediator> _mediator;
     private AuditService _service;
 
-    [TestInitialize]
-    public async Task Init()
+    public AuditServiceTests()
     {
         _repository = new MongoDBRepositoryTest<AuditEntry>();
-        await _repository.ClearAsync();
         _writer = new Mock<IAuditEntryWriter>();
         _mediator = new Mock<IMediator>();
         _service = new AuditService(_repository, _writer.Object, _mediator.Object,
             new MemoryCacheBase(MemoryCacheTest.Get(), _mediator.Object, new CacheConfig { DefaultCacheTimeMinutes = 1 }));
+    }
+
+    [TestInitialize]
+    public async Task Init()
+    {
+        await _repository.ClearAsync();
     }
 
     private async Task<AuditEntry> Add(string entityType, string entityId, DateTime createdOnUtc,

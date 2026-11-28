@@ -39,10 +39,6 @@ public class HasAllProductsDiscountRule : IDiscountRule
             return result;
         }
 
-        if (request.Customer == null)
-            return result;
-
-
         //group products in the cart by product ID
         //it could be the same product with distinct product attributes
         //that's why we get the total quantity of this product

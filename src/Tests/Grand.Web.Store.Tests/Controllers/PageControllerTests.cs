@@ -33,8 +33,7 @@ public class PageControllerTests
     private Mock<IAdminDataScope<Page>> _scopeMock;
     private Mock<ILanguageService> _languageServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public PageControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<PageProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -145,7 +144,9 @@ public class PageControllerTests
         var result = await _controller.StorePagesList(new DataSourceRequest { Page = 1, PageSize = 10 }, new PageListModel());
 
         var json = result as JsonResult;
-        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(json);
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.AreEqual(1, gridModel.Total);
     }
 
@@ -160,7 +161,9 @@ public class PageControllerTests
         var result = await _controller.GlobalPagesList(new DataSourceRequest { Page = 1, PageSize = 10 }, new PageListModel());
 
         var json = result as JsonResult;
-        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(json);
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.AreEqual(2, gridModel.Total);
     }
 
@@ -190,6 +193,7 @@ public class PageControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("p1", redirect.RouteValues["id"]);
     }
 
@@ -231,6 +235,7 @@ public class PageControllerTests
             .ReturnsAsync(newPage)
             .Callback<PageModel>(m => {
                 Assert.AreEqual("", m.Id);
+                Assert.IsNotNull(m.Stores);
                 Assert.AreEqual("store-1", m.Stores.Single());
             });
 
@@ -246,6 +251,7 @@ public class PageControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("new-1", redirect.RouteValues["id"]);
         pageViewModelServiceMock.Verify(v => v.InsertPageModel(It.IsAny<PageModel>()), Times.Once);
     }

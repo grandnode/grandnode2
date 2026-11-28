@@ -22,8 +22,7 @@ public class OidcLinkServiceTests
     private OidcLinkSettings _stored;
     private OidcResourceServerConfig _config;
 
-    [TestInitialize]
-    public void Init()
+    public OidcLinkServiceTests()
     {
         _links = new MongoDBRepositoryTest<ExternalAuthentication>();
         _stored = new OidcLinkSettings();

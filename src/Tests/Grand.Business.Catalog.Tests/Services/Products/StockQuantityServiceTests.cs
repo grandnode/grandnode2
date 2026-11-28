@@ -12,8 +12,7 @@ public class StockQuantityServiceTests
 {
     private IStockQuantityService _stockQuantityService;
 
-    [TestInitialize]
-    public void Init()
+    public StockQuantityServiceTests()
     {
         /*
         var tempLocalizationService = new Mock<ITranslationService>();

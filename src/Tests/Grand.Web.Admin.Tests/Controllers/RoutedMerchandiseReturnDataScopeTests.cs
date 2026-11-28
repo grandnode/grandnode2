@@ -12,7 +12,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedMerchandiseReturnDataScopeTests
 {
-    private static RoutedMerchandiseReturnDataScope Build(string area,
+    private static RoutedMerchandiseReturnDataScope Build(string? area,
         IAdminDataScope<MerchandiseReturn> admin, IAdminDataScope<MerchandiseReturn> store,
         IAdminDataScope<MerchandiseReturn> vendor)
     {

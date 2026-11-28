@@ -17,8 +17,7 @@ public class ExportImportMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public ExportImportMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<CategoryProfile>();

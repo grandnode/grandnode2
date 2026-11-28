@@ -14,8 +14,7 @@ public class MediaRootFileProviderTests
     private string _root;
     private string _webRoot;
 
-    [TestInitialize]
-    public void Init()
+    public MediaRootFileProviderTests()
     {
         _root = Path.Combine(Path.GetTempPath(), "mediaroot-" + Guid.NewGuid().ToString("N"));
         _webRoot = Path.Combine(_root, "wwwroot");

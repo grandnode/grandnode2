@@ -30,8 +30,7 @@ public class GetOrderTokensCommandHandlerTests
     private Mock<IPriceFormatter> _priceFormatterMock;
     private Mock<ISettingService> _settingServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public GetOrderTokensCommandHandlerTests()
     {
         var languageService = new Mock<ILanguageService>();
         languageService.Setup(x => x.GetLanguageById(It.IsAny<string>())).ReturnsAsync(new Language { Id = "1" });
@@ -68,6 +67,7 @@ public class GetOrderTokensCommandHandlerTests
         }, CancellationToken.None);
 
         //Assert
+        Assert.IsNotNull(result.TaxRates);
         Assert.AreEqual("EUR10", result.TaxRates["23"]);
     }
 
@@ -128,6 +128,7 @@ public class GetOrderTokensCommandHandlerTests
         }, CancellationToken.None);
 
         //Assert
+        Assert.IsNotNull(result.GiftVouchers);
         Assert.AreEqual("EUR-5", result.GiftVouchers[""]);
     }
 
@@ -149,6 +150,7 @@ public class GetOrderTokensCommandHandlerTests
         }, CancellationToken.None);
 
         //Assert
+        Assert.IsNotNull(result.GiftVouchers);
         Assert.HasCount(1, result.GiftVouchers);
         Assert.AreEqual("EUR-8", result.GiftVouchers["CODE-1"]);
     }

@@ -16,8 +16,7 @@ public class MerchandiseReturnReceiptPostedEventHandlerTests
     private Mock<IMerchandiseReturnWorkflowService> _workflow;
     private Mock<ICustomerService> _customerService;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnReceiptPostedEventHandlerTests()
     {
         _workflow = new Mock<IMerchandiseReturnWorkflowService>();
         _customerService = new Mock<ICustomerService>();
@@ -27,7 +26,7 @@ public class MerchandiseReturnReceiptPostedEventHandlerTests
     }
 
     private static EntityUpdated<InventoryDocument> Updated(InventoryDocumentType type, InventoryDocumentStatus status,
-        string merchandiseReturnId, string postedBy = "staff")
+        string merchandiseReturnId, string? postedBy = "staff")
     {
         return new EntityUpdated<InventoryDocument>(new InventoryDocument {
             DocumentTypeId = type, StatusId = status, MerchandiseReturnId = merchandiseReturnId, PostedBy = postedBy

@@ -74,8 +74,7 @@ public class GiftVoucherControllerAttributeTests
         private Mock<IRequestTranslationService> _translationServiceMock;
         private Mock<IAdminDataScope<GiftVoucher>> _scopeMock;
 
-        [TestInitialize]
-        public void Setup()
+        public EditWarningCheckTests()
         {
             _viewModelServiceMock = new Mock<IGiftVoucherViewModelService>();
             _viewModelServiceMock.Setup(s => s.PrepareGiftVoucherModel(It.IsAny<GiftVoucher>()))

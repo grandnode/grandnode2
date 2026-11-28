@@ -28,8 +28,7 @@ public class MigrationInventoryUnitsTests
     private readonly LiteDBRepositoryMock<MessageTemplate> _templates = new();
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationInventoryUnitsTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IRepository<MessageTemplate>>(_templates);

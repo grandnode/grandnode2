@@ -18,8 +18,7 @@ public class TaxCategoryDeletedEventHandlerTests
     private TaxCategoryDeletedEventHandler _handler;
     private IRepository<Product> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public TaxCategoryDeletedEventHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _cacheMock = new Mock<ICacheBase>();

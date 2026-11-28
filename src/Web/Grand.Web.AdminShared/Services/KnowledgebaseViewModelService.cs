@@ -45,7 +45,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
     }
 
     public virtual async Task<(IEnumerable<KnowledgebaseNodeGridModel> knowledgebaseNodeGridModels, int totalCount)>
-        PrepareKnowledgebaseNodeGridModel(string parentCategoryId, int pageIndex, int pageSize)
+        PrepareKnowledgebaseNodeGridModel(string? parentCategoryId, int pageIndex, int pageSize)
     {
         var categories = await _knowledgebaseService.GetKnowledgebaseCategories();
         var articles = await _knowledgebaseService.GetKnowledgebaseArticles();

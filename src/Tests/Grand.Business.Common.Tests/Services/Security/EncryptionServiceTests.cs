@@ -10,8 +10,7 @@ public class EncryptionServiceTests
 {
     private EncryptionService _encryptionService;
 
-    [TestInitialize]
-    public void Init()
+    public EncryptionServiceTests()
     {
         _encryptionService = new EncryptionService();
     }

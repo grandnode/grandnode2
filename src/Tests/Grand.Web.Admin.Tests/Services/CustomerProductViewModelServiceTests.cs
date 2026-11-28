@@ -26,8 +26,7 @@ public class CustomerProductViewModelServiceTests
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
     private CustomerProductViewModelService _customerProductViewModelService;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerProductViewModelServiceTests()
     {
         _customerProductServiceMock = new Mock<ICustomerProductService>();
         _productServiceMock = new Mock<IProductService>();
@@ -97,7 +96,7 @@ public class CustomerProductViewModelServiceTests
     public async Task DeleteProductPrice_NotFound_Throws()
     {
         _customerProductServiceMock.Setup(c => c.GetCustomerProductPriceById(It.IsAny<string>()))
-            .ReturnsAsync((CustomerProductPrice)null);
+            .ReturnsAsync((CustomerProductPrice?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(
             () => _customerProductViewModelService.DeleteProductPrice("missing"));
@@ -122,7 +121,7 @@ public class CustomerProductViewModelServiceTests
     public async Task DeletePersonalizedProduct_NotFound_Throws()
     {
         _customerProductServiceMock.Setup(c => c.GetCustomerProduct(It.IsAny<string>()))
-            .ReturnsAsync((CustomerProduct)null);
+            .ReturnsAsync((CustomerProduct?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(
             () => _customerProductViewModelService.DeletePersonalizedProduct("missing"));
@@ -150,7 +149,7 @@ public class CustomerProductViewModelServiceTests
     {
         _productServiceMock.Setup(p => p.GetProductById("p1", false))
             .ReturnsAsync(new Product { Id = "p1", Price = 5 });
-        _customerProductServiceMock.Setup(c => c.GetCustomerProduct("c1", "p1")).ReturnsAsync((CustomerProduct)null);
+        _customerProductServiceMock.Setup(c => c.GetCustomerProduct("c1", "p1")).ReturnsAsync((CustomerProduct?)null);
         _customerProductServiceMock.Setup(c => c.InsertCustomerProduct(It.IsAny<CustomerProduct>()))
             .Returns(Task.CompletedTask);
 

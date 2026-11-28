@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -68,8 +66,7 @@ public class BaseFullReportsControllerTests
     private Mock<ICustomerReportViewModelService> _customerReportViewModelServiceMock = null!;
     private Mock<ICustomerReportService> _customerReportServiceMock = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseFullReportsControllerTests()
     {
         _orderReportServiceMock = new Mock<IOrderReportService>();
         var productsReportServiceMock = new Mock<IProductsReportService>();
@@ -170,7 +167,7 @@ public class BaseFullReportsControllerTests
         var result = await _controller.BestsellersBriefReportByAmountList(new DataSourceRequest { Page = 1, PageSize = 10 }) as JsonResult;
 
         var gridModel = (DataSourceResult)result!.Value!;
-        Assert.AreEqual(0, ((List<BestsellersReportLineModel>)gridModel.Data).Count);
+        Assert.AreEqual(0, Assert.IsInstanceOfType<List<BestsellersReportLineModel>>(gridModel.Data).Count);
     }
 
     [TestMethod]
@@ -235,7 +232,7 @@ public class BaseFullReportsControllerTests
         var result = await _controller.OrderIncompleteReportList(new DataSourceRequest { Page = 1, PageSize = 10 }) as JsonResult;
 
         var gridModel = (DataSourceResult)result!.Value!;
-        Assert.AreEqual(3, ((List<OrderIncompleteReportLineModel>)gridModel.Data).Count);
+        Assert.AreEqual(3, Assert.IsInstanceOfType<List<OrderIncompleteReportLineModel>>(gridModel.Data).Count);
     }
 
     [TestMethod]

@@ -20,8 +20,7 @@ public class ActiveVendorCommandHandlerTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IVendorService> _vendorMock;
 
-    [TestInitialize]
-    public void Init()
+    public ActiveVendorCommandHandlerTests()
     {
         _vendorMock = new Mock<IVendorService>();
         _cumstomerServiceMock = new Mock<ICustomerService>();
@@ -40,10 +39,10 @@ public class ActiveVendorCommandHandlerTests
             Vendor = new Vendor()
         };
         _cumstomerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Customer { Active = true }));
-        _groupServiceMock.Setup(c => c.IsAdmin(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));
+            .ReturnsAsync(() => new Customer { Active = true });
+        _groupServiceMock.Setup(c => c.IsAdmin(It.IsAny<Customer>())).ReturnsAsync(() => false);
         _groupServiceMock.Setup(c => c.GetCustomerGroupBySystemName(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new CustomerGroup()));
+            .ReturnsAsync(() => new CustomerGroup());
         await _handler.Handle(command, default);
         _cumstomerServiceMock.Verify(
             c => c.InsertCustomerGroupInCustomer(It.IsAny<CustomerGroup>(), It.IsAny<string>()), Times.Once);
@@ -60,11 +59,11 @@ public class ActiveVendorCommandHandlerTests
             Vendor = new Vendor()
         };
         _cumstomerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new Customer { Active = true }));
-        _groupServiceMock.Setup(c => c.IsAdmin(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));
-        _groupServiceMock.Setup(c => c.IsVendor(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
+            .ReturnsAsync(() => new Customer { Active = true });
+        _groupServiceMock.Setup(c => c.IsAdmin(It.IsAny<Customer>())).ReturnsAsync(() => false);
+        _groupServiceMock.Setup(c => c.IsVendor(It.IsAny<Customer>())).ReturnsAsync(() => true);
         _groupServiceMock.Setup(c => c.GetCustomerGroupBySystemName(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(new CustomerGroup()));
+            .ReturnsAsync(() => new CustomerGroup());
         await _handler.Handle(command, default);
         _cumstomerServiceMock.Verify(
             c => c.DeleteCustomerGroupInCustomer(It.IsAny<CustomerGroup>(), It.IsAny<string>()), Times.Once);

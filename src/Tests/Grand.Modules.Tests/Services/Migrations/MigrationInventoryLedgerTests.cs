@@ -16,13 +16,17 @@ public class MigrationInventoryLedgerTests
     private LiteDBRepository<Product> _products;
     private LiteDBRepository<Warehouse> _warehouses;
 
-    [TestInitialize]
-    public async Task Setup()
+    public MigrationInventoryLedgerTests()
     {
         _database = new LiteDatabase(new MemoryStream());
         _products = new LiteDBRepository<Product>(_database, new AuditInfoProvider());
         _journal = new LiteDBRepository<InventoryJournal>(_database, new AuditInfoProvider());
         _warehouses = new LiteDBRepository<Warehouse>(_database, new AuditInfoProvider());
+    }
+
+    [TestInitialize]
+    public async Task Setup()
+    {
         await _warehouses.InsertAsync(new Warehouse { Id = "w1", StoreId = "store1" });
     }
 

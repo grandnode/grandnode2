@@ -63,7 +63,8 @@ public class BaseProductSpecificationControllerTests : ProductControllerTestsBas
 
         Assert.IsInstanceOfType<JsonResult>(result);
         var json = (JsonResult)result;
-        var grid = (Grand.Web.Common.DataSource.DataSourceResult)json.Value;
+        var grid = Assert.IsInstanceOfType<Grand.Web.Common.DataSource.DataSourceResult>(json.Value);
+        Assert.IsNotNull(grid);
         Assert.AreEqual(1, grid.Total);
     }
 
@@ -128,7 +129,7 @@ public class BaseProductSpecificationControllerTests : ProductControllerTestsBas
     [TestMethod]
     public async Task ProductSpecAttrPopupPost_ProductNotFound_ReturnsContent()
     {
-        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product?)null);
         var model = new ProductModel.AddProductSpecificationAttributeModel { ProductId = "p1", Id = "psa1" };
 
         var result = await _controller.ProductSpecAttrPopup(new Mock<ISpecificationAttributeService>().Object, model);
@@ -211,7 +212,7 @@ public class BaseProductSpecificationControllerTests : ProductControllerTestsBas
     [TestMethod]
     public async Task ProductSpecAttrDelete_ProductNotFound_ReturnsContent()
     {
-        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product?)null);
         var model = new ProductSpecificationAttributeModel { ProductId = "p1", Id = "psa1" };
 
         var result = await _controller.ProductSpecAttrDelete(model);

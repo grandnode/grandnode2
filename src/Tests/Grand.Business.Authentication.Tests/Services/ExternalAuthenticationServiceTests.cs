@@ -28,8 +28,7 @@ public class ExternalAuthenticationServiceTests
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IMediator> _mediatorMock;
 
-    [TestInitialize]
-    public void Init()
+    public ExternalAuthenticationServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
@@ -111,9 +110,9 @@ public class ExternalAuthenticationServiceTests
     public void LoadActiveAuthenticationProviders_NullCustomerOrStore_Throws()
     {
         Assert.ThrowsExactly<ArgumentNullException>(() =>
-            _externalAuthenticationService.LoadActiveAuthenticationProviders(null, new Store()));
+            _externalAuthenticationService.LoadActiveAuthenticationProviders(null!, new Store()));
         Assert.ThrowsExactly<ArgumentNullException>(() =>
-            _externalAuthenticationService.LoadActiveAuthenticationProviders(new Customer(), null));
+            _externalAuthenticationService.LoadActiveAuthenticationProviders(new Customer(), null!));
     }
 
     [TestMethod]
@@ -121,10 +120,10 @@ public class ExternalAuthenticationServiceTests
     {
         Assert.ThrowsExactly<ArgumentNullException>(() =>
             _externalAuthenticationService.AuthenticationProviderIsAvailable("ExternalAuthenticationProviderTest",
-                null, new Store()));
+                null!, new Store()));
         Assert.ThrowsExactly<ArgumentNullException>(() =>
             _externalAuthenticationService.AuthenticationProviderIsAvailable("ExternalAuthenticationProviderTest",
-                new Customer(), null));
+                new Customer(), null!));
     }
 
     [TestMethod]
@@ -318,7 +317,7 @@ public class ExternalAuthenticationServiceTests
         //Arrange
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
         await _externalAuthenticationService.AssociateCustomer(expectedCustomer,
             new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" });
         //Act
@@ -334,7 +333,7 @@ public class ExternalAuthenticationServiceTests
     {
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
         await _externalAuthenticationService.AssociateCustomer(expectedCustomer,
             new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "AbC-123" });
 
@@ -349,7 +348,7 @@ public class ExternalAuthenticationServiceTests
     {
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
         await _externalAuthenticationService.AssociateCustomer(expectedCustomer,
             new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "AbC-123" });
 
@@ -364,7 +363,7 @@ public class ExternalAuthenticationServiceTests
     {
         var expectedCustomer = new Customer { Username = "John", Active = true };
         _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(expectedCustomer));
+            .ReturnsAsync(() => expectedCustomer);
         await _externalAuthenticationService.AssociateCustomer(expectedCustomer,
             new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "AbC-123" });
 
@@ -397,7 +396,7 @@ public class ExternalAuthenticationServiceTests
         await _externalAuthenticationService.AssociateCustomer(customer, externalAuthParam);
         //Act
         await _externalAuthenticationService.DeleteExternalAuthentication(
-            _externalAuthenticationRecordRepository.Table.FirstOrDefault(x =>
+            _externalAuthenticationRecordRepository.Table.First(x =>
                 x.ExternalIdentifier == externalAuthParam.Identifier));
         //Assert
         Assert.IsFalse(_externalAuthenticationRecordRepository.Table.Any());

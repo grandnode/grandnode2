@@ -26,8 +26,7 @@ public class PermissionControllerTests
     private readonly Mock<IGroupService> _groupServiceMock = new();
     private PermissionController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public PermissionControllerTests()
     {
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(w => w.WorkingLanguage).Returns(new Language { Id = "lang-1" });
@@ -80,7 +79,8 @@ public class PermissionControllerTests
 
         var result = await _controller.PermissionsAction(SystemName, GroupId);
 
-        var model = (PermissionActionModel)((ViewResult)result).Model;
+        var model = Assert.IsInstanceOfType<PermissionActionModel>(((ViewResult)result).Model);
+        Assert.IsNotNull(model);
         Assert.AreEqual("Group", model.CustomerGroupName);
         CollectionAssert.AreEqual(new List<string> { "List", "Edit" }, model.AvailableActions.ToList());
     }
@@ -140,7 +140,7 @@ public class PermissionControllerTests
         GroupExists();
         PermissionExists();
 
-        await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, null));
+        await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, []));
 
         _permissionServiceMock.Verify(p => p.InsertPermissionAction(It.IsAny<PermissionAction>()), Times.Exactly(2));
     }
@@ -150,7 +150,7 @@ public class PermissionControllerTests
     {
         PermissionExists();
 
-        var result = await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, null));
+        var result = await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, null!));
 
         Assert.IsInstanceOfType<NotFoundObjectResult>(result);
         VerifyNothingWritten();
@@ -163,7 +163,7 @@ public class PermissionControllerTests
         _permissionServiceMock.Setup(p => p.GetPermissionActions(SystemName, GroupId))
             .ReturnsAsync(new List<PermissionAction> { new() { Action = "Edit" } });
 
-        var result = await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, null));
+        var result = await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, null!));
 
         Assert.IsInstanceOfType<NotFoundObjectResult>(result);
         VerifyNothingWritten();

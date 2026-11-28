@@ -79,7 +79,7 @@ public class SearchControllerAttributeTests
             new AdminSearchSettings { CategorySizeLimit = 10 },
             contextAccessorMock.Object);
 
-        await controller.Category(null, new Grand.Web.Common.DataSource.DataSourceRequestFilter { Filters = [] });
+        await controller.Category("", new Grand.Web.Common.DataSource.DataSourceRequestFilter { Filters = [] });
 
         categoryServiceMock.Verify(s => s.GetAllCategories(null, null,
             CatalogAccess.For(customer, "store-42"), 0, 10), Times.Once);

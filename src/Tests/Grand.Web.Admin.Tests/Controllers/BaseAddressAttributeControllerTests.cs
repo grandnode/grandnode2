@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
@@ -40,8 +38,7 @@ public class BaseAddressAttributeControllerTests
     private Mock<ILanguageService> _languageService = null!;
     private TestAddressAttributeController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseAddressAttributeControllerTests()
     {
         _vmService = new Mock<IAddressAttributeViewModelService>();
         _service = new Mock<IAddressAttributeService>();

@@ -21,8 +21,7 @@ public class RedisMessageBusTests
     private RedisConfig _config;
     private RedisMessageBus _bus;
 
-    [TestInitialize]
-    public void Init()
+    public RedisMessageBusTests()
     {
         _subscriberMock = new Mock<ISubscriber>();
         _subscriberMock.Setup(s => s.SubscribeAsync(It.IsAny<RedisChannel>(),
@@ -151,7 +150,7 @@ public class RedisMessageBusTests
         //messages published while disconnected are lost - the local cache must be dropped
         _connectionMock.Raise(c => c.ConnectionRestored += null,
             new ConnectionFailedEventArgs(_connectionMock.Object, new DnsEndPoint("localhost", 6379),
-                ConnectionType.Subscription, ConnectionFailureType.SocketClosed, null, "test"));
+                ConnectionType.Subscription, ConnectionFailureType.SocketClosed, new Exception("socket closed"), "test"));
 
         _cacheMock.Verify(c => c.Clear(false), Times.Once);
     }
@@ -163,7 +162,7 @@ public class RedisMessageBusTests
 
         _connectionMock.Raise(c => c.ConnectionRestored += null,
             new ConnectionFailedEventArgs(_connectionMock.Object, new DnsEndPoint("localhost", 6379),
-                ConnectionType.Interactive, ConnectionFailureType.SocketClosed, null, "test"));
+                ConnectionType.Interactive, ConnectionFailureType.SocketClosed, new Exception("socket closed"), "test"));
 
         _cacheMock.Verify(c => c.Clear(It.IsAny<bool>()), Times.Never);
     }

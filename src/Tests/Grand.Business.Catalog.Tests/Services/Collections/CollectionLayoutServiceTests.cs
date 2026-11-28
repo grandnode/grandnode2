@@ -19,8 +19,7 @@ public class CollectionLayoutServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<CollectionLayout> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CollectionLayoutServiceTests()
     {
         _repository = new MongoDBRepositoryTest<CollectionLayout>();
         _mediatorMock = new Mock<IMediator>();

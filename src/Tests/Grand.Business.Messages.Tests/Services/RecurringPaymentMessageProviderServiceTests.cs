@@ -35,8 +35,7 @@ public class RecurringPaymentMessageProviderServiceTests
     private List<QueuedEmail> _queued;
     private RecurringPaymentMessageProviderService _service;
 
-    [TestInitialize]
-    public void Init()
+    public RecurringPaymentMessageProviderServiceTests()
     {
         _queued = [];
         _messageTemplateServiceMock = new Mock<IMessageTemplateService>();

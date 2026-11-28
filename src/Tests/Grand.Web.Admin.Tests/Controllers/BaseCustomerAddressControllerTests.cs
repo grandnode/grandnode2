@@ -39,7 +39,7 @@ public class BaseCustomerAddressControllerTests
     [TestMethod]
     public async Task AddressesSelect_Denied_ThrowsArgumentException()
     {
-        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer?)null);
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
             Controller.AddressesSelect("missing", new DataSourceRequest()));
@@ -65,7 +65,7 @@ public class BaseCustomerAddressControllerTests
     [TestMethod]
     public async Task AddressCreateGet_Denied_RedirectsToCustomerList()
     {
-        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer?)null);
 
         var result = await Controller.AddressCreate("missing");
 

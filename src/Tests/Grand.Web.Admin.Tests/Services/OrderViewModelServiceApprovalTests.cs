@@ -29,13 +29,12 @@ namespace Grand.Web.Admin.Tests.Services;
 [TestClass]
 public class OrderViewModelServiceApprovalTests
 {
-    private OrderApproval _approval;
+    private OrderApproval? _approval;
     private Order _order;
     private Mock<IAdminDataScope<Order>> _scope;
     private OrderViewModelService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderViewModelServiceApprovalTests()
     {
         _order = new Order {
             Id = "o1", OrderNumber = 1042, CustomerId = "buyer",
@@ -95,6 +94,7 @@ public class OrderViewModelServiceApprovalTests
     [TestMethod]
     public async Task PrepareOrderDetails_CompanyDecided_CannotDecideButShowsReasons()
     {
+        Assert.IsNotNull(_approval);
         _approval.Decider = OrderApprovalDecider.Company;
 
         var model = await Details();
@@ -107,6 +107,7 @@ public class OrderViewModelServiceApprovalTests
     [TestMethod]
     public async Task PrepareOrderDetails_AlreadyDecided_CannotDecide()
     {
+        Assert.IsNotNull(_approval);
         _approval.Status = OrderApprovalStatus.Approved;
 
         Assert.IsFalse((await Details()).CanDecideApproval);
@@ -135,6 +136,7 @@ public class OrderViewModelServiceApprovalTests
     [TestMethod]
     public async Task PrepareOrderDetails_OwnOrder_CannotDecide()
     {
+        Assert.IsNotNull(_approval);
         _approval.CustomerId = "staff";
 
         Assert.IsFalse((await Details()).CanDecideApproval);
@@ -158,6 +160,7 @@ public class OrderViewModelServiceApprovalTests
     {
         var model = await _service.PrepareOrderApprovalDecisionModel(_order);
 
+        Assert.IsNotNull(model);
         Assert.AreEqual("o1", model.OrderId);
         Assert.AreEqual(1042, model.OrderNumber);
         CollectionAssert.AreEqual(new[] { "over the limit" }, model.Reasons.ToArray());
@@ -166,6 +169,7 @@ public class OrderViewModelServiceApprovalTests
     [TestMethod]
     public async Task PrepareOrderApprovalDecisionModel_CannotDecide_Null()
     {
+        Assert.IsNotNull(_approval);
         _approval.Decider = OrderApprovalDecider.Company;
 
         Assert.IsNull(await _service.PrepareOrderApprovalDecisionModel(_order));

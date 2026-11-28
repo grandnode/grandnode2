@@ -20,8 +20,7 @@ public class ShipCommandHandlerTests
     private ShipCommandHandler _shipCommandHandler;
     private Mock<IShipmentService> _shipmentServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ShipCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
@@ -36,7 +35,7 @@ public class ShipCommandHandlerTests
     public async Task HandleTest()
     {
         //Arrange
-        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).ReturnsAsync(new Order());
         _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
             .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
         var shipCommand = new ShipCommand { NotifyCustomer = true, Shipment = new Shipment() };
@@ -50,7 +49,7 @@ public class ShipCommandHandlerTests
     public async Task Handle_WithoutDate_StampsNow()
     {
         //Arrange
-        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).ReturnsAsync(new Order());
         _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
             .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
         var shipment = new Shipment();
@@ -65,7 +64,7 @@ public class ShipCommandHandlerTests
     public async Task Handle_WithDate_KeepsGivenDate()
     {
         //Arrange
-        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(new Order()));
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).ReturnsAsync(new Order());
         _shipmentServiceMock.Setup(x => x.GetShipmentsByOrder(It.IsAny<string>()))
             .Returns(Task.FromResult((IList<Shipment>)new List<Shipment>()));
         var shipment = new Shipment();

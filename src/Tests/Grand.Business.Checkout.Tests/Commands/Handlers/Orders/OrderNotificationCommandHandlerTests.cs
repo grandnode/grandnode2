@@ -24,8 +24,7 @@ public class OrderNotificationCommandHandlerTests
     private OrderSettings _orderSettings;
     private Mock<IPdfService> _pdfServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public OrderNotificationCommandHandlerTests()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
@@ -49,7 +48,7 @@ public class OrderNotificationCommandHandlerTests
 
         //Assert
         _orderServiceMock.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
-            n.OrderId == "order" && n.Note.Contains("staff@shop.example") && n.Note.Contains("impersonating"))), Times.Once);
+            n.OrderId == "order" && n.Note != null && n.Note.Contains("staff@shop.example") && n.Note.Contains("impersonating"))), Times.Once);
     }
 
     [TestMethod]

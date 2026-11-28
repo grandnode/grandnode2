@@ -21,10 +21,9 @@ public class AdminCultureTagHelperTests
     private Mock<IContextAccessor> _contextAccessorMock;
     private CultureInfo _originalCulture;
     private Mock<ITranslationService> _translationServiceMock;
-    private Language _workingLanguage;
+    private Language? _workingLanguage;
 
-    [TestInitialize]
-    public void Init()
+    public AdminCultureTagHelperTests()
     {
         _originalCulture = CultureInfo.CurrentCulture;
         CultureInfo.CurrentCulture = new CultureInfo("en-US");
@@ -135,6 +134,6 @@ public class AdminCultureTagHelperTests
     public void GridCulture_FirstDayOfWeek_MatchesTheCulture()
     {
         Assert.AreEqual((int)new CultureInfo("ar-SA").DateTimeFormat.FirstDayOfWeek,
-            GridCulture.From(new CultureInfo("ar-SA")).Calendar.FirstDayOfWeek);
+            GridCulture.From(new CultureInfo("ar-SA")).Calendar?.FirstDayOfWeek);
     }
 }

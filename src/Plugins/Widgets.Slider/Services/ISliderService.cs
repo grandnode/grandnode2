@@ -20,14 +20,14 @@ public interface ISliderService
     ///     Gets by type
     /// </summary>
     /// <returns>Picture Sliders</returns>
-    Task<IList<PictureSlider>> GetPictureSliders(SliderType sliderType, string objectEntry = "");
+    Task<IList<PictureSlider>> GetPictureSliders(SliderType sliderType, string? objectEntry = "");
 
     /// <summary>
     ///     Gets a tax rate
     /// </summary>
     /// <param name="slideId">Slide identifier</param>
     /// <returns>Tax rate</returns>
-    Task<PictureSlider> GetById(string slideId);
+    Task<PictureSlider?> GetById(string? slideId);
 
     /// <summary>
     ///     Inserts a slide

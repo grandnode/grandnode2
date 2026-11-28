@@ -41,9 +41,6 @@ public class HadSpentAmountDiscountRule : IDiscountRule
             return result;
         }
 
-        if (request.Customer == null)
-            return result;
-
         var orders = await _orderService.SearchOrders(request.Store.Id,
             customerId: request.Customer.Id,
             os: (int)OrderStatusSystem.Complete);

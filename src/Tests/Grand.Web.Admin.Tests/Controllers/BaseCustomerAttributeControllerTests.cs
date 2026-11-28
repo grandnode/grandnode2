@@ -37,8 +37,7 @@ public class BaseCustomerAttributeControllerTests
     private Mock<ILanguageService> _languageService = null!;
     private TestCustomerAttributeController _sut = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseCustomerAttributeControllerTests()
     {
         _service = new Mock<ICustomerAttributeService>();
         _vmService = new Mock<ICustomerAttributeViewModelService>();

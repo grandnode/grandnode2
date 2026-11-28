@@ -24,8 +24,7 @@ public class OrderServiceTests
     private Mock<IRepository<OrderApproval>> _orderApprovalRepositoryMock;
     private OrderService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderServiceTests()
     {
         _orderRepositoryMock = new Mock<IRepository<Order>>();
         _orderNoteRepositoryMock = new Mock<IRepository<OrderNote>>();
@@ -104,7 +103,7 @@ public class OrderServiceTests
     [TestMethod]
     public async Task InsertOrder_NullArguments_ThrowException()
     {
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertOrder(null));
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertOrder(null!));
     }
 
     [TestMethod]
@@ -118,7 +117,7 @@ public class OrderServiceTests
     [TestMethod]
     public void UpdateOrder_NullArguments_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateOrder(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateOrder(null!));
     }
 
     [TestMethod]
@@ -132,7 +131,7 @@ public class OrderServiceTests
     [TestMethod]
     public void InsertOrderNote_NullArguments_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertOrderNote(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertOrderNote(null!));
     }
 
     [TestMethod]
@@ -146,7 +145,7 @@ public class OrderServiceTests
     [TestMethod]
     public void DeleteOrderNote_NullArguments_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteOrderNote(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteOrderNote(null!));
     }
 
     [TestMethod]
@@ -166,9 +165,9 @@ public class OrderServiceTests
         await Assert.ThrowsExactlyAsync<OperationCanceledException>(() =>
             _service.CancelExpiredOrders(DateTime.UtcNow, cts.Token));
 
-        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1"),
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order != null && x.Order.Id == "1"),
             It.IsAny<CancellationToken>()), Times.Once);
-        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "2"),
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order != null && x.Order.Id == "2"),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -179,7 +178,7 @@ public class OrderServiceTests
 
         await _service.CancelExpiredOrders(DateTime.UtcNow.AddDays(-7));
 
-        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1" && x.NotifyCustomer),
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order != null && x.Order.Id == "1" && x.NotifyCustomer),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -221,7 +220,7 @@ public class OrderServiceTests
 
         await _service.CancelExpiredOrders(DateTime.UtcNow.AddDays(-7));
 
-        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1"),
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order != null && x.Order.Id == "1"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -236,9 +235,9 @@ public class OrderServiceTests
 
         await _service.CancelExpiredOrders(DateTime.UtcNow.AddDays(-7));
 
-        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1"),
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order != null && x.Order.Id == "1"),
             It.IsAny<CancellationToken>()), Times.Once);
-        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "2"),
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order != null && x.Order.Id == "2"),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 

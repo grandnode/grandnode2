@@ -23,8 +23,7 @@ public class OrderApprovalServiceTests
     private OrderApprovalSettings _approvalSettings;
     private OrderApprovalService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderApprovalServiceTests()
     {
         _repository = new MongoDBRepositoryTest<OrderApproval>();
         _mediatorMock = new Mock<IMediator>();
@@ -94,7 +93,7 @@ public class OrderApprovalServiceTests
     [TestMethod]
     public void IsPaymentMethodAllowed_NullList_False()
     {
-        _approvalSettings.PaymentMethodSystemNames = null;
+        _approvalSettings.PaymentMethodSystemNames = null!;
 
         Assert.IsFalse(_service.IsPaymentMethodAllowed("Payments.CashOnDelivery"));
     }
@@ -109,7 +108,7 @@ public class OrderApprovalServiceTests
         var approval = await AddApproval(OrderApprovalStatus.Pending);
 
         Assert.IsNull(await _service.GetById(approval.Id, "other-company"));
-        Assert.IsNull(await _service.GetById(approval.Id, null));
+        Assert.IsNull(await _service.GetById(approval.Id, null!));
         Assert.IsNull(await _service.GetById(approval.Id, ""));
     }
 
@@ -140,7 +139,7 @@ public class OrderApprovalServiceTests
         await AddApproval(OrderApprovalStatus.Pending, "order-1");
 
         Assert.IsNull(await _service.GetByOrderId("nope"));
-        Assert.IsNull(await _service.GetByOrderId(null));
+        Assert.IsNull(await _service.GetByOrderId(null!));
         Assert.IsNull(await _service.GetByOrderId(""));
     }
 
@@ -235,6 +234,7 @@ public class OrderApprovalServiceTests
         Assert.IsTrue(closed);
         Assert.AreEqual(OrderApprovalStatus.Approved, approval.Status);
         var stored = await _repository.GetByIdAsync(approval.Id);
+        Assert.IsNotNull(stored);
         Assert.AreEqual(OrderApprovalStatus.Approved, stored.Status);
         Assert.AreEqual("staff", stored.DecidedByCustomerId);
         Assert.AreEqual("fine", stored.DecisionComment);
@@ -250,11 +250,14 @@ public class OrderApprovalServiceTests
         var first = await _repository.GetByIdAsync(approval.Id);
         var second = await _repository.GetByIdAsync(approval.Id);
 
+        Assert.IsNotNull(first);
         Assert.IsTrue(await _service.Close(first, OrderApprovalStatus.Approved, "staff"));
+        Assert.IsNotNull(second);
         Assert.IsFalse(await _service.Close(second, OrderApprovalStatus.Withdrawn));
 
         Assert.AreEqual(OrderApprovalStatus.Pending, second.Status);
         var stored = await _repository.GetByIdAsync(approval.Id);
+        Assert.IsNotNull(stored);
         Assert.AreEqual(OrderApprovalStatus.Approved, stored.Status);
         Assert.AreEqual("staff", stored.DecidedByCustomerId);
         _mediatorMock.Verify(x => x.Publish(It.IsAny<EntityUpdated<OrderApproval>>(), default), Times.Once);
@@ -271,6 +274,7 @@ public class OrderApprovalServiceTests
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
         Assert.IsNull(approval.DecidedOnUtc);
         var stored = await _repository.GetByIdAsync(approval.Id);
+        Assert.IsNotNull(stored);
         Assert.AreEqual(OrderApprovalStatus.Pending, stored.Status);
         Assert.IsNull(stored.DecidedByCustomerId);
         Assert.IsNull(stored.DecisionComment);
@@ -280,7 +284,7 @@ public class OrderApprovalServiceTests
     [TestMethod]
     public async Task Insert_Null_Throws()
     {
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Insert(null));
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Insert(null!));
     }
 
     #endregion

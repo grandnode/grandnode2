@@ -45,7 +45,7 @@ public class MerchandiseReturnViewModelServiceTests
     {
         // Compile-time assertion: fails to build if PrepareReturnReqestListModel still exists
         // instead of PrepareReturnRequestListModel (spec §2.4 typo fix).
-        IMerchandiseReturnViewModelService service = null;
+        IMerchandiseReturnViewModelService service = null!;
         Func<Task<MerchandiseReturnListModel>> _ = () => service.PrepareReturnRequestListModel();
     }
 
@@ -195,8 +195,8 @@ public class MerchandiseReturnViewModelServiceTests
         return (service, mocks);
     }
 
-    private static void VerifySearch(ListMocks mocks, string storeId = null, string vendorId = null,
-        string orderId = null, bool? openOnly = null, Func<DateTime?, bool> createdTo = null)
+    private static void VerifySearch(ListMocks mocks, string? storeId = null, string? vendorId = null,
+        string? orderId = null, bool? openOnly = null, Func<DateTime?, bool>? createdTo = null)
     {
         mocks.MerchandiseReturns.Verify(m => m.SearchMerchandiseReturns(
             It.Is<string>(x => storeId == null || x == storeId), It.IsAny<string>(), It.IsAny<string>(),
@@ -318,8 +318,8 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static MerchandiseReturnViewModelService Build(ICustomerService customerService,
-        IContextAccessor contextAccessor, IDownloadService downloadService = null,
-        IMerchandiseReturnService merchandiseReturnService = null)
+        IContextAccessor contextAccessor, IDownloadService? downloadService = null,
+        IMerchandiseReturnService? merchandiseReturnService = null)
     {
         var orderServiceMock = new Mock<IOrderService>();
         var productServiceMock = new Mock<IProductService>();
@@ -344,8 +344,8 @@ public class MerchandiseReturnViewModelServiceTests
         var orderSettings = new OrderSettings();
         var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
         var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
-        scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
+        scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
 
         return new MerchandiseReturnViewModelService(
             orderServiceMock.Object,
@@ -433,7 +433,7 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static (MerchandiseReturnViewModelService service, Mock<IMerchandiseReturnWorkflowService> workflow)
-        BuildForUpdate(bool canMarkReceived = false, string vendorId = null, bool orderDeleted = false)
+        BuildForUpdate(bool canMarkReceived = false, string? vendorId = null, bool orderDeleted = false)
     {
         //the edit form's pickup address lists the countries and the address attributes
         var countryServiceMock = new Mock<ICountryService>();
@@ -464,7 +464,7 @@ public class MerchandiseReturnViewModelServiceTests
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
         workflowMock.Setup(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()))
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
         //the rule every staff surface shares lives in the workflow service and is tested there: here only its answer
         workflowMock.Setup(x => x.CanMarkReceived(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>()))
             .ReturnsAsync(canMarkReceived);
@@ -519,9 +519,9 @@ public class MerchandiseReturnViewModelServiceTests
         var (service, workflow) = BuildForUpdate();
         var sequence = new MockSequence();
         workflow.InSequence(sequence).Setup(x => x.Update("r1", It.IsAny<Action<MerchandiseReturn>>()))
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
         workflow.InSequence(sequence).Setup(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "why", It.IsAny<string>()))
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
 
         //Act
         var result = await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Pending),
@@ -568,10 +568,10 @@ public class MerchandiseReturnViewModelServiceTests
     {
         //Arrange
         var (service, workflow) = BuildForUpdate();
-        Action<MerchandiseReturn> apply = null;
+        Action<MerchandiseReturn>? apply = null;
         workflow.Setup(x => x.Update("r1", It.IsAny<Action<MerchandiseReturn>>()))
             .Callback<string, Action<MerchandiseReturn>>((_, a) => apply = a)
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
 
         //Act
         await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Pending),
@@ -579,6 +579,7 @@ public class MerchandiseReturnViewModelServiceTests
                 Id = "r1", StaffNotes = "notes", CustomerComments = "comments", ExternalId = "ext"
             }, []);
         var stored = StoredReturn(MerchandiseReturnStatus.Pending);
+        Assert.IsNotNull(apply);
         apply(stored);
 
         //Assert
@@ -1031,7 +1032,7 @@ public class MerchandiseReturnViewModelServiceTests
         provider.Setup(x => x.ShipmentTracker).Returns(mocks.Tracker.Object);
         mocks.ReturnShipping.Setup(x => x.LoadProviderBySystemName("ReturnShipping.Carrier")).Returns(provider.Object);
         mocks.Workflow.Setup(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()))
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
 
         //the edit form's pickup address lists the countries and the address attributes
         var countryServiceMock = new Mock<ICountryService>();
@@ -1124,11 +1125,13 @@ public class MerchandiseReturnViewModelServiceTests
     {
         var (service, _) = BuildForReturnShipping();
         var merchandiseReturn = ReturnWithShipping(ReturnLabelStatus.Created);
+        Assert.IsNotNull(merchandiseReturn.ReturnShipping);
         merchandiseReturn.ReturnShipping.Cost = 0;
 
         var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(), merchandiseReturn,
             false);
 
+        Assert.IsNotNull(model.ReturnShipping);
         Assert.AreEqual("Vendor.Orders.MerchandiseReturns.ReturnShipping.Free", model.ReturnShipping.Cost);
     }
 
@@ -1183,6 +1186,7 @@ public class MerchandiseReturnViewModelServiceTests
         var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
             ReturnWithShipping(ReturnLabelStatus.Failed, status), false);
 
+        Assert.IsNotNull(model.ReturnShipping);
         Assert.IsFalse(model.ReturnShipping.CanRetryLabel);
     }
 
@@ -1210,11 +1214,11 @@ public class MerchandiseReturnViewModelServiceTests
     public async Task UpdateMerchandiseReturnModel_TrackingNumberCleared_SavedAsNone()
     {
         var (service, mocks) = BuildForReturnShipping();
-        Action<MerchandiseReturnShipping> apply = null;
+        Action<MerchandiseReturnShipping>? apply = null;
         mocks.LabelService.Setup(x => x.UpdateShipping("r1", It.IsAny<Action<MerchandiseReturnShipping>>(),
                 It.IsAny<Func<MerchandiseReturn, bool>>()))
             .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, a, _) => apply = a)
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
 
         await service.UpdateMerchandiseReturnModel(ReturnWithShipping(ReturnLabelStatus.Created),
             new MerchandiseReturnModel {
@@ -1225,6 +1229,7 @@ public class MerchandiseReturnViewModelServiceTests
             }, []);
 
         var shipping = new MerchandiseReturnShipping { TrackingNumber = "T1" };
+        Assert.IsNotNull(apply);
         apply(shipping);
         Assert.IsNull(shipping.TrackingNumber);
     }
@@ -1311,6 +1316,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         await service.PrepareRefund(model, ReceivedReturn(), true);
 
+        Assert.IsNotNull(model.Refund);
         Assert.IsFalse(model.Refund.Started);
         Assert.AreEqual("200.00 EUR", model.Refund.ItemsAmount);
         Assert.AreEqual("5.00 EUR", model.Refund.ReturnShippingCost);
@@ -1334,6 +1340,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         await service.PrepareRefund(model, ReceivedReturn(), true);
 
+        Assert.IsNotNull(model.Refund);
         Assert.AreEqual("Admin." + MerchandiseReturnErrors.NothingToRefund, model.Refund.Error);
         Assert.IsFalse(model.Refund.CanRefundOnline);
         Assert.IsFalse(model.Refund.CanRefundOffline);
@@ -1366,6 +1373,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         await service.PrepareRefund(model, merchandiseReturn, true);
 
+        Assert.IsNotNull(model.Refund);
         Assert.AreEqual("john@shop.com", model.Refund.RefundedBy);
     }
 
@@ -1383,6 +1391,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         await service.PrepareRefund(model, merchandiseReturn, false);
 
+        Assert.IsNotNull(model.Refund);
         Assert.IsTrue(model.Refund.Started);
         Assert.AreEqual("150.00 EUR", model.Refund.Amount);
         Assert.IsTrue(model.Refund.Offline);
@@ -1430,6 +1439,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         await service.PrepareRefund(model, AwaitingCheck(), true);
 
+        Assert.IsNotNull(model.Refund);
         Assert.IsTrue(model.Refund.Started);
         Assert.IsTrue(model.Refund.AwaitsCheck);
     }
@@ -1446,7 +1456,9 @@ public class MerchandiseReturnViewModelServiceTests
 
         await service.PrepareRefund(model, AwaitingCheck(), true);
 
+        Assert.IsNotNull(vendorModel.Refund);
         Assert.IsFalse(vendorModel.Refund.AwaitsCheck);
+        Assert.IsNotNull(model.Refund);
         Assert.IsTrue(model.Refund.Started);
         Assert.IsFalse(model.Refund.AwaitsCheck);
     }
@@ -1461,6 +1473,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         await service.PrepareRefund(model, merchandiseReturn, true);
 
+        Assert.IsNotNull(model.Refund);
         Assert.IsFalse(model.Refund.AwaitsCheck);
     }
 

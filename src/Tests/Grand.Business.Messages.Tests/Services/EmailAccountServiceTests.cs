@@ -18,8 +18,7 @@ public class EmailAccountServiceTests
     private Mock<IRepository<EmailAccount>> _repository;
     private EmailAccountService _service;
 
-    [TestInitialize]
-    public void Init()
+    public EmailAccountServiceTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _mediatorMock = new Mock<IMediator>();

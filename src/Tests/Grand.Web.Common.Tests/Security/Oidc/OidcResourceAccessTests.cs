@@ -16,8 +16,7 @@ public class OidcResourceAccessTests
     private Mock<IGroupService> _groups;
     private OidcResourceAccess _access;
 
-    [TestInitialize]
-    public void Init()
+    public OidcResourceAccessTests()
     {
         _permission = new Mock<IPermissionService>();
         _groups = new Mock<IGroupService>();

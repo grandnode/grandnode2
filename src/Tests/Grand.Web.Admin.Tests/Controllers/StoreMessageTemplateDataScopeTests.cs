@@ -56,7 +56,7 @@ public class StoreMessageTemplateDataScopeTests
     public async Task HasAccess_NullEntity_ReturnsFalse()
     {
         var scope = CreateScope("store-1");
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 
     [TestMethod]
@@ -95,7 +95,7 @@ public class StoreMessageTemplateDataScopeTests
     public async Task CanView_NullEntity_ReturnsFalse()
     {
         var scope = CreateScope("store-1");
-        Assert.IsFalse(await scope.CanView(null));
+        Assert.IsFalse(await scope.CanView(null!));
     }
 
     [TestMethod]

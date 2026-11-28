@@ -47,8 +47,7 @@ public class CollectionImportDataObjectTests
     private ISeNameService _seNameService;
     private SecurityConfig _securityConfig;
     private Mock<ILogger<CollectionImportDataObject>> _loggerMock;
-    [TestInitialize]
-    public void Init()
+    public CollectionImportDataObjectTests()
     {
         InitAutoMapper();
         _securityConfig = new SecurityConfig();
@@ -81,13 +80,13 @@ public class CollectionImportDataObjectTests
         collections.Add(new CollectionDto { Name = "test2", Published = true });
         collections.Add(new CollectionDto { Name = "test3", Published = true });
         _collectionLayoutServiceMock.Setup(c => c.GetCollectionLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new CollectionLayout()));
+            .ReturnsAsync(new CollectionLayout());
         _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts())
             .Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _collectionImportDataObject.Execute(collections);
 
@@ -123,22 +122,22 @@ public class CollectionImportDataObjectTests
             new CollectionDto { Id = collection3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
         _collectionLayoutServiceMock.Setup(c => c.GetCollectionLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new CollectionLayout()));
+            .ReturnsAsync(new CollectionLayout());
         _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts())
             .Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _collectionImportDataObject.Execute(collections);
 
         //Assert
         Assert.IsNotEmpty(_repository.Table);
         Assert.HasCount(3, _repository.Table);
-        Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Name);
-        Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).DisplayOrder);
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Published);
+        Assert.AreEqual("update3", _repository.Table.First(x => x.Id == collection3.Id).Name);
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == collection3.Id).DisplayOrder);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == collection3.Id).Published);
     }
 
     [TestMethod]
@@ -157,28 +156,28 @@ public class CollectionImportDataObjectTests
             new CollectionDto { Id = collection3.Id, Name = "update3", Published = false, DisplayOrder = 3 });
 
         _collectionLayoutServiceMock.Setup(c => c.GetCollectionLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new CollectionLayout()));
+            .ReturnsAsync(new CollectionLayout());
         _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts())
             .Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .ReturnsAsync(new EntityUrl { Slug = "slug" });
         //Act
         await _collectionImportDataObject.Execute(collections);
 
         //Assert
         Assert.IsNotEmpty(_repository.Table);
         Assert.HasCount(3, _repository.Table);
-        Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Name);
-        Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == collection3.Id).DisplayOrder);
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == collection3.Id).Published);
+        Assert.AreEqual("update3", _repository.Table.First(x => x.Id == collection3.Id).Name);
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == collection3.Id).DisplayOrder);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == collection3.Id).Published);
     }
 
     private void SetupLayouts()
     {
         _collectionLayoutServiceMock.Setup(c => c.GetCollectionLayoutById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new CollectionLayout()));
+            .ReturnsAsync(new CollectionLayout());
         _collectionLayoutServiceMock.Setup(c => c.GetAllCollectionLayouts())
             .Returns(Task.FromResult<IList<CollectionLayout>>(new List<CollectionLayout> { new() }));
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
@@ -223,7 +222,7 @@ public class CollectionImportDataObjectTests
         var existing = new Collection { Name = "old", SeName = "my-slug" };
         await _collectionService.InsertCollection(existing);
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = existing.Id, EntityName = "Collection", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = existing.Id, EntityName = "Collection", Slug = "my-slug" });
 
         var result = await _collectionImportDataObject.Import(
             new List<CollectionDto> { new() { SeName = "my-slug", Name = "renamed" } }, false);
@@ -239,7 +238,7 @@ public class CollectionImportDataObjectTests
     {
         SetupLayouts();
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = "x", EntityName = "Product", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = "x", EntityName = "Product", Slug = "my-slug" });
 
         var result = await _collectionImportDataObject.Import(
             new List<CollectionDto> { new() { SeName = "my-slug" } }, true);
@@ -360,7 +359,7 @@ public class CollectionImportDataObjectTests
         var existing = new Collection { Name = "old", SeName = "my-slug" };
         await _collectionService.InsertCollection(existing);
         _slugServiceMock.Setup(c => c.GetBySlug("my-slug"))
-            .Returns(Task.FromResult(new EntityUrl { EntityId = existing.Id, EntityName = "Collection", Slug = "my-slug" }));
+            .ReturnsAsync(new EntityUrl { EntityId = existing.Id, EntityName = "Collection", Slug = "my-slug" });
 
         await _collectionImportDataObject.Execute(new List<CollectionDto> { new() { SeName = "my-slug", Name = "other" } });
 
@@ -420,8 +419,8 @@ public class CollectionImportDataObjectTests
 
         Assert.AreEqual("good", _repository.Table.Single().Name);
         _loggerMock.Verify(l => l.Log(LogLevel.Warning, It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("row 2") && v.ToString()!.Contains("Description")),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.Is<It.IsAnyType>((v, _) => $"{v}".Contains("row 2") && $"{v}".Contains("Description")),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -453,13 +452,13 @@ public class CollectionImportDataObjectTests
 
         //create and sort instances of mapper configurations
         var instances = mapperConfigurations
-            .Select(mapperConfiguration => (IAutoMapperProfile)Activator.CreateInstance(mapperConfiguration))
+            .Select(mapperConfiguration => Assert.IsInstanceOfType<IAutoMapperProfile>(Activator.CreateInstance(mapperConfiguration)))
             .OrderBy(mapperConfiguration => mapperConfiguration.Order);
 
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
+            foreach (var instance in instances) cfg.AddProfile(Assert.IsInstanceOfType<Grand.Mapping.Profile>(instance));
         });
 
         //register automapper

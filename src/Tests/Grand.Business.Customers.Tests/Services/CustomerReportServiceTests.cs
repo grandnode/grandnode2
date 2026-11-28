@@ -17,8 +17,7 @@ public class CustomerReportServiceTests
     private IRepository<Order> _orderRepository;
     private CustomerReportService _service;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerReportServiceTests()
     {
         _customerRepository = new MongoDBRepositoryTest<Customer>();
         _orderRepository = new MongoDBRepositoryTest<Order>();

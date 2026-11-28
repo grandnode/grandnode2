@@ -14,8 +14,7 @@ public class InsertContactUsCommandHandlerTests
     private InsertContactUsCommandHandler _handler;
     private Mock<IRepository<ContactUs>> _repositoryMock;
 
-    [TestInitialize]
-    public void Init()
+    public InsertContactUsCommandHandlerTests()
     {
         _repositoryMock = new Mock<IRepository<ContactUs>>();
         _handler = new InsertContactUsCommandHandler(_repositoryMock.Object);

@@ -22,8 +22,7 @@ public class CheckoutAttributeServiceTests
     private Mock<IRepository<CheckoutAttribute>> _repositoryMock;
     private ICheckoutAttributeService _service;
 
-    [TestInitialize]
-    public void Init()
+    public CheckoutAttributeServiceTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<CheckoutAttribute>>();
@@ -43,7 +42,7 @@ public class CheckoutAttributeServiceTests
     [TestMethod]
     public void InsertCheckoutAttribute_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertCheckoutAttribute(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertCheckoutAttribute(null!));
     }
 
     [TestMethod]
@@ -57,7 +56,7 @@ public class CheckoutAttributeServiceTests
     [TestMethod]
     public void UpdateCheckoutAttribute_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateCheckoutAttribute(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateCheckoutAttribute(null!));
     }
 
     [TestMethod]
@@ -71,14 +70,14 @@ public class CheckoutAttributeServiceTests
     [TestMethod]
     public void DeleteCheckoutAttribute_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteCheckoutAttribute(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteCheckoutAttribute(null!));
     }
 
     [TestMethod]
     public async Task GetAllCheckoutAttributes_WithoutAccess_ThrowException()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () =>
-            await _service.GetAllCheckoutAttributes(null));
+            await _service.GetAllCheckoutAttributes(null!));
     }
 
     [TestMethod]

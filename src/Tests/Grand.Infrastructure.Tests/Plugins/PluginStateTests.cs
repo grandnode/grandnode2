@@ -16,8 +16,7 @@ public class PluginStateTests
     private string _installedFile;
     private bool _recordsPluginState;
 
-    [TestInitialize]
-    public void Init()
+    public PluginStateTests()
     {
         _recordsPluginState = PluginManager.RecordsPluginState;
         //as the storefront

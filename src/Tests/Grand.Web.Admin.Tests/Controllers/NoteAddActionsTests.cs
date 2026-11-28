@@ -31,8 +31,8 @@ public class NoteAddActionsTests
     public void OrderEditUserFields_RequiresTheEditAction()
     {
         var method = typeof(BaseOrderManagementController).GetMethod("EditUserFields")!;
-        var attribute = (PermissionAuthorizeActionAttribute)Attribute.GetCustomAttribute(method,
-            typeof(PermissionAuthorizeActionAttribute));
+        var attribute = Assert.IsInstanceOfType<PermissionAuthorizeActionAttribute>(Attribute.GetCustomAttribute(method,
+            typeof(PermissionAuthorizeActionAttribute)));
 
         Assert.IsNotNull(attribute);
         Assert.AreEqual(PermissionActionName.Edit, attribute.PermissionAction);

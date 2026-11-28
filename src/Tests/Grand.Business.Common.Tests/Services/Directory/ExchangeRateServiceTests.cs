@@ -11,8 +11,7 @@ public class ExchangeRateServiceTests
 {
     private CurrencySettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public ExchangeRateServiceTests()
     {
         _settings = new CurrencySettings();
     }

@@ -31,8 +31,7 @@ public class AdminGridTagHelperTests
     private ViewContext _viewContext;
     private CultureInfo _originalCulture;
 
-    [TestInitialize]
-    public void Init()
+    public AdminGridTagHelperTests()
     {
         _originalCulture = CultureInfo.CurrentCulture;
         CultureInfo.CurrentCulture = new CultureInfo("en-US");
@@ -65,7 +64,7 @@ public class AdminGridTagHelperTests
         CultureInfo.CurrentCulture = _originalCulture;
     }
 
-    private AdminGridTagHelper CreateGrid(Action<AdminGridTagHelper> configure = null)
+    private AdminGridTagHelper CreateGrid(Action<AdminGridTagHelper>? configure = null)
     {
         var grid = new AdminGridTagHelper(_adminAreaSettings, _languageSettings, _contextAccessorMock.Object,
             _translationServiceMock.Object, _urlHelperFactoryMock.Object) {
@@ -80,14 +79,14 @@ public class AdminGridTagHelperTests
     ///     A child element: its tag helper and, when it has children of its own, their elements.
     ///     Content is the literal markup of a cell-template.
     /// </summary>
-    private sealed record Element(TagHelper Helper, string Content = null, params Element[] Children);
+    private sealed record Element(TagHelper Helper, string? Content = null, params Element[] Children);
 
     /// <summary>
     ///     Runs a tag helper the way Razor does: children run inside GetChildContentAsync and see a
     ///     copy of the parent's Items.
     /// </summary>
     private static async Task<TagHelperOutput> Run(TagHelper helper, IDictionary<object, object> items, string tagName,
-        string literalContent, Element[] children)
+        string? literalContent, Element[] children)
     {
         var context = new TagHelperContext(tagName, new TagHelperAttributeList(), items, Guid.NewGuid().ToString());
         var output = new TagHelperOutput(tagName, new TagHelperAttributeList(), async (_, _) =>
@@ -112,6 +111,7 @@ public class AdminGridTagHelperTests
     private static JsonElement Config(TagHelperOutput output)
     {
         var json = output.Attributes["data-grand-grid"].Value.ToString();
+        Assert.IsNotNull(json);
         return JsonDocument.Parse(json).RootElement;
     }
 
@@ -569,14 +569,16 @@ public class AdminGridTagHelperTests
         var gregorian = (CultureInfo)new CultureInfo("ar-SA").Clone();
         var optional = gregorian.OptionalCalendars.OfType<GregorianCalendar>().FirstOrDefault();
         if (optional != null) gregorian.DateTimeFormat.Calendar = optional;
+        Assert.IsNotNull(culture.Calendar);
         Assert.AreEqual(gregorian.DateTimeFormat.ShortDatePattern, culture.Calendar.ShortDate);
+        Assert.IsNotNull(culture.Calendar.Months);
         Assert.AreEqual(12, culture.Calendar.Months.Length);
     }
 
     [TestMethod]
     public void ParsePageSizes_IgnoresInvalidEntries()
     {
-        CollectionAssert.AreEqual(new[] { 10, 20 }, AdminGridTagHelper.ParsePageSizes(" 10, abc, 20, -5, 10 ").ToArray());
+        CollectionAssert.AreEqual(new[] { 10, 20 }, AdminGridTagHelper.ParsePageSizes(" 10, abc, 20, -5, 10 ")?.ToArray());
         Assert.IsNull(AdminGridTagHelper.ParsePageSizes(""));
         Assert.IsNull(AdminGridTagHelper.ParsePageSizes("x"));
     }
@@ -585,6 +587,7 @@ public class AdminGridTagHelperTests
     public void ParseParams_SplitsNameAndField()
     {
         var result = GridDetailTagHelper.ParseParams("shipmentId:Id");
+        Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("shipmentId", result[0].Name);
         Assert.AreEqual("Id", result[0].Field);

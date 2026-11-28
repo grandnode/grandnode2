@@ -23,11 +23,15 @@ public class GetSearchProductsQueryHandlerTextSearchTests
     private CapturingRepository _repository;
     private MongoDBContext _databaseContext;
 
-    [TestInitialize]
-    public async Task Init()
+    public GetSearchProductsQueryHandlerTextSearchTests()
     {
         _repository = new CapturingRepository();
         _databaseContext = new MongoDBContext(_repository.Collection.Database);
+    }
+
+    [TestInitialize]
+    public async Task Init()
+    {
         await _databaseContext.CreateTextIndex(_repository, ProductTextIndex.Fields, ProductTextIndex.Name);
     }
 
@@ -40,8 +44,8 @@ public class GetSearchProductsQueryHandlerTextSearchTests
             NullLogger<GetSearchProductsQueryHandler>.Instance);
     }
 
-    private Task Insert(string id, string name, string sku = null, IList<TranslationEntity> locales = null,
-        string shortDescription = null)
+    private Task Insert(string id, string name, string? sku = null, IList<TranslationEntity>? locales = null,
+        string? shortDescription = null)
     {
         return _repository.InsertAsync(new Product {
             Id = id, Name = name, Sku = sku, ShortDescription = shortDescription,
@@ -50,7 +54,7 @@ public class GetSearchProductsQueryHandlerTextSearchTests
     }
 
     private async Task<List<string>> Search(string keywords, bool searchDescriptions = false,
-        GetSearchProductsQueryHandler handler = null, bool showHidden = false)
+        GetSearchProductsQueryHandler? handler = null, bool showHidden = false)
     {
         var result = await (handler ?? Handler()).Handle(new GetSearchProductsQuery {
             Customer = new Customer(), Keywords = keywords, SearchDescriptions = searchDescriptions,
@@ -148,6 +152,7 @@ public class GetSearchProductsQueryHandlerTextSearchTests
         await Insert("smartphone", "Smartphone");
 
         CollectionAssert.AreEquivalent(new[] { "smartphone" }, await Search("phone"));
+        Assert.IsNotNull(_repository.Pipeline);
         Assert.IsFalse(_repository.Pipeline.Contains("$text"));
     }
 
@@ -161,6 +166,7 @@ public class GetSearchProductsQueryHandlerTextSearchTests
         await _databaseContext.DeleteIndex(_repository, ProductTextIndex.Name);
 
         CollectionAssert.AreEquivalent(new[] { "smartphone" }, await Search("phone", handler: handler));
+        Assert.IsNotNull(_repository.Pipeline);
         Assert.IsFalse(_repository.Pipeline.Contains("$text"));
     }
 
@@ -201,7 +207,7 @@ public class GetSearchProductsQueryHandlerTextSearchTests
 
     private class CapturingRepository : MongoDBRepositoryTest<Product>
     {
-        public string Pipeline { get; private set; }
+        public string? Pipeline { get; private set; }
 
         public override Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex,
             int pageSize, CancellationToken cancellationToken = default)

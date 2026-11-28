@@ -17,7 +17,7 @@ public class AuditChangeTextTests
 
     private readonly AuditChangeText _text = new(key => Resources.GetValueOrDefault(key, key));
 
-    private static AuditChange Change(string path, string oldValue, string newValue, params string[] elementNames)
+    private static AuditChange Change(string path, string? oldValue, string? newValue, params string[] elementNames)
     {
         return new AuditChange {
             Path = path, OldValue = oldValue, NewValue = newValue,

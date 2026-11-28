@@ -49,7 +49,7 @@ public class FixedRateTaxProvider : ITaxProvider
     /// <param name="taxCategoryId">The tax category identifier</param>
     /// <param name="storeId">The store identifier the tax is being calculated for</param>
     /// <returns>Tax rate</returns>
-    private async Task<double> GetTaxRate(string taxCategoryId, string storeId)
+    private async Task<double> GetTaxRate(string? taxCategoryId, string storeId)
     {
         //use the store specific rate when defined, otherwise fall back to the global rate
         //(SettingService.GetSettingByKey resolves the store override first and the global value second)

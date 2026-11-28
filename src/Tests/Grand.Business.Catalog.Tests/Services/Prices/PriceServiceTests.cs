@@ -42,13 +42,20 @@ public class PriceServiceTests
     private Mock<IContextAccessor> tempWorkContext;
     private Mock<IDiscountHandlerService> tempDiscountApplicationService;
     private IDiscountService _discountService;
-    [TestInitialize]
-    public void TestInitialize()
+    public PriceServiceTests()
     {
         var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
 
         _store = new Store { Id = "1" };
+        _currency = new Currency {
+            Id = "1",
+            CurrencyCode = "USD",
+            Rate = 1,
+            Published = true,
+            MidpointRoundId = MidpointRounding.ToEven,
+            RoundingTypeId = RoundingType.Rounding001
+        };
         tempWorkContext = new Mock<IContextAccessor>();
         {
             tempWorkContext.Setup(instance => instance.WorkContext.WorkingCurrency).Returns(_currency);
@@ -70,14 +77,6 @@ public class PriceServiceTests
             PrimaryStoreCurrencyId = "1"
         };
 
-        _currency = new Currency {
-            Id = "1",
-            CurrencyCode = "USD",
-            Rate = 1,
-            Published = true,
-            MidpointRoundId = MidpointRounding.ToEven,
-            RoundingTypeId = RoundingType.Rounding001
-        };
 
         tempDiscountServiceMock = new Mock<IDiscountService>();
         {
@@ -85,7 +84,7 @@ public class PriceServiceTests
         }
         var tempCurrency = new Mock<ICurrencyService>();
         {
-            tempCurrency.Setup(instance => instance.GetPrimaryStoreCurrency()).Returns(Task.FromResult(_currency));
+            tempCurrency.Setup(instance => instance.GetPrimaryStoreCurrency()).ReturnsAsync(_currency);
         }
         var cacheManager = new Mock<ICacheBase>().Object;
         IRepository<Currency> _currencyRepository;

@@ -30,8 +30,7 @@ public class GetProductStructuredDataHandlerTests
     private ShippingSettings _shippingSettings;
     private GetProductStructuredDataHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetProductStructuredDataHandlerTests()
     {
         _countryServiceMock = new Mock<ICountryService>();
         _countryServiceMock.Setup(x => x.GetAllCountriesForShipping(It.IsAny<string>(), "store-1", false))
@@ -154,8 +153,10 @@ public class GetProductStructuredDataHandlerTests
 
         Assert.IsNull(result.ShippingRate);
         Assert.IsTrue(result.HasShippingDetails);
+        Assert.IsNotNull(result.HandlingTime);
         Assert.AreEqual(0, result.HandlingTime.Min);
         Assert.AreEqual(1, result.HandlingTime.Max);
+        Assert.IsNotNull(result.TransitTime);
         Assert.IsNull(result.TransitTime.Min);
         Assert.AreEqual(3, result.TransitTime.Max);
         Assert.AreEqual(2, result.CountryCodes.Count);

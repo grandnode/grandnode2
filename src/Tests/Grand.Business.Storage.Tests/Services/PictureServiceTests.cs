@@ -26,7 +26,7 @@ public class TestablePictureService(
     StorageSettings storageSettings)
     : PictureService(pictureRepository, logger, mediator, cacheBase, mediaFileStore, mediaSettings, storageSettings)
 {
-    public string GetThumbUrlPublic(string thumbFileName, string storeLocation = null)
+    public string? GetThumbUrlPublic(string thumbFileName, string? storeLocation = null)
         => GetThumbUrl(thumbFileName, storeLocation);
 }
 
@@ -46,8 +46,7 @@ public class PictureServiceTests
     private Mock<IWebHostEnvironment> _webHostMock;
     private Mock<IWorkContext> _workContextMock;
 
-    [TestInitialize]
-    public void Init()
+    public PictureServiceTests()
     {
         _webHostMock = new Mock<IWebHostEnvironment>();
         _repoMock = new Mock<IRepository<Picture>>();
@@ -75,10 +74,10 @@ public class PictureServiceTests
     public async Task LoadPictureBinary_FromDb()
     {
         _storagesettings.PictureStoreInDb = true;
-        _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Picture {
+        _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).ReturnsAsync(new Picture {
             PictureBinary =
                 []
-        }));
+        });
         await _service.LoadPictureBinary(new Picture());
         _repoMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
     }
@@ -86,10 +85,10 @@ public class PictureServiceTests
     [TestMethod]
     public async Task LoadPictureBinary_FromDb_InvokeRepository()
     {
-        _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Picture {
+        _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).ReturnsAsync(new Picture {
             PictureBinary =
                 []
-        }));
+        });
         await _service.LoadPictureBinary(new Picture(), true);
         _repoMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
     }
@@ -101,6 +100,7 @@ public class PictureServiceTests
         _webHostMock.Setup(c => c.WebRootPath).Returns("~root/");
         var result = await _service.LoadPictureBinary(new Picture { Id = "id", MimeType = "image/jpeg" }, false);
         //we can't mock static class like File.Exist so, should return empty array
+        Assert.IsNotNull(result);
         Assert.IsEmpty(result);
     }
 
@@ -125,11 +125,11 @@ public class PictureServiceTests
     {
         _storagesettings.PictureStoreInDb = true;
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Picture>>>()))
-            .Returns(Task.FromResult(new Picture()));
-        _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Picture {
+            .ReturnsAsync(new Picture());
+        _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).ReturnsAsync(new Picture {
             PictureBinary =
                 []
-        }));
+        });
         await _service.UpdatePicture("1", [], "image/jpeg", "image", validateBinary: false);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Picture>>(), default), Times.Once);
     }
@@ -168,6 +168,7 @@ public class PictureServiceTests
 
         var result = _testablePictureService.GetThumbUrlPublic(thumbFileName, storeLocation);
 
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.StartsWith("https://"), $"Expected URL to start with 'https://' but got: {result}");
         Assert.IsTrue(result.Contains(thumbFileName), $"Expected URL to contain thumb filename but got: {result}");
         Assert.IsFalse(result.StartsWith("/https://"), $"URL must not have a leading slash before the scheme: {result}");
@@ -180,6 +181,7 @@ public class PictureServiceTests
 
         var result = _testablePictureService.GetThumbUrlPublic(thumbFileName);
 
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.StartsWith("/"), $"Expected relative path to start with '/' but got: {result}");
         Assert.IsTrue(result.Contains(thumbFileName), $"Expected path to contain thumb filename but got: {result}");
     }

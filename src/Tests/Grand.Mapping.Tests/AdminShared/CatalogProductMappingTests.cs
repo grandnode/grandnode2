@@ -12,8 +12,7 @@ public class CatalogProductMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public CatalogProductMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<ProductProfile>();

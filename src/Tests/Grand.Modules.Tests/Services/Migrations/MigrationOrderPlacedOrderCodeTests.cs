@@ -27,8 +27,7 @@ public class MigrationOrderPlacedOrderCodeTests
     private IServiceProvider _serviceProvider;
     private LiteDBRepositoryMock<MessageTemplate> _templates;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationOrderPlacedOrderCodeTests()
     {
         _templates = new LiteDBRepositoryMock<MessageTemplate>();
         _cache = new Mock<ICacheBase>();

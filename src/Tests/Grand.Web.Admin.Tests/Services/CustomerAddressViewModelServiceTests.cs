@@ -18,8 +18,7 @@ public class CustomerAddressViewModelServiceTests
     private Mock<ICustomerService> _customerServiceMock;
     private CustomerAddressViewModelService _customerAddressViewModelService;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerAddressViewModelServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _customerServiceMock.Setup(c => c.UpdateCustomerInAdminPanel(It.IsAny<Customer>())).Returns(Task.CompletedTask);

@@ -25,8 +25,7 @@ public class CustomerShoppingCartViewModelServiceTests
     private Mock<IShoppingCartService> _shoppingCartServiceMock;
     private CustomerShoppingCartViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerShoppingCartViewModelServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _storeServiceMock = new Mock<IStoreService>();
@@ -69,7 +68,7 @@ public class CustomerShoppingCartViewModelServiceTests
             Id = "sci1", ShoppingCartTypeId = ShoppingCartType.ShoppingCart, ProductId = "gone", StoreId = "s1"
         });
         _storeServiceMock.Setup(s => s.GetStoreById("s1")).ReturnsAsync(new Store { Id = "s1" });
-        _productServiceMock.Setup(p => p.GetProductById("gone", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("gone", false)).ReturnsAsync((Product?)null);
 
         var items = await _service.PrepareShoppingCartItemModel(customer, (int)ShoppingCartType.ShoppingCart);
 

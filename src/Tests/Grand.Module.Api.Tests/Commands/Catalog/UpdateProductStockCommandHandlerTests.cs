@@ -20,8 +20,7 @@ public class UpdateProductStockCommandHandlerTests
     private Mock<IProductService> _productServiceMock;
     private Mock<IStockMovementService> _stockMovementServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public UpdateProductStockCommandHandlerTests()
     {
         _productServiceMock = new Mock<IProductService>();
         _inventoryManageServiceMock = new Mock<IInventoryManageService>();

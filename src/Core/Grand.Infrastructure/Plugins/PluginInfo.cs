@@ -10,9 +10,9 @@ public sealed class PluginInfo
     private Assembly? _referencedAssembly;
 
     public PluginInfo(
-        FileInfo originalAssemblyFile,
-        Assembly referencedAssembly,
-        Type pluginType)
+        FileInfo? originalAssemblyFile,
+        Assembly? referencedAssembly,
+        Type? pluginType)
         : this()
     {
         ReferencedAssembly = referencedAssembly;

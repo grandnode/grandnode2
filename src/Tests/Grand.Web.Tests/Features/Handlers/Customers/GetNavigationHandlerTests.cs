@@ -23,7 +23,7 @@ public class GetNavigationHandlerTests
                 It.IsAny<string[]>(), It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<bool>(), It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(), It.IsAny<string[]>(),
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>(), It.IsAny<string[]>(),
                 It.IsAny<bool>()))
             .ReturnsAsync(new PagedList<Customer>([], 0, 1, subAccounts));
         return customers;
@@ -99,7 +99,7 @@ public class GetNavigationHandlerTests
             CustomerServiceWith(0).Object, RecurringPaymentsWith(recurringPayments).Object);
         var model = await handler.Handle(new GetNavigation { Language = new Grand.Domain.Localization.Language(),
             Customer = new Customer { Id = "c1" },
-            Store = withStore ? new Grand.Domain.Stores.Store { Id = "s1" } : null
+            Store = withStore ? new Grand.Domain.Stores.Store { Id = "s1" } : null!
         }, CancellationToken.None);
         return model.HideRecurringPayments;
     }

@@ -19,8 +19,7 @@ public class UserApiValidatorTests
     private Mock<ICustomerService> _customers = null!;
     private Mock<IUserApiService> _users = null!;
 
-    [TestInitialize]
-    public void Init()
+    public UserApiValidatorTests()
     {
         _translations = new Mock<IRequestTranslationService>();
         _translations.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string key) => key);

@@ -25,7 +25,7 @@ public class LiquidOrder : Drop
     private readonly string url;
 
     public LiquidOrder(Order order, Customer? customer, Language? language, Currency? currency, Store store,
-        DomainHost host, OrderNote? orderNote = null, Vendor? vendor = null)
+        DomainHost? host, OrderNote? orderNote = null, Vendor? vendor = null)
     {
         _order = order;
         _customer = customer;

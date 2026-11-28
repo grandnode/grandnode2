@@ -35,8 +35,7 @@ public class DownloadControllerMerchandiseReturnNoteTests
     private Order _order;
     private MerchandiseReturn _return;
 
-    [TestInitialize]
-    public void Init()
+    public DownloadControllerMerchandiseReturnNoteTests()
     {
         _note = new MerchandiseReturnNote
             { Id = "n1", MerchandiseReturnId = "r1", DownloadId = "d1", DisplayToCustomer = true };

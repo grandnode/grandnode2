@@ -15,15 +15,14 @@ public class ScheduleTaskServiceTests
 
     private static readonly DateTime LeasedUntilUtc = DateTime.UtcNow.AddMinutes(5);
 
-    [TestInitialize]
-    public void Init()
+    public ScheduleTaskServiceTests()
     {
         _repository = new MongoDBRepositoryTest<ScheduleTask>();
         _service = new ScheduleTaskService(_repository);
     }
 
-    private async Task<ScheduleTask> InsertTask(DateTime? lastStartUtc = null, DateTime? leasedUntilUtc = null,
-        string leasedByInstance = null)
+    private async Task<ScheduleTask?> InsertTask(DateTime? lastStartUtc = null, DateTime? leasedUntilUtc = null,
+        string? leasedByInstance = null)
     {
         var task = new ScheduleTask {
             ScheduleTaskName = "TestTask",
@@ -44,10 +43,12 @@ public class ScheduleTaskServiceTests
         var task = await InsertTask();
         var runStartUtc = DateTime.UtcNow;
 
+        Assert.IsNotNull(task);
         var claimed = await _service.TryClaimTaskRun(task.Id, task.LastStartUtc, runStartUtc, LeasedUntilUtc, "instance-a");
 
         Assert.IsTrue(claimed);
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual("instance-a", updated.LeasedByInstance);
         Assert.IsNotNull(updated.LastStartUtc);
     }
@@ -58,6 +59,7 @@ public class ScheduleTaskServiceTests
         var task = await InsertTask(DateTime.UtcNow.AddMinutes(-10));
 
         //instance A claims the run
+        Assert.IsNotNull(task);
         var claimedByA = await _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, LeasedUntilUtc, "instance-a");
         //instance B still holds the old LastStartUtc value - its claim must fail
         var claimedByB = await _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, LeasedUntilUtc, "instance-b");
@@ -65,6 +67,7 @@ public class ScheduleTaskServiceTests
         Assert.IsTrue(claimedByA);
         Assert.IsFalse(claimedByB);
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual("instance-a", updated.LeasedByInstance);
     }
 
@@ -73,6 +76,7 @@ public class ScheduleTaskServiceTests
     {
         var task = await InsertTask(DateTime.UtcNow.AddMinutes(-10));
 
+        Assert.IsNotNull(task);
         var claims = await Task.WhenAll(
             _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, LeasedUntilUtc, "instance-1"),
             _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, LeasedUntilUtc, "instance-2"));
@@ -94,11 +98,13 @@ public class ScheduleTaskServiceTests
         //a long run on instance A outlasts the interval - its lease is still in the future
         var task = await InsertTask(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(3), "instance-a");
 
+        Assert.IsNotNull(task);
         var claimed = await _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, LeasedUntilUtc,
             "instance-b");
 
         Assert.IsFalse(claimed);
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual("instance-a", updated.LeasedByInstance);
     }
 
@@ -108,11 +114,13 @@ public class ScheduleTaskServiceTests
         //instance A died during the run and stopped renewing its lease
         var task = await InsertTask(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(-4), "instance-a");
 
+        Assert.IsNotNull(task);
         var claimed = await _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, LeasedUntilUtc,
             "instance-b");
 
         Assert.IsTrue(claimed);
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual("instance-b", updated.LeasedByInstance);
         Assert.IsNotNull(updated.LeasedUntilUtc);
     }
@@ -122,10 +130,12 @@ public class ScheduleTaskServiceTests
     {
         var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(1), "instance-a");
 
+        Assert.IsNotNull(task);
         var renewed = await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(5));
 
         Assert.IsTrue(renewed);
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.IsTrue(updated.LeasedUntilUtc > DateTime.UtcNow.AddMinutes(4));
     }
 
@@ -134,11 +144,13 @@ public class ScheduleTaskServiceTests
     {
         var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-b");
 
+        Assert.IsNotNull(task);
         var renewed = await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(30));
 
         //the run must learn it lost the lease - it stops instead of running beside the new holder
         Assert.IsFalse(renewed);
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual("instance-b", updated.LeasedByInstance);
         Assert.IsTrue(updated.LeasedUntilUtc < DateTime.UtcNow.AddMinutes(6));
     }
@@ -149,10 +161,12 @@ public class ScheduleTaskServiceTests
         //the run has finished and released the lease before a late renewal arrived
         var task = await InsertTask(DateTime.UtcNow, null, "instance-a");
 
+        Assert.IsNotNull(task);
         var renewed = await _service.RenewTaskLease(task.Id, "instance-a", DateTime.UtcNow.AddMinutes(5));
 
         Assert.IsFalse(renewed);
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.IsNull(updated.LeasedUntilUtc);
     }
 
@@ -161,9 +175,11 @@ public class ScheduleTaskServiceTests
     {
         var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-a");
 
+        Assert.IsNotNull(task);
         await _service.CompleteTaskRun(task.Id, "instance-a", true, DateTime.UtcNow, false);
 
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.IsNull(updated.LeasedUntilUtc);
         Assert.IsNotNull(updated.LastSuccessUtc);
         Assert.IsNull(updated.LastNonSuccessEndUtc);
@@ -175,9 +191,11 @@ public class ScheduleTaskServiceTests
     {
         var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-a");
 
+        Assert.IsNotNull(task);
         await _service.CompleteTaskRun(task.Id, "instance-a", false, DateTime.UtcNow, true);
 
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.IsNull(updated.LeasedUntilUtc);
         Assert.IsNull(updated.LastSuccessUtc);
         Assert.IsNotNull(updated.LastNonSuccessEndUtc);
@@ -190,9 +208,11 @@ public class ScheduleTaskServiceTests
         //instance A's lease ran out during a long run and instance B claimed the task
         var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-b");
 
+        Assert.IsNotNull(task);
         await _service.CompleteTaskRun(task.Id, "instance-a", true, DateTime.UtcNow, false);
 
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual("instance-b", updated.LeasedByInstance);
         Assert.IsNotNull(updated.LeasedUntilUtc);
         Assert.IsNull(updated.LastSuccessUtc);
@@ -203,6 +223,7 @@ public class ScheduleTaskServiceTests
     {
         var task = await InsertTask(DateTime.UtcNow, DateTime.UtcNow.AddMinutes(5), "instance-a");
         //the admin disables the task and changes its interval while it runs
+        Assert.IsNotNull(task);
         task.Enabled = false;
         task.TimeInterval = 30;
         await _service.UpdateTask(task);
@@ -210,6 +231,7 @@ public class ScheduleTaskServiceTests
         await _service.CompleteTaskRun(task.Id, "instance-a", true, DateTime.UtcNow, false);
 
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.IsFalse(updated.Enabled);
         Assert.AreEqual(30, updated.TimeInterval);
     }
@@ -219,11 +241,13 @@ public class ScheduleTaskServiceTests
     {
         //the admin opens the task, then instance A claims a run before the admin saves
         var task = await InsertTask(DateTime.UtcNow.AddMinutes(-10));
+        Assert.IsNotNull(task);
         await _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, LeasedUntilUtc, "instance-a");
         task.TimeInterval = 30;
         await _service.UpdateTask(task);
 
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual(30, updated.TimeInterval);
         Assert.AreEqual("instance-a", updated.LeasedByInstance);
         Assert.IsNotNull(updated.LeasedUntilUtc);
@@ -237,11 +261,13 @@ public class ScheduleTaskServiceTests
         IScheduleTaskService service = _service;
 
 #pragma warning disable CS0618
+        Assert.IsNotNull(task);
         var claimed = await service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow, "instance-a");
 #pragma warning restore CS0618
 
         Assert.IsTrue(claimed);
         var updated = await _service.GetTaskById(task.Id);
+        Assert.IsNotNull(updated);
         Assert.IsFalse(updated.LeasedUntilUtc > DateTime.UtcNow);
     }
 }
@@ -255,13 +281,12 @@ public class ScheduleTaskServiceLiteDbTests
 {
     private ScheduleTaskService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ScheduleTaskServiceLiteDbTests()
     {
         _service = new ScheduleTaskService(new LiteDBRepositoryMock<ScheduleTask>());
     }
 
-    private async Task<ScheduleTask> InsertTask(DateTime? leasedUntilUtc)
+    private async Task<ScheduleTask?> InsertTask(DateTime? leasedUntilUtc)
     {
         var task = new ScheduleTask {
             ScheduleTaskName = "TestTask",
@@ -280,6 +305,7 @@ public class ScheduleTaskServiceLiteDbTests
     {
         var task = await InsertTask(DateTime.UtcNow.AddMinutes(3));
 
+        Assert.IsNotNull(task);
         var claimed = await _service.TryClaimTaskRun(task.Id, task.LastStartUtc, DateTime.UtcNow,
             DateTime.UtcNow.AddMinutes(5), "instance-b");
 
@@ -292,8 +318,10 @@ public class ScheduleTaskServiceLiteDbTests
         var released = await InsertTask(null);
         var expired = await InsertTask(DateTime.UtcNow.AddMinutes(-4));
 
+        Assert.IsNotNull(released);
         Assert.IsTrue(await _service.TryClaimTaskRun(released.Id, released.LastStartUtc, DateTime.UtcNow,
             DateTime.UtcNow.AddMinutes(5), "instance-b"));
+        Assert.IsNotNull(expired);
         Assert.IsTrue(await _service.TryClaimTaskRun(expired.Id, expired.LastStartUtc, DateTime.UtcNow,
             DateTime.UtcNow.AddMinutes(5), "instance-b"));
     }
@@ -304,10 +332,16 @@ public class ScheduleTaskServiceLiteDbTests
         var own = await InsertTask(DateTime.UtcNow.AddMinutes(5));
         var takenOver = await InsertTask(DateTime.UtcNow.AddMinutes(5));
 
+        Assert.IsNotNull(own);
         await _service.CompleteTaskRun(own.Id, "instance-a", true, DateTime.UtcNow, false);
+        Assert.IsNotNull(takenOver);
         await _service.CompleteTaskRun(takenOver.Id, "instance-b", true, DateTime.UtcNow, false);
 
-        Assert.IsNull((await _service.GetTaskById(own.Id)).LeasedUntilUtc);
-        Assert.IsNotNull((await _service.GetTaskById(takenOver.Id)).LeasedUntilUtc);
+        var scheduleTask = await _service.GetTaskById(own.Id);
+        Assert.IsNotNull(scheduleTask);
+        Assert.IsNull(scheduleTask.LeasedUntilUtc);
+        var scheduleTask2 = await _service.GetTaskById(takenOver.Id);
+        Assert.IsNotNull(scheduleTask2);
+        Assert.IsNotNull(scheduleTask2.LeasedUntilUtc);
     }
 }

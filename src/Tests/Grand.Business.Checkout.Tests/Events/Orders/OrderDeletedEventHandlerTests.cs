@@ -14,8 +14,7 @@ public class OrderDeletedEventHandlerTests
     private OrderDeletedEventHandler _orderDeletedEventHandler;
     private Mock<IRepository<ProductAlsoPurchased>> _productAlsoPurchasedRepository;
 
-    [TestInitialize]
-    public void Init()
+    public OrderDeletedEventHandlerTests()
     {
         _productAlsoPurchasedRepository = new Mock<IRepository<ProductAlsoPurchased>>();
         _orderDeletedEventHandler = new OrderDeletedEventHandler(_productAlsoPurchasedRepository.Object);

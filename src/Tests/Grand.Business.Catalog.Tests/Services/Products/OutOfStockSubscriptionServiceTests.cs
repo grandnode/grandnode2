@@ -17,8 +17,7 @@ public class OutOfStockSubscriptionServiceTests
     private OutOfStockSubscriptionService _outOfStockSubscriptionService;
     private IRepository<OutOfStockSubscription> _repository;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public OutOfStockSubscriptionServiceTests()
     {
         _repository = new MongoDBRepositoryTest<OutOfStockSubscription>();
         _mediatorMock = new Mock<IMediator>();
@@ -185,7 +184,7 @@ public class OutOfStockSubscriptionServiceTests
         //Act
         await _outOfStockSubscriptionService.UpdateSubscription(outOfStockSubscription1);
         //Assert
-        Assert.AreEqual("2", _repository.Table.FirstOrDefault().CustomerId);
+        Assert.AreEqual("2", _repository.Table.First().CustomerId);
     }
 
     [TestMethod]

@@ -14,8 +14,7 @@ public class WidgetServiceTests
     private Mock<IWidgetProvider> _widgetProvider1;
     private Mock<IWidgetProvider> _widgetProvider2;
 
-    [TestInitialize]
-    public void Init()
+    public WidgetServiceTests()
     {
         _widgetProvider1 = new Mock<IWidgetProvider>();
         _widgetProvider1.Setup(c => c.SystemName).Returns("name1");

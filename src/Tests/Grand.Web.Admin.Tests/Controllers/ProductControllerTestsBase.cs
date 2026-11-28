@@ -52,8 +52,7 @@ public abstract class ProductControllerTestsBase<TController> where TController 
 
     protected abstract TController CreateController();
 
-    [TestInitialize]
-    public void Setup()
+    protected ProductControllerTestsBase()
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
@@ -81,7 +80,7 @@ public abstract class ProductControllerTestsBase<TController> where TController 
 
         _scopeMock = new Mock<IAdminDataScope<Product>>();
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         _permissionServiceMock = new Mock<IRequestPermissionService>();
         _permissionServiceMock.Setup(p => p.Authorize(It.IsAny<Permission>())).ReturnsAsync(true);

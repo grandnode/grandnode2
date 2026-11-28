@@ -24,8 +24,7 @@ public class CountryImportDataObjectTests
 
     private IRepository<Country> _repository;
 
-    [TestInitialize]
-    public void Init()
+    public CountryImportDataObjectTests()
     {
         _repository = new MongoDBRepositoryTest<Country>();
 
@@ -56,7 +55,7 @@ public class CountryImportDataObjectTests
         await _countryImportDataObject.Execute(states);
 
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any());
+        Assert.IsTrue(_repository.Table.First(x => x.Id == country.Id).StateProvinces.Any());
     }
 
     [TestMethod]
@@ -81,7 +80,7 @@ public class CountryImportDataObjectTests
         await _countryImportDataObject.Execute(states);
 
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any(x => x.Published));
+        Assert.IsTrue(_repository.Table.First(x => x.Id == country.Id).StateProvinces.Any(x => x.Published));
     }
 
     [TestMethod]
@@ -110,7 +109,7 @@ public class CountryImportDataObjectTests
         await _countryImportDataObject.Execute(states);
 
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any(x => x.Published));
-        Assert.HasCount(3, _repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces);
+        Assert.IsTrue(_repository.Table.First(x => x.Id == country.Id).StateProvinces.Any(x => x.Published));
+        Assert.HasCount(3, _repository.Table.First(x => x.Id == country.Id).StateProvinces);
     }
 }

@@ -17,8 +17,7 @@ public class QueuedMessagesSendScheduleTaskTests
     private Mock<IQueuedEmailService> _queuedEmailServiceMock;
     private QueuedMessagesSendScheduleTask _task;
 
-    [TestInitialize]
-    public void Init()
+    public QueuedMessagesSendScheduleTaskTests()
     {
         _queuedEmailServiceMock = new Mock<IQueuedEmailService>();
         _emailSenderMock = new Mock<IEmailSender>();
@@ -69,7 +68,7 @@ public class QueuedMessagesSendScheduleTaskTests
             It.IsAny<EventId>(),
             It.IsAny<It.IsAnyType>(),
             It.IsAny<Exception>(),
-            (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+            (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()), Times.Once);
         _queuedEmailServiceMock.Verify(c => c.UpdateQueuedEmail(It.IsAny<QueuedEmail>()), Times.Once);
     }
 
@@ -147,10 +146,10 @@ public class QueuedMessagesSendScheduleTaskTests
         CollectionAssert.AreEqual(new[] { "template-attachment" }, attachments);
     }
 
-    private async Task<string[]> SentAttachments(QueuedEmail queuedEmail)
+    private async Task<string[]?> SentAttachments(QueuedEmail queuedEmail)
     {
         SetupQueue(queuedEmail);
-        string[] attachments = null;
+        string[]? attachments = null;
         _emailSenderMock.Setup(c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(),

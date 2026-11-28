@@ -22,8 +22,7 @@ public class StockLedgerTests
     private StockLedger _ledger;
     private IRepository<Product> _products;
 
-    [TestInitialize]
-    public void Init()
+    public StockLedgerTests()
     {
         _products = new MongoDBRepositoryTest<Product>();
         _journal = new MongoDBRepositoryTest<InventoryJournal>();
@@ -38,11 +37,11 @@ public class StockLedgerTests
     private async Task<IList<string>> Apply(Product product, params StockChange[] changes) =>
         await _ledger.Apply(Stored(product), changes);
 
-    private static StockChange By(int quantity, string warehouseId = "", IList<CustomAttribute> attributes = null,
+    private static StockChange By(int quantity, string warehouseId = "", IList<CustomAttribute>? attributes = null,
         InventoryMovementType type = InventoryMovementType.ManualEdit) =>
         new(attributes ?? [], warehouseId, quantity, false, type, new StockSource("Product"));
 
-    private static StockChange To(int quantity, string warehouseId = "", IList<CustomAttribute> attributes = null) =>
+    private static StockChange To(int quantity, string warehouseId = "", IList<CustomAttribute>? attributes = null) =>
         new(attributes ?? [], warehouseId, quantity, true, InventoryMovementType.ManualEdit, new StockSource("Product"));
 
     private async Task<Product> Insert(Product product)
@@ -363,7 +362,7 @@ public class StockLedgerTests
         Assert.AreEqual(8, StockTestFixture.JournalSum(_journal, product.Id, "", ""));
     }
 
-    private static StockChange Receipt(int quantity, decimal unitCost, IList<CustomAttribute> attributes = null) =>
+    private static StockChange Receipt(int quantity, decimal unitCost, IList<CustomAttribute>? attributes = null) =>
         new(attributes ?? [], "", quantity, false, InventoryMovementType.Receipt, new StockSource("InventoryDocument"))
             { UnitCost = unitCost };
 
@@ -534,10 +533,10 @@ public static class StockTestFixture
         return warehouseService.Object;
     }
 
-    public static ProductUnitService UnitService(IRepository<ProductBatch> batches = null,
-        IRepository<ProductSerialNumber> serials = null, IRepository<Product> products = null,
-        InventorySettings settings = null, IRepository<InventoryJournal> journal = null,
-        IRepository<Shipment> shipments = null, IRepository<Order> orders = null)
+    public static ProductUnitService UnitService(IRepository<ProductBatch>? batches = null,
+        IRepository<ProductSerialNumber>? serials = null, IRepository<Product>? products = null,
+        InventorySettings? settings = null, IRepository<InventoryJournal>? journal = null,
+        IRepository<Shipment>? shipments = null, IRepository<Order>? orders = null)
     {
         var settingService = new Mock<ISettingService>();
         settingService.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
@@ -559,9 +558,9 @@ public static class StockTestFixture
     }
 
     public static StockLedger Ledger(IRepository<Product> products, IRepository<InventoryJournal> journal,
-        IOutOfStockSubscriptionService outOfStockSubscriptionService = null, IMediator mediator = null,
-        IRepository<ProductBatch> batches = null, IRepository<ProductSerialNumber> serials = null,
-        IRepository<Shipment> shipments = null)
+        IOutOfStockSubscriptionService? outOfStockSubscriptionService = null, IMediator? mediator = null,
+        IRepository<ProductBatch>? batches = null, IRepository<ProductSerialNumber>? serials = null,
+        IRepository<Shipment>? shipments = null)
     {
         mediator ??= new Mock<IMediator>().Object;
         return new StockLedger(products, journal, Warehouses(),

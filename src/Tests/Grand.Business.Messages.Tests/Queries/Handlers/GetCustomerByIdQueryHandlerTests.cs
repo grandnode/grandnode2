@@ -11,8 +11,7 @@ public class GetCustomerByIdQueryHandlerTests
 {
     private GetCustomerByIdQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetCustomerByIdQueryHandlerTests()
     {
         var _repository = new MongoDBRepositoryTest<Customer>();
         _repository.Insert(new Customer { Id = "1" });

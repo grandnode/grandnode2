@@ -14,8 +14,7 @@ public class UpdateExchangeRateScheduleTaskTests
     private CurrencySettings _settings;
     private UpdateExchangeRateScheduleTask _task;
 
-    [TestInitialize]
-    public void Init()
+    public UpdateExchangeRateScheduleTaskTests()
     {
         _currencyServiceMock = new Mock<ICurrencyService>();
         _exchangeRateServiceMock = new Mock<IExchangeRateService>();

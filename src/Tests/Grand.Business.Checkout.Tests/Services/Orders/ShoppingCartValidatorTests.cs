@@ -24,13 +24,12 @@ namespace Grand.Business.Checkout.Tests.Services.Orders;
 public class ShoppingCartValidatorTests
 {
     private static readonly Language Language = new() { Id = "lang1" };
-    private readonly List<object> _records = [];
+    private readonly List<object?> _records = [];
     private Mock<IMediator> _mediatorMock;
     private ShoppingCartValidator _validator;
     private Mock<IValidatorFactory> _validatorFactoryMock;
 
-    [TestInitialize]
-    public void Init()
+    public ShoppingCartValidatorTests()
     {
         _validatorFactoryMock = new Mock<IValidatorFactory>();
         Capture<ShoppingCartWarningsValidatorRecord>();
@@ -142,7 +141,7 @@ public class ShoppingCartValidatorTests
         //Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
             _validator.GetShoppingCartItemWarnings(new Customer(), new ShoppingCartItem(), new Product(), NoChecks(),
-                null));
+                null!));
     }
 
     private static ShoppingCartValidatorOptions NoChecks() => new() {

@@ -11,8 +11,7 @@ public class VatServiceTests
     private TaxSettings _taxSettings;
     private VatService _vatService;
 
-    [TestInitialize]
-    public void Init()
+    public VatServiceTests()
     {
         _taxSettings = new TaxSettings { EuVatAssumeValid = true, EuVatUseWebService = false };
         _vatService = new VatService(_taxSettings);

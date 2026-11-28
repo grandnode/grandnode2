@@ -60,8 +60,8 @@ public class MerchandiseReturnControllerAttributeTests
     [TestMethod]
     public void AdminController_HasAreaAttributeWithAdminArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
-            typeof(Grand.Web.Admin.Controllers.MerchandiseReturnController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(
+            typeof(Grand.Web.Admin.Controllers.MerchandiseReturnController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(Grand.Web.Admin.Extensions.Constants.AreaAdmin, areaAttr.RouteValue);
     }
@@ -79,8 +79,8 @@ public class MerchandiseReturnControllerAttributeTests
     [TestMethod]
     public void StoreController_HasAreaAttributeWithStoreArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
-            typeof(StoreHost::Grand.Web.Store.Controllers.MerchandiseReturnController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(
+            typeof(StoreHost::Grand.Web.Store.Controllers.MerchandiseReturnController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(StoreHost::Grand.Web.Store.Extensions.Constants.AreaStore, areaAttr.RouteValue);
     }
@@ -98,8 +98,8 @@ public class MerchandiseReturnControllerAttributeTests
     [TestMethod]
     public void VendorController_HasAreaAttributeWithVendorArea()
     {
-        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
-            typeof(VendorHost::Grand.Web.Vendor.Controllers.MerchandiseReturnController), typeof(AreaAttribute), false);
+        var areaAttr = Assert.IsInstanceOfType<AreaAttribute>(Attribute.GetCustomAttribute(
+            typeof(VendorHost::Grand.Web.Vendor.Controllers.MerchandiseReturnController), typeof(AreaAttribute), false));
         Assert.IsNotNull(areaAttr, "Missing [Area].");
         Assert.AreEqual(VendorHost::Grand.Web.Vendor.Extensions.Constants.AreaVendor, areaAttr.RouteValue);
     }

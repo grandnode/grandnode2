@@ -12,8 +12,7 @@ public class StartupApplicationTests
     private IConfiguration _configuration;
     private ServiceCollection _serviceCollection;
 
-    [TestInitialize]
-    public void Init()
+    public StartupApplicationTests()
     {
         _serviceCollection = new ServiceCollection();
         _configuration = new ConfigurationBuilder().Build();

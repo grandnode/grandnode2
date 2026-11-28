@@ -29,8 +29,7 @@ public class CustomerManagerServiceTests
     private Mock<IExternalSignInPolicy> _signInPolicy;
     private Mock<ILogger<CustomerManagerService>> _logger;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerManagerServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
@@ -130,7 +129,7 @@ public class CustomerManagerServiceTests
 
         Assert.AreEqual(CustomerLoginResults.Successful, result);
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), null,
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -160,7 +159,7 @@ public class CustomerManagerServiceTests
         //Arrange
         var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "12345" };
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(customer));
+            .ReturnsAsync(() => customer);
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
         //Act
         var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456");
@@ -174,7 +173,7 @@ public class CustomerManagerServiceTests
         //Arrange
         var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(customer));
+            .ReturnsAsync(() => customer);
         _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
         //Act
         var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456");
@@ -242,7 +241,7 @@ public class CustomerManagerServiceTests
         //Arrange
         var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
-            .Returns(() => Task.FromResult(customer));
+            .ReturnsAsync(() => customer);
 
         var changepassword = new ChangePasswordRequest("admin@admin.com",
             PasswordFormat.Clear,

@@ -15,8 +15,7 @@ public class GetPasswordIsExpiredQueryHandlerTests
     private OidcLoginConfig _loginConfig;
     private GetPasswordIsExpiredQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetPasswordIsExpiredQueryHandlerTests()
     {
         _groupServiceMock = new Mock<IGroupService>();
         _loginConfig = new OidcLoginConfig();

@@ -27,8 +27,7 @@ public class RegisterValidatorExternalTests
     private Mock<IExternalRegistrationContext> _external;
     private Mock<ICustomerService> _customerService;
 
-    [TestInitialize]
-    public void Init()
+    public RegisterValidatorExternalTests()
     {
         _external = new Mock<IExternalRegistrationContext>();
         _customerService = new Mock<ICustomerService>();
@@ -82,7 +81,7 @@ public class RegisterValidatorExternalTests
     [TestMethod]
     public async Task NoPending_NoPassword_Invalid_EvenWithFormFlag()
     {
-        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity)null);
+        _external.Setup(x => x.GetPending()).ReturnsAsync((ExternalRegistrationIdentity?)null);
         var result = await Validator().ValidateAsync(new RegisterModel { Email = "a@b.c", ExternalRegistration = true });
         Assert.IsTrue(result.Errors.Any(e => e.PropertyName == nameof(RegisterModel.Password)));
     }

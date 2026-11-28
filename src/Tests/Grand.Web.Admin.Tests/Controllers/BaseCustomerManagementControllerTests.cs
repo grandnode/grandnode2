@@ -36,7 +36,7 @@ public class BaseCustomerManagementControllerTests
             customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
             translationService, contextAccessor, customerSettings, scope, permissionService, exportManager)
     {
-        public void CheckTwoFactorEnabledWarningPublic(Customer existingCustomer, CustomerModel model) =>
+        public void CheckTwoFactorEnabledWarningPublic(Customer? existingCustomer, CustomerModel model) =>
             CheckTwoFactorEnabledWarning(existingCustomer, model);
     }
 
@@ -47,8 +47,7 @@ public class BaseCustomerManagementControllerTests
     private Mock<IContextAccessor> _contextAccessorMock;
     private Mock<IAuditEventRecorder> _auditEventRecorderMock = new();
 
-    [TestInitialize]
-    public void Setup()
+    public BaseCustomerManagementControllerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();

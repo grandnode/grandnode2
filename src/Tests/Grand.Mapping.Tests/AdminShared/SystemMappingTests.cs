@@ -22,8 +22,7 @@ public class SystemMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public SystemMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<EmailAccountProfile>();

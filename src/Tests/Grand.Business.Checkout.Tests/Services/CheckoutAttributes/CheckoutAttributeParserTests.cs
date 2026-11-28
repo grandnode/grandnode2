@@ -28,8 +28,7 @@ public class CheckoutAttributeParserTests
     private Mock<ICacheBase> cacheManager;
     private CheckoutAttributeValue cav1_1, cav1_2, cav2_1, cav2_2;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public CheckoutAttributeParserTests()
     {
         var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
@@ -145,11 +144,11 @@ public class CheckoutAttributeParserTests
         attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca3, "absolutely any value").ToList();
 
         Assert.HasCount(4, attributes);
-        Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca1.Id)));
-        Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca2.Id)));
-        Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca3.Id)));
+        Assert.IsTrue(attributes.Any(c => string.Equals(c.Key, ca1.Id)));
+        Assert.IsTrue(attributes.Any(c => string.Equals(c.Key, ca2.Id)));
+        Assert.IsTrue(attributes.Any(c => string.Equals(c.Key, ca3.Id)));
         attributes = _checkoutAttributeParser.RemoveCheckoutAttribute(attributes, ca1);
         Assert.HasCount(3, attributes);
-        Assert.IsFalse(attributes.Any(c => c.Key.Equals(ca1.Id)));
+        Assert.IsFalse(attributes.Any(c => string.Equals(c.Key, ca1.Id)));
     }
 }

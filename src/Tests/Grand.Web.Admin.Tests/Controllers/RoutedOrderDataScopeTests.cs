@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -29,8 +27,7 @@ public class RoutedOrderDataScopeTests
     private StoreOrderDataScope _storeScope = null!;
     private VendorOrderDataScope _vendorScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedOrderDataScopeTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { StaffStoreId = StaffStoreId });

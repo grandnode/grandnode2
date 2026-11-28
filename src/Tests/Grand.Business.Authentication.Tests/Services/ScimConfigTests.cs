@@ -61,6 +61,6 @@ public class ScimConfigTests
     public void IsTakeOverDomain_NoneConfigured_False()
     {
         Assert.IsFalse(new ScimConfig().IsTakeOverDomain("jan@firma.pl"));
-        Assert.IsFalse(new ScimConfig { TakeOverDomains = null }.IsTakeOverDomain("jan@firma.pl"));
+        Assert.IsFalse(new ScimConfig { TakeOverDomains = [] }.IsTakeOverDomain("jan@firma.pl"));
     }
 }

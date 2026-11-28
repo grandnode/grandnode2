@@ -33,8 +33,7 @@ public class OrderControllerWithdrawApprovalTests
     private Mock<IOrderService> _orders;
     private Mock<IRequestTranslationService> _translation;
 
-    [TestInitialize]
-    public void Init()
+    public OrderControllerWithdrawApprovalTests()
     {
         var work = new Mock<IWorkContext>();
         work.Setup(x => x.CurrentCustomer).Returns(_buyer);

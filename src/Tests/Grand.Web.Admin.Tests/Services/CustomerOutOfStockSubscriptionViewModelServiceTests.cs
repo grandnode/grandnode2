@@ -20,8 +20,7 @@ public class CustomerOutOfStockSubscriptionViewModelServiceTests
     private Mock<IProductAttributeFormatter> _productAttributeFormatterMock;
     private CustomerOutOfStockSubscriptionViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerOutOfStockSubscriptionViewModelServiceTests()
     {
         _outOfStockSubscriptionServiceMock = new Mock<IOutOfStockSubscriptionService>();
         _storeServiceMock = new Mock<IStoreService>();

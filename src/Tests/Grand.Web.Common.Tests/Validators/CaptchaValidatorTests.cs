@@ -12,10 +12,10 @@ public class CaptchaValidatorTests
 {
     private sealed class CaptchaModel : ICaptchaValidModel
     {
-        public string ReCaptchaChallengeField { get; set; }
-        public string ReCaptchaResponseField { get; set; }
-        public string ReCaptchaResponseValue { get; set; }
-        public string ReCaptchaResponse { get; set; }
+        public string? ReCaptchaChallengeField { get; set; }
+        public string? ReCaptchaResponseField { get; set; }
+        public string? ReCaptchaResponseValue { get; set; }
+        public string? ReCaptchaResponse { get; set; }
     }
 
     [TestMethod]

@@ -6,10 +6,10 @@ namespace Payments.CashOnDelivery.Models;
 
 public class ConfigurationModel : BaseModel, ILocalizedModel<ConfigurationModel.ConfigurationLocalizedModel>
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
     [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.DescriptionText")]
-    public string DescriptionText { get; set; }
+    public string? DescriptionText { get; set; }
 
     [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.AdditionalFee")]
     public double AdditionalFee { get; set; }
@@ -33,9 +33,9 @@ public class ConfigurationModel : BaseModel, ILocalizedModel<ConfigurationModel.
     public class ConfigurationLocalizedModel : ILocalizedModelLocal
     {
         [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.DescriptionText")]
-        public string DescriptionText { get; set; }
+        public string? DescriptionText { get; set; }
 
-        public string LanguageId { get; set; }
+        public string? LanguageId { get; set; }
     }
 
     #endregion

@@ -22,8 +22,7 @@ public class MessageTemplateServiceTests
     private MessageTemplateService _service;
     private CatalogSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public MessageTemplateServiceTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _aclService = new Mock<IAclService>();
@@ -38,7 +37,7 @@ public class MessageTemplateServiceTests
     [TestMethod]
     public void CopyMessageTemplate_NullArrguemnt_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.CopyMessageTemplate(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.CopyMessageTemplate(null!));
     }
 
     [TestMethod]
@@ -70,6 +69,7 @@ public class MessageTemplateServiceTests
 
         var result = await _service.GetMessageTemplateByName("Name", "store-1");
 
+        Assert.IsNotNull(result);
         Assert.AreEqual(storeCopy.Id, result.Id);
     }
 
@@ -85,6 +85,7 @@ public class MessageTemplateServiceTests
 
         var result = await _service.GetMessageTemplateByName("Name", "store-2");
 
+        Assert.IsNotNull(result);
         Assert.AreEqual(sharedTemplate.Id, result.Id);
     }
 

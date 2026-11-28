@@ -30,11 +30,10 @@ public class MerchandiseReturnRefundServiceTests
     private MerchandiseReturnRefundService _service;
     private List<string> _steps;
     private MerchandiseReturn _stored;
-    private PaymentTransaction _transaction;
+    private PaymentTransaction? _transaction;
     private Mock<IMerchandiseReturnWorkflowService> _workflowService;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnRefundServiceTests()
     {
         _steps = [];
         _locks = [];
@@ -102,7 +101,7 @@ public class MerchandiseReturnRefundServiceTests
             resourceLock.Object, NullLogger<MerchandiseReturnRefundService>.Instance);
     }
 
-    private static MerchandiseReturn Return(string id, MerchandiseReturnStatus status,
+    private static MerchandiseReturn Return(string? id, MerchandiseReturnStatus status,
         params (string OrderItemId, int Quantity)[] items)
     {
         var merchandiseReturn = new MerchandiseReturn
@@ -219,6 +218,7 @@ public class MerchandiseReturnRefundServiceTests
         //the order paid 180 after a discount of the whole order: the items' price is not lowered by it, and the
         //payment caps what goes back
         _order.OrderDiscount = 20;
+        Assert.IsNotNull(_transaction);
         _transaction.TransactionAmount = 180;
 
         var quote = await _service.GetQuote(_stored, _order);
@@ -257,6 +257,7 @@ public class MerchandiseReturnRefundServiceTests
     [TestMethod]
     public async Task GetQuote_PaymentRefundedAlready_NothingToRefund()
     {
+        Assert.IsNotNull(_transaction);
         _transaction.RefundedAmount = 300;
 
         var quote = await _service.GetQuote(_stored, _order);
@@ -320,6 +321,7 @@ public class MerchandiseReturnRefundServiceTests
     [TestMethod]
     public async Task GetEstimate_PaymentPartlyRefunded_AtMostWhatIsLeft()
     {
+        Assert.IsNotNull(_transaction);
         _transaction.RefundedAmount = 250;
 
         var estimate = await _service.GetEstimate([Return(null, MerchandiseReturnStatus.Pending, ("a", 2))], _order);
@@ -391,6 +393,7 @@ public class MerchandiseReturnRefundServiceTests
         CollectionAssert.AreEqual(new[] { "save:under way", "pay online", "save:refunded" }, _steps);
         _mediator.Verify(x => x.Send(It.Is<PartiallyRefundCommand>(c =>
             c.AmountToRefund == 200 && c.PaymentTransaction.Id == "t1"), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.IsNotNull(_stored.Refund);
         Assert.AreEqual(200, _stored.Refund.Amount);
         Assert.AreEqual(200, _stored.Refund.ItemsAmount);
         Assert.AreEqual("t1", _stored.Refund.PaymentTransactionId);
@@ -400,7 +403,7 @@ public class MerchandiseReturnRefundServiceTests
         _workflowService.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Completed, null,
             "staff@shop.com"), Times.Once);
         _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
-            n.OrderId == "o1" && n.Note.Contains("#7") && n.Note.Contains("200.00") && !n.DisplayToCustomer)),
+            n.OrderId == "o1" && n.Note != null && n.Note.Contains("#7") && n.Note.Contains("200.00") && !n.DisplayToCustomer)),
             Times.Once);
     }
 
@@ -422,7 +425,9 @@ public class MerchandiseReturnRefundServiceTests
 
         Assert.IsNull(error);
         CollectionAssert.AreEqual(new[] { "save:under way", "pay offline", "save:refunded" }, _steps);
+        Assert.IsNotNull(_stored.Refund);
         Assert.IsTrue(_stored.Refund.Offline);
+        Assert.IsNotNull(_transaction);
         Assert.AreEqual(200, _transaction.RefundedAmount);
     }
 
@@ -447,9 +452,11 @@ public class MerchandiseReturnRefundServiceTests
         var error = await _service.Refund("r1", 150.004, false);
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored.Refund);
         Assert.AreEqual(150, _stored.Refund.Amount);
         Assert.AreEqual(200, _stored.Refund.ItemsAmount);
         Assert.AreEqual(5, _stored.Refund.ReturnShippingCost);
+        Assert.IsNotNull(_transaction);
         Assert.AreEqual(150, _transaction.RefundedAmount);
     }
 
@@ -476,6 +483,7 @@ public class MerchandiseReturnRefundServiceTests
     [TestMethod]
     public async Task Refund_AboveWhatIsLeftOnThePayment_Refused()
     {
+        Assert.IsNotNull(_transaction);
         _transaction.RefundedAmount = 250;
 
         var error = await _service.Refund("r1", 60, false);
@@ -494,6 +502,7 @@ public class MerchandiseReturnRefundServiceTests
         Assert.AreEqual(MerchandiseReturnErrors.AlreadyRefunded, error);
         _mediator.Verify(x => x.Send(It.IsAny<PartiallyRefundCommand>(), It.IsAny<CancellationToken>()),
             Times.Once);
+        Assert.IsNotNull(_transaction);
         Assert.AreEqual(200, _transaction.RefundedAmount);
     }
 
@@ -524,6 +533,7 @@ public class MerchandiseReturnRefundServiceTests
         var error = await _service.Refund("r1", 200, false, "staff@shop.com");
 
         Assert.AreEqual(MerchandiseReturnErrors.RefundUnconfirmed, error);
+        Assert.IsNotNull(_stored.Refund);
         Assert.IsTrue(_stored.Refund.OutcomeUnknown);
         Assert.IsNull(_stored.Refund.RefundedOnUtc);
         Assert.IsTrue(_stored.Refund.AwaitsCheck(DateTime.UtcNow));
@@ -531,7 +541,7 @@ public class MerchandiseReturnRefundServiceTests
         _workflowService.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
             It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
-            n.Note.Contains("card expired") && !n.DisplayToCustomer)), Times.Once);
+            n.Note != null && n.Note.Contains("card expired") && !n.DisplayToCustomer)), Times.Once);
     }
 
     [TestMethod]
@@ -543,6 +553,7 @@ public class MerchandiseReturnRefundServiceTests
         var error = await _service.Refund("r1", 200, false);
 
         Assert.AreEqual(MerchandiseReturnErrors.RefundUnconfirmed, error);
+        Assert.IsNotNull(_stored.Refund);
         Assert.IsTrue(_stored.Refund.OutcomeUnknown);
     }
 
@@ -579,6 +590,7 @@ public class MerchandiseReturnRefundServiceTests
     public async Task Refund_UnderWay_WhileTheTransactionGrewByAnotherRefund_IsNotTakenAsRefunded()
     {
         //another return of the order, or a refund by hand, put the money on the transaction: not this refund's
+        Assert.IsNotNull(_transaction);
         _transaction.RefundedAmount = 250;
         _stored.Refund = new MerchandiseReturnRefund {
             Amount = 200, PaymentTransactionId = "t1", CreatedOnUtc = DateTime.UtcNow.AddHours(-1)
@@ -613,13 +625,14 @@ public class MerchandiseReturnRefundServiceTests
         var error = await _service.ResolveRefund("r1", true, "boss@shop.com");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored.Refund);
         Assert.IsNotNull(_stored.Refund.RefundedOnUtc);
         VerifyNothingPaid();
         _workflowService.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Completed, null,
             "boss@shop.com"), Times.Once);
-        _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n => n.Note.Contains("#7"))), Times.Once);
+        _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n => n.Note != null && n.Note.Contains("#7"))), Times.Once);
         _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
-            n.Note.Contains("went back") && n.Note.Contains("boss@shop.com"))), Times.Once);
+            n.Note != null && n.Note.Contains("went back") && n.Note.Contains("boss@shop.com"))), Times.Once);
     }
 
     [TestMethod]
@@ -634,6 +647,7 @@ public class MerchandiseReturnRefundServiceTests
         _workflowService.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
             It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         Assert.IsNull(await _service.Refund("r1", 200, true));
+        Assert.IsNotNull(_transaction);
         Assert.AreEqual(200, _transaction.RefundedAmount);
     }
 
@@ -645,6 +659,7 @@ public class MerchandiseReturnRefundServiceTests
         var error = await _service.ResolveRefund("r1", true);
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored.Refund);
         Assert.IsNotNull(_stored.Refund.RefundedOnUtc);
     }
 

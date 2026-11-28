@@ -21,8 +21,7 @@ public class CampaignMessageRendererTests
     private Mock<IMediator> _mediatorMock;
     private CampaignMessageRenderer _renderer;
 
-    [TestInitialize]
-    public void Init()
+    public CampaignMessageRendererTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _renderer = new CampaignMessageRenderer(_mediatorMock.Object);

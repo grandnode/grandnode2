@@ -27,7 +27,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
     private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
 
-    private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string? CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
     public DiscountRulesHasAllProductsController(IDiscountService discountService,
         IRequestPermissionService permissionService,
         IContextAccessor contextAccessor,
@@ -97,7 +97,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
         if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
             return Content("Access denied");
 
-        DiscountRule discountRequirement = null;
+        DiscountRule? discountRequirement = null;
 
         if (!string.IsNullOrEmpty(discountRequirementId))
             discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
@@ -254,7 +254,7 @@ public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginContr
         return await _permissionService.Authorize(StandardPermission.ManageProducts);
     }
 
-    private async Task<Discount> GetDiscountById(string discountId)
+    private async Task<Discount?> GetDiscountById(string discountId)
     {
         return await _discountService.GetDiscountById(discountId);
     }

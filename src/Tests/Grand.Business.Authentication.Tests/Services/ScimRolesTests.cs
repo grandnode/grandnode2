@@ -19,7 +19,7 @@ public class ScimRolesTests
         _ => ""
     };
 
-    private static ScimGroup Mapped(string customerGroupId, string store = null, string vendor = null) =>
+    private static ScimGroup Mapped(string? customerGroupId, string? store = null, string? vendor = null) =>
         new() { CustomerGroupId = customerGroupId, StaffStoreId = store, VendorId = vendor };
 
     private static ScimWanted Wanted(params ScimGroup[] groups) => ScimRoles.Wanted(groups, SystemNameOf);

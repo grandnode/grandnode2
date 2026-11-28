@@ -45,7 +45,7 @@ public class BaseProductBidControllerTests : ProductControllerTestsBase<BaseProd
     [TestMethod]
     public async Task ListBids_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             () => _controller.ListBids(new Grand.Web.Common.DataSource.DataSourceRequest(), "missing"));
@@ -81,6 +81,7 @@ public class BaseProductBidControllerTests : ProductControllerTestsBase<BaseProd
 
         Assert.IsInstanceOfType<JsonResult>(result);
         var json = result as JsonResult;
+        Assert.IsNotNull(json);
         var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
         Assert.IsNotNull(gridModel);
         Assert.AreEqual(0, gridModel.Total);
@@ -111,7 +112,7 @@ public class BaseProductBidControllerTests : ProductControllerTestsBase<BaseProd
     [TestMethod]
     public async Task BidDelete_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing")).ReturnsAsync((Product?)null);
         var model = new ProductModel.BidModel { ProductId = "missing", BidId = "b1" };
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.BidDelete(model));
@@ -197,7 +198,7 @@ public class BaseProductBidControllerTests : ProductControllerTestsBase<BaseProd
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _auctionServiceMock.Setup(s => s.GetBid("missing")).ReturnsAsync((Bid)null);
+        _auctionServiceMock.Setup(s => s.GetBid("missing")).ReturnsAsync((Bid?)null);
         var model = new ProductModel.BidModel { ProductId = "p1", BidId = "missing" };
 
         var result = await _controller.BidDelete(model);

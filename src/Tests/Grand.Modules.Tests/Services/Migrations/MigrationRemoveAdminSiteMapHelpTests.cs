@@ -16,8 +16,7 @@ public class MigrationRemoveAdminSiteMapHelpTests
     private IServiceProvider _serviceProvider;
     private MigrationRemoveAdminSiteMapHelp _migration;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationRemoveAdminSiteMapHelpTests()
     {
         _repository = new LiteDBRepositoryMock<AdminSiteMap>();
 

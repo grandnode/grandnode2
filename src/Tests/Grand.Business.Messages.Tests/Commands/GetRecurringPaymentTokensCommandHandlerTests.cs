@@ -15,8 +15,7 @@ public class GetRecurringPaymentTokensCommandHandlerTests
     private GetRecurringPaymentTokensCommandHandler _handler;
     private Dictionary<string, string> _resources;
 
-    [TestInitialize]
-    public void Init()
+    public GetRecurringPaymentTokensCommandHandlerTests()
     {
         //resources the language has; a missing one gives the default, or an empty string when asked for that
         _resources = new Dictionary<string, string>();

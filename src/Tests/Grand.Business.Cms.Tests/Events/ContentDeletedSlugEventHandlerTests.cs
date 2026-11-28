@@ -21,8 +21,7 @@ public class ContentDeletedSlugEventHandlerTests
     private IRepository<EntityUrl> _entityUrlRepository;
     private ContentDeletedSlugEventHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public ContentDeletedSlugEventHandlerTests()
     {
         _entityUrlRepository = new MongoDBRepositoryTest<EntityUrl>();
         var cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), new Mock<IMediator>().Object,

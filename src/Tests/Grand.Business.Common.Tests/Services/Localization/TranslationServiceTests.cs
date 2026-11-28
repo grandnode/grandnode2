@@ -16,8 +16,7 @@ public class TranslationServiceTests
 
     private TranslationService _translationService;
 
-    [TestInitialize]
-    public void Init()
+    public TranslationServiceTests()
     {
         _repository = new MongoDBRepositoryTest<TranslationResource>();
 
@@ -99,7 +98,7 @@ public class TranslationServiceTests
 
         //Assert
         Assert.AreEqual(translationResource.Name,
-            _repository.Table.FirstOrDefault(x => x.Id == translationResource.Id).Name);
+            _repository.Table.First(x => x.Id == translationResource.Id).Name);
     }
 
     [TestMethod]

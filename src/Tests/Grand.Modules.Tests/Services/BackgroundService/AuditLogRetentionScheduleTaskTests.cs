@@ -12,8 +12,7 @@ public class AuditLogRetentionScheduleTaskTests
     private Mock<IAuditService> _auditService;
     private DateTime _cutoff;
 
-    [TestInitialize]
-    public void Init()
+    public AuditLogRetentionScheduleTaskTests()
     {
         _auditService = new Mock<IAuditService>();
         _auditService.Setup(s => s.DeleteOlderThan(It.IsAny<DateTime>()))

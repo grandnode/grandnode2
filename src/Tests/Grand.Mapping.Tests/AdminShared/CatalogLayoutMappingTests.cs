@@ -13,8 +13,7 @@ public class CatalogLayoutMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public CatalogLayoutMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<CategoryLayoutProfile>();

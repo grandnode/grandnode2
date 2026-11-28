@@ -31,8 +31,7 @@ public class OnAccountPaymentProviderTests
     private IServiceScope _scope;
     private OnAccountPaymentSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public OnAccountPaymentProviderTests()
     {
         _settings = new OnAccountPaymentSettings();
         _creditService = new Mock<ICompanyCreditService>();

@@ -16,8 +16,7 @@ public class AuditReferencesTests
     private Mock<IAuditRecordReader> _reader;
     private AuditReferences _references;
 
-    [TestInitialize]
-    public void Init()
+    public AuditReferencesTests()
     {
         _reader = new Mock<IAuditRecordReader>();
         _reader.Setup(r => r.Read(It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -26,8 +25,8 @@ public class AuditReferencesTests
         _references = new AuditReferences(_reader.Object);
     }
 
-    private async Task<AuditChange> Describe(Type type, string path, string oldValue, string newValue,
-        IDictionary<string, string> after = null, bool truncated = false)
+    private async Task<AuditChange> Describe(Type type, string path, string? oldValue, string newValue,
+        IDictionary<string, string>? after = null, bool truncated = false)
     {
         var change = new AuditChange { Path = path, OldValue = oldValue, NewValue = newValue, Truncated = truncated };
         await _references.Describe(type, [change], after, after);
@@ -189,11 +188,12 @@ public class AuditReferencesTests
         var change = await Describe(typeof(Product), "Stores", null,
             "[" + string.Join(", ", ids.Select(id => $"\"{id}\"")) + "]");
 
+        Assert.IsNotNull(change.NewValue);
         Assert.AreEqual(AuditDiff.MaxValueLength, change.NewValue.Length);
         Assert.IsTrue(change.Truncated);
     }
 
-    private async Task<IList<string>> ElementNames(string path, IDictionary<string, string> before,
+    private async Task<IList<string>?> ElementNames(string path, IDictionary<string, string>? before,
         IDictionary<string, string> after)
     {
         var change = new AuditChange { Path = path };
@@ -209,6 +209,7 @@ public class AuditReferencesTests
 
         var names = await ElementNames("ProductSpecificationAttributes[id=p1].DisplayOrder", product, product);
 
+        Assert.IsNotNull(names);
         CollectionAssert.AreEqual(new[] { "Color family" }, names.ToArray());
     }
 
@@ -224,6 +225,7 @@ public class AuditReferencesTests
         var names = await ElementNames("ProductAttributeMappings[id=m].ProductAttributeValues[id=v].PriceAdjustment",
             product, product);
 
+        Assert.IsNotNull(names);
         CollectionAssert.AreEqual(new[] { "Color", "Red" }, names.ToArray());
     }
 
@@ -235,6 +237,7 @@ public class AuditReferencesTests
 
         var names = await ElementNames("ProductCategories[id=x].DisplayOrder", before, new Dictionary<string, string>());
 
+        Assert.IsNotNull(names);
         CollectionAssert.AreEqual(new[] { "Lamps" }, names.ToArray());
     }
 
@@ -293,7 +296,7 @@ public class AuditReferencesTests
     }
 
     private async Task DescribeAll(
-        List<(Type Type, AuditEntry Entry, IDictionary<string, string> Before, IDictionary<string, string> After)> entries)
+        List<(Type Type, AuditEntry Entry, IDictionary<string, string>? Before, IDictionary<string, string>? After)> entries)
     {
         foreach (var (type, entry, before, after) in entries)
             await _references.DescribeEntry(type, entry, before, after);
@@ -314,7 +317,7 @@ public class AuditReferencesTests
             ]
         };
         var product = new Dictionary<string, string> { ["ProductCategories[id=x].CategoryId"] = "c1" };
-        var entries = new List<(Type, AuditEntry, IDictionary<string, string>, IDictionary<string, string>)> {
+        var entries = new List<(Type, AuditEntry, IDictionary<string, string>?, IDictionary<string, string>?)> {
             (typeof(Product), first, null, null),
             (typeof(Product), second, null, product)
         };
@@ -330,7 +333,7 @@ public class AuditReferencesTests
         Assert.AreEqual("Aurora (b1)", first.Changes[0].OldValue);
         Assert.AreEqual("Nordic (b2)", first.Changes[0].NewValue);
         Assert.AreEqual("Aurora (b1)", second.Changes[0].NewValue);
-        CollectionAssert.AreEqual(new[] { "Lamps" }, second.Changes[1].ElementNames.ToArray());
+        CollectionAssert.AreEqual(new[] { "Lamps" }, second.Changes[1].ElementNames?.ToArray());
         _reader.Verify(r => r.ReadMany(typeof(Brand), It.Is<IReadOnlyCollection<string>>(v => v.Count == 2), null,
             "Name"), Times.Once);
         _reader.Verify(r => r.ReadMany(typeof(Category), It.IsAny<IReadOnlyCollection<string>>(), null, "Name"),
@@ -345,7 +348,7 @@ public class AuditReferencesTests
         _records[(typeof(MerchandiseReturn), "r1")] = new Dictionary<string, string> { ["StoreId"] = "s1" };
         _records[(typeof(MerchandiseReturn), "r2")] = new Dictionary<string, string> { ["StoreId"] = "s2" };
         ReadManyFromRecords();
-        var entries = new List<(Type, AuditEntry, IDictionary<string, string>, IDictionary<string, string>)>();
+        var entries = new List<(Type, AuditEntry, IDictionary<string, string>?, IDictionary<string, string>?)>();
         foreach (var id in new[] { "r1", "r2" })
             entries.Add((typeof(MerchandiseReturnNote), new AuditEntry(), null,
                 new Dictionary<string, string> { ["MerchandiseReturnId"] = id }));
@@ -369,7 +372,7 @@ public class AuditReferencesTests
         _records[(typeof(Brand), "b1")] = new Dictionary<string, string> { ["Name"] = "Aurora" };
         _reader.Setup(r => r.ReadMany(It.IsAny<Type>(), It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<string>(),
             It.IsAny<string>())).ThrowsAsync(new InvalidOperationException());
-        var entries = new List<(Type, AuditEntry, IDictionary<string, string>, IDictionary<string, string>)> {
+        var entries = new List<(Type, AuditEntry, IDictionary<string, string>?, IDictionary<string, string>?)> {
             (typeof(Product), new AuditEntry { Changes = [new AuditChange { Path = "BrandId", NewValue = "b1" }] }, null, null)
         };
 

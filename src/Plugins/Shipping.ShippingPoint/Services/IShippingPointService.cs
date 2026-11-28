@@ -22,14 +22,14 @@ public interface IShippingPointService
     ///     Gets the pickup points of a store where customers can drop a merchandise return off
     /// </summary>
     /// <param name="storeId">The store identifier; points of all stores are included</param>
-    Task<IList<ShippingPoints>> GetReturnShippingPoints(string storeId);
+    Task<IList<ShippingPoints>> GetReturnShippingPoints(string? storeId);
 
     /// <summary>
     ///     Gets a pickup point
     /// </summary>
     /// <param name="shippingPointId">Pickup point identifier</param>
     /// <returns>Pickup point</returns>
-    Task<ShippingPoints> GetStoreShippingPointById(string shippingPointId);
+    Task<ShippingPoints?> GetStoreShippingPointById(string? shippingPointId);
 
     /// <summary>
     ///     Inserts a pickup point

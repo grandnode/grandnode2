@@ -14,8 +14,7 @@ public class GetSubAccountHandlerTests
     private Mock<ICustomerService> _customerServiceMock;
     private GetSubAccountHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetSubAccountHandlerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _handler = new GetSubAccountHandler(_customerServiceMock.Object);
@@ -62,6 +61,7 @@ public class GetSubAccountHandlerTests
 
         var model = await _handler.Handle(Query("sub"), default);
 
+        Assert.IsNotNull(model);
         Assert.AreEqual(SubAccountRole.Approver, model.Role);
         Assert.AreEqual("750.25", model.OrderApprovalLimit);
     }
@@ -81,6 +81,7 @@ public class GetSubAccountHandlerTests
 
             var model = await _handler.Handle(Query("sub"), default);
 
+            Assert.IsNotNull(model);
             Assert.AreEqual(expected, model.OrderApprovalLimit);
         }
         finally
@@ -97,6 +98,7 @@ public class GetSubAccountHandlerTests
 
         var model = await _handler.Handle(Query("sub"), default);
 
+        Assert.IsNotNull(model);
         Assert.AreEqual(string.Empty, model.OrderApprovalLimit);
     }
 

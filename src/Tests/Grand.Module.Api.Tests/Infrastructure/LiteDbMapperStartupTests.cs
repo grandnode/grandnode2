@@ -16,7 +16,7 @@ public class LiteDbMapperStartupTests
     public void ConfigureServices_OnLiteDb_BuildsTheMappersOfTheApiModels()
     {
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string> { ["Database:UseLiteDb"] = "true" })
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Database:UseLiteDb"] = "true" })
             .Build();
 
         new LiteDbMapperStartup().ConfigureServices(new ServiceCollection(), configuration);

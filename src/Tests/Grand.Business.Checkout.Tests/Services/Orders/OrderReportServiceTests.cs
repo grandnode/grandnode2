@@ -20,8 +20,7 @@ public class OrderReportServiceTests
     private MongoDBRepositoryTest<MerchandiseReturn> _merchandiseReturnRepository;
     private OrderReportService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderReportServiceTests()
     {
         _orderRepository = new MongoDBRepositoryTest<Order>();
         _productRepository = new MongoDBRepositoryTest<Product>();
@@ -93,7 +92,7 @@ public class OrderReportServiceTests
         var pages = new List<string>();
         for (var page = 0; page < 3; page++)
             pages.AddRange((await _service.BestSellersReport(orderBy: 1, pageIndex: page, pageSize: 2))
-                .Select(x => x.ProductId));
+                .Select(x => x.ProductId ?? ""));
 
         CollectionAssert.AreEqual(new[] { "p1", "p2", "p3", "p4", "p5", "p6" }, pages);
     }
@@ -250,7 +249,7 @@ public class OrderReportServiceTests
         return merchandiseReturn;
     }
 
-    private static MerchandiseReturnItem ReturnItem(OrderItem orderItem, int quantity, string reasonId = null,
+    private static MerchandiseReturnItem ReturnItem(OrderItem orderItem, int quantity, string? reasonId = null,
         string reasonText = "Damaged") =>
         new() { OrderItemId = orderItem.Id, Quantity = quantity, ReasonId = reasonId, ReasonForReturn = reasonText };
 

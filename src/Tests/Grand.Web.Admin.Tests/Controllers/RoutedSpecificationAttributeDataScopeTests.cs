@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -23,8 +21,7 @@ public class RoutedSpecificationAttributeDataScopeTests
     private GlobalAdminDataScope<SpecificationAttribute> _globalScope = null!;
     private StoreAdminDataScope<SpecificationAttribute> _storeScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedSpecificationAttributeDataScopeTests()
     {
         var contextAccessor = new Mock<IContextAccessor>();
         var workContext = new Mock<IWorkContext>();

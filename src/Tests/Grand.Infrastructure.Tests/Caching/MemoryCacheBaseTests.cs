@@ -14,11 +14,10 @@ public class MemoryCacheBaseTests
 {
     private CacheConfig _config;
     private Mock<IMediator> _mediatorMock;
-    private IMemoryCache _memoryCache;
+    private IMemoryCache? _memoryCache;
     private MemoryCacheBase _service;
 
-    [TestInitialize]
-    public void Init()
+    public MemoryCacheBaseTests()
     {
         _config = new CacheConfig { DefaultCacheTimeMinutes = 1 };
         var services = new ServiceCollection();
@@ -28,6 +27,7 @@ public class MemoryCacheBaseTests
 
         _memoryCache = serviceProvider.GetService<IMemoryCache>();
         _mediatorMock = new Mock<IMediator>();
+        Assert.IsNotNull(_memoryCache);
         _service = new MemoryCacheBase(_memoryCache, _mediatorMock.Object, _config);
     }
     [TestMethod]
@@ -49,6 +49,7 @@ public class MemoryCacheBaseTests
     {
         await _service.GetAsync("key", () => { return Task.FromResult("test"); }, 1);
         await _service.RemoveAsync("key");
+        Assert.IsNotNull(_memoryCache);
         var result = _memoryCache.Get("key");
         Assert.IsNull(result);
     }
@@ -58,6 +59,7 @@ public class MemoryCacheBaseTests
     {
         await _service.GetAsync("key", () => { return Task.FromResult("test"); }, 1);
         await _service.RemoveAsync("key1");
+        Assert.IsNotNull(_memoryCache);
         var result = _memoryCache.Get("key");
         Assert.IsNotNull(result);
     }
@@ -69,6 +71,7 @@ public class MemoryCacheBaseTests
         await _service.GetAsync("key2", () => { return Task.FromResult("test"); }, 1);
         await _service.GetAsync("test", () => { return Task.FromResult("test"); }, 1);
         await _service.RemoveByPrefix("key");
+        Assert.IsNotNull(_memoryCache);
         var result = _memoryCache.Get("key1");
         Assert.IsNull(result);
     }
@@ -80,6 +83,7 @@ public class MemoryCacheBaseTests
         await _service.GetAsync("key2", () => { return Task.FromResult("test"); }, 1);
         await _service.GetAsync("test", () => { return Task.FromResult("test"); }, 1);
         await _service.Clear();
+        Assert.IsNotNull(_memoryCache);
         var result = _memoryCache.Get("key1");
         Assert.IsNull(result);
     }
@@ -100,6 +104,7 @@ public class MemoryCacheBaseTests
 
         // Assert
         acquireMock.Verify(a => a.Invoke(), Times.Once);
+        Assert.IsNotNull(_memoryCache);
         var cacheResult = _memoryCache.Get(key);
         Assert.IsNotNull(cacheResult);
         Assert.AreEqual(cacheEntry, cacheResult);
@@ -122,6 +127,7 @@ public class MemoryCacheBaseTests
 
         // Assert
         acquireMock.Verify(a => a.Invoke(), Times.Once);
+        Assert.IsNotNull(_memoryCache);
         var cacheResult = _memoryCache.Get(key);
         Assert.IsNotNull(cacheResult);
         Assert.AreEqual(cacheEntry, cacheResult);
@@ -163,7 +169,7 @@ public class MemoryCacheBaseTests
     [DoNotParallelize]
     public void Clear_WhileEntriesAreBeingWritten_DoesNotThrow()
     {
-        Exception captured = null;
+        Exception? captured = null;
         var stopWriting = false;
 
         var writer = Task.Run(async () =>
@@ -263,6 +269,7 @@ public class MemoryCacheBaseTests
         await Task.Delay(500);
         await _service.RemoveByPrefix("race", false);
 
+        Assert.IsNotNull(_memoryCache);
         for (var i = 0; i < 50; i++)
             Assert.IsNull(_memoryCache.Get($"race{i}"), $"race{i} was not removed");
     }
@@ -285,6 +292,7 @@ public class MemoryCacheBaseTests
 
         //the caller still gets its value, but the next one reads it again
         Assert.AreEqual("stale", await get);
+        Assert.IsNotNull(_memoryCache);
         Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
         Assert.AreEqual("fresh", await _service.GetAsync("key", () => Task.FromResult("fresh")));
     }
@@ -306,6 +314,7 @@ public class MemoryCacheBaseTests
         release.SetResult();
 
         Assert.AreEqual("stale", await set);
+        Assert.IsNotNull(_memoryCache);
         Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
     }
 

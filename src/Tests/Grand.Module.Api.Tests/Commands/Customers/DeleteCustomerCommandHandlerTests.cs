@@ -14,8 +14,7 @@ public class DeleteCustomerCommandHandlerTests
 {
     private Mock<ICustomerService> _customerServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public DeleteCustomerCommandHandlerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
     }
@@ -27,7 +26,7 @@ public class DeleteCustomerCommandHandlerTests
     public async Task Handle_CustomerNotFound_ReturnsTrue_AndDoesNotDelete()
     {
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync((Customer)null);
+            .ReturnsAsync((Customer?)null);
         var handler = CreateHandler(perStore: true);
 
         var result = await handler.Handle(new DeleteCustomerCommand { Email = "none@x.com" }, default);

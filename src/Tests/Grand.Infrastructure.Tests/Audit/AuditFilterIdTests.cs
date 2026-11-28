@@ -63,7 +63,7 @@ public class AuditFilterIdTests
     [TestMethod]
     public void MemberPath_Simple()
     {
-        Assert.AreEqual("Name", AuditFilterId.MemberPath<Thing, string>(x => x.Name));
+        Assert.AreEqual("Name", AuditFilterId.MemberPath<Thing, string?>(x => x.Name));
     }
 
     [TestMethod]
@@ -83,9 +83,9 @@ public class AuditFilterIdTests
 
     public class Thing : BaseEntity
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public bool Published { get; set; }
-        public InnerThing Inner { get; set; }
+        public InnerThing Inner { get; set; } = new();
     }
 
     public class InnerThing

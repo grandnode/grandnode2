@@ -17,8 +17,7 @@ public class OrderStatusServiceTests
     private Mock<IRepository<OrderStatus>> _repositoryMock;
     private OrderStatusService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderStatusServiceTests()
     {
         _repositoryMock = new Mock<IRepository<OrderStatus>>();
         _cacheMock = new Mock<ICacheBase>();
@@ -37,7 +36,7 @@ public class OrderStatusServiceTests
     [TestMethod]
     public void Insert_NullArguemnt_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Insert(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Insert(null!));
     }
 
     [TestMethod]
@@ -51,7 +50,7 @@ public class OrderStatusServiceTests
     [TestMethod]
     public void Update_NullArguemnt_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Update(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Update(null!));
     }
 
     [TestMethod]
@@ -65,6 +64,6 @@ public class OrderStatusServiceTests
     [TestMethod]
     public void Delete_NullArguemnt_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Delete(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Delete(null!));
     }
 }

@@ -28,6 +28,13 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class BaseMerchandiseReturnControllerTests
 {
+    //the "Result" flag of an anonymous JSON answer
+    private static bool Result(JsonResult json)
+    {
+        return json.Value?.GetType().GetProperty("Result")?.GetValue(json.Value) as bool?
+               ?? throw new AssertFailedException("The JSON answer has no Result flag");
+    }
+
     // BaseMerchandiseReturnController is abstract; minimal subclass so actions can be invoked
     // directly. NotFoundOrDeniedForNotesSelect (Task 8) uses the base's default (throw) here - Store's
     // own override is tested separately in Task 8's tests.
@@ -47,14 +54,13 @@ public class BaseMerchandiseReturnControllerTests
     protected Mock<IAdminDataScope<MerchandiseReturn>> _scopeMock;
     protected Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseMerchandiseReturnControllerTests()
     {
         _merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
         _merchandiseReturnViewModelServiceMock = new Mock<IMerchandiseReturnViewModelService>();
         _orderServiceMock = new Mock<IOrderService>();
         _scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         _translationServiceMock = new Mock<IRequestTranslationService>();
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
@@ -109,7 +115,7 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task ListPost_GlobalScope_LeavesSubmittedStoreIdUntouched()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _merchandiseReturnViewModelServiceMock
             .Setup(v => v.PrepareMerchandiseReturnModel(It.IsAny<MerchandiseReturnListModel>(), 1, 10))
             .ReturnsAsync((new List<MerchandiseReturnModel>(), 0));
@@ -125,7 +131,7 @@ public class BaseMerchandiseReturnControllerTests
     {
         // Vendor has no store concept - List(POST) never forces model.StoreId for Vendor (spec §5);
         // vendor-scoping happens inside the shared service call via scope.DefaultVendorId (Task 4).
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-A");
         _merchandiseReturnViewModelServiceMock
             .Setup(v => v.PrepareMerchandiseReturnModel(It.IsAny<MerchandiseReturnListModel>(), 1, 10))
@@ -153,7 +159,7 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task GoToId_NotFound_RedirectsToList()
     {
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(42)).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(42)).ReturnsAsync((MerchandiseReturn?)null);
 
         var result = await _controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = "42" });
 
@@ -181,7 +187,7 @@ public class BaseMerchandiseReturnControllerTests
     {
         // int.TryParse("abc", out var id) leaves id = 0; GetMerchandiseReturnById(0) returning null
         // reproduces "not found" the same way it did before this phase (spec §2.6 - no regression).
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(0)).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(0)).ReturnsAsync((MerchandiseReturn?)null);
 
         var result = await _controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = "abc" });
 
@@ -202,6 +208,7 @@ public class BaseMerchandiseReturnControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("mr1", redirect.RouteValues["id"]);
     }
 
@@ -210,14 +217,15 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task ProductsForMerchandiseReturn_NotFound_ReturnsKendoError()
     {
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync((MerchandiseReturn?)null);
 
         var result = await _controller.ProductsForMerchandiseReturn("mr1", new DataSourceRequest());
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
-        Assert.IsFalse(string.IsNullOrEmpty((string)gridModel.Errors));
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
+        Assert.IsFalse(string.IsNullOrEmpty(Assert.IsInstanceOfType<string>(gridModel.Errors)));
     }
 
     [TestMethod]
@@ -231,8 +239,9 @@ public class BaseMerchandiseReturnControllerTests
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        var gridModel = (DataSourceResult)json.Value;
-        Assert.IsFalse(string.IsNullOrEmpty((string)gridModel.Errors));
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
+        Assert.IsFalse(string.IsNullOrEmpty(Assert.IsInstanceOfType<string>(gridModel.Errors)));
     }
 
     [TestMethod]
@@ -247,7 +256,9 @@ public class BaseMerchandiseReturnControllerTests
         var result = await _controller.ProductsForMerchandiseReturn("mr1", new DataSourceRequest());
 
         var json = result as JsonResult;
-        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(json);
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.AreEqual(1, gridModel.Total);
     }
 
@@ -256,7 +267,7 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task EditGet_NotFound_RedirectsToList()
     {
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn?)null);
 
         var result = await _controller.Edit("missing");
 
@@ -326,7 +337,7 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task EditPost_NotFound_RedirectsToList()
     {
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn?)null);
         var orderSettings = new Grand.Domain.Orders.OrderSettings();
 
         var result = await _controller.Edit(new MerchandiseReturnModel { Id = "missing" }, false,
@@ -368,7 +379,7 @@ public class BaseMerchandiseReturnControllerTests
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
         _merchandiseReturnViewModelServiceMock
             .Setup(v => v.UpdateMerchandiseReturnModel(entity, It.IsAny<MerchandiseReturnModel>(), It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
-            .ReturnsAsync((entity, (string)null));
+            .ReturnsAsync((entity, (string?)null));
         var orderSettings = new Grand.Domain.Orders.OrderSettings { MerchandiseReturns_AllowToSpecifyPickupAddress = false };
 
         var result = await _controller.Edit(new MerchandiseReturnModel { Id = "mr1" }, false,
@@ -404,7 +415,7 @@ public class BaseMerchandiseReturnControllerTests
         //not a redirect, which would drop the reason the admin typed
         var view = result as ViewResult;
         Assert.IsNotNull(view);
-        Assert.AreEqual("Used item", ((MerchandiseReturnModel)view.Model).ChangeStatusNote);
+        Assert.AreEqual("Used item", Assert.IsInstanceOfType<MerchandiseReturnModel>(view.Model).ChangeStatusNote);
         _translationServiceMock.Verify(t => t.GetResource("Vendor.Orders.MerchandiseReturns.AlreadyReceived"),
             Times.Once);
     }
@@ -419,7 +430,7 @@ public class BaseMerchandiseReturnControllerTests
         _merchandiseReturnViewModelServiceMock
             .Setup(v => v.UpdateMerchandiseReturnModel(entity, It.IsAny<MerchandiseReturnModel>(),
                 It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
-            .ReturnsAsync((entity, (string)null));
+            .ReturnsAsync((entity, (string?)null));
 
         var result = await _controller.Edit(
             new MerchandiseReturnModel { Id = "mr1", ChangeStatusTo = (int)MerchandiseReturnStatus.Accepted },
@@ -456,7 +467,7 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task Delete_NotFound_RedirectsToList()
     {
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn?)null);
 
         var result = await _controller.Delete("missing");
 
@@ -500,7 +511,7 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task NotesSelect_NotFound_BaseDefault_ThrowsArgumentException()
     {
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             async () => await _controller.MerchandiseReturnNotesSelect("missing", new DataSourceRequest()));
@@ -531,7 +542,9 @@ public class BaseMerchandiseReturnControllerTests
         var result = await _controller.MerchandiseReturnNotesSelect("mr1", new DataSourceRequest());
 
         var json = result as JsonResult;
-        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(json);
+        var gridModel = Assert.IsInstanceOfType<DataSourceResult>(json.Value);
+        Assert.IsNotNull(gridModel);
         Assert.AreEqual(1, gridModel.Total);
     }
 
@@ -540,12 +553,14 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task NoteAdd_NotFound_ReturnsJsonResultFalse()
     {
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn?)null);
 
-        var result = await _controller.MerchandiseReturnNoteAdd("missing", null, false, "msg");
+        var result = await _controller.MerchandiseReturnNoteAdd("missing", "", false, "msg");
 
         var json = result as JsonResult;
-        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        Assert.IsNotNull(json);
+        Assert.IsNotNull(json.Value);
+        Assert.IsFalse(Result(json));
         _orderServiceMock.Verify(o => o.GetOrderById(It.IsAny<string>()), Times.Never);
     }
 
@@ -556,10 +571,12 @@ public class BaseMerchandiseReturnControllerTests
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
 
-        var result = await _controller.MerchandiseReturnNoteAdd("mr1", null, false, "msg");
+        var result = await _controller.MerchandiseReturnNoteAdd("mr1", "", false, "msg");
 
         var json = result as JsonResult;
-        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        Assert.IsNotNull(json);
+        Assert.IsNotNull(json.Value);
+        Assert.IsFalse(Result(json));
         _merchandiseReturnViewModelServiceMock.Verify(
             v => v.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
             Times.Never);
@@ -581,7 +598,9 @@ public class BaseMerchandiseReturnControllerTests
         var result = await _controller.MerchandiseReturnNoteAdd("mr1", "download-1", true, "msg");
 
         var json = result as JsonResult;
-        Assert.IsTrue((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        Assert.IsNotNull(json);
+        Assert.IsNotNull(json.Value);
+        Assert.IsTrue(Result(json));
         _orderServiceMock.Verify(o => o.GetOrderById("o1"), Times.Once);
         _merchandiseReturnViewModelServiceMock.Verify(
             v => v.InsertMerchandiseReturnNote(entity, order, "download-1", true, "msg"), Times.Once);
@@ -599,7 +618,9 @@ public class BaseMerchandiseReturnControllerTests
         var result = await _controller.MerchandiseReturnNoteAdd("mr1", "download-x", false, "msg");
 
         var json = result as JsonResult;
-        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        Assert.IsNotNull(json);
+        Assert.IsNotNull(json.Value);
+        Assert.IsFalse(Result(json));
     }
 
     [TestMethod]
@@ -611,12 +632,14 @@ public class BaseMerchandiseReturnControllerTests
         var entity = new MerchandiseReturn { Id = "mr1", OrderId = "o1" };
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
-        _orderServiceMock.Setup(o => o.GetOrderById("o1")).ReturnsAsync((Order)null);
+        _orderServiceMock.Setup(o => o.GetOrderById("o1")).ReturnsAsync((Order?)null);
 
-        var result = await _controller.MerchandiseReturnNoteAdd("mr1", null, false, "msg");
+        var result = await _controller.MerchandiseReturnNoteAdd("mr1", "", false, "msg");
 
         var json = result as JsonResult;
-        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        Assert.IsNotNull(json);
+        Assert.IsNotNull(json.Value);
+        Assert.IsFalse(Result(json));
         _merchandiseReturnViewModelServiceMock.Verify(
             v => v.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
             Times.Never);
@@ -627,7 +650,7 @@ public class BaseMerchandiseReturnControllerTests
     [TestMethod]
     public async Task NoteDelete_NotFound_ThrowsArgumentException()
     {
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             async () => await _controller.MerchandiseReturnNoteDelete("note1", "missing"));
@@ -645,7 +668,9 @@ public class BaseMerchandiseReturnControllerTests
         var result = await _controller.MerchandiseReturnNoteDelete("note1", "mr1");
 
         var json = result as JsonResult;
-        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        Assert.IsNotNull(json);
+        Assert.IsNotNull(json.Value);
+        Assert.IsFalse(Result(json));
         _merchandiseReturnViewModelServiceMock.Verify(
             v => v.DeleteMerchandiseReturnNote(It.IsAny<MerchandiseReturn>(), It.IsAny<string>()), Times.Never);
     }
@@ -675,7 +700,7 @@ public class BaseMerchandiseReturnControllerTests
         storeController.ControllerContext = _controller.ControllerContext;
         storeController.TempData = _controller.TempData;
 
-        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn?)null);
 
         var result = await storeController.MerchandiseReturnNotesSelect("missing", new DataSourceRequest());
 
@@ -764,6 +789,7 @@ public class BaseMerchandiseReturnControllerTests
         var result = await controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = "7" });
 
         var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
     }
 
@@ -839,13 +865,14 @@ public class BaseMerchandiseReturnControllerTests
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
         var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
-        labelServiceMock.Setup(l => l.CreateLabel("mr1")).ReturnsAsync((string)null);
+        labelServiceMock.Setup(l => l.CreateLabel("mr1")).ReturnsAsync((string?)null);
 
         var result = await _controller.RetryLabel("mr1", labelServiceMock.Object);
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("mr1", redirect.RouteValues["id"]);
         labelServiceMock.Verify(l => l.CreateLabel("mr1"), Times.Once);
     }
@@ -884,10 +911,11 @@ public class BaseMerchandiseReturnControllerTests
     public void RetryLabel_NeedsTheEditPermissionAndAPost()
     {
         var method = typeof(BaseMerchandiseReturnController).GetMethod(nameof(BaseMerchandiseReturnController.RetryLabel));
-        var permission = (Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute)Attribute
-            .GetCustomAttribute(method!, typeof(Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute));
+        var permission = Assert.IsInstanceOfType<Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute>(Attribute
+            .GetCustomAttribute(method!, typeof(Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute)));
         Assert.IsNotNull(permission);
         Assert.AreEqual(Grand.Domain.Permissions.PermissionActionName.Edit, permission.PermissionAction);
+        Assert.IsNotNull(method);
         Assert.IsTrue(method.IsDefined(typeof(HttpPostAttribute), false));
     }
 
@@ -966,10 +994,11 @@ public class BaseMerchandiseReturnControllerTests
     public void Refund_NeedsTheEditPermissionAndAPost(string action)
     {
         var method = typeof(BaseMerchandiseReturnController).GetMethod(action);
-        var permission = (Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute)Attribute
-            .GetCustomAttribute(method!, typeof(Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute));
+        var permission = Assert.IsInstanceOfType<Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute>(Attribute
+            .GetCustomAttribute(method!, typeof(Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute)));
         Assert.IsNotNull(permission);
         Assert.AreEqual(Grand.Domain.Permissions.PermissionActionName.Edit, permission.PermissionAction);
+        Assert.IsNotNull(method);
         Assert.IsTrue(method.IsDefined(typeof(HttpPostAttribute), false));
     }
 
@@ -1049,12 +1078,12 @@ public class BaseMerchandiseReturnControllerTests
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
 
         var calls = new List<string>();
-        Action<MerchandiseReturn> formApply = null;
+        Action<MerchandiseReturn>? formApply = null;
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
         workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>()))
             .Callback<string, Action<MerchandiseReturn>>((_, a) => { formApply = a; calls.Add("Update"); })
-            .ReturnsAsync((string)null);
-        Action<MerchandiseReturnShipping> shippingApply = null;
+            .ReturnsAsync((string?)null);
+        Action<MerchandiseReturnShipping>? shippingApply = null;
         var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
         labelServiceMock.Setup(l => l.UpdateShipping("mr1", It.IsAny<Action<MerchandiseReturnShipping>>(),
                 It.IsAny<Func<MerchandiseReturn, bool>>()))
@@ -1063,7 +1092,7 @@ public class BaseMerchandiseReturnControllerTests
                 shippingApply = a;
                 calls.Add("UpdateShipping");
             })
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
         var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
 
         var result = await controller.Edit(new MerchandiseReturnModel {
@@ -1080,10 +1109,13 @@ public class BaseMerchandiseReturnControllerTests
         CollectionAssert.AreEqual(new[] { "Update", "UpdateShipping" }, calls);
         //the workflow's save leaves the return shipping alone
         var stored = ReturnWithLabel();
+        Assert.IsNotNull(formApply);
         formApply(stored);
+        Assert.IsNotNull(stored.ReturnShipping);
         Assert.AreEqual("OLD", stored.ReturnShipping.TrackingNumber);
         //the label service writes the number, trimmed
         var shipping = new MerchandiseReturnShipping { TrackingNumber = "OLD" };
+        Assert.IsNotNull(shippingApply);
         shippingApply(shipping);
         Assert.AreEqual("NEW-123", shipping.TrackingNumber);
     }
@@ -1095,7 +1127,7 @@ public class BaseMerchandiseReturnControllerTests
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
-        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string)null);
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string?)null);
         var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
         var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
 
@@ -1118,11 +1150,12 @@ public class BaseMerchandiseReturnControllerTests
     {
         //the page showed OLD; the label service wrote B since; Save posts OLD back untouched: B stays
         var entity = ReturnWithLabel();
+        Assert.IsNotNull(entity.ReturnShipping);
         entity.ReturnShipping.TrackingNumber = "B";
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
-        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string)null);
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string?)null);
         var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
         var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
 
@@ -1146,17 +1179,18 @@ public class BaseMerchandiseReturnControllerTests
         //the page showed OLD; B was written since; the staff typed NEW: the check under the lock sees B and
         //refuses, so B is not overwritten with a number typed over a value no longer there
         var entity = ReturnWithLabel();
+        Assert.IsNotNull(entity.ReturnShipping);
         entity.ReturnShipping.TrackingNumber = "B";
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
-        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string)null);
-        Func<MerchandiseReturn, bool> allowed = null;
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string?)null);
+        Func<MerchandiseReturn, bool>? allowed = null;
         var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
         labelServiceMock.Setup(l => l.UpdateShipping("mr1", It.IsAny<Action<MerchandiseReturnShipping>>(),
                 It.IsAny<Func<MerchandiseReturn, bool>>()))
             .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, _, a) => allowed = a)
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
         var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
 
         await controller.Edit(new MerchandiseReturnModel {
@@ -1171,6 +1205,7 @@ public class BaseMerchandiseReturnControllerTests
 
         Assert.IsNotNull(allowed);
         var storedNow = ReturnWithLabel();
+        Assert.IsNotNull(storedNow.ReturnShipping);
         storedNow.ReturnShipping.TrackingNumber = "B";
         Assert.IsFalse(allowed(storedNow));
         //still the number the page showed: the staff's number is written
@@ -1182,17 +1217,18 @@ public class BaseMerchandiseReturnControllerTests
     {
         //an empty number shown and none stored, or an empty one stored, is not a change made meanwhile
         var entity = ReturnWithLabel();
+        Assert.IsNotNull(entity.ReturnShipping);
         entity.ReturnShipping.TrackingNumber = null;
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
-        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string)null);
-        Func<MerchandiseReturn, bool> allowed = null;
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string?)null);
+        Func<MerchandiseReturn, bool>? allowed = null;
         var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
         labelServiceMock.Setup(l => l.UpdateShipping("mr1", It.IsAny<Action<MerchandiseReturnShipping>>(),
                 It.IsAny<Func<MerchandiseReturn, bool>>()))
             .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, _, a) => allowed = a)
-            .ReturnsAsync((string)null);
+            .ReturnsAsync((string?)null);
         var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
 
         await controller.Edit(new MerchandiseReturnModel {
@@ -1206,7 +1242,9 @@ public class BaseMerchandiseReturnControllerTests
             new Grand.Domain.Orders.OrderSettings());
 
         var storedNow = ReturnWithLabel();
+        Assert.IsNotNull(storedNow.ReturnShipping);
         storedNow.ReturnShipping.TrackingNumber = null;
+        Assert.IsNotNull(allowed);
         Assert.IsTrue(allowed(storedNow));
         storedNow.ReturnShipping.TrackingNumber = "";
         Assert.IsTrue(allowed(storedNow));

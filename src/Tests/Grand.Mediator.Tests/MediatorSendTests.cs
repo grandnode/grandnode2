@@ -10,8 +10,7 @@ public class MediatorSendTests
     private ExecutionLog _log;
     private ServiceProvider _provider;
 
-    [TestInitialize]
-    public void Init()
+    public MediatorSendTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<ExecutionLog>();
@@ -62,7 +61,7 @@ public class MediatorSendTests
     public async Task Send_Null_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await Mediator.Send((IRequest<string>)null));
+            async () => await Mediator.Send((IRequest<string>)null!));
     }
 
     [TestMethod]

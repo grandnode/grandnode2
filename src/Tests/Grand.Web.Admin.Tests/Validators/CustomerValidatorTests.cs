@@ -27,8 +27,7 @@ public class CustomerValidatorTests
     private Mock<IGroupService> _groupServiceMock;
     private CustomerValidator _validator;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerValidatorTests()
     {
         var translationServiceMock = new Mock<IRequestTranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);

@@ -14,8 +14,7 @@ public class CustomerLoggedInEventHandlerTests
     private CustomerLoggedInEventHandler _customerLoggedInEventHandler;
     private Mock<IShoppingCartService> _shoppingCartServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerLoggedInEventHandlerTests()
     {
         _shoppingCartServiceMock = new Mock<IShoppingCartService>();
 

@@ -17,8 +17,7 @@ public class SanitizeHtmlAttributeTests
 {
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public SanitizeHtmlAttributeTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IHtmlSanitizationService>(new HtmlSanitizationService(new SecurityConfig()));
@@ -94,7 +93,7 @@ public class SanitizeHtmlAttributeTests
 
 public class SanitizeHtmlSourceTest
 {
-    [SanitizeHtml] public string FullDescription { get; set; }
+    [SanitizeHtml] public string? FullDescription { get; set; }
 
-    [NoHtml] public string MetaTitle { get; set; }
+    [NoHtml] public string? MetaTitle { get; set; }
 }

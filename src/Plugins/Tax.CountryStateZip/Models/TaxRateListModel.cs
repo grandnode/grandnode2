@@ -7,19 +7,19 @@ namespace Tax.CountryStateZip.Models;
 public class TaxRateListModel : BaseModel
 {
     [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Store")]
-    public string AddStoreId { get; set; }
+    public string? AddStoreId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Country")]
-    public string AddCountryId { get; set; }
+    public string? AddCountryId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.StateProvince")]
-    public string AddStateProvinceId { get; set; }
+    public string? AddStateProvinceId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Zip")]
-    public string AddZip { get; set; }
+    public string? AddZip { get; set; }
 
     [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.TaxCategory")]
-    public string AddTaxCategoryId { get; set; }
+    public string? AddTaxCategoryId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Percentage")]
     public double AddPercentage { get; set; }

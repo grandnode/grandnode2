@@ -21,8 +21,7 @@ public class ProductTagServiceTests
     private ProductTagService _productTagService;
     private IRepository<ProductTag> _repositoryProductTag;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public ProductTagServiceTests()
     {
         _repositoryProductTag = new MongoDBRepositoryTest<ProductTag>();
         _productRepository = new MongoDBRepositoryTest<Product>();
@@ -180,6 +179,7 @@ public class ProductTagServiceTests
         var result = _productRepository.Table.FirstOrDefault(x => x.Id == product.Id);
 
         //Assert
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.ProductTags.Any());
         Assert.IsNotNull(result.ProductTags.FirstOrDefault(x => x == "test"));
     }
@@ -201,6 +201,7 @@ public class ProductTagServiceTests
         var result = _productRepository.Table.FirstOrDefault(x => x.Id == product.Id);
 
         //Assert
+        Assert.IsNotNull(result);
         Assert.IsFalse(result.ProductTags.Any());
         Assert.IsNull(result.ProductTags.FirstOrDefault(x => x == "test"));
     }

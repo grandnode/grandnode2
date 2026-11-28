@@ -14,8 +14,7 @@ public class KnowledgebaseArticleModelValidatorTests
 {
     private KnowledgebaseArticleModelValidator _validator = null!;
 
-    [TestInitialize]
-    public void Init()
+    public KnowledgebaseArticleModelValidatorTests()
     {
         var translations = new Mock<IRequestTranslationService>();
         translations.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string key) => key);

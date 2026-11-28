@@ -27,8 +27,7 @@ public class ModuleLoaderTests
 
     private string ContentRoot => Path.GetDirectoryName(_fixture.PluginsFolder)!;
 
-    [TestInitialize]
-    public void Init()
+    public ModuleLoaderTests()
     {
         _fixture = new PluginFolderFixture();
         _logs = new CapturingLoggerProvider();
@@ -137,7 +136,7 @@ public class ModuleLoaderTests
     {
         //an enabled module without files: nothing is loaded, it is only logged
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string> { ["FeatureManagement:Grand.Module.Absent"] = "true" })
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["FeatureManagement:Grand.Module.Absent"] = "true" })
             .Build();
         var hostEnvironment = new Mock<IWebHostEnvironment>();
         hostEnvironment.Setup(x => x.ContentRootPath).Returns(ContentRoot);

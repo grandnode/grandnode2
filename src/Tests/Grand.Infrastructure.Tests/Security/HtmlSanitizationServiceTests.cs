@@ -9,8 +9,7 @@ public class HtmlSanitizationServiceTests
 {
     private HtmlSanitizationService _service;
 
-    [TestInitialize]
-    public void Init()
+    public HtmlSanitizationServiceTests()
     {
         _service = new HtmlSanitizationService(new SecurityConfig());
     }

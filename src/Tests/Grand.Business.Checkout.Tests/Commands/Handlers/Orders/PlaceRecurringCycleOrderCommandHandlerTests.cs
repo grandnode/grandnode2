@@ -37,12 +37,11 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
     private Customer _customer;
     private RecurringPayment _recurringPayment;
     private RecurringPaymentCycle _cycle;
-    private Order _insertedOrder;
-    private PaymentTransaction _insertedTransaction;
+    private Order? _insertedOrder;
+    private PaymentTransaction? _insertedTransaction;
     private readonly List<OrderNote> _notes = [];
 
-    [TestInitialize]
-    public void Init()
+    public PlaceRecurringCycleOrderCommandHandlerTests()
     {
         _calls.Clear();
         _notes.Clear();
@@ -194,7 +193,7 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
     [TestMethod]
     public async Task Handle_AProductThatNoLongerExists_IsSkipped()
     {
-        _productServiceMock.Setup(x => x.GetProductById("p1", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(x => x.GetProductById("p1", false)).ReturnsAsync((Product?)null);
 
         await Place();
 
@@ -311,7 +310,7 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
     [TestMethod]
     public async Task Handle_InitialOrderMissing_Throws()
     {
-        _orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync((Order)null);
+        _orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync((Order?)null);
 
         var exception = await Assert.ThrowsExactlyAsync<GrandException>(Place);
 
@@ -332,8 +331,9 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
         var order = await Place();
 
         Assert.AreEqual(120, order.OrderTotal);
+        Assert.IsNotNull(_insertedTransaction);
         Assert.AreEqual(120, _insertedTransaction.TransactionAmount);
         Assert.IsTrue(_calls.Contains("MarkAsPaid"));
-        Assert.IsFalse(_notes.Any(n => n.Note.Contains("charged")));
+        Assert.IsFalse(_notes.Any(n => n.Note != null && n.Note.Contains("charged")));
     }
 }

@@ -65,7 +65,7 @@ public interface IContactAttributeParser
     Task<string> FormatAttributes(
         Language language,
         IList<CustomAttribute> customAttributes,
-        DomainHost host,
+        DomainHost? host,
         string separator = "<br />",
         bool htmlEncode = true,
         bool allowHyperlinks = true);

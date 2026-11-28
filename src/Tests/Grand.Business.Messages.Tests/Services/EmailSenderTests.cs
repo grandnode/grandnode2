@@ -15,8 +15,7 @@ public class EmailSenderTests
     private Mock<IMimeMappingService> _mimeMappingService;
     private EmailSender _sender;
 
-    [TestInitialize]
-    public void Init()
+    public EmailSenderTests()
     {
         _downloadService = new Mock<IDownloadService>();
         _mimeMappingService = new Mock<IMimeMappingService>();

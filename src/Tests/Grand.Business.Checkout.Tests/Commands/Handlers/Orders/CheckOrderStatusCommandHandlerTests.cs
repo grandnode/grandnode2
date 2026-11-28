@@ -18,8 +18,7 @@ public class CheckOrderStatusCommandHandlerTests
     private Mock<IOrderService> _orderSerivce;
     private OrderSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public CheckOrderStatusCommandHandlerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _orderSerivce = new Mock<IOrderService>();

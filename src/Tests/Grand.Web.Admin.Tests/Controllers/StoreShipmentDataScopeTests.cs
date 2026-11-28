@@ -10,7 +10,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class StoreShipmentDataScopeTests
 {
-    private static StoreShipmentDataScope Build(string staffStoreId)
+    private static StoreShipmentDataScope Build(string? staffStoreId)
     {
         var customer = new Customer { StaffStoreId = staffStoreId };
         var workContextMock = new Mock<IWorkContext>();
@@ -38,7 +38,7 @@ public class StoreShipmentDataScopeTests
     public async Task HasAccess_NullEntity_False()
     {
         var scope = Build("store-1");
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 
     [TestMethod]

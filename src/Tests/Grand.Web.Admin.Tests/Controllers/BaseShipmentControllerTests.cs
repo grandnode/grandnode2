@@ -56,16 +56,15 @@ public class BaseShipmentControllerTests
     private Mock<IPdfService> _pdfServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseShipmentControllerTests()
     {
         _shipmentViewModelServiceMock = new Mock<IShipmentViewModelService>();
         _shipmentViewModelServiceMock.Setup(v => v.PrepareShipmentUnits(It.IsAny<Shipment>())).ReturnsAsync([]);
         _orderServiceMock = new Mock<IOrderService>();
         _shipmentServiceMock = new Mock<IShipmentService>();
         _scopeMock = new Mock<IAdminDataScope<Shipment>>();
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
         _orderScopeMock = new Mock<IAdminDataScope<Order>>();
         _orderScopeMock.Setup(s => s.HasAccess(It.IsAny<Order>())).ReturnsAsync(true);
 
@@ -122,8 +121,8 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task ShipmentListSelect_GlobalScope_DoesNotForceStoreOrVendorId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
         _shipmentViewModelServiceMock
             .Setup(v => v.PrepareShipments(It.IsAny<ShipmentListModel>(), 1, 10))
             .ReturnsAsync((Enumerable.Empty<Shipment>(), 0));
@@ -139,7 +138,7 @@ public class BaseShipmentControllerTests
     public async Task ShipmentListSelect_StoreScope_ForcesStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string?)null);
         _shipmentViewModelServiceMock
             .Setup(v => v.PrepareShipments(It.IsAny<ShipmentListModel>(), 1, 10))
             .ReturnsAsync((Enumerable.Empty<Shipment>(), 0));
@@ -153,7 +152,7 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task ShipmentListSelect_VendorScope_ForcesVendorId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-1");
         _shipmentViewModelServiceMock
             .Setup(v => v.PrepareShipments(It.IsAny<ShipmentListModel>(), 1, 10))
@@ -211,7 +210,7 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task AddShipmentGet_OrderNotFound_RedirectsToList()
     {
-        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync((Order)null);
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync((Order?)null);
 
         var result = await _controller.AddShipment("o1");
 
@@ -248,6 +247,7 @@ public class BaseShipmentControllerTests
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
         Assert.AreEqual("Order", redirect.ControllerName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("o1", redirect.RouteValues["id"]);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Shipments.OrderAwaitsApproval"), Times.Once);
         _shipmentViewModelServiceMock.Verify(v => v.PrepareShipmentModel(It.IsAny<Order>()), Times.Never);
@@ -264,7 +264,7 @@ public class BaseShipmentControllerTests
         _shipmentViewModelServiceMock
             .Setup(v => v.PrepareShipment(order, It.IsAny<IEnumerable<OrderItem>>(), It.IsAny<AddShipmentModel>()))
             .ReturnsAsync((shipment, (double?)1));
-        _shipmentViewModelServiceMock.Setup(v => v.ValidStockShipment(shipment)).ReturnsAsync((true, null));
+        _shipmentViewModelServiceMock.Setup(v => v.ValidStockShipment(shipment)).ReturnsAsync((true, ""));
 
         var result = await _controller.AddShipment(new AddShipmentModel { OrderId = "o1" }, false);
 
@@ -288,7 +288,7 @@ public class BaseShipmentControllerTests
         _shipmentViewModelServiceMock
             .Setup(v => v.PrepareShipment(order, It.IsAny<IEnumerable<OrderItem>>(), It.IsAny<AddShipmentModel>()))
             .ReturnsAsync((shipment, (double?)1));
-        _shipmentViewModelServiceMock.Setup(v => v.ValidStockShipment(shipment)).ReturnsAsync((true, null));
+        _shipmentViewModelServiceMock.Setup(v => v.ValidStockShipment(shipment)).ReturnsAsync((true, ""));
         _shipmentViewModelServiceMock.Setup(v => v.PrepareShipmentUnits(shipment))
             .ReturnsAsync(["p: serial number in another warehouse"]);
 
@@ -318,6 +318,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("AddShipment", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("o1", redirect.RouteValues["orderId"]);
         _shipmentServiceMock.Verify(s => s.InsertShipment(It.IsAny<Shipment>()), Times.Never);
         _shipmentViewModelServiceMock.Verify(v => v.ValidStockShipment(It.IsAny<Shipment>()), Times.Never);
@@ -347,6 +348,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("AddShipment", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("o1", redirect.RouteValues["orderId"]);
         _shipmentServiceMock.Verify(s => s.InsertShipment(It.IsAny<Shipment>()), Times.Never);
     }
@@ -367,7 +369,7 @@ public class BaseShipmentControllerTests
             .ReturnsAsync((shipment, (double?)10));
         _shipmentViewModelServiceMock
             .Setup(v => v.ValidStockShipment(shipment))
-            .ReturnsAsync((true, (string)null));
+            .ReturnsAsync((true, ""));
 
         var model = new AddShipmentModel { OrderId = "o1" };
         var result = await _controller.AddShipment(model, true);
@@ -375,6 +377,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         Assert.AreEqual(10, shipment.TotalWeight);
         _shipmentServiceMock.Verify(s => s.InsertShipment(shipment), Times.Once);
@@ -397,7 +400,7 @@ public class BaseShipmentControllerTests
             .ReturnsAsync((shipment, (double?)10));
         _shipmentViewModelServiceMock
             .Setup(v => v.ValidStockShipment(shipment))
-            .ReturnsAsync((true, (string)null));
+            .ReturnsAsync((true, ""));
 
         var model = new AddShipmentModel { OrderId = "o1" };
         var result = await _controller.AddShipment(model, false);
@@ -438,7 +441,7 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task ShipmentDetails_Denied_RedirectsToList()
     {
-        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment?)null);
 
         var result = await _controller.ShipmentDetails("s1");
 
@@ -483,6 +486,7 @@ public class BaseShipmentControllerTests
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
         Assert.AreEqual("Order", redirect.ControllerName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("o1", redirect.RouteValues["Id"]);
         _shipmentServiceMock.Verify(s => s.DeleteShipment(shipment), Times.Once);
         _orderServiceMock.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.OrderId == "o1")), Times.Once);
@@ -491,7 +495,7 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task SetTrackingNumber_Denied_RedirectsToList()
     {
-        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment?)null);
 
         var result = await _controller.SetTrackingNumber(new ShipmentTrackingModel("s1", "TRACK1"));
 
@@ -513,6 +517,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         Assert.AreEqual("TRACK1", shipment.TrackingNumber);
         _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
@@ -530,6 +535,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         Assert.AreEqual("a comment", shipment.AdminComment);
         _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
@@ -544,11 +550,12 @@ public class BaseShipmentControllerTests
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<ShipCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("boom"));
 
-        var result = await _controller.SetAsShipped(new ShipmentInfoModel("s1", null, null, null, null));
+        var result = await _controller.SetAsShipped(new ShipmentInfoModel("s1", "", "", null, null));
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
     }
 
@@ -561,11 +568,12 @@ public class BaseShipmentControllerTests
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<ShipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var result = await _controller.SetAsShipped(new ShipmentInfoModel("s1", null, null, null, null));
+        var result = await _controller.SetAsShipped(new ShipmentInfoModel("s1", "", "", null, null));
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         _mediatorMock.Verify(m => m.Send(It.Is<ShipCommand>(c => c.Shipment == shipment && c.NotifyCustomer), It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -582,6 +590,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         _shipmentServiceMock.Verify(s => s.UpdateShipment(It.IsAny<Shipment>()), Times.Never);
     }
@@ -599,6 +608,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         Assert.AreEqual(shippedDate, shipment.ShippedDateUtc);
         _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
@@ -613,11 +623,12 @@ public class BaseShipmentControllerTests
 
         _mediatorMock.Setup(m => m.Send(It.IsAny<DeliveryCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var result = await _controller.SetAsDelivered(new ShipmentInfoModel("s1", null, null, null, null));
+        var result = await _controller.SetAsDelivered(new ShipmentInfoModel("s1", "", "", null, null));
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         _mediatorMock.Verify(m => m.Send(It.Is<DeliveryCommand>(c => c.Shipment == shipment && c.NotifyCustomer), It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -635,6 +646,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         Assert.AreEqual(deliveryDate, shipment.DeliveryDateUtc);
         _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
@@ -643,7 +655,7 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task PdfPackagingSlip_Denied_RedirectsToList()
     {
-        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment?)null);
 
         var result = await _controller.PdfPackagingSlip("s1");
 
@@ -783,7 +795,7 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task ShipmentNotesSelect_Denied_Throws()
     {
-        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
             _controller.ShipmentNotesSelect("s1", new DataSourceRequest()));
@@ -812,13 +824,14 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task ShipmentNoteAdd_Denied_ReturnsResultFalse()
     {
-        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment?)null);
 
         var result = await _controller.ShipmentNoteAdd("s1", "download-1", true, "hello");
 
         var jsonResult = result as JsonResult;
         Assert.IsNotNull(jsonResult);
         var value = jsonResult.Value;
+        Assert.IsNotNull(value);
         var resultProperty = value.GetType().GetProperty("Result");
         Assert.IsNotNull(resultProperty);
         Assert.AreEqual(false, resultProperty.GetValue(value));
@@ -841,6 +854,7 @@ public class BaseShipmentControllerTests
         var jsonResult = result as JsonResult;
         Assert.IsNotNull(jsonResult);
         var value = jsonResult.Value;
+        Assert.IsNotNull(value);
         var resultProperty = value.GetType().GetProperty("Result");
         Assert.IsNotNull(resultProperty);
         Assert.AreEqual(true, resultProperty.GetValue(value));
@@ -859,13 +873,14 @@ public class BaseShipmentControllerTests
         var result = await _controller.ShipmentNoteAdd("s1", "download-x", true, "hello");
 
         var value = (result as JsonResult)!.Value;
+        Assert.IsNotNull(value);
         Assert.AreEqual(false, value.GetType().GetProperty("Result")!.GetValue(value));
     }
 
     [TestMethod]
     public async Task ShipmentNoteDelete_Denied_Throws()
     {
-        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
             _controller.ShipmentNoteDelete("n1", "s1"));
@@ -889,7 +904,7 @@ public class BaseShipmentControllerTests
     [TestMethod]
     public async Task EditUserFields_Denied_RedirectsToList_UpdateShipmentNeverCalled()
     {
-        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment?)null);
 
         var result = await _controller.EditUserFields("s1", new ShipmentModel { Id = "s1" });
 
@@ -917,6 +932,7 @@ public class BaseShipmentControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.IsNotNull(redirect.RouteValues);
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         Assert.AreSame(userFields, shipment.UserFields);
         _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);

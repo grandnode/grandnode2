@@ -18,8 +18,7 @@ public class ShipmentInsertedEventHandlerTests
     private Mock<IProductService> _productServiceMock;
     private ShipmentInsertedEventHandler _shipmentInsertedEventHandler;
 
-    [TestInitialize]
-    public void Init()
+    public ShipmentInsertedEventHandlerTests()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _productServiceMock = new Mock<IProductService>();
@@ -33,9 +32,9 @@ public class ShipmentInsertedEventHandlerTests
     {
         //Arrange
         var order = new Order();
-        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(order));
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).ReturnsAsync(order);
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
-            .Returns(Task.FromResult(new Product()));
+            .ReturnsAsync(new Product());
 
         var shipment = new Shipment();
         shipment.ShipmentItems.Add(new ShipmentItem { OrderItemId = "!" });

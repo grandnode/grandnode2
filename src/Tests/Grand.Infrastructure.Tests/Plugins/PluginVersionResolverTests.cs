@@ -16,7 +16,7 @@ public class PluginVersionResolverTests
     [TestMethod]
     public void ResolveSupportedVersion_AssemblyBuiltAgainstCurrentCore_MatchesSupportedPluginVersion()
     {
-        var result = PluginVersionResolver.ResolveSupportedVersion(PluginLikeAssembly, null);
+        var result = PluginVersionResolver.ResolveSupportedVersion(PluginLikeAssembly, "");
 
         Assert.AreEqual(GrandVersion.SupportedPluginVersion, result);
     }
@@ -52,7 +52,7 @@ public class PluginVersionResolverTests
     public void ResolveSupportedVersion_AssemblyWithoutCoreReference_ReturnsNull()
     {
         //System.Private.CoreLib does not reference Grand.Infrastructure
-        var result = PluginVersionResolver.ResolveSupportedVersion(typeof(object).Assembly, null);
+        var result = PluginVersionResolver.ResolveSupportedVersion(typeof(object).Assembly, null!);
 
         Assert.IsNull(result,
             "A plugin that cannot be tied to a core version must not be reported as compatible.");
@@ -61,7 +61,7 @@ public class PluginVersionResolverTests
     [TestMethod]
     public void ResolveSupportedVersion_NoAssembly_ReturnsNull()
     {
-        var result = PluginVersionResolver.ResolveSupportedVersion((Assembly)null, null);
+        var result = PluginVersionResolver.ResolveSupportedVersion((Assembly)null!, null!);
 
         Assert.IsNull(result);
     }

@@ -4,5 +4,5 @@ namespace Authentication.Google.Models;
 
 public class FailedModel : BaseModel
 {
-    public string ErrorMessage { get; set; }
+    public string? ErrorMessage { get; set; }
 }

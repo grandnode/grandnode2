@@ -27,8 +27,7 @@ public class OrderApprovalControllerTests
     private Mock<IMediator> _mediator;
     private OrderApprovalController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public OrderApprovalControllerTests()
     {
         _customer = new Customer { Id = "buyer", OwnerId = "owner" };
         _store = new Grand.Domain.Stores.Store { Id = "s1" };
@@ -88,7 +87,7 @@ public class OrderApprovalControllerTests
         _customerSettings.HideSubAccountsTab = true;
 
         AssertRedirectTo(await _controller.Details("a1"), "CustomerInfo");
-        AssertRedirectTo(await _controller.Decide("a1", true, null), "CustomerInfo");
+        AssertRedirectTo(await _controller.Decide("a1", true, ""), "CustomerInfo");
         AssertRedirectTo(await _controller.Withdraw("a1"), "CustomerInfo");
 
         _mediator.Verify(m => m.Send(It.IsAny<DecideOrderApprovalCommand>(), It.IsAny<CancellationToken>()),
@@ -121,7 +120,7 @@ public class OrderApprovalControllerTests
     public async Task Details_OtherCompany_RedirectsToList()
     {
         _mediator.Setup(m => m.Send(It.IsAny<GetOrderApproval>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((OrderApprovalModel)null);
+            .ReturnsAsync((OrderApprovalModel?)null);
 
         var result = await _controller.Details("foreign");
 
@@ -161,7 +160,7 @@ public class OrderApprovalControllerTests
     [TestMethod]
     public async Task Decide_Approved_SendsTheDecisionOfTheCurrentCustomer()
     {
-        DecideOrderApprovalCommand sent = null;
+        DecideOrderApprovalCommand? sent = null;
         _mediator.Setup(m => m.Send(It.IsAny<DecideOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
             .Callback<IRequest<bool>, CancellationToken>((c, _) => sent = (DecideOrderApprovalCommand)c)
             .ReturnsAsync(true);
@@ -170,6 +169,7 @@ public class OrderApprovalControllerTests
 
         AssertRedirectTo(result, "CustomerOrderApprovals");
         CollectionAssert.AreEqual(new[] { "OrderApproval.Decide.Approved" }, Notifications("Success").ToArray());
+        Assert.IsNotNull(sent);
         Assert.AreSame(_customer, sent.Approver);
         Assert.AreSame(_store, sent.Store);
         Assert.AreEqual("a1", sent.ApprovalId);
@@ -185,7 +185,7 @@ public class OrderApprovalControllerTests
         _mediator.Setup(m => m.Send(It.IsAny<DecideOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        await _controller.Decide("a1", false, null);
+        await _controller.Decide("a1", false, "");
 
         CollectionAssert.AreEqual(new[] { "OrderApproval.Decide.Rejected" }, Notifications("Success").ToArray());
         _mediator.Verify(m => m.Send(It.Is<DecideOrderApprovalCommand>(c => !c.Approve),
@@ -197,7 +197,7 @@ public class OrderApprovalControllerTests
     [TestMethod]
     public async Task Withdraw_SendsTheCurrentCustomersCommand()
     {
-        WithdrawOrderApprovalCommand sent = null;
+        WithdrawOrderApprovalCommand? sent = null;
         _mediator.Setup(m => m.Send(It.IsAny<WithdrawOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
             .Callback<IRequest<bool>, CancellationToken>((c, _) => sent = (WithdrawOrderApprovalCommand)c)
             .ReturnsAsync(true);
@@ -206,6 +206,7 @@ public class OrderApprovalControllerTests
 
         AssertRedirectTo(result, "CustomerOrderApprovals");
         Assert.AreEqual(1, Notifications("Success").Count);
+        Assert.IsNotNull(sent);
         Assert.AreSame(_customer, sent.Customer);
         Assert.AreSame(_store, sent.Store);
         Assert.AreEqual("a1", sent.ApprovalId);

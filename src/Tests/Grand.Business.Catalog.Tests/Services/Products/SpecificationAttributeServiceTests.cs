@@ -25,8 +25,7 @@ public class SpecificationAttributeServiceTests
 
     private SpecificationAttributeService service;
 
-    [TestInitialize]
-    public void Init()
+    public SpecificationAttributeServiceTests()
     {
         _repository = new MongoDBRepositoryTest<SpecificationAttribute>();
         _repositoryProduct = new MongoDBRepositoryTest<Product>();
@@ -125,7 +124,7 @@ public class SpecificationAttributeServiceTests
         await service.UpdateSpecificationAttribute(specificationAttribute);
 
         //Assert
-        Assert.AreEqual("test2", _repository.Table.FirstOrDefault(x => x.Id == specificationAttribute.Id).Name);
+        Assert.AreEqual("test2", _repository.Table.First(x => x.Id == specificationAttribute.Id).Name);
     }
 
     [TestMethod]
@@ -183,7 +182,7 @@ public class SpecificationAttributeServiceTests
 
         //Assert
         Assert.IsEmpty(
-            _repository.Table.FirstOrDefault(x => x.Id == specificationAttribute.Id).SpecificationAttributeOptions);
+            _repository.Table.First(x => x.Id == specificationAttribute.Id).SpecificationAttributeOptions);
     }
 
     [TestMethod]
@@ -200,7 +199,7 @@ public class SpecificationAttributeServiceTests
 
         //Assert
         Assert.HasCount(1,
-            _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes);
+            _repositoryProduct.Table.First(x => x.Id == product.Id).ProductSpecificationAttributes);
     }
 
     [TestMethod]
@@ -218,8 +217,8 @@ public class SpecificationAttributeServiceTests
 
         //Assert
         Assert.AreEqual("test",
-            _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes
-                .FirstOrDefault(x => x.Id == attr.Id).CustomName);
+            _repositoryProduct.Table.First(x => x.Id == product.Id).ProductSpecificationAttributes
+                .First(x => x.Id == attr.Id).CustomName);
     }
 
     [TestMethod]
@@ -237,7 +236,7 @@ public class SpecificationAttributeServiceTests
 
         //Assert
         Assert.IsEmpty(
-            _repositoryProduct.Table.FirstOrDefault(x => x.Id == product.Id).ProductSpecificationAttributes);
+            _repositoryProduct.Table.First(x => x.Id == product.Id).ProductSpecificationAttributes);
     }
 
     [TestMethod]

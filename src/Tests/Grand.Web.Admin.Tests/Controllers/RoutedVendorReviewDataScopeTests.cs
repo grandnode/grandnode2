@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Services;
@@ -17,8 +15,7 @@ public class RoutedVendorReviewDataScopeTests
     private GlobalAdminDataScope<VendorReview> _adminScope = null!;
     private VendorVendorReviewDataScope _vendorScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedVendorReviewDataScopeTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentVendor).Returns(new Vendor { Id = VendorId });

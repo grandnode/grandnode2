@@ -17,8 +17,7 @@ public class GiftVoucherServiceTests
     private Mock<IRepository<GiftVoucher>> _repositoryMock;
     private IGiftVoucherService _service;
 
-    [TestInitialize]
-    public void Init()
+    public GiftVoucherServiceTests()
     {
         _repositoryMock = new Mock<IRepository<GiftVoucher>>();
         _mediatorMock = new Mock<IMediator>();
@@ -53,7 +52,9 @@ public class GiftVoucherServiceTests
         var redeemed = await service.TryRedeem(giftVoucher.Id, 40, "o1");
 
         Assert.IsTrue(redeemed);
-        var history = (await repository.GetByIdAsync(giftVoucher.Id)).GiftVoucherUsageHistory;
+        var giftVoucher2 = await repository.GetByIdAsync(giftVoucher.Id);
+        Assert.IsNotNull(giftVoucher2);
+        var history = giftVoucher2.GiftVoucherUsageHistory;
         Assert.HasCount(1, history);
         Assert.AreEqual(40, history.First().UsedValue);
         Assert.AreEqual("o1", history.First().UsedWithOrderId);
@@ -69,7 +70,9 @@ public class GiftVoucherServiceTests
         var redeemed = await service.TryRedeem(giftVoucher.Id, 40, "o1");
 
         Assert.IsFalse(redeemed);
-        Assert.HasCount(1, (await repository.GetByIdAsync(giftVoucher.Id)).GiftVoucherUsageHistory);
+        var giftVoucher2 = await repository.GetByIdAsync(giftVoucher.Id);
+        Assert.IsNotNull(giftVoucher2);
+        Assert.HasCount(1, giftVoucher2.GiftVoucherUsageHistory);
     }
 
     [TestMethod]
@@ -79,7 +82,9 @@ public class GiftVoucherServiceTests
         var giftVoucher = await InsertVoucher(repository, 100, false);
 
         Assert.IsFalse(await service.TryRedeem(giftVoucher.Id, 40, "o1"));
-        Assert.IsEmpty((await repository.GetByIdAsync(giftVoucher.Id)).GiftVoucherUsageHistory);
+        var giftVoucher2 = await repository.GetByIdAsync(giftVoucher.Id);
+        Assert.IsNotNull(giftVoucher2);
+        Assert.IsEmpty(giftVoucher2.GiftVoucherUsageHistory);
     }
 
     [TestMethod]
@@ -101,7 +106,9 @@ public class GiftVoucherServiceTests
             .Select(i => Task.Run(() => service.TryRedeem(giftVoucher.Id, 100, $"o{i}"))));
 
         Assert.AreEqual(1, results.Count(x => x));
-        Assert.HasCount(1, (await repository.GetByIdAsync(giftVoucher.Id)).GiftVoucherUsageHistory);
+        var giftVoucher2 = await repository.GetByIdAsync(giftVoucher.Id);
+        Assert.IsNotNull(giftVoucher2);
+        Assert.HasCount(1, giftVoucher2.GiftVoucherUsageHistory);
     }
 
     [TestMethod]
@@ -130,7 +137,9 @@ public class GiftVoucherServiceTests
 
         await service.CancelRedemption(giftVoucher.Id, "o1");
 
-        var history = (await repository.GetByIdAsync(giftVoucher.Id)).GiftVoucherUsageHistory;
+        var giftVoucher2 = await repository.GetByIdAsync(giftVoucher.Id);
+        Assert.IsNotNull(giftVoucher2);
+        var history = giftVoucher2.GiftVoucherUsageHistory;
         Assert.HasCount(1, history);
         Assert.AreEqual("o2", history.First().UsedWithOrderId);
     }
@@ -161,7 +170,7 @@ public class GiftVoucherServiceTests
     [TestMethod]
     public void InsertGiftVoucher_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertGiftVoucher(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertGiftVoucher(null!));
     }
 
     [TestMethod]
@@ -175,7 +184,7 @@ public class GiftVoucherServiceTests
     [TestMethod]
     public void UpdateGiftVoucher_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateGiftVoucher(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateGiftVoucher(null!));
     }
 
     [TestMethod]
@@ -189,6 +198,6 @@ public class GiftVoucherServiceTests
     [TestMethod]
     public void DeleteGiftVoucher_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteGiftVoucher(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteGiftVoucher(null!));
     }
 }

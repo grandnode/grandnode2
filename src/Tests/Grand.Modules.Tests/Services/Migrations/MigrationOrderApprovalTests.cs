@@ -31,8 +31,7 @@ public class MigrationOrderApprovalTests
     private IServiceProvider _serviceProvider;
     private MigrationOrderApproval _migration;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationOrderApprovalTests()
     {
         _templates = new LiteDBRepositoryMock<MessageTemplate>();
         _emailAccounts = new LiteDBRepositoryMock<EmailAccount>();
@@ -223,7 +222,9 @@ public class MigrationOrderApprovalTests
         var name = nameof(OrderApprovalSettings).ToLowerInvariant();
         var setting = _settings.Table.Single(x => x.Name == name);
         Assert.IsTrue(string.IsNullOrEmpty(setting.StoreId));
+        Assert.IsNotNull(setting.Metadata);
         var settings = System.Text.Json.JsonSerializer.Deserialize<OrderApprovalSettings>(setting.Metadata);
+        Assert.IsNotNull(settings);
         CollectionAssert.AreEqual(new[] { "Payments.CashOnDelivery" }, settings.PaymentMethodSystemNames);
     }
 
@@ -238,7 +239,9 @@ public class MigrationOrderApprovalTests
 
         var name = nameof(OrderApprovalSettings).ToLowerInvariant();
         var setting = _settings.Table.Single(x => x.Name == name);
+        Assert.IsNotNull(setting.Metadata);
         var settings = System.Text.Json.JsonSerializer.Deserialize<OrderApprovalSettings>(setting.Metadata);
+        Assert.IsNotNull(settings);
         CollectionAssert.AreEqual(new[] { "Payments.Invoice", "Payments.BankTransfer" },
             settings.PaymentMethodSystemNames);
     }

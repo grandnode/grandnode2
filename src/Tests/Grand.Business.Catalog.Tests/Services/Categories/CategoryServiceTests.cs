@@ -31,8 +31,7 @@ public class CategoryServiceTests
     private Mock<MongoRepository<Product>> _productRepositoryMock;
     private CatalogSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public CategoryServiceTests()
     {
         var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
@@ -51,7 +50,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void InsertCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _categoryService.InsertCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _categoryService.InsertCategory(null!),
             "category");
     }
 
@@ -67,7 +66,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void UpdateCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _categoryService.UpdateCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _categoryService.UpdateCategory(null!),
             "category");
     }
 
@@ -138,7 +137,7 @@ public class CategoryServiceTests
         var allCategory = GetMockCategoryList();
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-        var result = _categoryService.GetFormattedBreadCrumb(null, allCategory);
+        var result = _categoryService.GetFormattedBreadCrumb(null!, allCategory);
         Assert.IsTrue(string.IsNullOrEmpty(result));
     }
 
@@ -158,7 +157,7 @@ public class CategoryServiceTests
     public void DeleteProductCategory_NullArgument_ThrowException()
     {
         Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await _productCategoryService.DeleteProductCategory(null, "id"), "productCategory");
+            async () => await _productCategoryService.DeleteProductCategory(null!, "id"), "productCategory");
     }
 
     [TestMethod]
@@ -177,7 +176,7 @@ public class CategoryServiceTests
     public void InsertProductCategory_NullArgument_ThrowException()
     {
         Assert.ThrowsExactlyAsync<ArgumentNullException>(
-            async () => await _productCategoryService.InsertProductCategory(null, "id"), "productCategory");
+            async () => await _productCategoryService.InsertProductCategory(null!, "id"), "productCategory");
     }
 
     private IList<Category> GetMockCategoryList()

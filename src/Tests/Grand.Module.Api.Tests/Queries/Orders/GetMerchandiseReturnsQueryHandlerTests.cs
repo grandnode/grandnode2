@@ -13,8 +13,7 @@ public class GetMerchandiseReturnsQueryHandlerTests
 {
     private Mock<IMerchandiseReturnService> _merchandiseReturnServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public GetMerchandiseReturnsQueryHandlerTests()
     {
         _merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
     }

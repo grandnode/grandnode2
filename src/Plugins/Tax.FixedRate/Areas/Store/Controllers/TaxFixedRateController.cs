@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -40,7 +41,7 @@ public class TaxFixedRateController : BaseController
     /// <summary>
     ///     The store the current staff/store-manager is bound to.
     /// </summary>
-    private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => _contextAccessor.WorkContext.PanelStoreId();
 
     public IActionResult Configure()
     {
@@ -86,7 +87,7 @@ public class TaxFixedRateController : BaseController
     ///     Whether a store specific override exists for the tax category (store = current store).
     /// </summary>
     [NonAction]
-    private async Task<bool> HasStoreRate(string taxCategoryId)
+    private async Task<bool> HasStoreRate(string? taxCategoryId)
     {
         var taxCategory = await _taxCategoryService.GetTaxCategoryById(taxCategoryId);
         return taxCategory != null && taxCategory.StoreId == CurrentStoreId;

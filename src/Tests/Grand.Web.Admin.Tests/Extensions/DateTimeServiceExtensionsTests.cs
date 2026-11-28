@@ -17,8 +17,7 @@ public class DateTimeServiceExtensionsTests
     private readonly TimeZoneInfo _unlisted = TimeZoneInfo.CreateCustomTimeZone("Other/Name", TimeSpan.FromHours(2), "Other", "Other");
     private IDateTimeService _dateTimeService;
 
-    [TestInitialize]
-    public void Init()
+    public DateTimeServiceExtensionsTests()
     {
         var service = new Mock<IDateTimeService>();
         service.Setup(x => x.GetSystemTimeZones())

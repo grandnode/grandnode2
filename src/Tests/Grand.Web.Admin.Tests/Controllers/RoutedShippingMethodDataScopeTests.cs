@@ -13,7 +13,7 @@ namespace Grand.Web.Admin.Tests.Controllers;
 [TestClass]
 public class RoutedShippingMethodDataScopeTests
 {
-    private static RoutedShippingMethodDataScope Build(string area)
+    private static RoutedShippingMethodDataScope Build(string? area)
     {
         var httpContext = new DefaultHttpContext();
         if (area != null)

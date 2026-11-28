@@ -25,8 +25,7 @@ public class InventoryDocumentServiceTests
     private IRepository<Product> _products;
     private InventoryDocumentService _service;
 
-    [TestInitialize]
-    public void Init()
+    public InventoryDocumentServiceTests()
     {
         _products = new MongoDBRepositoryTest<Product>();
         _journal = new MongoDBRepositoryTest<InventoryJournal>();
@@ -75,6 +74,7 @@ public class InventoryDocumentServiceTests
 
         var (document, _) = await _service.CreateStockCount("w1", [], [], "staff");
 
+        Assert.IsNotNull(document);
         Assert.AreEqual(InventoryDocumentType.StockCount, document.DocumentTypeId);
         Assert.AreEqual(10, document.Lines.Single(x => x.ProductId == single.Id).ExpectedQuantity);
         Assert.AreEqual(4, document.Lines.Single(x => x.ProductId == multi.Id).ExpectedQuantity);
@@ -92,6 +92,7 @@ public class InventoryDocumentServiceTests
 
         var (document, _) = await _service.CreateStockCount("w1", [], [], "staff");
 
+        Assert.IsNotNull(document);
         Assert.AreEqual(2, document.Lines.Count);
         Assert.IsTrue(document.Lines.All(x => x.ProductId == combinations.Id));
         CollectionAssert.AreEquivalent(new int?[] { 3, 4 }, document.Lines.Select(x => x.ExpectedQuantity).ToArray());
@@ -108,6 +109,7 @@ public class InventoryDocumentServiceTests
 
         var (document, _) = await _service.CreateStockCount("w1", ["c1"], [], "staff");
 
+        Assert.IsNotNull(document);
         Assert.AreEqual(inCategory.Id, document.Lines.Single().ProductId);
     }
 
@@ -146,6 +148,7 @@ public class InventoryDocumentServiceTests
 
         Assert.IsFalse(result.QuantityLeft);
         var receipt = result.Receipts.Single();
+        Assert.IsNotNull(draft);
         Assert.AreEqual(draft.Id, receipt.Id);
         Assert.AreEqual(draft.Number, receipt.Number);
         Assert.AreEqual(InventoryDocumentStatus.Draft, receipt.Status);
@@ -158,6 +161,7 @@ public class InventoryDocumentServiceTests
         var product = await Product();
         var merchandiseReturn = Return(product);
         var (draft, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        Assert.IsNotNull(draft);
         draft.Lines.Single().Quantity = 1;
         await _service.UpdateDraft(draft);
 
@@ -187,6 +191,7 @@ public class InventoryDocumentServiceTests
         var (document, errors) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
 
         Assert.AreEqual(0, errors.Count);
+        Assert.IsNotNull(document);
         Assert.AreEqual("w1", document.WarehouseId);
         Assert.AreEqual(merchandiseReturn.Id, document.MerchandiseReturnId);
         var line = document.Lines.Single();
@@ -207,6 +212,7 @@ public class InventoryDocumentServiceTests
 
         var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
 
+        Assert.IsNotNull(document);
         var line = document.Lines.Single();
         Assert.AreEqual(child.Id, line.ProductId);
         Assert.AreEqual(6, line.Quantity);
@@ -220,13 +226,14 @@ public class InventoryDocumentServiceTests
 
         var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
 
+        Assert.IsNotNull(document);
         var line = document.Lines.Single();
         Assert.AreEqual(2, line.Quantity);
         Assert.AreEqual(ReturnLineCondition.Restock, line.Condition);
     }
 
     private static ReturnReceiptInspection Inspection(MerchandiseReturn merchandiseReturn, Product product,
-        int scrapQuantity, string comment = null) =>
+        int scrapQuantity, string? comment = null) =>
         new(merchandiseReturn.MerchandiseReturnItems[0].Id, product.Id, scrapQuantity, comment);
 
     [TestMethod]
@@ -239,6 +246,7 @@ public class InventoryDocumentServiceTests
             [Inspection(merchandiseReturn, product, 1, " Broken seal ")]);
 
         Assert.AreEqual(0, errors.Count);
+        Assert.IsNotNull(document);
         Assert.AreEqual(2, document.Lines.Count);
         var restock = document.Lines.Single(x => x.Condition == ReturnLineCondition.Restock);
         var scrap = document.Lines.Single(x => x.Condition == ReturnLineCondition.Scrap);
@@ -259,6 +267,7 @@ public class InventoryDocumentServiceTests
         var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
             [Inspection(merchandiseReturn, product, 2)]);
 
+        Assert.IsNotNull(document);
         var line = document.Lines.Single();
         Assert.AreEqual(2, line.Quantity);
         Assert.AreEqual(ReturnLineCondition.Scrap, line.Condition);
@@ -367,11 +376,13 @@ public class InventoryDocumentServiceTests
         var product = await Product();
         var merchandiseReturn = Return(product);
         var (first, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        Assert.IsNotNull(first);
         first.Lines.Single().Quantity = 1;
         await _service.UpdateDraft(first);
 
         var (second, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
 
+        Assert.IsNotNull(second);
         Assert.AreEqual(1, second.Lines.Single().Quantity);
     }
 
@@ -384,6 +395,7 @@ public class InventoryDocumentServiceTests
         var (second, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
         Assert.IsNull(second);
 
+        Assert.IsNotNull(first);
         first.Lines.Single().Quantity = 3;
 
         CollectionAssert.Contains((await _service.Validate(first)).ToList(),
@@ -399,6 +411,7 @@ public class InventoryDocumentServiceTests
         //rejected after the receipt was drafted: the customer got the quantity back, so it is not received to stock
         merchandiseReturn.MerchandiseReturnStatus = MerchandiseReturnStatus.Rejected;
 
+        Assert.IsNotNull(document);
         CollectionAssert.Contains((await _service.Validate(document)).ToList(),
             InventoryDocumentErrors.ReturnNotReceivable);
     }
@@ -410,8 +423,9 @@ public class InventoryDocumentServiceTests
         var merchandiseReturn = Return(product);
         var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
         _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById(merchandiseReturn.Id))
-            .ReturnsAsync((MerchandiseReturn)null);
+            .ReturnsAsync((MerchandiseReturn?)null);
 
+        Assert.IsNotNull(document);
         CollectionAssert.Contains((await _service.Validate(document)).ToList(),
             InventoryDocumentErrors.ReturnNotReceivable);
     }
@@ -432,6 +446,7 @@ public class InventoryDocumentServiceTests
                 return Task.FromResult(new Mock<IAsyncDisposable>().Object);
             });
 
+        Assert.IsNotNull(document);
         var errors = await Service(resourceLock.Object).Post(document.Id, "staff");
 
         CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.ReturnNotReceivable }, errors.ToArray());
@@ -452,6 +467,7 @@ public class InventoryDocumentServiceTests
             .Callback((IEnumerable<string> keys, CancellationToken _) => acquired.Add(keys.ToArray()))
             .ReturnsAsync(new Mock<IAsyncDisposable>().Object);
 
+        Assert.IsNotNull(document);
         await Service(resourceLock.Object).Post(document.Id, "staff");
 
         var orderKey = MerchandiseReturnExtensions.QuantityLockKey(merchandiseReturn.OrderId);
@@ -476,6 +492,7 @@ public class InventoryDocumentServiceTests
         var product = await Product();
         var merchandiseReturn = Return(product);
         var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        Assert.IsNotNull(document);
         await _service.Post(document.Id, "staff");
 
         Assert.IsTrue(await _service.IsReturnReceived(merchandiseReturn.Id));
@@ -488,6 +505,7 @@ public class InventoryDocumentServiceTests
         var product = await Product();
         var merchandiseReturn = Return(product);
         var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        Assert.IsNotNull(document);
         await _journal.InsertAsync(new InventoryJournal {
             ObjectType = nameof(InventoryDocument), ObjectId = document.Id, PositionId = document.Lines[0].Id,
             ProductId = product.Id
@@ -520,7 +538,7 @@ public class InventoryDocumentServiceTests
         if (stored.UseMultipleWarehouses)
             foreach (var row in stored.ProductWarehouseInventory)
                 Assert.AreEqual(row.StockQuantity,
-                    StockTestFixture.JournalSum(_journal, product.Id, "", row.WarehouseId), row.WarehouseId);
+                    StockTestFixture.JournalSum(_journal, product.Id, "", row.WarehouseId ?? ""), row.WarehouseId);
         else
             Assert.AreEqual(stored.StockQuantity, StockTestFixture.JournalSum(_journal, product.Id, "", ""));
     }
@@ -778,7 +796,7 @@ public class InventoryDocumentServiceTests
         AssertJournalMatchesStock(product);
     }
 
-    private async Task<Product> Product(Action<Product> setup = null)
+    private async Task<Product> Product(Action<Product>? setup = null)
     {
         var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10 };
         setup?.Invoke(product);

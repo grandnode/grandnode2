@@ -29,10 +29,9 @@ public class MerchandiseReturnLabelServiceTests
     private Mock<IResourceLock> _resourceLock;
     private Mock<IReturnShippingService> _returnShippingService;
     private MerchandiseReturnLabelService _service;
-    private MerchandiseReturn _stored;
+    private MerchandiseReturn? _stored;
 
-    [TestInitialize]
-    public void Init()
+    public MerchandiseReturnLabelServiceTests()
     {
         _stored = Return(ReturnLabelStatus.Pending);
 
@@ -136,7 +135,7 @@ public class MerchandiseReturnLabelServiceTests
     public async Task CreateLabel_Success_SavesDownloadAndCreated()
     {
         SetupLabel(Created());
-        Download saved = null;
+        Download? saved = null;
         _downloadService.Setup(x => x.InsertDownload(It.IsAny<Download>()))
             .Callback<Download>(x =>
             {
@@ -159,7 +158,9 @@ public class MerchandiseReturnLabelServiceTests
         Assert.AreEqual("c1", saved.CustomerId);
         Assert.AreEqual("r1", saved.ReferenceId);
 
+        Assert.IsNotNull(_stored);
         var shipping = _stored.ReturnShipping;
+        Assert.IsNotNull(shipping);
         Assert.AreEqual(ReturnLabelStatus.Created, shipping.LabelStatus);
         Assert.IsNull(shipping.LabelError);
         Assert.AreEqual("d1", shipping.LabelDownloadId);
@@ -197,6 +198,9 @@ public class MerchandiseReturnLabelServiceTests
         var error = await _service.CreateLabel("r1");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored);
+        Assert.IsNotNull(_stored.ReturnShipping);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual(ReturnLabelStatus.Created, _stored.ReturnShipping.LabelStatus);
         Assert.IsNull(_stored.ReturnShipping.LabelDownloadId);
         _downloadService.Verify(x => x.InsertDownload(It.IsAny<Download>()), Times.Never);
@@ -211,6 +215,9 @@ public class MerchandiseReturnLabelServiceTests
         var error = await _service.CreateLabel("r1");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored);
+        Assert.IsNotNull(_stored.ReturnShipping);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual(ReturnLabelStatus.Failed, _stored.ReturnShipping.LabelStatus);
         Assert.AreEqual("carrier timed out", _stored.ReturnShipping.LabelError);
         VerifyShippingSaved(Times.Once());
@@ -227,6 +234,9 @@ public class MerchandiseReturnLabelServiceTests
         var error = await _service.CreateLabel("r1");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored);
+        Assert.IsNotNull(_stored.ReturnShipping);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual(ReturnLabelStatus.Failed, _stored.ReturnShipping.LabelStatus);
         Assert.AreEqual("address rejected", _stored.ReturnShipping.LabelError);
         VerifyShippingSaved(Times.Once());
@@ -236,11 +246,14 @@ public class MerchandiseReturnLabelServiceTests
     [TestMethod]
     public async Task CreateLabel_ProviderNotInstalled_MarksFailed()
     {
-        _returnShippingService.Setup(x => x.LoadProviderBySystemName(Carrier)).Returns((IReturnShippingProvider)null);
+        _returnShippingService.Setup(x => x.LoadProviderBySystemName(Carrier)).Returns((IReturnShippingProvider?)null);
 
         var error = await _service.CreateLabel("r1");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored);
+        Assert.IsNotNull(_stored.ReturnShipping);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual(ReturnLabelStatus.Failed, _stored.ReturnShipping.LabelStatus);
         Assert.AreEqual("provider not installed", _stored.ReturnShipping.LabelError);
         VerifyShippingSaved(Times.Once());
@@ -294,6 +307,7 @@ public class MerchandiseReturnLabelServiceTests
     [TestMethod]
     public async Task CreateLabel_NoReturnShipping_NotAllowed()
     {
+        Assert.IsNotNull(_stored);
         _stored.ReturnShipping = null;
 
         var error = await _service.CreateLabel("r1");
@@ -327,6 +341,7 @@ public class MerchandiseReturnLabelServiceTests
     public async Task CreateLabel_Failed_RetrySucceeds()
     {
         _stored = Return(ReturnLabelStatus.Failed);
+        Assert.IsNotNull(_stored.ReturnShipping);
         _stored.ReturnShipping.LabelError = "carrier timed out";
         SetupLabel(Created());
 
@@ -349,6 +364,7 @@ public class MerchandiseReturnLabelServiceTests
 
         Assert.IsNull(error);
         var shipping = _stored.ReturnShipping;
+        Assert.IsNotNull(shipping);
         Assert.AreEqual(ReturnLabelStatus.NotRequired, shipping.LabelStatus);
         Assert.AreEqual("Drop it at the point", shipping.Instructions);
         Assert.AreEqual("CODE1", shipping.ReturnCode);
@@ -363,6 +379,7 @@ public class MerchandiseReturnLabelServiceTests
     public async Task CreateLabel_NotRequiredWithInstructions_RunsOnce()
     {
         _stored = Return(ReturnLabelStatus.NotRequired);
+        Assert.IsNotNull(_stored.ReturnShipping);
         _stored.ReturnShipping.Instructions = "Send it to the store";
         SetupLabel(Created());
 
@@ -384,6 +401,7 @@ public class MerchandiseReturnLabelServiceTests
         var error = await _service.CreateLabel("r1");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored.ReturnShipping);
         Assert.AreEqual(ReturnLabelStatus.NotRequired, _stored.ReturnShipping.LabelStatus);
         Assert.IsNull(_stored.ReturnShipping.Instructions);
         VerifyShippingSaved(Times.Never());
@@ -394,11 +412,11 @@ public class MerchandiseReturnLabelServiceTests
     public async Task CreateLabel_TakesLabelLockNotQuantityLock()
     {
         //the provider is called under the label lock only; the result is saved under the order's lock as well
-        List<string> heldDuringCall = null;
+        List<string>? heldDuringCall = null;
         _provider.Setup(x => x.CreateLabel(It.IsAny<MerchandiseReturn>()))
             .Callback(() => heldDuringCall = _held.ToList())
             .ReturnsAsync(Created());
-        List<string> heldDuringSave = null;
+        List<string>? heldDuringSave = null;
         _merchandiseReturnService.Setup(x => x.UpdateMerchandiseReturnShipping(It.IsAny<MerchandiseReturn>()))
             .Callback(() => heldDuringSave = _held.ToList())
             .Returns(Task.CompletedTask);
@@ -448,7 +466,7 @@ public class MerchandiseReturnLabelServiceTests
         _provider.Setup(x => x.CreateLabel(It.IsAny<MerchandiseReturn>()))
             .Callback(() => _stored = Return(ReturnLabelStatus.Pending, MerchandiseReturnStatus.Rejected))
             .ReturnsAsync(Created());
-        List<string> heldDuringCancel = null;
+        List<string>? heldDuringCancel = null;
         _provider.Setup(x => x.CancelLabel(It.IsAny<MerchandiseReturn>()))
             .Callback(() => heldDuringCancel = _held.ToList())
             .ReturnsAsync(true);
@@ -456,7 +474,9 @@ public class MerchandiseReturnLabelServiceTests
         var error = await _service.CreateLabel("r1");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual(MerchandiseReturnStatus.Rejected, _stored.MerchandiseReturnStatus);
+        Assert.IsNotNull(_stored.ReturnShipping);
         Assert.AreEqual(ReturnLabelStatus.Cancelled, _stored.ReturnShipping.LabelStatus);
         Assert.AreEqual("d1", _stored.ReturnShipping.LabelDownloadId);
         _provider.Verify(x => x.CancelLabel(It.Is<MerchandiseReturn>(r => r.Id == "r1")), Times.Once);
@@ -476,6 +496,9 @@ public class MerchandiseReturnLabelServiceTests
         var error = await ShortTimeoutService().CreateLabel("r1");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored);
+        Assert.IsNotNull(_stored.ReturnShipping);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual(ReturnLabelStatus.Failed, _stored.ReturnShipping.LabelStatus);
         Assert.AreEqual("timed out", _stored.ReturnShipping.LabelError);
         VerifyShippingSaved(Times.Once());
@@ -490,6 +513,7 @@ public class MerchandiseReturnLabelServiceTests
 
         await _service.CancelLabel("r1");
 
+        Assert.IsNotNull(_stored.ReturnShipping);
         Assert.AreEqual(ReturnLabelStatus.Cancelled, _stored.ReturnShipping.LabelStatus);
         Assert.AreEqual(MerchandiseReturnStatus.Rejected, _stored.MerchandiseReturnStatus);
         VerifyShippingSaved(Times.Once());
@@ -505,6 +529,7 @@ public class MerchandiseReturnLabelServiceTests
 
         await _service.CancelLabel("r1");
 
+        Assert.IsNotNull(_stored.ReturnShipping);
         Assert.AreEqual(ReturnLabelStatus.Created, _stored.ReturnShipping.LabelStatus);
         VerifyShippingSaved(Times.Never());
         VerifyStaffNote(Times.Once());
@@ -519,6 +544,7 @@ public class MerchandiseReturnLabelServiceTests
 
         await _service.CancelLabel("r1");
 
+        Assert.IsNotNull(_stored.ReturnShipping);
         Assert.AreEqual(ReturnLabelStatus.Created, _stored.ReturnShipping.LabelStatus);
         VerifyShippingSaved(Times.Never());
         VerifyStaffNote(Times.Once());
@@ -533,6 +559,7 @@ public class MerchandiseReturnLabelServiceTests
 
         await ShortTimeoutService().CancelLabel("r1");
 
+        Assert.IsNotNull(_stored.ReturnShipping);
         Assert.AreEqual(ReturnLabelStatus.Created, _stored.ReturnShipping.LabelStatus);
         VerifyShippingSaved(Times.Never());
         VerifyStaffNote(Times.Once());
@@ -555,6 +582,9 @@ public class MerchandiseReturnLabelServiceTests
         var error = await _service.UpdateShipping("r1", shipping => shipping.TrackingNumber = "TRACK-9");
 
         Assert.IsNull(error);
+        Assert.IsNotNull(_stored);
+        Assert.IsNotNull(_stored.ReturnShipping);
+        Assert.IsNotNull(_stored);
         Assert.AreEqual("TRACK-9", _stored.ReturnShipping.TrackingNumber);
         Assert.AreEqual(MerchandiseReturnStatus.Pending, _stored.MerchandiseReturnStatus);
         VerifyShippingSaved(Times.Once());
@@ -566,12 +596,14 @@ public class MerchandiseReturnLabelServiceTests
     public async Task UpdateShipping_NotAllowedOnStoredCopy_SavesNothingAndSaysSo()
     {
         //the staff marked the return received after the customer opened the page
+        Assert.IsNotNull(_stored);
         _stored.MerchandiseReturnStatus = MerchandiseReturnStatus.Received;
 
         var error = await _service.UpdateShipping("r1", shipping => shipping.TrackingNumber = "TRACK-9",
             stored => stored.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
 
         Assert.AreEqual(MerchandiseReturnErrors.ShippingChangeNotAllowed, error);
+        Assert.IsNotNull(_stored.ReturnShipping);
         Assert.IsNull(_stored.ReturnShipping.TrackingNumber);
         VerifyShippingSaved(Times.Never());
     }
@@ -579,6 +611,7 @@ public class MerchandiseReturnLabelServiceTests
     [TestMethod]
     public async Task UpdateShipping_NoReturnShipping_NotFound()
     {
+        Assert.IsNotNull(_stored);
         _stored.ReturnShipping = null;
 
         var error = await _service.UpdateShipping("r1", shipping => shipping.TrackingNumber = "TRACK-9");

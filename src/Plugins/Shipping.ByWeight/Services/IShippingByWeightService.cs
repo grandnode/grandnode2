@@ -13,14 +13,14 @@ public interface IShippingByWeightService
     /// <param name="storeId">The store identifier; pass "" to load records of all stores</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    Task<IPagedList<ShippingByWeightRecord>> GetAll(string storeId = "", int pageIndex = 0,
+    Task<IPagedList<ShippingByWeightRecord>> GetAll(string? storeId = "", int pageIndex = 0,
         int pageSize = int.MaxValue);
 
-    Task<ShippingByWeightRecord> FindRecord(string shippingMethodId,
-        string storeId, string warehouseId,
-        string countryId, string stateProvinceId, string zip, double weight);
+    Task<ShippingByWeightRecord?> FindRecord(string shippingMethodId,
+        string storeId, string? warehouseId,
+        string? countryId, string? stateProvinceId, string? zip, double weight);
 
-    Task<ShippingByWeightRecord> GetById(string shippingByWeightRecordId);
+    Task<ShippingByWeightRecord?> GetById(string? shippingByWeightRecordId);
 
     Task InsertShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord);
 

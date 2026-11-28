@@ -20,8 +20,7 @@ public class GetMerchandiseReturnTokensCommandHandlerTests
     private readonly Currency _currency = new() { CurrencyCode = "EUR" };
     private GetMerchandiseReturnTokensCommandHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetMerchandiseReturnTokensCommandHandlerTests()
     {
         var currencyService = new Mock<ICurrencyService>();
         currencyService.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(_currency);
@@ -35,7 +34,7 @@ public class GetMerchandiseReturnTokensCommandHandlerTests
     }
 
     private Task<Grand.Business.Messages.DotLiquidDrops.LiquidMerchandiseReturn> Tokens(
-        MerchandiseReturnStatus status, string statusNote = null, MerchandiseReturnRefund refund = null)
+        MerchandiseReturnStatus status, string? statusNote = null, MerchandiseReturnRefund? refund = null)
     {
         var merchandiseReturn = new MerchandiseReturn {
             MerchandiseReturnStatus = status, PickupAddress = new Address(), Refund = refund

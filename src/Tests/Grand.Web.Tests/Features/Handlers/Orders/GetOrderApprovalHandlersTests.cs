@@ -22,8 +22,7 @@ public class GetOrderApprovalHandlersTests
     private GetOrderApprovalsHandler _listHandler;
     private Grand.Domain.Stores.Store _store;
 
-    [TestInitialize]
-    public void Init()
+    public GetOrderApprovalHandlersTests()
     {
         _store = new Grand.Domain.Stores.Store { Id = "s1" };
         _approvals = new Mock<IOrderApprovalService>();
@@ -54,7 +53,7 @@ public class GetOrderApprovalHandlersTests
         };
     }
 
-    private Task<Grand.Web.Models.Orders.OrderApprovalModel> Details(Customer who, string id = "a1")
+    private Task<Grand.Web.Models.Orders.OrderApprovalModel?> Details(Customer who, string id = "a1")
     {
         return _detailsHandler.Handle(new GetOrderApproval { Language = new Grand.Domain.Localization.Language(), Customer = who, Store = _store, Id = id },
             CancellationToken.None);
@@ -76,6 +75,7 @@ public class GetOrderApprovalHandlersTests
 
         var model = await Details(new Customer { Id = "owner" });
 
+        Assert.IsNotNull(model);
         CollectionAssert.AreEqual(new[] { "over the limit" }, model.Reasons.ToArray());
     }
 
@@ -120,6 +120,7 @@ public class GetOrderApprovalHandlersTests
 
         var model = await Details(new Customer { Id = "buyer", OwnerId = "owner" });
 
+        Assert.IsNotNull(model);
         Assert.AreEqual("o1", model.OrderId);
         Assert.AreEqual(1007, model.OrderNumber);
         Assert.IsTrue(model.CanViewOrder);
@@ -133,6 +134,7 @@ public class GetOrderApprovalHandlersTests
 
         var model = await Details(new Customer { Id = "appr", OwnerId = "owner", SubAccountRole = SubAccountRole.Approver });
 
+        Assert.IsNotNull(model);
         Assert.AreEqual(1007, model.OrderNumber);
         Assert.IsFalse(model.CanViewOrder);
     }
@@ -172,6 +174,7 @@ public class GetOrderApprovalHandlersTests
 
         var model = await Details(new Customer { Id = "owner" });
 
+        Assert.IsNotNull(model);
         Assert.IsTrue(model.CanDecide);
         Assert.IsFalse(model.CanWithdraw);
         Assert.AreEqual("b@x.test", model.Buyer);
@@ -196,6 +199,7 @@ public class GetOrderApprovalHandlersTests
 
         var model = await Details(new Customer { Id = "owner" });
 
+        Assert.IsNotNull(model);
         Assert.IsFalse(model.CanDecide);
     }
 
@@ -206,6 +210,7 @@ public class GetOrderApprovalHandlersTests
 
         var model = await Details(new Customer { Id = "buyer", OwnerId = "owner" });
 
+        Assert.IsNotNull(model);
         Assert.IsFalse(model.CanWithdraw);
     }
 

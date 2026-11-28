@@ -13,16 +13,16 @@ namespace Grand.Infrastructure.Tests.Caching.Redis;
 public class RedisMessageCacheManagerTests
 {
     private Mock<IMessageBus> _messageBusMock;
-    private IMemoryCache _memoryCache;
+    private IMemoryCache? _memoryCache;
     private RedisMessageCacheManager _service;
 
-    [TestInitialize]
-    public void Init()
+    public RedisMessageCacheManagerTests()
     {
         var services = new ServiceCollection();
         services.AddMemoryCache();
         _memoryCache = services.BuildServiceProvider().GetService<IMemoryCache>();
         _messageBusMock = new Mock<IMessageBus>();
+        Assert.IsNotNull(_memoryCache);
         _service = new RedisMessageCacheManager(_memoryCache, new Mock<IMediator>().Object,
             _messageBusMock.Object, new CacheConfig { DefaultCacheTimeMinutes = 1 });
     }
@@ -34,6 +34,7 @@ public class RedisMessageCacheManagerTests
 
         await _service.RemoveAsync("key");
 
+        Assert.IsNotNull(_memoryCache);
         Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
         _messageBusMock.Verify(m => m.PublishAsync(It.Is<MessageEvent>(e =>
             e.Key == "key" && e.MessageType == (int)MessageEventType.RemoveKey)), Times.Once);
@@ -46,6 +47,7 @@ public class RedisMessageCacheManagerTests
 
         await _service.RemoveAsync("key", false);
 
+        Assert.IsNotNull(_memoryCache);
         Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
         _messageBusMock.Verify(m => m.PublishAsync(It.IsAny<MessageEvent>()), Times.Never);
     }
@@ -59,6 +61,7 @@ public class RedisMessageCacheManagerTests
 
         await _service.RemoveByPrefix("prefix");
 
+        Assert.IsNotNull(_memoryCache);
         Assert.IsFalse(_memoryCache.TryGetValue("prefix-1", out _));
         Assert.IsFalse(_memoryCache.TryGetValue("prefix-2", out _));
         Assert.IsTrue(_memoryCache.TryGetValue("other", out _));
@@ -73,6 +76,7 @@ public class RedisMessageCacheManagerTests
 
         await _service.RemoveByPrefix("prefix", false);
 
+        Assert.IsNotNull(_memoryCache);
         Assert.IsFalse(_memoryCache.TryGetValue("prefix-1", out _));
         _messageBusMock.Verify(m => m.PublishAsync(It.IsAny<MessageEvent>()), Times.Never);
     }
@@ -84,6 +88,7 @@ public class RedisMessageCacheManagerTests
 
         await _service.Clear();
 
+        Assert.IsNotNull(_memoryCache);
         Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
         _messageBusMock.Verify(m => m.PublishAsync(It.Is<MessageEvent>(e =>
             e.MessageType == (int)MessageEventType.ClearCache)), Times.Once);
@@ -96,6 +101,7 @@ public class RedisMessageCacheManagerTests
 
         await _service.Clear(false);
 
+        Assert.IsNotNull(_memoryCache);
         Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
         _messageBusMock.Verify(m => m.PublishAsync(It.IsAny<MessageEvent>()), Times.Never);
     }

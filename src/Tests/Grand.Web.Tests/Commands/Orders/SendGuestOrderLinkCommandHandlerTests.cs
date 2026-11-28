@@ -35,10 +35,9 @@ public class SendGuestOrderLinkCommandHandlerTests
     private Order _order;
     private List<Order> _otherOrders;
     private GuestOrderGrantService _grant;
-    private string _sentToken;
+    private string? _sentToken;
 
-    [TestInitialize]
-    public void Init()
+    public SendGuestOrderLinkCommandHandlerTests()
     {
         _order = new Order {
             Id = "o1", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "guest@example.com"
@@ -92,6 +91,7 @@ public class SendGuestOrderLinkCommandHandlerTests
         Assert.IsTrue(await Send(" Guest@Example.com "));
 
         VerifySent(Times.Once());
+        Assert.IsNotNull(_sentToken);
         Assert.AreEqual("o1", _grant.LinkOrderId(_sentToken, "s1"));
     }
 
@@ -149,6 +149,7 @@ public class SendGuestOrderLinkCommandHandlerTests
             { Id = "o3", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "other@example.com" });
 
         Assert.IsTrue(await Send());
+        Assert.IsNotNull(_sentToken);
         Assert.AreEqual("o1", _grant.LinkOrderId(_sentToken, "s1"));
     }
 
@@ -162,6 +163,7 @@ public class SendGuestOrderLinkCommandHandlerTests
         });
 
         Assert.IsTrue(await Send());
+        Assert.IsNotNull(_sentToken);
         Assert.AreEqual("o1", _grant.LinkOrderId(_sentToken, "s1"));
     }
 

@@ -13,8 +13,7 @@ public class GetVendorByIdQueryHandlerTests
     private IRepository<Vendor> _repository;
     private GetVendorByIdQueryHandler handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetVendorByIdQueryHandlerTests()
     {
         _repository = new MongoDBRepositoryTest<Vendor>();
         handler = new GetVendorByIdQueryHandler(_repository);

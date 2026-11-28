@@ -16,8 +16,7 @@ public class ProductUnitDetailsTests
     private UnitTestFixture _fixture;
     private ProductUnitService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ProductUnitDetailsTests()
     {
         _fixture = new UnitTestFixture();
         _service = StockTestFixture.UnitService(_fixture.Batches, _fixture.Serials, _fixture.Products,
@@ -138,7 +137,7 @@ public class ProductUnitDetailsTests
 
     private sealed class RacingSerialNumbers : MongoDBRepositoryTest<ProductSerialNumber>
     {
-        public Func<Task> AfterRead { get; set; }
+        public Func<Task>? AfterRead { get; set; }
 
         public override async Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
             CancellationToken cancellationToken = default)

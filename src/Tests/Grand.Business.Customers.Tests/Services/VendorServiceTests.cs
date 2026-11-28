@@ -20,8 +20,7 @@ public class VendorServiceTests
     private Mock<IRepository<VendorReview>> _vendorReviewRepositoryMock;
     private VendorService _vendorService;
     private MemoryCacheBase _cacheBase;
-    [TestInitialize]
-    public void Init()
+    public VendorServiceTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _repoMock = new Mock<IRepository<Vendor>>();

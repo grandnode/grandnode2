@@ -11,6 +11,6 @@ public static class MemoryCacheTest
         services.AddMemoryCache();
         var serviceProvider = services.BuildServiceProvider();
 
-        return serviceProvider.GetService<IMemoryCache>();
+        return serviceProvider.GetRequiredService<IMemoryCache>();
     }
 }

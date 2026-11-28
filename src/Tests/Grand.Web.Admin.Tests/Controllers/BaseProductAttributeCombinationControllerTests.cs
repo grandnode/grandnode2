@@ -69,6 +69,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var json = result as JsonResult;
         Assert.IsNotNull(json);
         var gridModel = json.Value as DataSourceResult;
+        Assert.IsNotNull(gridModel);
         Assert.AreEqual(1, gridModel.Total);
     }
 
@@ -77,7 +78,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     [TestMethod]
     public async Task ProductAttributeCombinationDelete_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var attrServiceMock = new Mock<IProductAttributeService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
@@ -212,7 +213,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     [TestMethod]
     public async Task AttributeCombinationPopupPost_MissingProduct_RedirectsToList()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
         var model = new ProductAttributeCombinationModel();
 
         var result = await _controller.AttributeCombinationPopup("missing", model);
@@ -283,7 +284,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     [TestMethod]
     public async Task GenerateAllAttributeCombinations_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             () => _controller.GenerateAllAttributeCombinations("missing"));
@@ -322,7 +323,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     [TestMethod]
     public async Task ClearAllAttributeCombinations_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             () => _controller.ClearAllAttributeCombinations("missing", _unitsMock.Object));
@@ -402,6 +403,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var json = result as JsonResult;
         Assert.IsNotNull(json);
         var gridModel = json.Value as DataSourceResult;
+        Assert.IsNotNull(gridModel);
         Assert.AreEqual(1, gridModel.Total);
     }
 
@@ -410,7 +412,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     [TestMethod]
     public async Task ProductAttributeCombinationTierPriceInsert_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             () => _controller.ProductAttributeCombinationTierPriceInsert("missing", "c1",
@@ -475,7 +477,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     [TestMethod]
     public async Task ProductAttributeCombinationTierPriceUpdate_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             () => _controller.ProductAttributeCombinationTierPriceUpdate("missing", "c1",
@@ -523,7 +525,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     [TestMethod]
     public async Task ProductAttributeCombinationTierPriceDelete_MissingProduct_Throws()
     {
-        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product?)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
             () => _controller.ProductAttributeCombinationTierPriceDelete("missing", "c1", "tp1"));

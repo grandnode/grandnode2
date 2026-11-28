@@ -23,8 +23,7 @@ public class BlogServiceTests
     private Mock<IMediator> _mediatorMock;
     private CatalogSettings _settings;
 
-    [TestInitialize]
-    public void Init()
+    public BlogServiceTests()
     {
         _blogPostRepositoryMock = new Mock<IRepository<BlogPost>>();
         _blogCommentRepositoryMock = new Mock<IRepository<BlogComment>>();
@@ -40,7 +39,7 @@ public class BlogServiceTests
     [TestMethod]
     public void DeleteBlogPost_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.DeleteBlogPost(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.DeleteBlogPost(null!),
             "blogPost");
     }
 
@@ -62,7 +61,7 @@ public class BlogServiceTests
     [TestMethod]
     public void InsertBlogPost_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.InsertBlogPost(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.InsertBlogPost(null!),
             "blogPost");
     }
 
@@ -85,7 +84,7 @@ public class BlogServiceTests
     [TestMethod]
     public void UpdateBlogPost_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.UpdateBlogPost(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.UpdateBlogPost(null!),
             "blogPost");
     }
 
@@ -100,7 +99,7 @@ public class BlogServiceTests
     [TestMethod]
     public void InsertBlogProductInsertBlogProduct_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.InsertBlogProduct(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.InsertBlogProduct(null!),
             "blogProduct");
     }
 
@@ -115,7 +114,7 @@ public class BlogServiceTests
     [TestMethod]
     public void UpdateBlogProduct_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.UpdateBlogProduct(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.UpdateBlogProduct(null!),
             "blogProduct");
     }
 
@@ -130,7 +129,7 @@ public class BlogServiceTests
     [TestMethod]
     public void DeleteBlogProduct_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.DeleteBlogProduct(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.DeleteBlogProduct(null!),
             "blogProduct");
     }
 
@@ -145,7 +144,7 @@ public class BlogServiceTests
     [TestMethod]
     public void InsertBlogCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.InsertBlogCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.InsertBlogCategory(null!),
             "blogCategory");
     }
 
@@ -160,7 +159,7 @@ public class BlogServiceTests
     [TestMethod]
     public void UpdateBlogCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.UpdateBlogCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.UpdateBlogCategory(null!),
             "blogCategory");
     }
 
@@ -175,7 +174,7 @@ public class BlogServiceTests
     [TestMethod]
     public void DeleteBlogCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.DeleteBlogCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _blogService.DeleteBlogCategory(null!),
             "blogCategory");
     }
 

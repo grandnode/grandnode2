@@ -17,8 +17,7 @@ public class CategoryLayoutServiceTest
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<CategoryLayout>> _repostioryMock;
 
-    [TestInitialize]
-    public void Init()
+    public CategoryLayoutServiceTest()
     {
         _repostioryMock = new Mock<IRepository<CategoryLayout>>();
         _cacheMock = new Mock<ICacheBase>();

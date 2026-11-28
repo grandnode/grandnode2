@@ -33,8 +33,7 @@ public class OrderViewModelServiceRecurringTests
     private Mock<IAdminDataScope<Order>> _scope;
     private OrderViewModelService _service;
 
-    [TestInitialize]
-    public void Init()
+    public OrderViewModelServiceRecurringTests()
     {
         _orderService = new Mock<IOrderService>();
         _recurringPaymentService = new Mock<IRecurringPaymentService>();

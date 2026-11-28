@@ -17,8 +17,7 @@ public class PaymentTransactionServiceTests
     private Mock<IRepository<PaymentTransaction>> _repositoryMock;
     private PaymentTransactionService _service;
 
-    [TestInitialize]
-    public void Init()
+    public PaymentTransactionServiceTests()
     {
         _repositoryMock = new Mock<IRepository<PaymentTransaction>>();
         _mediatorMock = new Mock<IMediator>();
@@ -36,7 +35,7 @@ public class PaymentTransactionServiceTests
     [TestMethod]
     public void InsertPaymentTransaction_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertPaymentTransaction(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertPaymentTransaction(null!));
     }
 
     [TestMethod]
@@ -50,7 +49,7 @@ public class PaymentTransactionServiceTests
     [TestMethod]
     public void UpdatePaymentTransaction_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdatePaymentTransaction(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdatePaymentTransaction(null!));
     }
 
     [TestMethod]
@@ -74,6 +73,6 @@ public class PaymentTransactionServiceTests
     [TestMethod]
     public void DeletePaymentTransaction_NullArgument_ThrowException()
     {
-        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeletePaymentTransaction(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeletePaymentTransaction(null!));
     }
 }

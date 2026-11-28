@@ -23,8 +23,7 @@ public class CustomerServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Customer> _repository;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public CustomerServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Customer>();
         _mediatorMock = new Mock<IMediator>();
@@ -327,7 +326,7 @@ public class CustomerServiceTests
         //Arrange
         var cg = new CustomerGroup();
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetGroupBySystemNameQuery>(), default))
-            .Returns(Task.FromResult(cg));
+            .ReturnsAsync(cg);
 
         var customer = new Customer {
             CustomerGuid = Guid.NewGuid(),
@@ -347,7 +346,7 @@ public class CustomerServiceTests
     public async Task InsertGuestCustomer_GroupAlreadyPresent_AddedOnce()
     {
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetGroupBySystemNameQuery>(), default))
-            .Returns(Task.FromResult(new CustomerGroup { Id = "guests" }));
+            .ReturnsAsync(new CustomerGroup { Id = "guests" });
         var customer = new Customer { CustomerGuid = Guid.NewGuid(), Active = true };
         customer.Groups.Add("guests");
 
@@ -374,7 +373,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.UpdateCustomerField(customer, x => x.Email, "sample@sample.pl");
         //Assert
-        Assert.AreEqual("sample@sample.pl", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Email);
+        Assert.AreEqual("sample@sample.pl", _repository.Table.First(x => x.Id == customer.Id).Email);
     }
 
     [TestMethod]
@@ -386,7 +385,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.UpdateCustomerField(customer, x => x.Username, "username");
         //Assert
-        Assert.AreEqual("username", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Username);
+        Assert.AreEqual("username", _repository.Table.First(x => x.Id == customer.Id).Username);
     }
 
     [TestMethod]
@@ -399,7 +398,7 @@ public class CustomerServiceTests
         customer.Email = "sample@sample.com";
         await _customerService.UpdateCustomer(customer);
         //Assert
-        Assert.AreEqual("sample@sample.com", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Email);
+        Assert.AreEqual("sample@sample.com", _repository.Table.First(x => x.Id == customer.Id).Email);
     }
     [TestMethod]
     public async Task SaveFieldTest_Insert()
@@ -410,7 +409,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.UpdateUserField(customer, "Field", "Value");
         //Assert
-        var userFields = _repository.Table.FirstOrDefault(x => x.Id == customer.Id).UserFields;
+        var userFields = _repository.Table.First(x => x.Id == customer.Id).UserFields;
         Assert.IsNotNull(userFields.FirstOrDefault(x => x.Key == "Field"));
     }
 
@@ -424,9 +423,9 @@ public class CustomerServiceTests
         //Act
         await _customerService.UpdateUserField(customer, "Field", "Value");
         //Assert
-        var userFields = _repository.Table.FirstOrDefault(x => x.Id == customer.Id).UserFields;
+        var userFields = _repository.Table.First(x => x.Id == customer.Id).UserFields;
         Assert.IsNotNull(userFields.FirstOrDefault(x => x.Key == "Field"));
-        Assert.AreEqual("Value", userFields.FirstOrDefault(x => x.Key == "Field").Value);
+        Assert.AreEqual("Value", userFields.First(x => x.Key == "Field").Value);
     }
 
     [TestMethod]
@@ -439,7 +438,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.UpdateUserField(customer, "Field", string.Empty);
         //Assert
-        var userFields = _repository.Table.FirstOrDefault(x => x.Id == customer.Id).UserFields;
+        var userFields = _repository.Table.First(x => x.Id == customer.Id).UserFields;
         Assert.IsNull(userFields.FirstOrDefault(x => x.Key == "Field"));
     }
     [TestMethod]
@@ -451,7 +450,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.DeleteCustomer(customer);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).Deleted);
+        Assert.IsTrue(_repository.Table.First(x => x.Id == customer.Id).Deleted);
     }
 
     [TestMethod]
@@ -478,7 +477,7 @@ public class CustomerServiceTests
         await _customerService.UpdateCustomerLastLoginDate(customer);
         //Assert
         Assert.AreEqual(date.ToString(),
-            _repository.Table.FirstOrDefault(x => x.Id == customer.Id).LastLoginDateUtc.ToString());
+            _repository.Table.First(x => x.Id == customer.Id).LastLoginDateUtc.ToString());
     }
 
     [TestMethod]
@@ -495,6 +494,7 @@ public class CustomerServiceTests
         await _customerService.UpdateCustomerLastActivity(customer);
         //Assert
         var updated = _repository.Table.FirstOrDefault(x => x.Id == customer.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual(date.ToString(), updated.LastActivityDateUtc.ToString());
         Assert.AreEqual("10.0.0.1", updated.LastIpAddress);
         Assert.AreEqual("https://shop.test/product", updated.LastVisitedPage);
@@ -513,6 +513,7 @@ public class CustomerServiceTests
         await _customerService.UpdateCustomerInAdminPanel(customer);
         //Assert
         var updated = _repository.Table.FirstOrDefault(x => x.Id == customer.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual("test", updated.AdminComment);
         Assert.AreEqual("store-1", updated.StoreId);
     }
@@ -529,6 +530,7 @@ public class CustomerServiceTests
         await _customerService.UpdateCustomerInAdminPanel(customer);
         //Assert
         var updated = _repository.Table.FirstOrDefault(x => x.Id == customer.Id);
+        Assert.IsNotNull(updated);
         Assert.AreEqual(2500, updated.CreditLimit);
         Assert.AreEqual(45, updated.PaymentTermDays);
     }
@@ -580,7 +582,7 @@ public class CustomerServiceTests
         customer.Active = false;
         await _customerService.UpdateActive(customer);
         //Assert
-        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).Active);
+        Assert.IsFalse(_repository.Table.First(x => x.Id == customer.Id).Active);
     }
 
     [TestMethod]
@@ -593,7 +595,7 @@ public class CustomerServiceTests
         customer.Active = false;
         await _customerService.UpdateContributions(customer);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).HasContributions);
+        Assert.IsTrue(_repository.Table.First(x => x.Id == customer.Id).HasContributions);
     }
 
     [TestMethod]
@@ -602,7 +604,7 @@ public class CustomerServiceTests
         //Arrange
         var cg = new CustomerGroup();
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetGroupBySystemNameQuery>(), default))
-            .Returns(Task.FromResult(cg));
+            .ReturnsAsync(cg);
 
         var customer = new Customer();
         customer.Groups.Add(cg.Id);
@@ -627,7 +629,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.DeleteCustomerGroupInCustomer(cg, customer.Id);
         //Assert
-        Assert.IsEmpty(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).Groups);
+        Assert.IsEmpty(_repository.Table.First(x => x.Id == customer.Id).Groups);
     }
 
     [TestMethod]
@@ -640,7 +642,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.InsertCustomerGroupInCustomer(cg, customer.Id);
         //Assert
-        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Groups);
+        Assert.HasCount(1, _repository.Table.First(x => x.Id == customer.Id).Groups);
     }
 
     [TestMethod]
@@ -654,7 +656,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.DeleteAddress(address, customer.Id);
         //Assert
-        Assert.IsEmpty(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses);
+        Assert.IsEmpty(_repository.Table.First(x => x.Id == customer.Id).Addresses);
     }
 
     [TestMethod]
@@ -667,7 +669,7 @@ public class CustomerServiceTests
         var address = new Address();
         await _customerService.InsertAddress(address, customer.Id);
         //Assert
-        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses);
+        Assert.HasCount(1, _repository.Table.First(x => x.Id == customer.Id).Addresses);
     }
 
     [TestMethod]
@@ -682,9 +684,9 @@ public class CustomerServiceTests
         address.Name = "sample";
         await _customerService.UpdateAddress(address, customer.Id);
         //Assert
-        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses);
+        Assert.HasCount(1, _repository.Table.First(x => x.Id == customer.Id).Addresses);
         Assert.AreEqual("sample",
-            _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Addresses.FirstOrDefault(x => x.Id == address.Id)
+            _repository.Table.First(x => x.Id == customer.Id).Addresses.First(x => x.Id == address.Id)
                 .Name);
     }
 
@@ -701,7 +703,7 @@ public class CustomerServiceTests
         await _customerService.UpdateBillingAddress(address, customer.Id);
         //Assert
         Assert.AreEqual("BillingAddress",
-            _repository.Table.FirstOrDefault(x => x.Id == customer.Id).BillingAddress.Name);
+            _repository.Table.First(x => x.Id == customer.Id).BillingAddress?.Name);
     }
 
     [TestMethod]
@@ -717,7 +719,7 @@ public class CustomerServiceTests
         await _customerService.UpdateShippingAddress(address, customer.Id);
         //Assert
         Assert.AreEqual("ShippingAddress",
-            _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShippingAddress.Name);
+            _repository.Table.First(x => x.Id == customer.Id).ShippingAddress?.Name);
     }
 
     [TestMethod]
@@ -731,7 +733,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.DeleteShoppingCartItem(customer.Id, cart);
         //Assert
-        Assert.IsEmpty(_repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems);
+        Assert.IsEmpty(_repository.Table.First(x => x.Id == customer.Id).ShoppingCartItems);
     }
 
     [TestMethod]
@@ -747,7 +749,7 @@ public class CustomerServiceTests
         //Act
         await _customerService.ClearShoppingCartItem(customer.Id, new List<ShoppingCartItem> { cart });
         //Assert
-        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems);
+        Assert.HasCount(1, _repository.Table.First(x => x.Id == customer.Id).ShoppingCartItems);
     }
 
     [TestMethod]
@@ -760,7 +762,7 @@ public class CustomerServiceTests
         var cart = new ShoppingCartItem();
         await _customerService.InsertShoppingCartItem(customer.Id, cart);
         //Assert
-        Assert.HasCount(1, _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems);
+        Assert.HasCount(1, _repository.Table.First(x => x.Id == customer.Id).ShoppingCartItems);
     }
 
     [TestMethod]
@@ -776,7 +778,7 @@ public class CustomerServiceTests
         await _customerService.UpdateShoppingCartItem(customer.Id, cart);
         //Assert
         Assert.AreEqual("test",
-            _repository.Table.FirstOrDefault(x => x.Id == customer.Id).ShoppingCartItems
-                .FirstOrDefault(x => x.Id == cart.Id).Parameter);
+            _repository.Table.First(x => x.Id == customer.Id).ShoppingCartItems
+                .First(x => x.Id == cart.Id).Parameter);
     }
 }

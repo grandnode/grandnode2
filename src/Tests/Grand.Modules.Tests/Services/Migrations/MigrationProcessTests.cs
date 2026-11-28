@@ -19,8 +19,7 @@ public class MigrationProcessTests
     private IServiceProvider _serviceProvider;
     private MigrationProcess _migrationProcess;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationProcessTests()
     {
         _migrationRepository = new LiteDBRepositoryMock<MigrationDb>();
         _versionRepository = new LiteDBRepositoryMock<GrandNodeVersion>();
@@ -116,7 +115,7 @@ public class MigrationProcessTests
         IRepository<MigrationDb> repositoryMigration,
         IRepository<GrandNodeVersion> repositoryVersion,
         IList<IMigration> pending,
-        IMigration failing)
+        IMigration? failing)
         : MigrationProcess(Mock.Of<IDatabaseContext>(), serviceProvider, NullLogger<MigrationProcess>.Instance,
             repositoryMigration, repositoryVersion)
     {

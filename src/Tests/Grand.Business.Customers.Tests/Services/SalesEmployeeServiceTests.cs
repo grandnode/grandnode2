@@ -19,8 +19,7 @@ public class SalesEmployeeServiceTests
     private IRepository<SalesEmployee> _repository;
     private SalesEmployeeService _salesEmployeeService;
 
-    [TestInitialize]
-    public void Init()
+    public SalesEmployeeServiceTests()
     {
         _repository = new MongoDBRepositoryTest<SalesEmployee>();
         _mediatorMock = new Mock<IMediator>();
@@ -75,7 +74,7 @@ public class SalesEmployeeServiceTests
         salesEmployee.Email = "email@email.com";
         await _salesEmployeeService.UpdateSalesEmployee(salesEmployee);
         //Assert
-        Assert.AreEqual("email@email.com", _repository.Table.FirstOrDefault(x => x.Id == salesEmployee.Id).Email);
+        Assert.AreEqual("email@email.com", _repository.Table.First(x => x.Id == salesEmployee.Id).Email);
     }
 
     [TestMethod]

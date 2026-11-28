@@ -15,7 +15,7 @@ public class RecurringCycleOrderTests
     private static readonly DateTime CreatedOn = new(2026, 12, 1, 10, 0, 0, DateTimeKind.Utc);
 
     // properties the copy sets or resets, with the value it must hold
-    private static readonly Dictionary<string, object> ResetProperties = new() {
+    private static readonly Dictionary<string, object?> ResetProperties = new() {
         { nameof(Order.Id), "c2" },
         { nameof(Order.OrderNumber), 0 },
         { nameof(Order.Code), "ABC" },
@@ -148,10 +148,13 @@ public class RecurringCycleOrderTests
         Assert.AreEqual(0, copy.OrderTags.Count);
 
         Assert.AreNotSame(initial.BillingAddress, copy.BillingAddress);
+        Assert.IsNotNull(copy.BillingAddress);
         Assert.AreEqual("Warsaw", copy.BillingAddress.City);
+        Assert.IsNotNull(initial.BillingAddress);
         Assert.AreNotSame(initial.BillingAddress.Attributes, copy.BillingAddress.Attributes);
         Assert.AreEqual("a", copy.BillingAddress.Attributes[0].Key);
         Assert.AreNotSame(initial.ShippingAddress, copy.ShippingAddress);
+        Assert.IsNotNull(copy.ShippingAddress);
         Assert.AreEqual("Krakow", copy.ShippingAddress.City);
     }
 
@@ -262,7 +265,7 @@ public class RecurringCycleOrderTests
                     Assert.AreNotEqual(initial.OrderGuid, actual);
                     break;
                 case nameof(Order.UserFields):
-                    Assert.AreEqual(0, ((ICollection<UserField>)actual).Count);
+                    Assert.AreEqual(0, Assert.IsInstanceOfType<ICollection<UserField>>(actual).Count);
                     break;
                 case nameof(Order.InitialOrderId):
                     Assert.AreEqual(initial.Id, actual);
@@ -304,7 +307,7 @@ public class RecurringCycleOrderTests
             switch (property.Name)
             {
                 case nameof(OrderItem.Id):
-                    Assert.IsFalse(string.IsNullOrEmpty((string)actual));
+                    Assert.IsFalse(string.IsNullOrEmpty(Assert.IsInstanceOfType<string>(actual)));
                     Assert.AreNotEqual(source.Id, actual);
                     break;
                 case nameof(OrderItem.OrderItemGuid):
@@ -369,7 +372,7 @@ public class RecurringCycleOrderTests
         throw new NotSupportedException($"Order.{name} has a type this test cannot fill: {type}");
     }
 
-    private static void AssertSameValue(object expected, object actual, string path)
+    private static void AssertSameValue(object? expected, object? actual, string path)
     {
         if (expected is null || expected is string || expected.GetType().IsValueType)
         {

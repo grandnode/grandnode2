@@ -56,8 +56,7 @@ public class CustomerViewModelServiceTests
     private Mock<ICompanyCreditService> _companyCreditServiceMock;
     private CustomerViewModelService _customerViewModelService;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerViewModelServiceTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
@@ -126,7 +125,7 @@ public class CustomerViewModelServiceTests
         _customerConfig = new CustomerConfig();
         //Admin panel: no default store, every customer in reach
         _scopeMock = new Mock<IAdminDataScope<Customer>>();
-        _scopeMock.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync((string)null);
+        _scopeMock.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         _scopeMock.Setup(s => s.HasAccess(It.IsAny<Customer>())).ReturnsAsync(true);
 
         _priceFormatterMock = new Mock<IPriceFormatter>();
@@ -444,7 +443,7 @@ public class CustomerViewModelServiceTests
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
             It.IsAny<ShoppingCartType?>(), 1, 15,
-            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()), Times.Once);
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>()), Times.Once);
     }
 
     [TestMethod]
@@ -471,13 +470,13 @@ public class CustomerViewModelServiceTests
 
     #region Store panel list
 
-    private void VerifyListQuery(string[] excludedGroupIds, bool excludeVendorAndStaff) =>
+    private void VerifyListQuery(string[]? excludedGroupIds, bool excludeVendorAndStaff) =>
         _customerServiceMock.Verify(c => c.GetAllCustomers(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string[]>(), It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
             It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(),
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>(),
             It.Is<string[]>(ids => excludedGroupIds == null
                 ? ids == null
                 : ids != null && ids.OrderBy(x => x).SequenceEqual(excludedGroupIds.OrderBy(x => x))),
@@ -491,7 +490,7 @@ public class CustomerViewModelServiceTests
             _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(name))
                 .ReturnsAsync(new CustomerGroup { Id = "id-" + name, SystemName = name });
 
-        await _customerViewModelService.PrepareCustomerList(new CustomerListModel(), null, null, 1, 10, "store-7");
+        await _customerViewModelService.PrepareCustomerList(new CustomerListModel(), [], null, 1, 10, "store-7");
 
         VerifyListQuery(StoreCustomerDataScope.StaffGroupSystemNames.Select(n => "id-" + n).ToArray(), true);
     }
@@ -499,7 +498,7 @@ public class CustomerViewModelServiceTests
     [TestMethod]
     public async Task PrepareCustomerList_AdminPanel_ExcludesNobody()
     {
-        await _customerViewModelService.PrepareCustomerList(new CustomerListModel(), null, null, 1, 10);
+        await _customerViewModelService.PrepareCustomerList(new CustomerListModel(), [], null, 1, 10);
 
         VerifyListQuery(null, false);
     }
@@ -589,7 +588,7 @@ public class CustomerViewModelServiceTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()))
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>()))
             .ReturnsAsync(new PagedList<Customer> {
                 new() { Id = "sub-1", Email = "a@firm.com", Active = true, OwnerId = "owner-1" },
                 new() { Id = "sub-2", Email = "b@firm.com", Active = false, OwnerId = "owner-1" }
@@ -647,7 +646,7 @@ public class CustomerViewModelServiceTests
             It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
             It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()), Times.Once);
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>()), Times.Once);
     }
 
     [TestMethod]
@@ -663,7 +662,7 @@ public class CustomerViewModelServiceTests
             It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
             It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()), Times.Once);
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>()), Times.Once);
     }
 
     [TestMethod]
@@ -707,7 +706,7 @@ public class CustomerViewModelServiceTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<bool>(), It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(),
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object?>>>(),
                 It.IsAny<string[]>(), It.IsAny<bool>()))
             .ReturnsAsync(result);
     }

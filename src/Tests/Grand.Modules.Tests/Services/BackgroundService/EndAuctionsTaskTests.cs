@@ -29,8 +29,7 @@ public class EndAuctionsTaskTests
     private Mock<IShoppingCartService> _shoppingCartMock;
     private EndAuctionsTask _task;
 
-    [TestInitialize]
-    public void Init()
+    public EndAuctionsTaskTests()
     {
         _auctionMock = new Mock<IAuctionService>();
         _messageProviderMock = new Mock<ICatalogMessageProviderService>();
@@ -91,7 +90,7 @@ public class EndAuctionsTaskTests
             It.IsAny<EventId>(),
             It.IsAny<It.IsAnyType>(),
             It.IsAny<Exception>(),
-            (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+            (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()), Times.Once);
     }
 
     [TestMethod]
@@ -114,7 +113,7 @@ public class EndAuctionsTaskTests
             It.IsAny<EventId>(),
             It.IsAny<It.IsAnyType>(),
             It.IsAny<Exception>(),
-            (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Never);
+            (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()), Times.Never);
         _auctionMock.Verify(c => c.UpdateBid(It.IsAny<Bid>()), Times.Once);
         _auctionMock.Verify(c => c.UpdateAuctionEnded(It.IsAny<Product>(), It.IsAny<bool>(), It.IsAny<bool>()),
             Times.Once);
@@ -132,7 +131,7 @@ public class EndAuctionsTaskTests
     [TestMethod]
     public async Task Execute_DeletedAdminLanguage_UsesAPublishedLanguage()
     {
-        _languageServiceMock.Setup(c => c.GetLanguageById("admin-lang")).ReturnsAsync((Language)null);
+        _languageServiceMock.Setup(c => c.GetLanguageById("admin-lang")).ReturnsAsync((Language?)null);
         _languageServiceMock.Setup(c => c.GetAllLanguages(false, ""))
             .ReturnsAsync(new List<Language> { new() { Id = "published-lang" } });
         _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product> { new() { Id = "id" } });
@@ -157,7 +156,7 @@ public class EndAuctionsTaskTests
     [TestMethod]
     public async Task Execute_NoLanguageAtAll_SkipsTheBidWithoutThrowing()
     {
-        _languageServiceMock.Setup(c => c.GetLanguageById("admin-lang")).ReturnsAsync((Language)null);
+        _languageServiceMock.Setup(c => c.GetLanguageById("admin-lang")).ReturnsAsync((Language?)null);
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .ReturnsAsync(new List<Language>());
         _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product> { new() { Id = "id" } });

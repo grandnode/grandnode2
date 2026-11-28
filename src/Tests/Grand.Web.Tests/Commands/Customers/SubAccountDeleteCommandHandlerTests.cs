@@ -14,8 +14,7 @@ public class SubAccountDeleteCommandHandlerTests
     private Mock<ICustomerService> _customerServiceMock;
     private SubAccountDeleteCommandHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public SubAccountDeleteCommandHandlerTests()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         var translation = new Mock<IRequestTranslationService>();

@@ -37,8 +37,7 @@ public class OidcBackChannelLogoutEndpointTests
         return new RsaSecurityKey(rsa.ExportParameters(true)) { KeyId = "k1" };
     }
 
-    [TestInitialize]
-    public void Init()
+    public OidcBackChannelLogoutEndpointTests()
     {
         _sessions = new Mock<IOidcSessionService>();
         _sessions.Setup(x => x.EndBySid(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
@@ -54,7 +53,7 @@ public class OidcBackChannelLogoutEndpointTests
         _schemeRegistered = true;
     }
 
-    private static string Token(string sub = "sub-1", string sid = "sid-1", SecurityKey key = null)
+    private static string Token(string? sub = "sub-1", string? sid = "sid-1", SecurityKey? key = null)
     {
         var claims = new Dictionary<string, object> {
             ["iss"] = Issuer, ["aud"] = "shop", ["iat"] = EpochTime.GetIntDate(DateTime.UtcNow),
@@ -90,7 +89,7 @@ public class OidcBackChannelLogoutEndpointTests
         return services;
     }
 
-    private async Task<HttpContext> Post(string logoutToken, IServiceProvider services = null)
+    private async Task<HttpContext> Post(string logoutToken, IServiceProvider? services = null)
     {
         var context = new DefaultHttpContext { RequestServices = services ?? Services() };
         context.Request.Method = "POST";

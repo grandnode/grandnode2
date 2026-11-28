@@ -24,8 +24,7 @@ public class OidcSsoSignInPolicyTests
     private Mock<IOidcLinkService> _linkService;
     private readonly Customer _customer = new() { Id = "c1" };
 
-    [TestInitialize]
-    public void Init()
+    public OidcSsoSignInPolicyTests()
     {
         _links = new MongoDBRepositoryTest<ExternalAuthentication>();
         _cache = new MemoryCache(new MemoryCacheOptions());
@@ -193,7 +192,7 @@ public class OidcSsoSignInPolicyTests
         await policy.PasswordSignIn(_customer, SignInSurface.Storefront);
         await policy.PasswordSignIn(_customer, SignInSurface.Storefront);
         logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), null,
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     [TestMethod]
@@ -219,5 +218,5 @@ public class OidcSsoSignInPolicyTests
 
     [TestMethod]
     public async Task NullCustomer_PasswordAllowed() =>
-        Assert.IsTrue((await Policy().PasswordSignIn(null, SignInSurface.Storefront)).Allowed);
+        Assert.IsTrue((await Policy().PasswordSignIn(null!, SignInSurface.Storefront)).Allowed);
 }

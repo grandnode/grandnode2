@@ -53,6 +53,6 @@ public class AclMappingExtensionTests
     [TestMethod]
     public void AccessToEntityByStore_RefusesAMissingEntity()
     {
-        Assert.IsFalse(((Product)null).AccessToEntityByStore("this-store"));
+        Assert.IsFalse(((Product)null!).AccessToEntityByStore("this-store"));
     }
 }

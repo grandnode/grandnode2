@@ -10,6 +10,7 @@ using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Stripe;
 using Stripe.Checkout;
@@ -221,11 +222,11 @@ public class StripeCheckoutService : IStripeCheckoutService
         return false;
     }
 
-    private async Task RecordSubscriptionStarted(Session session)
+    private async Task RecordSubscriptionStarted(Session? session)
     {
         //a one-off payment has no subscription; its payment intent marks the order paid
         if (session is not { Mode: "subscription" } || string.IsNullOrEmpty(session.SubscriptionId) ||
-            session.Metadata?.TryGetValue(RecurringPaymentIdKey, out var recurringPaymentId) != true)
+            session.Metadata == null || !session.Metadata.TryGetValue(RecurringPaymentIdKey, out var recurringPaymentId))
             return;
 
         await _mediator.Send(new RecordRecurringPaymentReferenceCommand {
@@ -233,7 +234,7 @@ public class StripeCheckoutService : IStripeCheckoutService
         });
     }
 
-    private async Task RecordInvoicePaid(Invoice invoice)
+    private async Task RecordInvoicePaid(Invoice? invoice)
     {
         if (!IsRecurringCycle(invoice, out var subscription, out var recurringPaymentId))
             return;
@@ -289,15 +290,15 @@ public class StripeCheckoutService : IStripeCheckoutService
         });
     }
 
-    private async Task<string> GetInvoicePaymentIntentId(string invoiceId, string storeId)
+    private async Task<string?> GetInvoicePaymentIntentId(string invoiceId, string? storeId)
     {
         var settings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(storeId);
-        var payments = await new InvoicePaymentService(CreateStripeClient(settings.ApiKey))
+        var payments = await new InvoicePaymentService(CreateStripeClient(ApiKey(settings)))
             .ListAsync(new InvoicePaymentListOptions { Invoice = invoiceId, Status = "paid" });
         return payments.Data.FirstOrDefault()?.Payment?.PaymentIntentId;
     }
 
-    private async Task RecordInvoiceFailed(Invoice invoice)
+    private async Task RecordInvoiceFailed(Invoice? invoice)
     {
         if (!IsRecurringCycle(invoice, out var subscription, out var recurringPaymentId))
             return;
@@ -310,9 +311,10 @@ public class StripeCheckoutService : IStripeCheckoutService
         });
     }
 
-    private async Task RecordSubscriptionEnded(Subscription subscription)
+    private async Task RecordSubscriptionEnded(Subscription? subscription)
     {
-        if (subscription?.Metadata?.TryGetValue(RecurringPaymentIdKey, out var recurringPaymentId) != true)
+        if (subscription?.Metadata == null ||
+            !subscription.Metadata.TryGetValue(RecurringPaymentIdKey, out var recurringPaymentId))
             return;
 
         await _mediator.Send(new RecordRecurringPaymentEndedCommand {
@@ -345,8 +347,9 @@ public class StripeCheckoutService : IStripeCheckoutService
         return false;
     }
 
-    private static bool IsRecurringCycle(Invoice invoice, out InvoiceParentSubscriptionDetails subscription,
-        out string recurringPaymentId)
+    private static bool IsRecurringCycle([NotNullWhen(true)] Invoice? invoice,
+        [NotNullWhen(true)] out InvoiceParentSubscriptionDetails? subscription,
+        [NotNullWhen(true)] out string? recurringPaymentId)
     {
         subscription = invoice?.Parent?.SubscriptionDetails;
         recurringPaymentId = null;
@@ -355,10 +358,10 @@ public class StripeCheckoutService : IStripeCheckoutService
                subscription.Metadata?.TryGetValue(RecurringPaymentIdKey, out recurringPaymentId) == true;
     }
 
-    private async Task CreatePaymentTransaction(PaymentIntent paymentIntent)
+    private async Task CreatePaymentTransaction(PaymentIntent? paymentIntent)
     {
         //a subscription's payments carry no order: its invoices record them
-        if (paymentIntent.Metadata?.ContainsKey(OrderGuidKey) != true)
+        if (paymentIntent?.Metadata?.ContainsKey(OrderGuidKey) != true)
             return;
 
         if (paymentIntent.Metadata.TryGetValue(OrderGuidKey, out var order_guid)
@@ -414,7 +417,9 @@ public class StripeCheckoutService : IStripeCheckoutService
                     PriceData = new SessionLineItemPriceDataOptions {
                         UnitAmountDecimal = (decimal?)order.OrderTotal * 100,
                         ProductData = new SessionLineItemPriceDataProductDataOptions {
-                            Name = string.Format(_stripeCheckoutPaymentSettings.Line, order.OrderNumber)
+                            Name = string.Format(_stripeCheckoutPaymentSettings.Line
+                                                 ?? throw new InvalidOperationException("The Stripe order line is not configured"),
+                                order.OrderNumber)
                         },
                         Currency = order.CustomerCurrencyCode,
                         //every cycle charges the order total again, as each cycle order is a copy of this one
@@ -450,7 +455,7 @@ public class StripeCheckoutService : IStripeCheckoutService
         //the api key is store-specific, so it travels with the client - the static
         //StripeConfiguration.ApiKey is process-wide and two stores checking out at the same time
         //would overwrite each other's credentials
-        var service = new SessionService(CreateStripeClient(_stripeCheckoutPaymentSettings.ApiKey));
+        var service = new SessionService(CreateStripeClient(ApiKey(_stripeCheckoutPaymentSettings)));
         var session = await service.CreateAsync(options);
 
         return session;
@@ -465,6 +470,13 @@ public class StripeCheckoutService : IStripeCheckoutService
             RecurringCyclePeriod.Years => "year",
             _ => throw new ArgumentOutOfRangeException(nameof(period), period, "Unknown recurring cycle period")
         };
+    }
+
+    private static string ApiKey(StripeCheckoutPaymentSettings settings)
+    {
+        return !string.IsNullOrEmpty(settings.ApiKey)
+            ? settings.ApiKey
+            : throw new InvalidOperationException("The Stripe API key is not configured");
     }
 
     protected virtual IStripeClient CreateStripeClient(string apiKey)

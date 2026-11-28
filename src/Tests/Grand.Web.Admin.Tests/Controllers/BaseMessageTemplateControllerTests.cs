@@ -65,8 +65,7 @@ public class BaseMessageTemplateControllerTests
         return controller;
     }
 
-    [TestInitialize]
-    public void Setup()
+    public BaseMessageTemplateControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<MessageTemplateProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -90,7 +89,7 @@ public class BaseMessageTemplateControllerTests
     [TestMethod]
     public async Task EditGet_NotFound_RedirectsToList()
     {
-        _messageTemplateService.Setup(s => s.GetMessageTemplateById("missing")).ReturnsAsync((MessageTemplate)null);
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("missing")).ReturnsAsync((MessageTemplate?)null);
 
         var result = await CreateController().Edit("missing") as RedirectToActionResult;
 
@@ -174,7 +173,7 @@ public class BaseMessageTemplateControllerTests
         _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
         _scope.Setup(s => s.CanView(template)).ReturnsAsync(true);
         _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
         var result = await CreateController().Edit("mt-1") as ViewResult;
         var model = result?.Model as MessageTemplateModel;
@@ -195,7 +194,7 @@ public class BaseMessageTemplateControllerTests
         _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
         _scope.Setup(s => s.CanView(template)).ReturnsAsync(true);
         _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _languageService.Setup(s => s.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "lang-1" } });
 
@@ -254,7 +253,7 @@ public class BaseMessageTemplateControllerTests
         var result = await controller.Edit(new MessageTemplateModel { Id = "mt-1" }, false) as ViewResult;
 
         Assert.IsNotNull(result);
-        Assert.IsTrue(((MessageTemplateModel)result.Model).CanCopy);
+        Assert.IsTrue(Assert.IsInstanceOfType<MessageTemplateModel>(result.Model).CanCopy);
     }
 
     [TestMethod]
@@ -270,7 +269,7 @@ public class BaseMessageTemplateControllerTests
         var result = await controller.Edit(new MessageTemplateModel { Id = "mt-1" }, false) as ViewResult;
 
         Assert.IsNotNull(result);
-        Assert.IsFalse(((MessageTemplateModel)result.Model).CanCopy);
+        Assert.IsFalse(Assert.IsInstanceOfType<MessageTemplateModel>(result.Model).CanCopy);
     }
 
     [TestMethod]
@@ -281,7 +280,7 @@ public class BaseMessageTemplateControllerTests
         _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
         _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
 
-        MessageTemplate saved = null;
+        MessageTemplate? saved = null;
         _messageTemplateService.Setup(s => s.UpdateMessageTemplate(It.IsAny<MessageTemplate>()))
             .Callback<MessageTemplate>(t => saved = t)
             .Returns(Task.CompletedTask);
@@ -300,9 +299,9 @@ public class BaseMessageTemplateControllerTests
         var template = new MessageTemplate { Id = "mt-1", LimitedToStores = false, Stores = [], Name = "N" };
         _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
         _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
 
-        MessageTemplate saved = null;
+        MessageTemplate? saved = null;
         _messageTemplateService.Setup(s => s.UpdateMessageTemplate(It.IsAny<MessageTemplate>()))
             .Callback<MessageTemplate>(t => saved = t)
             .Returns(Task.CompletedTask);
@@ -321,7 +320,7 @@ public class BaseMessageTemplateControllerTests
         _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
         _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
 
-        MessageTemplate saved = null;
+        MessageTemplate? saved = null;
         _messageTemplateService.Setup(s => s.UpdateMessageTemplate(It.IsAny<MessageTemplate>()))
             .Callback<MessageTemplate>(t => saved = t)
             .Returns(Task.CompletedTask);
@@ -346,7 +345,7 @@ public class BaseMessageTemplateControllerTests
         var result = await controller.Edit(model, false) as ViewResult;
 
         Assert.IsNotNull(result);
-        Assert.IsFalse(((MessageTemplateModel)result.Model).HasAttachedDownload);
+        Assert.IsFalse(Assert.IsInstanceOfType<MessageTemplateModel>(result.Model).HasAttachedDownload);
     }
 
     [TestMethod]
@@ -422,7 +421,7 @@ public class BaseMessageTemplateControllerTests
         _messageTemplateService.Setup(s => s.GetAllMessageTemplates("", "N", 0, int.MaxValue)).ReturnsAsync(new PagedList<MessageTemplate>(new List<MessageTemplate>(), 0, int.MaxValue));
         _messageTemplateService.Setup(s => s.CopyMessageTemplate(template)).ReturnsAsync(copy);
 
-        MessageTemplate updated = null;
+        MessageTemplate? updated = null;
         _messageTemplateService.Setup(s => s.UpdateMessageTemplate(It.IsAny<MessageTemplate>()))
             .Callback<MessageTemplate>(t => updated = t)
             .Returns(Task.CompletedTask);
@@ -442,7 +441,7 @@ public class BaseMessageTemplateControllerTests
         var template = new MessageTemplate { Id = "mt-1", Name = "N", LimitedToStores = true, Stores = ["store-1"] };
         var copy = new MessageTemplate { Id = "mt-2", Name = "N" };
         _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
-        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _messageTemplateService.Setup(s => s.CopyMessageTemplate(template)).ReturnsAsync(copy);
 
         var result = await CreateController().CopyTemplate(new MessageTemplateModel { Id = "mt-1" }) as RedirectToActionResult;

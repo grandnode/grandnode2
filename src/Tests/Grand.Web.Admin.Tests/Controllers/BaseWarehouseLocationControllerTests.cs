@@ -19,8 +19,7 @@ public class BaseWarehouseLocationControllerTests
     private readonly Mock<IWarehouseLocationService> _locations = new();
     private readonly Mock<IWarehouseService> _warehouses = new();
 
-    [TestInitialize]
-    public void Setup()
+    public BaseWarehouseLocationControllerTests()
     {
         _warehouses.Setup(x => x.GetWarehouseById("w1")).ReturnsAsync(new Warehouse { Id = "w1", StoreId = "store1" });
         _warehouses.Setup(x => x.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
@@ -31,7 +30,7 @@ public class BaseWarehouseLocationControllerTests
             }, 0, 10));
     }
 
-    private WarehouseLocationController Build(string storeId)
+    private WarehouseLocationController Build(string? storeId)
     {
         var scope = new Mock<IAdminDataScope<Warehouse>>();
         scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync(storeId);

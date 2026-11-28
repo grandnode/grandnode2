@@ -13,8 +13,7 @@ public class SendOutBidCustomerNotificationCommandHandlerTests
     private SendOutBidCustomerNotificationCommandHandler _handler;
     private Mock<ICatalogMessageProviderService> _messageProviderMock;
 
-    [TestInitialize]
-    public void Init()
+    public SendOutBidCustomerNotificationCommandHandlerTests()
     {
         _messageProviderMock = new Mock<ICatalogMessageProviderService>();
         _handler = new SendOutBidCustomerNotificationCommandHandler(_messageProviderMock.Object);

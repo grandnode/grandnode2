@@ -28,8 +28,7 @@ public class BasePictureControllerTests
     private Mock<IMediaFileStore> _mediaFileStoreMock = null!;
     private MediaSettings _mediaSettings = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BasePictureControllerTests()
     {
         _pictureServiceMock = new Mock<IPictureService>();
         _permissionServiceMock = new Mock<IRequestPermissionService>();
@@ -69,7 +68,7 @@ public class BasePictureControllerTests
     {
         var controller = CreateController();
 
-        var result = await controller.AsyncUpload(null);
+        var result = await controller.AsyncUpload(null!);
 
         Assert.IsFalse(GetValue<bool>(result, "success"));
         Assert.AreEqual("No file uploaded", GetValue<string>(result, "message"));
@@ -147,7 +146,7 @@ public class BasePictureControllerTests
         _permissionServiceMock.Setup(p => p.Authorize(StandardPermission.ManageSettings)).ReturnsAsync(true);
         var controller = CreateController();
 
-        var result = await controller.AsyncLogoUpload(null);
+        var result = await controller.AsyncLogoUpload(null!);
 
         Assert.IsFalse(GetValue<bool>(result, "success"));
         Assert.AreEqual("No file uploaded", GetValue<string>(result, "message"));

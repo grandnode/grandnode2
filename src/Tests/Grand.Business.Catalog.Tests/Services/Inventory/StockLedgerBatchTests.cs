@@ -13,8 +13,7 @@ public class StockLedgerBatchTests
     private static readonly DateTime January = new(2027, 1, 31, 0, 0, 0, DateTimeKind.Utc);
     private UnitTestFixture _fixture;
 
-    [TestInitialize]
-    public void Init()
+    public StockLedgerBatchTests()
     {
         _fixture = new UnitTestFixture();
     }
@@ -28,12 +27,12 @@ public class StockLedgerBatchTests
     };
 
     private static StockChange Receipt(int quantity, string batch, DateTime? expiry = null, decimal? cost = null,
-        string warehouseId = "w1", IList<CustomAttribute> attributes = null) =>
+        string warehouseId = "w1", IList<CustomAttribute>? attributes = null) =>
         UnitTestFixture.Change(quantity, InventoryMovementType.Receipt, warehouseId, attributes) with {
             BatchNumber = batch, ExpiryDateUtc = expiry, UnitCost = cost
         };
 
-    private static StockChange Move(int quantity, InventoryMovementType type, string batch, string warehouseId = "w1") =>
+    private static StockChange Move(int quantity, InventoryMovementType type, string? batch, string warehouseId = "w1") =>
         UnitTestFixture.Change(quantity, type, warehouseId) with { BatchNumber = batch };
 
     [TestMethod]

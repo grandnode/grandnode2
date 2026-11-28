@@ -48,7 +48,7 @@ public class ShippingByWeightService : IShippingByWeightService
         await _mediator.EntityDeleted(shippingByWeightRecord);
     }
 
-    public virtual async Task<IPagedList<ShippingByWeightRecord>> GetAll(string storeId = "", int pageIndex = 0,
+    public virtual async Task<IPagedList<ShippingByWeightRecord>> GetAll(string? storeId = "", int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var key = string.Format(SHIPPINGBYWEIGHT_ALL_KEY, storeId, pageIndex, pageSize);
@@ -63,9 +63,9 @@ public class ShippingByWeightService : IShippingByWeightService
         });
     }
 
-    public virtual async Task<ShippingByWeightRecord> FindRecord(string shippingMethodId,
-        string storeId, string warehouseId,
-        string countryId, string stateProvinceId, string zip, double weight)
+    public virtual async Task<ShippingByWeightRecord?> FindRecord(string shippingMethodId,
+        string storeId, string? warehouseId,
+        string? countryId, string? stateProvinceId, string? zip, double weight)
     {
         zip ??= string.Empty;
         zip = zip.Trim();
@@ -102,7 +102,7 @@ public class ShippingByWeightService : IShippingByWeightService
         return existingRates.FirstOrDefault();
     }
 
-    public virtual Task<ShippingByWeightRecord> GetById(string shippingByWeightRecordId)
+    public virtual Task<ShippingByWeightRecord?> GetById(string? shippingByWeightRecordId)
     {
         return _sbwRepository.GetByIdAsync(shippingByWeightRecordId);
     }

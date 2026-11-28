@@ -22,15 +22,19 @@ namespace Grand.Web.Common.Tests.Security.Oidc;
 public class OidcForwardingPipelineTests
 {
     private const string LegacySecret = "legacy-secret-key-at-least-32-characters";
-    private OidcTestHost _host;
-    private HttpClient _client;
+    private OidcTestHost? _host;
+    private HttpClient? _client;
     private Mock<IOidcCustomerResolver> _resolver;
+    //set when the test host starts
+    private HttpClient Client => _client ?? throw new InvalidOperationException("The test host has not started");
+    //set when the test host starts
+    private OidcTestHost Host => _host ?? throw new InvalidOperationException("The test host has not started");
 
     private async Task Start(OidcResourceServerConfig config, bool webApiDisabled = false)
     {
-        if (_host != null) await _host.DisposeAsync();
+        if (_host != null) await Host.DisposeAsync();
         _host = new OidcTestHost();
-        _client = await _host.Start(config,
+        _client = await Host.Start(config,
             services: s =>
             {
                 s.AddSingleton(_resolver.Object);
@@ -65,17 +69,21 @@ public class OidcForwardingPipelineTests
             });
     }
 
-    [TestInitialize]
-    public async Task Init()
+    public OidcForwardingPipelineTests()
     {
         _resolver = new Mock<IOidcCustomerResolver>();
         _resolver.Setup(x => x.Resolve(It.IsAny<ClaimsPrincipal>(), It.IsAny<string>()))
             .ReturnsAsync(OidcCustomerResult.Success(new Customer { Id = "c1", Active = true }));
+    }
+
+    [TestInitialize]
+    public async Task Init()
+    {
         await Start(OidcTestHost.Config());
     }
 
     [TestCleanup]
-    public async Task Cleanup() => await _host.DisposeAsync();
+    public async Task Cleanup() => await Host.DisposeAsync();
 
     private static string LegacyToken() => new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor {
         Subject = new ClaimsIdentity([new Claim("Email", "admin@example.com")]),
@@ -83,7 +91,7 @@ public class OidcForwardingPipelineTests
         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(LegacySecret)), SecurityAlgorithms.HmacSha256)
     });
 
-    private Task<HttpResponseMessage> Get(string path, string token = null) => OidcTestHost.Send(_client, path, token);
+    private Task<HttpResponseMessage> Get(string path, string? token = null) => OidcTestHost.Send(Client, path, token);
 
     [TestMethod]
     public async Task IdpToken_OnBearerEndpoint_200()

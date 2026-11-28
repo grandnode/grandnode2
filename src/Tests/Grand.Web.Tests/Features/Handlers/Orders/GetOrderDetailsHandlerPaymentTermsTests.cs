@@ -29,8 +29,7 @@ public class GetOrderDetailsHandlerPaymentTermsTests
 {
     private GetOrderDetailsHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetOrderDetailsHandlerPaymentTermsTests()
     {
         var dateTimeService = new Mock<IDateTimeService>();
         dateTimeService.Setup(x => x.ConvertToUserTime(It.IsAny<DateTime>(), It.IsAny<DateTimeKind>()))

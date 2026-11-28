@@ -45,8 +45,7 @@ public class CheckoutControllerOrderApprovalTests
     private Mock<IRecurringPaymentService> _recurringPaymentService;
     private Mock<IShippingService> _shippingService;
 
-    [TestInitialize]
-    public void Init()
+    public CheckoutControllerOrderApprovalTests()
     {
         var customer = new Customer { Id = "buyer", OwnerId = "owner" };
         var store = new Grand.Domain.Stores.Store { Id = "s1" };

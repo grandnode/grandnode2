@@ -38,8 +38,7 @@ public class ExternalAuthenticationControllerScimTests
     private readonly Customer _currentCustomer = new() { Id = "me" };
     private ExternalAuthenticationController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public ExternalAuthenticationControllerScimTests()
     {
         _controller = new ExternalAuthenticationController(new Mock<IExternalAuthenticationService>().Object,
             new ExternalAuthenticationSettings(), new Mock<ISettingService>().Object, new Mock<IServiceProvider>().Object);
@@ -75,7 +74,7 @@ public class ExternalAuthenticationControllerScimTests
     private Task<IActionResult> Scim(string token = Token, bool moduleOn = true, string clientId = "shop") =>
         _controller.Scim(new ScimConfig { Token = token }, new OidcLoginConfig { ClientId = clientId },
             new OidcResourceServerConfig { Authority = "https://idp.example.com" },
-            new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string> {
+            new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
                 ["FeatureManagement:Grand.Module.Scim"] = moduleOn.ToString()
             }).Build(),
             _users.Object, _customers.Object);
@@ -92,7 +91,7 @@ public class ExternalAuthenticationControllerScimTests
         Assert.AreEqual(5, model.ManagedAccounts);
         Assert.AreEqual("jan@example.com", model.Conflicts.Single().Email);
         foreach (var property in typeof(ScimModel).GetProperties().Where(x => x.PropertyType == typeof(string)))
-            Assert.IsFalse(((string)property.GetValue(model))?.Contains(Token) ?? false, property.Name);
+            Assert.IsFalse(Assert.IsInstanceOfType<string>(property.GetValue(model))?.Contains(Token) ?? false, property.Name);
     }
 
     [TestMethod]

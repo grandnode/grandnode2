@@ -24,6 +24,7 @@ namespace Grand.Business.Catalog.Tests.Services.ExportImport;
 [TestClass]
 public class ProductVariantImportDataObjectTests
 {
+    private readonly IRepository<ProductAttribute> _attributeRepository;
     private Mock<ProductAttributeService> _attributeService;
     private ProductAttribute _color;
     private ProductVariantImportDataObject _import;
@@ -32,16 +33,15 @@ public class ProductVariantImportDataObjectTests
     private Mock<IProductService> _productService;
     private ProductAttribute _size;
 
-    [TestInitialize]
-    public async Task Init()
+    public ProductVariantImportDataObjectTests()
     {
         _productRepository = new MongoDBRepositoryTest<Product>();
-        var attributeRepository = new MongoDBRepositoryTest<ProductAttribute>();
+        _attributeRepository = new MongoDBRepositoryTest<ProductAttribute>();
         var mediator = new Mock<IMediator>();
         var cache = new MemoryCacheBase(MemoryCacheTest.Get(), mediator.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _attributeService =
-            new Mock<ProductAttributeService>(cache, attributeRepository, _productRepository, mediator.Object,
+            new Mock<ProductAttributeService>(cache, _attributeRepository, _productRepository, mediator.Object,
                 new MongoResourceLockTest(),
                 StockTestFixture.Ledger(_productRepository, new MongoDBRepositoryTest<InventoryJournal>()),
                 StockTestFixture.UnitService()) {
@@ -50,11 +50,7 @@ public class ProductVariantImportDataObjectTests
 
         _color = new ProductAttribute { Name = "Color", SeName = "color" };
         _size = new ProductAttribute { Name = "Shirt Size", SeName = "shirt-size" };
-        await attributeRepository.InsertAsync(_color);
-        await attributeRepository.InsertAsync(_size);
-
         _product = new Product { Name = "Shirt", Sku = "SHIRT" };
-        await _productRepository.InsertAsync(_product);
 
         _productService = new Mock<IProductService>();
         _productService.Setup(s => s.GetProductById(It.IsAny<string>(), It.IsAny<bool>()))
@@ -68,10 +64,18 @@ public class ProductVariantImportDataObjectTests
             new SeoSettings(), guard, new Mock<ILogger<ProductVariantImportDataObject>>().Object);
     }
 
+    [TestInitialize]
+    public async Task Init()
+    {
+        await _attributeRepository.InsertAsync(_color);
+        await _attributeRepository.InsertAsync(_size);
+        await _productRepository.InsertAsync(_product);
+    }
+
     private int Writes => _attributeService.Invocations.Count(i =>
         i.Method.Name.StartsWith("Insert") || i.Method.Name.StartsWith("Update") || i.Method.Name.StartsWith("Delete"));
 
-    private Task<Product> Stored()
+    private Task<Product?> Stored()
     {
         return _productRepository.GetByIdAsync(_product.Id);
     }
@@ -94,7 +98,7 @@ public class ProductVariantImportDataObjectTests
         };
     }
 
-    private static ProductVariantCombinationDto Combination(string color, string size, string sku = null,
+    private static ProductVariantCombinationDto Combination(string color, string size, string? sku = null,
         double? price = null)
     {
         return new ProductVariantCombinationDto {
@@ -125,6 +129,7 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual("SHIRT", row.Key);
 
         var stored = await Stored();
+        Assert.IsNotNull(stored);
         Assert.HasCount(2, stored.ProductAttributeMappings);
         var color = stored.ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id);
         Assert.AreEqual(AttributeControlType.DropdownList, color.AttributeControlTypeId);
@@ -156,6 +161,7 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(ImportRowStatus.Updated, again.Rows.Single().Status);
         Assert.IsEmpty(again.Rows.Single().Warnings);
         var stored = await Stored();
+        Assert.IsNotNull(stored);
         Assert.HasCount(2, stored.ProductAttributeMappings);
         Assert.IsTrue(stored.ProductAttributeMappings.All(m => m.ProductAttributeValues.Count == 2));
         Assert.HasCount(2, stored.ProductAttributeCombinations);
@@ -190,7 +196,9 @@ public class ProductVariantImportDataObjectTests
         ], false);
 
         Assert.AreEqual(ImportRowStatus.Updated, result.Rows.Single().Status);
-        var combination = (await Stored()).ProductAttributeCombinations.Single();
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        var combination = product.ProductAttributeCombinations.Single();
         Assert.AreEqual(15, combination.OverriddenPrice);
     }
 
@@ -198,6 +206,7 @@ public class ProductVariantImportDataObjectTests
     public async Task Combination_PartialUpdate_KeepsSkuGtinMpn()
     {
         var first = ShirtRow(Combination("Red", "XL", "SHIRT-RED-XL", 12));
+        Assert.IsNotNull(first.Combinations);
         first.Combinations[0].Gtin = "123";
         first.Combinations[0].Mpn = "MPN-1";
         await _import.Import([first], false);
@@ -206,7 +215,9 @@ public class ProductVariantImportDataObjectTests
             new ProductVariantsDto { ProductSku = "SHIRT", Combinations = [Combination("Red", "XL", price: 20)] }
         ], false);
 
-        var combination = (await Stored()).ProductAttributeCombinations.Single();
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        var combination = product.ProductAttributeCombinations.Single();
         Assert.AreEqual(20, combination.OverriddenPrice);
         Assert.AreEqual("SHIRT-RED-XL", combination.Sku);
         Assert.AreEqual("123", combination.Gtin);
@@ -233,6 +244,7 @@ public class ProductVariantImportDataObjectTests
     public async Task UnknownAttribute_RejectsWholeRow()
     {
         var row = ShirtRow(Combination("Red", "XL"));
+        Assert.IsNotNull(row.Attributes);
         row.Attributes.Add(new ProductVariantAttributeDto { Attribute = "material", Values = [new() { Name = "Wool" }] });
 
         var result = await _import.Import([row], false);
@@ -240,7 +252,9 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(ImportRowStatus.Rejected, result.Rows.Single().Status);
         Assert.Contains("Attribute 'material' was not found.", result.Rows.Single().Errors);
         Assert.AreEqual(0, Writes);
-        Assert.IsEmpty((await Stored()).ProductAttributeMappings);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        Assert.IsEmpty(product.ProductAttributeMappings);
     }
 
     [TestMethod]
@@ -269,7 +283,9 @@ public class ProductVariantImportDataObjectTests
 
         Assert.AreEqual(ImportRowStatus.Updated, result.Rows.Single().Status);
         Assert.AreEqual(_product.Id, result.Rows.Single().Key);
-        Assert.AreEqual(_color.Id, (await Stored()).ProductAttributeMappings.Single().ProductAttributeId);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        Assert.AreEqual(_color.Id, product.ProductAttributeMappings.Single().ProductAttributeId);
     }
 
     [TestMethod]
@@ -279,6 +295,7 @@ public class ProductVariantImportDataObjectTests
             new ProductVariantCombinationDto {
                 Values = new Dictionary<string, string> { ["color"] = "Blue", ["shirt-size"] = "M" }, Sku = "TB"
             });
+        Assert.IsNotNull(row.Attributes);
         row.Attributes[1].ControlType = AttributeControlType.TextBox;
 
         var result = await _import.Import([row], false);
@@ -286,7 +303,9 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(ImportRowStatus.Updated, result.Rows.Single().Status);
         Assert.IsTrue(result.Rows.Single().Warnings.Any(w => w.Contains("Shirt Size") && w.Contains("TextBox")),
             string.Join(" ", result.Rows.Single().Warnings));
-        Assert.IsEmpty((await Stored()).ProductAttributeCombinations);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        Assert.IsEmpty(product.ProductAttributeCombinations);
     }
 
     [TestMethod]
@@ -302,7 +321,9 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(ImportRowStatus.Updated, row.Status);
         Assert.AreEqual("Combination 1 does not cover 'Shirt Size'; the storefront will not match it.",
             row.Warnings.Single());
-        Assert.AreEqual("RED-ONLY", (await Stored()).ProductAttributeCombinations.Single().Sku);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        Assert.AreEqual("RED-ONLY", product.ProductAttributeCombinations.Single().Sku);
     }
 
     [TestMethod]
@@ -323,6 +344,7 @@ public class ProductVariantImportDataObjectTests
     public async Task CombinationOffAttributeInCombination_SkippedWithWarning()
     {
         var row = ShirtRow(Combination("Red", "XL", "X"));
+        Assert.IsNotNull(row.Attributes);
         row.Attributes[1].Combination = false;
 
         var result = await _import.Import([row], false);
@@ -331,13 +353,16 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(
             "Combination 1 was skipped: attribute 'Shirt Size' does not take part in combinations (Combination is off).",
             result.Rows.Single().Warnings.Single());
-        Assert.IsEmpty((await Stored()).ProductAttributeCombinations);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        Assert.IsEmpty(product.ProductAttributeCombinations);
     }
 
     [TestMethod]
     public async Task HiddenAttributeInCombination_SkippedWithWarning()
     {
         var row = ShirtRow(Combination("Red", "XL", "X"));
+        Assert.IsNotNull(row.Attributes);
         row.Attributes[1].ControlType = AttributeControlType.Hidden;
 
         var result = await _import.Import([row], false);
@@ -345,7 +370,9 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(
             "Combination 1 was skipped: attribute 'Shirt Size' is a Hidden attribute and has no values to combine.",
             result.Rows.Single().Warnings.Single());
-        Assert.IsEmpty((await Stored()).ProductAttributeCombinations);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        Assert.IsEmpty(product.ProductAttributeCombinations);
     }
 
     [TestMethod]
@@ -365,8 +392,10 @@ public class ProductVariantImportDataObjectTests
             "Mapping 'Color' changed from DropdownList to TextBox.",
             "Mapping 'Color' is no longer selectable; its combinations cannot be chosen in the storefront."
         }, result.Rows.Single().Warnings.ToArray());
+        var product = await Stored();
+        Assert.IsNotNull(product);
         Assert.AreEqual(AttributeControlType.TextBox,
-            (await Stored()).ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id).AttributeControlTypeId);
+            product.ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id).AttributeControlTypeId);
     }
 
     [TestMethod]
@@ -383,6 +412,7 @@ public class ProductVariantImportDataObjectTests
         Assert.HasCount(2, row.Warnings, string.Join(" ", row.Warnings));
         Assert.IsTrue(row.Warnings.All(w => w.Contains("SKU")));
         var stored = await Stored();
+        Assert.IsNotNull(stored);
         Assert.HasCount(2, stored.ProductAttributeCombinations);
         Assert.AreEqual(1, stored.ProductAttributeCombinations.Count(c => c.Sku == "NEW"));
     }
@@ -402,7 +432,10 @@ public class ProductVariantImportDataObjectTests
     public async Task ValueUpdate_ChangesOnlyProvidedFields()
     {
         var create = ShirtRow();
-        create.Attributes[0].Values[0] = new ProductVariantValueDto {
+        Assert.IsNotNull(create.Attributes);
+        var values = create.Attributes[0].Values;
+        Assert.IsNotNull(values);
+        values[0] = new ProductVariantValueDto {
             Name = "Red", PriceAdjustment = 1, WeightAdjustment = 2, Cost = 3, IsPreSelected = true,
             ColorSquaresRgb = "#ff0000", DisplayOrder = 4
         };
@@ -416,6 +449,7 @@ public class ProductVariantImportDataObjectTests
         ], false);
 
         var stored = await Stored();
+        Assert.IsNotNull(stored);
         var color = stored.ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id);
         var red = color.ProductAttributeValues.Single(v => v.Name == "Red");
         Assert.AreEqual(9, red.Cost);
@@ -455,7 +489,9 @@ public class ProductVariantImportDataObjectTests
         ], false);
 
         Assert.IsEmpty(result.Rows.Single().Warnings);
-        var color = (await Stored()).ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        var color = product.ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id);
         Assert.AreEqual(AttributeControlType.ColorSquares, color.AttributeControlTypeId);
         Assert.IsFalse(color.IsRequired);
         Assert.IsFalse(color.Combination);
@@ -475,8 +511,10 @@ public class ProductVariantImportDataObjectTests
         ], false);
 
         Assert.AreEqual("Mapping 'Color' changed from ColorSquares to RadioList.", result.Rows.Single().Warnings.Single());
+        var product = await Stored();
+        Assert.IsNotNull(product);
         Assert.AreEqual(AttributeControlType.RadioList,
-            (await Stored()).ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id).AttributeControlTypeId);
+            product.ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id).AttributeControlTypeId);
     }
 
     [TestMethod]
@@ -506,7 +544,9 @@ public class ProductVariantImportDataObjectTests
             }
         ], false);
 
-        var color = (await Stored()).ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        var color = product.ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id);
         Assert.IsFalse(color.IsRequired);
         Assert.AreEqual(AttributeControlType.DropdownList, color.AttributeControlTypeId);
         Assert.IsTrue(color.Combination);
@@ -530,6 +570,7 @@ public class ProductVariantImportDataObjectTests
         Assert.IsEmpty(result.Rows.Single().Warnings);
         Assert.AreEqual(1, _attributeService.Invocations.Count(i => i.Method.Name == "InsertProductAttributeValue"));
         var stored = await Stored();
+        Assert.IsNotNull(stored);
         Assert.HasCount(3, stored.ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id)
             .ProductAttributeValues);
         Assert.IsTrue(stored.ProductAttributeCombinations.Single().Attributes
@@ -545,6 +586,7 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(ImportRowStatus.Updated, result.Rows.Single().Status);
         Assert.AreEqual(0, Writes);
         var stored = await Stored();
+        Assert.IsNotNull(stored);
         Assert.IsEmpty(stored.ProductAttributeMappings);
         Assert.IsEmpty(stored.ProductAttributeCombinations);
     }
@@ -555,7 +597,8 @@ public class ProductVariantImportDataObjectTests
         await _import.Import([ShirtRow(Combination("Red", "XL", "SHIRT-RED-XL"))], false);
         var writes = Writes;
         var row = ShirtRow(Combination("Red", "XL", "CHANGED", 99), Combination("Blue", "M", "NEW"));
-        row.Attributes[0].Values.Add(new ProductVariantValueDto { Name = "Green" });
+        Assert.IsNotNull(row.Attributes);
+        (row.Attributes[0].Values ?? throw new AssertFailedException("The row has no values")).Add(new ProductVariantValueDto { Name = "Green" });
         row.Attributes[0].IsRequired = false;
 
         var result = await _import.Import([row], true);
@@ -563,6 +606,7 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(ImportRowStatus.Updated, result.Rows.Single().Status);
         Assert.AreEqual(writes, Writes);
         var stored = await Stored();
+        Assert.IsNotNull(stored);
         Assert.HasCount(1, stored.ProductAttributeCombinations);
         Assert.AreEqual("SHIRT-RED-XL", stored.ProductAttributeCombinations.Single().Sku);
         Assert.HasCount(2, stored.ProductAttributeMappings.Single(m => m.ProductAttributeId == _color.Id)
@@ -585,14 +629,17 @@ public class ProductVariantImportDataObjectTests
         Assert.AreEqual(ImportRowStatus.Rejected, result.Rows[1].Status);
         Assert.AreEqual(ImportRowResult.NotProcessedError, result.Rows[1].Errors.Single());
         Assert.AreEqual("SHIRT", result.Rows[1].Key);
-        Assert.IsEmpty((await Stored()).ProductAttributeCombinations);
+        var product = await Stored();
+        Assert.IsNotNull(product);
+        Assert.IsEmpty(product.ProductAttributeCombinations);
     }
 
     [TestMethod]
     public async Task MarkupInValueName_Rejected()
     {
         var row = ShirtRow();
-        row.Attributes[0].Values.Add(new ProductVariantValueDto { Name = "<img src=x onerror=alert(1)>" });
+        Assert.IsNotNull(row.Attributes);
+        (row.Attributes[0].Values ?? throw new AssertFailedException("The row has no values")).Add(new ProductVariantValueDto { Name = "<img src=x onerror=alert(1)>" });
 
         var result = await _import.Import([row], false);
 
@@ -608,6 +655,7 @@ public class ProductVariantImportDataObjectTests
 
         //the storefront builds the selection mapping by mapping, in display order, as the attribute parser does
         IList<CustomAttribute> selection = [];
+        Assert.IsNotNull(stored);
         selection = ProductExtensions.AddProductAttribute(selection,
             stored.ProductAttributeMappings.Single(m => m.ProductAttributeId == _size.Id), ValueId(stored, _size, "XL"));
         selection = ProductExtensions.AddProductAttribute(selection,

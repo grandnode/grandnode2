@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -23,8 +21,7 @@ public class RoutedAddressAttributeDataScopeTests
     private GlobalAdminDataScope<AddressAttribute> _globalScope = null!;
     private StoreAdminDataScope<AddressAttribute> _storeScope = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public RoutedAddressAttributeDataScopeTests()
     {
         var contextAccessor = new Mock<IContextAccessor>();
         var workContext = new Mock<IWorkContext>();

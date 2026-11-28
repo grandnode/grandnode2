@@ -24,8 +24,7 @@ public class ShippingServiceTests
     private ShippingSettings _shippingSettings;
     private Mock<ITranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ShippingServiceTests()
     {
         _loggerMock = new Mock<ILogger<ShippingService>>();
         _translationServiceMock = new Mock<ITranslationService>();
@@ -84,7 +83,7 @@ public class ShippingServiceTests
         var shippingAddress = new Address();
         var store = new Store { Id = "id" };
         var warehouse = new Warehouse {
-            Address = null
+            Address = new()
         };
 
         var result = await _service.CreateShippingOptionRequests(customer, cart, shippingAddress, store);
@@ -108,7 +107,7 @@ public class ShippingServiceTests
         var shippingAddress = new Address();
         var store = new Store { Id = "id" };
         var warehouse = new Warehouse {
-            Address = null
+            Address = null!
         };
 
         var result = await _service.CreateShippingOptionRequests(customer, cart, shippingAddress, store);

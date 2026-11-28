@@ -12,7 +12,7 @@ public class ExecutionLog
 
 public class PingQuery : IRequest<string>
 {
-    public string Message { get; set; }
+    public string? Message { get; set; }
 }
 
 public class PingQueryHandler : IRequestHandler<PingQuery, string>
@@ -54,7 +54,7 @@ public class GenericQueryHandler<T> : IRequestHandler<GenericQuery<T>, IList<T>>
 {
     public Task<IList<T>> Handle(GenericQuery<T> request, CancellationToken cancellationToken)
     {
-        return Task.FromResult<IList<T>>([default]);
+        return Task.FromResult<IList<T>>(new T[1]);
     }
 }
 

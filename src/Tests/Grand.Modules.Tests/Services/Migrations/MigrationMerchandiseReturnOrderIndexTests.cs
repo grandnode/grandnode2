@@ -17,8 +17,7 @@ public class MigrationMerchandiseReturnOrderIndexTests
     private readonly LiteDBRepositoryMock<MerchandiseReturn> _repository = new();
     private IServiceProvider _serviceProvider;
 
-    [TestInitialize]
-    public void Init()
+    public MigrationMerchandiseReturnOrderIndexTests()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IRepository<MerchandiseReturn>>(_repository);

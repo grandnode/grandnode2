@@ -21,8 +21,7 @@ public class RecurringPaymentMessagesHandlerTests
     private Order _order;
     private RecurringPayment _recurringPayment;
 
-    [TestInitialize]
-    public void Init()
+    public RecurringPaymentMessagesHandlerTests()
     {
         var orderService = new Mock<IOrderService>();
         var customerService = new Mock<ICustomerService>();

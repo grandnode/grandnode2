@@ -17,8 +17,7 @@ public class FileManagerServiceTests
     private string _uploaded;
     private FileManagerService _service;
 
-    [TestInitialize]
-    public void Init()
+    public FileManagerServiceTests()
     {
         _webRoot = Path.Combine(Path.GetTempPath(), "filemanager-" + Guid.NewGuid().ToString("N"));
         _uploaded = Path.Combine(_webRoot, "assets", "images", "uploaded");
@@ -36,7 +35,7 @@ public class FileManagerServiceTests
         if (Directory.Exists(_webRoot)) Directory.Delete(_webRoot, true);
     }
 
-    private FileManagerService Create(string directory)
+    private FileManagerService Create(string? directory)
     {
         var configuration = new Mock<IConfiguration>();
         configuration.Setup(c => c[CommonPath.DirectoryParam]).Returns(directory);
@@ -104,7 +103,7 @@ public class FileManagerServiceTests
     {
         Directory.Delete(_uploaded, true);
 
-        var listing = _service.List(null);
+        var listing = _service.List(null!);
 
         Assert.AreEqual(FileManagerError.None, listing.Error);
         Assert.IsTrue(Directory.Exists(_uploaded));
@@ -197,6 +196,7 @@ public class FileManagerServiceTests
         var result = await _service.CreateFolder("", " banners ");
 
         Assert.AreEqual(FileManagerError.None, result.Error);
+        Assert.IsNotNull(result.Entry);
         Assert.AreEqual("banners", result.Entry.Path);
         Assert.IsTrue(Directory.Exists(Path.Combine(_uploaded, "banners")));
     }
@@ -229,6 +229,7 @@ public class FileManagerServiceTests
         var ok = await _service.Rename("a.png", "b.png");
 
         Assert.AreEqual(FileManagerError.None, ok.Error);
+        Assert.IsNotNull(ok.Entry);
         Assert.AreEqual("b.png", ok.Entry.Path);
         Assert.IsTrue(File.Exists(Path.Combine(_uploaded, "b.png")));
     }

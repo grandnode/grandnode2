@@ -24,8 +24,7 @@ public class ProductControllerReviewHelpfulnessTests
 {
     private ProductController _controller;
 
-    [TestInitialize]
-    public void Init()
+    public ProductControllerReviewHelpfulnessTests()
     {
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "c1" });
@@ -53,7 +52,7 @@ public class ProductControllerReviewHelpfulnessTests
     public async Task SetProductReviewHelpfulness_ReviewDeletedMeanwhile_ReturnsNotFound()
     {
         var reviewService = new Mock<IProductReviewService>();
-        reviewService.Setup(x => x.GetProductReviewById("gone")).ReturnsAsync((ProductReview)null);
+        reviewService.Setup(x => x.GetProductReviewById("gone")).ReturnsAsync((ProductReview?)null);
 
         var result = await _controller.SetProductReviewHelpfulness("gone", "p1", true,
             new Mock<ICustomerService>().Object, new Mock<IGroupService>().Object, reviewService.Object);

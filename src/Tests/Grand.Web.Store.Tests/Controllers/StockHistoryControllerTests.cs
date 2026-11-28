@@ -31,8 +31,7 @@ public class StockHistoryControllerTests
     private Mock<IWarehouseService> _warehouseService;
     private StoreWarehouseDataScope _warehouseScope;
 
-    [TestInitialize]
-    public void Setup()
+    public StockHistoryControllerTests()
     {
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "staff", StaffStoreId = StoreId });

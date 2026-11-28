@@ -55,9 +55,9 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     ///     Init a process a payment transaction
     /// </summary>
     /// <returns>Payment transaction</returns>
-    public async Task<PaymentTransaction> InitPaymentTransaction()
+    public async Task<PaymentTransaction?> InitPaymentTransaction()
     {
-        return await Task.FromResult<PaymentTransaction>(null);
+        return await Task.FromResult<PaymentTransaction?>(null);
     }
 
     /// <summary>
@@ -83,7 +83,8 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     /// <param name="paymentTransaction"></param>
     public async Task<string> PostRedirectPayment(PaymentTransaction paymentTransaction)
     {
-        var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
+        var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid)
+                    ?? throw new InvalidOperationException("The order of the payment transaction does not exist");
         return await _stripeCheckoutService.CreateRedirectUrl(order);
     }
 
@@ -202,9 +203,9 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     /// </summary>
     /// <param name="model"></param>
     /// <returns>Payment info holder</returns>
-    public async Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
+    public async Task<PaymentTransaction?> SavePaymentInfo(IDictionary<string, string> model)
     {
-        return await Task.FromResult<PaymentTransaction>(null);
+        return await Task.FromResult<PaymentTransaction?>(null);
     }
 
 

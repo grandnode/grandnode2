@@ -27,7 +27,7 @@ public class MongoDbTracingConfigTests
     public void ApplyTo_QueryTextMaxLengthFromConfiguration_IsSetOnTheClient()
     {
         //Arrange
-        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string> {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
             ["Telemetry:Instrumentation:MongoDb:QueryTextMaxLength"] = "500"
         }).Build();
         var config = new MongoDbTracingConfig();
@@ -44,7 +44,7 @@ public class MongoDbTracingConfigTests
     public void ApplyTo_DisabledFromConfiguration_TurnsTracingOffInTheDriver()
     {
         //Arrange
-        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string> {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?> {
             ["Telemetry:Instrumentation:MongoDb:Enabled"] = "false",
             ["Telemetry:Instrumentation:MongoDb:QueryTextMaxLength"] = "500"
         }).Build();

@@ -30,8 +30,7 @@ public class BlogControllerTests
     private Mock<IBlogService> _blogServiceMock;
     private Mock<IAdminDataScope<BlogPost>> _postScopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BlogControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
@@ -90,7 +89,7 @@ public class BlogControllerTests
     [TestMethod]
     public async Task Preview_PostNotFound_RedirectsToList()
     {
-        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost)null);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost?)null);
 
         var result = await _controller.Preview("missing");
 
@@ -136,8 +135,7 @@ public class BlogControllerTests
         private Mock<IRequestTranslationService> _translationServiceMock;
         private Mock<IAdminDataScope<BlogPost>> _postScopeMock;
 
-        [TestInitialize]
-        public void Setup()
+        public EditWarningCheckTests()
         {
             var mapperConfig = new MapperConfiguration(cfg =>
             {

@@ -20,8 +20,7 @@ public class WidgetViewComponentTests
     private Mock<IContextAccessor> _contextAccessorMock;
     private Mock<IWidgetService> _widgetServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public WidgetViewComponentTests()
     {
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(c => c.CurrentCustomer).Returns(new Customer());
@@ -42,11 +41,11 @@ public class WidgetViewComponentTests
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
     }
 
-    private async Task<List<WidgetModel>> Invoke(object additionalData)
+    private async Task<List<WidgetModel>?> Invoke(object? additionalData)
     {
         var component = new WidgetViewComponent(_contextAccessorMock.Object, _cacheBase, _widgetServiceMock.Object);
         var result = await component.InvokeAsync("blogpost_page_inside_comment", additionalData);
-        return (List<WidgetModel>)((ViewViewComponentResult)result).ViewData!.Model;
+        return Assert.IsInstanceOfType<List<WidgetModel>>(((ViewViewComponentResult)result).ViewData!.Model);
     }
 
     [TestMethod]
@@ -55,7 +54,9 @@ public class WidgetViewComponentTests
         var first = await Invoke("post-1");
         var second = await Invoke("post-2");
 
+        Assert.IsNotNull(first);
         Assert.AreEqual("post-1", first.Single().AdditionalData);
+        Assert.IsNotNull(second);
         Assert.AreEqual("post-2", second.Single().AdditionalData);
     }
 
@@ -66,6 +67,7 @@ public class WidgetViewComponentTests
 
         var model = await Invoke(null);
 
+        Assert.IsNotNull(model);
         Assert.IsNull(model.Single().AdditionalData);
     }
 }

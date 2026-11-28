@@ -17,8 +17,7 @@ public class UserApiServiceTests
     private Mock<IRepository<UserApi>> _repositoryMock;
     private UserApiService _userApiService;
 
-    [TestInitialize]
-    public void Init()
+    public UserApiServiceTests()
     {
         _repositoryMock = new Mock<IRepository<UserApi>>();
         _mediatorMock = new Mock<IMediator>();

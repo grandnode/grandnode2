@@ -22,8 +22,7 @@ public class GetReturnableQuantitiesQueryHandlerTests
     private Mock<IProductService> _productServiceMock;
     private List<Shipment> _shipments;
 
-    [TestInitialize]
-    public void Init()
+    public GetReturnableQuantitiesQueryHandlerTests()
     {
         _order = new Order { Id = "o1", CreatedOnUtc = DateTime.UtcNow };
         _order.OrderItems.Add(new OrderItem { Id = "a", ProductId = "p", Quantity = 3 });
@@ -114,7 +113,7 @@ public class GetReturnableQuantitiesQueryHandlerTests
     [TestMethod]
     public async Task Handle_ProductNotFound_GivesZero()
     {
-        _productServiceMock.Setup(x => x.GetProductByIdIncludeArch("q")).ReturnsAsync((Product)null);
+        _productServiceMock.Setup(x => x.GetProductByIdIncludeArch("q")).ReturnsAsync((Product?)null);
 
         var quantities = await Handle();
 

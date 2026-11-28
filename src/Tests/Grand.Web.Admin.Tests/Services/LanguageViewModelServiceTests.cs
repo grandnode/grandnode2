@@ -19,8 +19,7 @@ public class LanguageViewModelServiceTests
     private Mock<IWebHostEnvironment> _hostingEnvironmentMock;
     private LanguageViewModelService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public LanguageViewModelServiceTests()
     {
         _languageServiceMock = new Mock<ILanguageService>();
         _translationServiceMock = new Mock<IRequestTranslationService>();

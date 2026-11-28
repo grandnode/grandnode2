@@ -80,10 +80,10 @@ switch (cartItem.ShoppingCartTypeId)
 
 ## Nullable Reference Types
 
-Nullable reference types are enabled, with nullable warnings as errors, in every project except the plugins
-(`src/Plugins`) and the test projects (`src/Tests`), which come in a later step. Each enabled project sets
-`<Nullable>enable</Nullable>` and `<WarningsAsErrors>nullable</WarningsAsErrors>` in its own `.csproj`; there are
-no `#nullable` directives. Razor views compile under their project's setting.
+Nullable reference types are enabled, with nullable warnings as errors, in every project: `src/Build/Grand.Common.props`
+sets `<Nullable>enable</Nullable>` and `<WarningsAsErrors>nullable</WarningsAsErrors>`, so a new project, plugin or
+test project that imports it starts that way. Do not repeat the setting in a `.csproj`; there are no `#nullable`
+directives. Razor views compile under their project's setting.
 
 - `string` — never null; calling code must not pass null.
 - `string?` — may be null; the callee copes with it.
@@ -100,6 +100,10 @@ no `#nullable` directives. Razor views compile under their project's setting.
   naming the validator.
 - Do not suppress warnings: no `#pragma`, no `NoWarn`, no `<Nullable>warnings</Nullable>`. A `!` is allowed only
   with a comment that names the invariant the compiler cannot see.
+- Tests follow the same rules. A test passes `null!` only where the null exercises the guard of the code under test
+  (a test about a missing value); elsewhere it passes a real or neutral value (`""`, `[]`, `new()`). A value that may
+  be null is asserted before use (`Assert.IsNotNull`, `Assert.IsInstanceOfType<T>`), and a Moq setup of a method
+  returning `Task<T?>` uses `ReturnsAsync`.
 
 ---
 

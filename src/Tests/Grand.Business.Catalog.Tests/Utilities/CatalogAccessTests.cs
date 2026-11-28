@@ -11,7 +11,7 @@ public class CatalogAccessTests
     [TestMethod]
     public void For_WithoutCustomer_Throws()
     {
-        Assert.ThrowsExactly<ArgumentNullException>(() => CatalogAccess.For(null, "s1"));
+        Assert.ThrowsExactly<ArgumentNullException>(() => CatalogAccess.For(null!, "s1"));
     }
 
     [TestMethod]

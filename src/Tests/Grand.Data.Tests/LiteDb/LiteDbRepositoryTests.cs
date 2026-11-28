@@ -7,8 +7,7 @@ namespace Grand.Data.Tests.LiteDb;
 [TestClass]
 public class LiteDbRepositoryTests
 {
-    [TestInitialize]
-    public void Init()
+    public LiteDbRepositoryTests()
     {
 
     }
@@ -132,6 +131,7 @@ public class LiteDbRepositoryTests
         var p = myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p);
         Assert.HasCount(2, p.UserFields);
         Assert.IsTrue(p.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p.UpdatedBy);
@@ -201,6 +201,7 @@ public class LiteDbRepositoryTests
         var p = myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p);
         Assert.HasCount(2, p.Phones);
         Assert.IsTrue(p.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p.UpdatedBy);
@@ -232,8 +233,11 @@ public class LiteDbRepositoryTests
         var p3 = myRepository.GetById("3");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.HasCount(2, p1.Phones);
+        Assert.IsNotNull(p2);
         Assert.HasCount(2, p2.Phones);
+        Assert.IsNotNull(p3);
         Assert.IsEmpty(p3.Phones);
         Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p1.UpdatedBy);
@@ -263,6 +267,7 @@ public class LiteDbRepositoryTests
         var p1 = myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.HasCount(2, p1.UserFields);
         Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p1.UpdatedBy);
@@ -293,6 +298,7 @@ public class LiteDbRepositoryTests
         var p1 = myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.HasCount(1, p1.UserFields);
         Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p1.UpdatedBy);
@@ -331,7 +337,9 @@ public class LiteDbRepositoryTests
         var p2 = myRepository.GetById("2");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.HasCount(1, p1.UserFields);
+        Assert.IsNotNull(p2);
         Assert.HasCount(2, p2.UserFields);
         Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p1.UpdatedBy);
@@ -358,6 +366,7 @@ public class LiteDbRepositoryTests
         products.ForEach(x => myRepository.Insert(x));
 
         var p1_update = products.FirstOrDefault();
+        Assert.IsNotNull(p1_update);
         p1_update.Name = "update";
 
         //Act
@@ -366,6 +375,7 @@ public class LiteDbRepositoryTests
         var p1 = myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.AreEqual("update", p1.Name);
         Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p1.UpdatedBy);
@@ -391,12 +401,14 @@ public class LiteDbRepositoryTests
         products.ForEach(x => myRepository.Insert(x));
 
         var p1_update = products.FirstOrDefault();
+        Assert.IsNotNull(p1_update);
         p1_update.Name = "update";
         //Act
         await myRepository.UpdateAsync(p1_update);
 
         var p1 = myRepository.GetById("1");
         //Assert
+        Assert.IsNotNull(p1);
         Assert.AreEqual("update", p1.Name);
         Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p1.UpdatedBy);
@@ -426,6 +438,7 @@ public class LiteDbRepositoryTests
         var p1 = myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p1);
         Assert.AreEqual("update", p1.Name);
         Assert.IsTrue(p1.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p1.UpdatedBy);
@@ -444,6 +457,7 @@ public class LiteDbRepositoryTests
 
         var p1 = myRepository.GetById("1");
 
+        Assert.IsNotNull(p1);
         Assert.AreEqual(3, p1.Count);
     }
 
@@ -519,8 +533,8 @@ public class LiteDbRepositoryTests
             UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
 
         Assert.AreEqual(1, myRepository.Table.Count());
-        Assert.AreEqual("Test", myRepository.GetById("1").Name);
-        Assert.IsFalse(myRepository.GetById("1").UpdatedOnUtc.HasValue);
+        Assert.AreEqual("Test", myRepository.GetById("1")?.Name);
+        Assert.IsNull(myRepository.GetById("1")?.UpdatedOnUtc);
     }
 
     [TestMethod]
@@ -532,7 +546,7 @@ public class LiteDbRepositoryTests
         await myRepository.UpdateManyAsync(x => x.Name == "Missing",
             UpdateBuilder<SampleCollection>.Create().Set(x => x.Name, "UpdateTest"));
 
-        Assert.AreEqual("Test", myRepository.GetById("1").Name);
+        Assert.AreEqual("Test", myRepository.GetById("1")?.Name);
     }
 
     [TestMethod]
@@ -559,6 +573,7 @@ public class LiteDbRepositoryTests
         var p = myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p);
         Assert.AreEqual("update", p.UserFields!.FirstOrDefault(x => x.Key == "key")!.Value);
         Assert.IsTrue(p.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p.UpdatedBy);
@@ -589,6 +604,7 @@ public class LiteDbRepositoryTests
         var p = myRepository.GetById("1");
 
         //Assert
+        Assert.IsNotNull(p);
         Assert.AreEqual("update", p.UserFields!.FirstOrDefault(x => x.Key == "key")!.Value);
         Assert.IsTrue(p.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p.UpdatedBy);

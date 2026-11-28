@@ -23,8 +23,7 @@ public class AttributeImportDataObjectTests
     private List<SpecificationAttribute> _specificationAttributes;
     private int _writes;
 
-    [TestInitialize]
-    public void Init()
+    public AttributeImportDataObjectTests()
     {
         _writes = 0;
         _specificationAttributes = [];

@@ -14,6 +14,7 @@ public class MigrationRobotsTxtAiCrawlersTests
 
         var result = MigrationRobotsTxtAiCrawlers.AddAiCrawlers(text);
 
+        Assert.IsNotNull(result);
         var lines = result.Split("\r\n");
         Assert.AreEqual("User-agent: *", lines[0]);
         CollectionAssert.AreEqual(RobotsTxtAiCrawlers.UserAgents.Select(x => "User-agent: " + x).ToArray(),

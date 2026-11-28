@@ -18,8 +18,7 @@ public class ShipmentDeletedEventHandlerTests
     private ShipmentDeletedEventHandler _shipmentDeletedEventHandler;
     private Mock<IShipmentService> _shipmentServiceMock;
 
-    [TestInitialize]
-    public void Init()
+    public ShipmentDeletedEventHandlerTests()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _shipmentServiceMock = new Mock<IShipmentService>();
@@ -33,7 +32,7 @@ public class ShipmentDeletedEventHandlerTests
     {
         //Arrange
         var order = new Order();
-        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).Returns(Task.FromResult(order));
+        _orderServiceMock.Setup(x => x.GetOrderById(It.IsAny<string>())).ReturnsAsync(order);
 
         var shipment = new Shipment();
         shipment.ShipmentItems.Add(new ShipmentItem { OrderItemId = "!" });

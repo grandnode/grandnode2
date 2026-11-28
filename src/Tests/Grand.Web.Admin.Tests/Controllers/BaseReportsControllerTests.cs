@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -62,8 +60,7 @@ public class BaseReportsControllerTests
     private Mock<IVendorService> _vendorServiceMock = null!;
     private Mock<IReportDataScope> _scopeMock = null!;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseReportsControllerTests()
     {
         _orderReportServiceMock = new Mock<IOrderReportService>();
         _productsReportServiceMock = new Mock<IProductsReportService>();
@@ -170,7 +167,7 @@ public class BaseReportsControllerTests
         var result = await _controller.BestsellersBriefReportByQuantityList(new DataSourceRequest { Page = 1, PageSize = 10 }) as JsonResult;
 
         var gridModel = (DataSourceResult)result!.Value!;
-        Assert.AreEqual(0, ((List<BestsellersReportLineModel>)gridModel.Data).Count);
+        Assert.AreEqual(0, Assert.IsInstanceOfType<List<BestsellersReportLineModel>>(gridModel.Data).Count);
     }
 
     [TestMethod]
@@ -227,7 +224,7 @@ public class BaseReportsControllerTests
             new BestsellersReportModel()) as JsonResult;
 
         var gridModel = (DataSourceResult)result!.Value!;
-        Assert.AreEqual(0, ((List<BestsellersReportLineModel>)gridModel.Data).Count);
+        Assert.AreEqual(0, Assert.IsInstanceOfType<List<BestsellersReportLineModel>>(gridModel.Data).Count);
     }
 
     [TestMethod]
@@ -331,7 +328,7 @@ public class BaseReportsControllerTests
     {
         var result = await _controller.MerchandiseReturnReportList(new DataSourceRequest { Page = 1, PageSize = 10 },
             model, _merchandiseReturnServiceMock.Object) as JsonResult;
-        return ((IEnumerable<MerchandiseReturnReportLineModel>)((DataSourceResult)result!.Value!).Data).ToList();
+        return Assert.IsInstanceOfType<IEnumerable<MerchandiseReturnReportLineModel>>(((DataSourceResult)result!.Value!).Data).ToList();
     }
 
     [TestMethod]

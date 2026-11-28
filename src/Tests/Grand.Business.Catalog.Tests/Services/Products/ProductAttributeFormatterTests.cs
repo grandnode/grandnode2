@@ -28,15 +28,14 @@ public class ProductAttributeFormatterTests
     private Language _language;
     private DomainHost _host;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public ProductAttributeFormatterTests()
     {
         _productAttributeServiceMock = new Mock<IProductAttributeService>();
         _productAttributeServiceMock.Setup(x => x.GetProductAttributeById(It.IsAny<string>()))
-            .Returns(Task.FromResult(new ProductAttribute {
+            .ReturnsAsync(new ProductAttribute {
                 Name = "test",
                 Locales = { new TranslationEntity { LanguageId = "pl", LocaleKey = "Name", LocaleValue = "test-pl" } }
-            }));
+            });
         _taxServiceMock = new Mock<ITaxService>();
         _priceFormatterMock = new Mock<IPriceFormatter>();
         _pricingServiceMock = new Mock<IPricingService>();
@@ -177,7 +176,7 @@ public class ProductAttributeFormatterTests
         //Act
         var result = await _productAttributeFormatter.FormatAttributes(product, new List<CustomAttribute> {
             new() { Key = "1", Value = Guid.NewGuid().ToString() }
-        }, _context, _language, null);
+        }, _context, _language, null!);
         //Assert
         Assert.AreEqual("test: ", result);
     }

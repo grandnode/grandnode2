@@ -26,8 +26,7 @@ public class BaseWarehouseControllerTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private readonly Mock<IProductUnitService> _productUnitServiceMock = new();
 
-    [TestInitialize]
-    public void Setup()
+    public BaseWarehouseControllerTests()
     {
         _warehouseServiceMock = new Mock<IWarehouseService>();
         _countryServiceMock = new Mock<ICountryService>();
@@ -77,7 +76,7 @@ public class BaseWarehouseControllerTests
     public async Task Create_GlobalScope_DoesNotForceStoreId()
     {
         var controller = Build(new GlobalAdminDataScope<Warehouse>());
-        Warehouse inserted = null;
+        Warehouse? inserted = null;
         _warehouseServiceMock.Setup(s => s.InsertWarehouse(It.IsAny<Warehouse>()))
             .Callback<Warehouse>(w => inserted = w).Returns(Task.CompletedTask);
 
@@ -98,7 +97,7 @@ public class BaseWarehouseControllerTests
         var scope = new StoreWarehouseDataScope(contextAccessor.Object);
         var controller = Build(scope);
 
-        Warehouse inserted = null;
+        Warehouse? inserted = null;
         _warehouseServiceMock.Setup(s => s.InsertWarehouse(It.IsAny<Warehouse>()))
             .Callback<Warehouse>(w => inserted = w).Returns(Task.CompletedTask);
 

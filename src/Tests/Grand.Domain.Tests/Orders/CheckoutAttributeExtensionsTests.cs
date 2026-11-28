@@ -10,7 +10,8 @@ public class CheckoutAttributeExtensionsTests
     [TestMethod]
     public void ShouldHaveValues_NullCheckoutAttribute_ReturnFalse()
     {
-        CheckoutAttribute checkoutAttribute = null;
+        //null exercises the guard of the method under test
+        CheckoutAttribute checkoutAttribute = null!;
         Assert.IsFalse(checkoutAttribute.ShouldHaveValues());
     }
 

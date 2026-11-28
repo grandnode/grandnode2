@@ -16,7 +16,7 @@ public class AdminPaymentTransactionDataScopeTests
     private static readonly Guid OrderGuid = Guid.NewGuid();
 
     private static AdminPaymentTransactionDataScope Build(bool isSalesManager, string currentCustomerSeId,
-        Order order)
+        Order? order)
     {
         var customer = new Customer { SeId = currentCustomerSeId };
         var workContextMock = new Mock<IWorkContext>();
@@ -70,6 +70,6 @@ public class AdminPaymentTransactionDataScopeTests
     {
         var scope = Build(isSalesManager: false, currentCustomerSeId: "se-1", order: null);
 
-        Assert.IsFalse(await scope.HasAccess(null));
+        Assert.IsFalse(await scope.HasAccess(null!));
     }
 }

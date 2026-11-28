@@ -17,8 +17,7 @@ public class GetStockJournalQueryHandlerTests
     private MongoDBRepositoryTest<Warehouse> _warehouseRepository;
     private GetStockJournalQueryHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetStockJournalQueryHandlerTests()
     {
         _journalRepository = new MongoDBRepositoryTest<InventoryJournal>();
         _productRepository = new MongoDBRepositoryTest<Product>();
@@ -27,7 +26,7 @@ public class GetStockJournalQueryHandlerTests
     }
 
     private async Task<InventoryJournal> Entry(string warehouseId = "w1", string customerId = "erp",
-        InventoryMovementType type = InventoryMovementType.Api, int secondsAgo = 60, string combinationId = null)
+        InventoryMovementType type = InventoryMovementType.Api, int secondsAgo = 60, string? combinationId = null)
     {
         var entry = new InventoryJournal {
             Id = UniqueIdentifier.New,

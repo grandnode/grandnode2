@@ -171,7 +171,7 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
     [TestMethod]
     public async Task BundleProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string?)null);
         _productAddPopupViewModelServiceMock
             .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddBundleProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));

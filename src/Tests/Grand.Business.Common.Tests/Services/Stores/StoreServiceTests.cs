@@ -17,8 +17,7 @@ public class StoreServiceTests
     private Mock<IRepository<Store>> _repository;
     private StoreService _service;
 
-    [TestInitialize]
-    public void Init()
+    public StoreServiceTests()
     {
         _cacheMock = new Mock<ICacheBase>();
         _mediatorMock = new Mock<IMediator>();

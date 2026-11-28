@@ -68,7 +68,7 @@ public class ShippingPointService : IShippingPointService
     ///     Gets the pickup points of a store where customers can drop a merchandise return off
     /// </summary>
     /// <param name="storeId">The store identifier; points of all stores are included</param>
-    public virtual Task<IList<ShippingPoints>> GetReturnShippingPoints(string storeId)
+    public virtual Task<IList<ShippingPoints>> GetReturnShippingPoints(string? storeId)
     {
         IList<ShippingPoints> points = _shippingPointRepository.Table
             .Where(x => x.AcceptsReturns && (string.IsNullOrEmpty(x.StoreId) || x.StoreId == storeId))
@@ -80,7 +80,7 @@ public class ShippingPointService : IShippingPointService
     /// </summary>
     /// <param name="pointName"></param>
     /// <returns></returns>
-    public virtual Task<ShippingPoints> GetStoreShippingPointByPointName(string pointName)
+    public virtual Task<ShippingPoints?> GetStoreShippingPointByPointName(string pointName)
     {
         return Task.FromResult((from shippingPoint in _shippingPointRepository.Table
             where shippingPoint.ShippingPointName == pointName
@@ -92,7 +92,7 @@ public class ShippingPointService : IShippingPointService
     /// </summary>
     /// <param name="pickupPointId">Pickup point identifier</param>
     /// <returns>Pickup point</returns>
-    public virtual Task<ShippingPoints> GetStoreShippingPointById(string pickupPointId)
+    public virtual Task<ShippingPoints?> GetStoreShippingPointById(string? pickupPointId)
     {
         return _shippingPointRepository.GetByIdAsync(pickupPointId);
     }

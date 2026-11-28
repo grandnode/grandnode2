@@ -31,8 +31,7 @@ public class GetOrderDetailsHandlerRecurringTests
     private Mock<IOrderService> _orderService;
     private GetOrderDetailsHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetOrderDetailsHandlerRecurringTests()
     {
         _initialOrder = new Order { Id = "o1", OrderNumber = 1001, CustomerId = "buyer", StoreId = "s1" };
         _customerSettings = new CustomerSettings();

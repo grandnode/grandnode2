@@ -33,8 +33,7 @@ public class PaymentReminderServiceTests
     private Mock<ISettingService> _settingServiceMock;
     private List<Store> _stores;
 
-    [TestInitialize]
-    public void Init()
+    public PaymentReminderServiceTests()
     {
         _orderRepository = new MongoDBRepositoryTest<Order>();
         _stores = [new Store { Id = "store1" }];
@@ -102,6 +101,7 @@ public class PaymentReminderServiceTests
         VerifyReminders(order, 1);
         VerifyOverdueNotices(order, 0);
         var stored = await _orderRepository.GetByIdAsync(order.Id);
+        Assert.IsNotNull(stored);
         Assert.AreEqual(Now, stored.PaymentReminderSentOnUtc);
         Assert.IsNull(stored.PaymentOverdueNoticeSentOnUtc);
         _orderServiceMock.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
@@ -118,7 +118,9 @@ public class PaymentReminderServiceTests
         await _service.SendPaymentReminders(Now);
 
         VerifyReminders(order, 0);
-        Assert.IsNull((await _orderRepository.GetByIdAsync(order.Id)).PaymentReminderSentOnUtc);
+        var order2 = await _orderRepository.GetByIdAsync(order.Id);
+        Assert.IsNotNull(order2);
+        Assert.IsNull(order2.PaymentReminderSentOnUtc);
     }
 
     [TestMethod]
@@ -144,6 +146,7 @@ public class PaymentReminderServiceTests
         VerifyReminders(order, 0);
         VerifyOverdueNotices(order, 1);
         var stored = await _orderRepository.GetByIdAsync(order.Id);
+        Assert.IsNotNull(stored);
         Assert.AreEqual(Now, stored.PaymentOverdueNoticeSentOnUtc);
         Assert.IsNull(stored.PaymentReminderSentOnUtc);
     }
@@ -233,7 +236,9 @@ public class PaymentReminderServiceTests
 
         await _service.SendPaymentReminders(Now);
 
-        Assert.AreEqual(Now, (await _orderRepository.GetByIdAsync(order.Id)).PaymentReminderSentOnUtc);
+        var order2 = await _orderRepository.GetByIdAsync(order.Id);
+        Assert.IsNotNull(order2);
+        Assert.AreEqual(Now, order2.PaymentReminderSentOnUtc);
         _orderServiceMock.Verify(x => x.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
     }
 
@@ -247,7 +252,9 @@ public class PaymentReminderServiceTests
         await _service.SendPaymentReminders(Now);
 
         VerifyReminders(good, 1);
-        Assert.IsNull((await _orderRepository.GetByIdAsync(broken.Id)).PaymentReminderSentOnUtc);
+        var order = await _orderRepository.GetByIdAsync(broken.Id);
+        Assert.IsNotNull(order);
+        Assert.IsNull(order.PaymentReminderSentOnUtc);
 
         _customerServiceMock.Setup(x => x.GetCustomerById("broken")).ReturnsAsync(new Customer { Id = "broken" });
         await _service.SendPaymentReminders(Now.AddDays(1));
@@ -265,7 +272,9 @@ public class PaymentReminderServiceTests
 
         await _service.SendPaymentReminders(Now);
 
-        Assert.IsNull((await _orderRepository.GetByIdAsync(order.Id)).PaymentOverdueNoticeSentOnUtc);
+        var order2 = await _orderRepository.GetByIdAsync(order.Id);
+        Assert.IsNotNull(order2);
+        Assert.IsNull(order2.PaymentOverdueNoticeSentOnUtc);
         _orderServiceMock.Verify(x => x.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
     }
 

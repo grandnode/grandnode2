@@ -27,12 +27,11 @@ using Moq;
 [TestClass]
 public class PickupPointServiceTests
 {
-    private Mock<IRepository<PickupPoint>> _repositoryMock;
-    private Mock<ICacheBase> _cacheMock;
-    private PickupPointService _service;
+    private readonly Mock<IRepository<PickupPoint>> _repositoryMock;
+    private readonly Mock<ICacheBase> _cacheMock;
+    private readonly PickupPointService _service;
 
-    [TestInitialize]
-    public void Setup()
+    public PickupPointServiceTests()
     {
         _repositoryMock = new Mock<IRepository<PickupPoint>>();
         _cacheMock = new Mock<ICacheBase>();
@@ -43,7 +42,10 @@ public class PickupPointServiceTests
 
 - `[TestClass]` marks the class.
 - `[TestMethod]` marks each test.
-- `[TestInitialize]` runs before every test — initialize mocks and the subject under test here.
+- MSTest creates a new instance for every test, so the constructor initializes the mocks and the subject under test.
+  The fields are then definitely assigned, as nullable requires (test projects build with nullable warnings as
+  errors). Keep `[TestInitialize]` only for asynchronous setup, such as seeding a repository, and assign the fields
+  in the constructor.
 
 ### Arrange / Act / Assert
 
@@ -150,8 +152,7 @@ public void ShoppingCartAuctionValidator_Fail()
 Controllers that use the custom mapping framework need `AutoMapperConfig.Init` in setup:
 
 ```csharp
-[TestInitialize]
-public void Setup()
+public PaymentMethodControllerTests()
 {
     var mapperConfig = new MapperConfiguration(cfg =>
     {
@@ -170,7 +171,8 @@ public void Setup()
 
 | Anti-pattern | Problem | Fix |
 |---|---|---|
-| No `[TestInitialize]` — new mocks inline | Mocks recreated manually in each test | Use `[TestInitialize]` |
+| New mocks inline in each test | Mocks recreated manually in each test | Create them in the constructor |
+| Fields set in a synchronous `[TestInitialize]` | CS8618 under nullable | Set them in the constructor |
 | No translation stub in validator tests | NullReferenceException at runtime | Always stub `GetResource` to return a string |
 | `Assert.IsTrue(result != null)` | Vague failure message | `Assert.IsNotNull(result)` |
 | Not verifying service calls | Test passes even if method was never called | Add `.Verify(...)` for critical interactions |

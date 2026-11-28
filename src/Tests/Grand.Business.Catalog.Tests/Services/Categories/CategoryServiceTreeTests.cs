@@ -29,8 +29,7 @@ public class CategoryServiceTreeTests
 
     private Customer _customer;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public CategoryServiceTreeTests()
     {
         _categoryRepository = new MongoDBRepositoryTest<Category>();
         //one customer for the whole fixture: a fresh instance per call would give every call its

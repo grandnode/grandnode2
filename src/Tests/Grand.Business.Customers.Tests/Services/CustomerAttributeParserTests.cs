@@ -17,8 +17,7 @@ public class CustomerAttributeParserTests
     private CustomerAttributeParser _parser;
     private List<CustomAttribute> customAtr;
 
-    [TestInitialize]
-    public void Init()
+    public CustomerAttributeParserTests()
     {
         _customerAtrServiceMock = new Mock<ICustomerAttributeService>();
         _parser = new CustomerAttributeParser(_customerAtrServiceMock.Object);
@@ -61,7 +60,7 @@ public class CustomerAttributeParserTests
     {
         //not exist
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>()))
-            .Returns(() => Task.FromResult<CustomerAttribute>(null));
+            .Returns(() => Task.FromResult<CustomerAttribute?>(null));
         var result = await _parser.ParseCustomerAttributes(customAtr);
         Assert.IsEmpty(result);
     }
@@ -87,7 +86,7 @@ public class CustomerAttributeParserTests
 
         var result = _parser.AddCustomerAttribute(customAtr, new CustomerAttribute { Id = "key7" }, "value7");
         Assert.HasCount(5, result);
-        Assert.IsTrue(result.Any(c => c.Key.Equals("key7")));
+        Assert.IsTrue(result.Any(c => string.Equals(c.Key, "key7")));
     }
 
     [TestMethod]
@@ -104,7 +103,7 @@ public class CustomerAttributeParserTests
     [TestMethod]
     public async Task GetAttributeWarnings_Return_WithWarning()
     {
-        _customerAtr.FirstOrDefault(x => x.Id == "key5").IsRequired = true;
+        _customerAtr.First(x => x.Id == "key5").IsRequired = true;
         _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes(It.IsAny<string>()))
             .Returns(() => Task.FromResult((IList<CustomerAttribute>)_customerAtr));
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) =>

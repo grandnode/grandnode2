@@ -15,7 +15,7 @@ public class InsertMerchandiseReturnNoteCommand : IRequest<string?>
     public required MerchandiseReturn MerchandiseReturn { get; set; }
     public required Order Order { get; set; }
     public string? Note { get; set; }
-    public required IFormFile File { get; set; }
+    public IFormFile? File { get; set; }
     public required Customer Customer { get; set; }
     public required DomainHost Host { get; set; }
 }

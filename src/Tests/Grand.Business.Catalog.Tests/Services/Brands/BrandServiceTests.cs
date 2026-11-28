@@ -21,8 +21,7 @@ public class BrandServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Brand> _repository;
 
-    [TestInitialize]
-    public void InitializeTests()
+    public BrandServiceTests()
     {
         _repository = new MongoDBRepositoryTest<Brand>();
         _mediatorMock = new Mock<IMediator>();

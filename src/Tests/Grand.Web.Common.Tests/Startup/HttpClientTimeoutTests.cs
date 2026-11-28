@@ -9,7 +9,7 @@ namespace Grand.Web.Common.Tests.Startup;
 [TestClass]
 public class HttpClientTimeoutTests
 {
-    private static IHttpClientFactory Factory(Action<IServiceCollection> registerMore = null)
+    private static IHttpClientFactory Factory(Action<IServiceCollection>? registerMore = null)
     {
         var services = new ServiceCollection();
         new StartupApplication().ConfigureServices(services, new ConfigurationBuilder().Build());

@@ -13,8 +13,7 @@ public class InventoryJournalServiceTests
     private IRepository<Product> _products;
     private InventoryJournalService _service;
 
-    [TestInitialize]
-    public void Init()
+    public InventoryJournalServiceTests()
     {
         _products = new MongoDBRepositoryTest<Product>();
         _journal = new MongoDBRepositoryTest<InventoryJournal>();
@@ -22,7 +21,7 @@ public class InventoryJournalServiceTests
     }
 
     private Task Entry(string productId, DateTime date, int inQty, InventoryMovementType type,
-        string warehouseId = "w1", string storeId = "store1", int outQty = 0)
+        string warehouseId = "w1", string? storeId = "store1", int outQty = 0)
     {
         return _journal.InsertAsync(new InventoryJournal {
             ProductId = productId, CreateDateUtc = date, InQty = inQty, OutQty = outQty, MovementTypeId = type,
@@ -38,7 +37,7 @@ public class InventoryJournalServiceTests
             await Entry("p1", now.AddMinutes(i), i, InventoryMovementType.Receipt);
         await Entry("p2", now, 1, InventoryMovementType.Receipt);
 
-        var page = await _service.GetProductHistory("p1", null, null, null, null, 0, 2);
+        var page = await _service.GetProductHistory("p1", "", null, null, null, 0, 2);
 
         Assert.AreEqual(5, page.TotalCount);
         CollectionAssert.AreEqual(new[] { 4, 3 }, page.Select(x => x.InQty).ToArray());
@@ -54,7 +53,7 @@ public class InventoryJournalServiceTests
         //written before entries named their store
         await Entry("p1", now, 4, InventoryMovementType.Legacy, storeId: null);
 
-        var page = await _service.GetProductHistory("p1", null, null, null, ["store1", ""], 0, 10);
+        var page = await _service.GetProductHistory("p1", "", null, null, ["store1", ""], 0, 10);
 
         CollectionAssert.AreEquivalent(new[] { 1, 2, 4 }, page.Select(x => x.InQty).ToArray());
     }

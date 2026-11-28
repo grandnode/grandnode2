@@ -17,8 +17,7 @@ public class ShipmentServiceTests
     private Mock<IRepository<ShipmentNote>> _repositoryShipmentNoteMock;
     private IShipmentService _service;
 
-    [TestInitialize]
-    public void Init()
+    public ShipmentServiceTests()
     {
         _repositoryMock = new Mock<IRepository<Shipment>>();
         _repositoryShipmentNoteMock = new Mock<IRepository<ShipmentNote>>();

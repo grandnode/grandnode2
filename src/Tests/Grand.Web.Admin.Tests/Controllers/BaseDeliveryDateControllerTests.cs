@@ -27,8 +27,7 @@ public class BaseDeliveryDateControllerTests
     private Mock<IStoreService> _storeServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public BaseDeliveryDateControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<DeliveryDateProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -56,7 +55,7 @@ public class BaseDeliveryDateControllerTests
     public async Task Create_GlobalScope_DoesNotForceStoreId()
     {
         var controller = Build(new GlobalAdminDataScope<DeliveryDate>());
-        DeliveryDate inserted = null;
+        DeliveryDate? inserted = null;
         _deliveryDateServiceMock.Setup(s => s.InsertDeliveryDate(It.IsAny<DeliveryDate>()))
             .Callback<DeliveryDate>(m => inserted = m).Returns(Task.CompletedTask);
 
@@ -77,7 +76,7 @@ public class BaseDeliveryDateControllerTests
         var scope = new StoreDeliveryDateDataScope(contextAccessor.Object);
         var controller = Build(scope);
 
-        DeliveryDate inserted = null;
+        DeliveryDate? inserted = null;
         _deliveryDateServiceMock.Setup(s => s.InsertDeliveryDate(It.IsAny<DeliveryDate>()))
             .Callback<DeliveryDate>(m => inserted = m).Returns(Task.CompletedTask);
 

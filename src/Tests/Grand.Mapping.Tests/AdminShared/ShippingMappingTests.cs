@@ -17,8 +17,7 @@ public class ShippingMappingTests : VerifyBase
 {
     private IMapper _mapper;
 
-    [TestInitialize]
-    public void Setup()
+    public ShippingMappingTests()
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<ShippingMethodProfile>();

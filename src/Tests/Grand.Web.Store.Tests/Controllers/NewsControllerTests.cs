@@ -27,8 +27,7 @@ public class NewsControllerTests
     private Mock<INewsService> _newsServiceMock;
     private Mock<IAdminDataScope<NewsItem>> _scopeMock;
 
-    [TestInitialize]
-    public void Setup()
+    public NewsControllerTests()
     {
         var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<NewsItemProfile>());
         AutoMapperConfig.Init(mapperConfig);
@@ -132,7 +131,7 @@ public class NewsControllerTests
     [TestMethod]
     public async Task Preview_NewsItemNotFound_RedirectsToList()
     {
-        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem)null);
+        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem?)null);
 
         var result = await _controller.Preview("missing");
 

@@ -23,8 +23,7 @@ public class GetRecurringPaymentsHandlerTests
     private List<Order> _orders;
     private GetRecurringPaymentsHandler _handler;
 
-    [TestInitialize]
-    public void Init()
+    public GetRecurringPaymentsHandlerTests()
     {
         _payments = [];
         _orders = [];
@@ -177,7 +176,7 @@ public class GetRecurringPaymentsHandlerTests
 
         Assert.IsTrue(row.IsPastDue);
         var texts = row.GetType().GetProperties().Where(p => p.PropertyType == typeof(string))
-            .Select(p => (string)p.GetValue(row)).Concat(row.Products);
+            .Select(p => Assert.IsInstanceOfType<string>(p.GetValue(row))).Concat(row.Products);
         Assert.IsFalse(texts.Any(x => x != null && x.Contains("card_declined")));
     }
 }

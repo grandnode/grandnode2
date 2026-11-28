@@ -31,8 +31,7 @@ public class OrderApprovalDecisionCommandsTests
     private Order _order;
     private Mock<IOrderService> _orders;
 
-    [TestInitialize]
-    public void Init()
+    public OrderApprovalDecisionCommandsTests()
     {
         _order = new Order {
             Id = "o1", CustomerId = "buyer", StoreId = "s1", OrderStatusId = (int)OrderStatusSystem.AwaitingApproval
@@ -70,7 +69,7 @@ public class OrderApprovalDecisionCommandsTests
         _decideStore = new DecideStoreOrderApprovalCommandHandler(_approvals.Object, _mediator.Object);
     }
 
-    private ApplyOrderApprovalDecisionCommand Apply(bool approve = true, Customer decidedBy = null)
+    private ApplyOrderApprovalDecisionCommand Apply(bool approve = true, Customer? decidedBy = null)
     {
         return new ApplyOrderApprovalDecisionCommand {
             Approval = _approval, DecidedBy = decidedBy ?? _staff, Approve = approve, Comment = " note ",
@@ -78,7 +77,7 @@ public class OrderApprovalDecisionCommandsTests
         };
     }
 
-    private DecideStoreOrderApprovalCommand DecideStore(Customer decidedBy = null)
+    private DecideStoreOrderApprovalCommand DecideStore(Customer? decidedBy = null)
     {
         return new DecideStoreOrderApprovalCommand {
             Order = _order, DecidedBy = decidedBy ?? _staff, Approve = true, Language = new Language { Id = "en" }
@@ -224,7 +223,7 @@ public class OrderApprovalDecisionCommandsTests
     [TestMethod]
     public async Task DecideStore_NoRequest_False()
     {
-        _approvals.Setup(x => x.GetByOrderId("o1")).ReturnsAsync((OrderApproval)null);
+        _approvals.Setup(x => x.GetByOrderId("o1")).ReturnsAsync((OrderApproval?)null);
 
         Assert.IsFalse(await _decideStore.Handle(DecideStore(), default));
 

@@ -25,17 +25,16 @@ public class OidcLogoutTokenValidatorTests
         return new RsaSecurityKey(rsa.ExportParameters(true)) { KeyId = Guid.NewGuid().ToString("N") };
     }
 
-    [TestInitialize]
-    public void Init()
+    public OidcLogoutTokenValidatorTests()
     {
         _validator = new OidcLogoutTokenValidator(new MemoryCache(new MemoryCacheOptions()));
         _configuration = new OpenIdConnectConfiguration { Issuer = Issuer };
         _configuration.SigningKeys.Add(Key);
     }
 
-    private static string Token(Dictionary<string, object> claims = null, string typ = "logout+jwt", SecurityKey key = null,
-        string algorithm = SecurityAlgorithms.RsaSha256, string issuer = Issuer, object audience = null,
-        DateTime? issuedAt = null, bool events = true, string jti = null)
+    private static string Token(Dictionary<string, object?>? claims = null, string typ = "logout+jwt", SecurityKey? key = null,
+        string algorithm = SecurityAlgorithms.RsaSha256, string issuer = Issuer, object? audience = null,
+        DateTime? issuedAt = null, bool events = true, string? jti = null)
     {
         var payload = new Dictionary<string, object> {
             ["iss"] = issuer,
@@ -119,7 +118,7 @@ public class OidcLogoutTokenValidatorTests
         Assert.IsFalse((await Validate(Token(issuedAt: DateTime.UtcNow.AddMinutes(10)))).IsValid);
 
     [TestMethod]
-    public async Task Invalid_NoIat() => Assert.IsFalse((await Validate(Token(new() { ["iat"] = null }))).IsValid);
+    public async Task Invalid_NoIat() => Assert.IsFalse((await Validate(Token(new() { ["iat"] = null! }))).IsValid);
 
     [TestMethod]
     public async Task Invalid_Expired() =>
@@ -160,7 +159,7 @@ public class OidcLogoutTokenValidatorTests
     }
 
     [TestMethod]
-    public async Task Valid_NoJti() => Assert.IsTrue((await Validate(Token(new() { ["jti"] = null }))).IsValid);
+    public async Task Valid_NoJti() => Assert.IsTrue((await Validate(Token(new() { ["jti"] = null! }))).IsValid);
 
     [TestMethod]
     public async Task Invalid_WrongIssuer() => Assert.IsFalse((await Validate(Token(issuer: "https://evil.test"))).IsValid);

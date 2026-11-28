@@ -33,8 +33,7 @@ public class ReturnShippingControllerTests
     private ReturnShippingProviderSettings _settings;
     private Mock<ISettingService> _settingServiceMock;
 
-    [TestInitialize]
-    public void Setup()
+    public ReturnShippingControllerTests()
     {
         AutoMapperConfig.Init(new MapperConfiguration(cfg => cfg.AddProfile<AddressProfile>()));
 
@@ -114,7 +113,7 @@ public class ReturnShippingControllerTests
         var result = await _controller.Providers(new DataSourceRequest()) as JsonResult;
 
         Assert.IsNotNull(result);
-        var model = ((DataSourceResult)result.Value).Data.Cast<ReturnShippingProviderModel>().Single();
+        var model = (Assert.IsInstanceOfType<DataSourceResult>(result.Value).Data ?? throw new AssertFailedException("The grid answer has no rows")).Cast<ReturnShippingProviderModel>().Single();
         Assert.AreEqual(SendYourself, model.SystemName);
         Assert.IsTrue(model.IsActive);
         Assert.IsNull(model.ConfigurationUrl);
@@ -135,6 +134,7 @@ public class ReturnShippingControllerTests
 
         Assert.IsInstanceOfType<RedirectToActionResult>(result);
         Assert.AreEqual(12.5, _settings.SendYourselfCost);
+        Assert.IsNotNull(_settings.ReturnAddress);
         Assert.AreEqual("Main 1", _settings.ReturnAddress.Address1);
         Assert.AreEqual("Returns dept.", _settings.ReturnAddress.Company);
         Assert.AreEqual("PL", _settings.ReturnAddress.CountryId);

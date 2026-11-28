@@ -20,8 +20,7 @@ public class AddRequiredProductsCommandHandlerTests
     private Mock<IShoppingCartService> _shoppingCartServiceMock;
     private ShoppingCartSettings _shoppingCartSettings;
 
-    [TestInitialize]
-    public void Init()
+    public AddRequiredProductsCommandHandlerTests()
     {
         _shoppingCartServiceMock = new Mock<IShoppingCartService>();
         _shoppingCartSettings = new ShoppingCartSettings();
@@ -45,10 +44,10 @@ public class AddRequiredProductsCommandHandlerTests
         command.Customer.ShoppingCartItems.Add(new ShoppingCartItem
             { ProductId = "1", ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "" });
 
-        _productServiceMock.Setup(a => a.GetProductById("2", false)).Returns(() =>
-            Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));
-        _productServiceMock.Setup(a => a.GetProductById("3", false)).Returns(() =>
-            Task.FromResult(new Product { Id = "3", Published = true, Price = 10 }));
+        _productServiceMock.Setup(a => a.GetProductById("2", false)).ReturnsAsync(() =>
+            new Product { Id = "2", Published = true, Price = 10 });
+        _productServiceMock.Setup(a => a.GetProductById("3", false)).ReturnsAsync(() =>
+            new Product { Id = "3", Published = true, Price = 10 });
 
         //Act
         var result = await _handler.Handle(command, CancellationToken.None);

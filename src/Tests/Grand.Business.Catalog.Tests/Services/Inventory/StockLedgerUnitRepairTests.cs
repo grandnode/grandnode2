@@ -11,8 +11,7 @@ public class StockLedgerUnitRepairTests
     private static readonly DateTime January = new(2027, 1, 31, 0, 0, 0, DateTimeKind.Utc);
     private UnitTestFixture _fixture;
 
-    [TestInitialize]
-    public void Init()
+    public StockLedgerUnitRepairTests()
     {
         _fixture = new UnitTestFixture();
     }
@@ -35,7 +34,7 @@ public class StockLedgerUnitRepairTests
     ///     An entry whose unit and product writes were lost: it is in the journal, nothing else has it
     /// </summary>
     private Task LostEntry(Product product, int revision, int quantity, InventoryMovementType type,
-        string batchNumber = null, string[] serialNumbers = null, string objectType = "InventoryDocument",
+        string? batchNumber = null, string[]? serialNumbers = null, string objectType = "InventoryDocument",
         string objectId = "d1", string positionId = "l1") =>
         _fixture.Journal.InsertAsync(new InventoryJournal {
             ProductId = product.Id, CombinationId = "", WarehouseId = "w1", StockRevision = revision,

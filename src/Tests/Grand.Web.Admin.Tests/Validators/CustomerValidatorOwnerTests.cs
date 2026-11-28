@@ -35,12 +35,11 @@ public class CustomerValidatorOwnerTests
     private CustomerConfig _customerConfig;
     private Mock<IAdminDataScope<Customer>> _scope;
 
-    [TestInitialize]
-    public void Setup()
+    public CustomerValidatorOwnerTests()
     {
         //Admin panel: no default store, the owner field is editable
         _scope = new Mock<IAdminDataScope<Customer>>();
-        _scope.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync((string)null);
+        _scope.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
 
         _groupService = new Mock<IGroupService>();
         _groupService
@@ -57,7 +56,7 @@ public class CustomerValidatorOwnerTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<Expression<Func<Customer, object>>>()))
+                It.IsAny<Expression<Func<Customer, object?>>>()))
             .ReturnsAsync(new PagedList<Customer>());
         _customerConfig = new CustomerConfig();
     }
@@ -89,7 +88,7 @@ public class CustomerValidatorOwnerTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
                 It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<Expression<Func<Customer, object>>>()))
+                It.IsAny<Expression<Func<Customer, object?>>>()))
             .ReturnsAsync(list);
     }
 

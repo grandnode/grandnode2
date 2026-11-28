@@ -7,37 +7,37 @@ namespace Shipping.ByWeight.Models;
 public class ShippingByWeightModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Store")]
-    public string StoreName { get; set; }
+    public string? StoreName { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Warehouse")]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Warehouse")]
-    public string WarehouseName { get; set; }
+    public string? WarehouseName { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Country")]
-    public string CountryId { get; set; }
+    public string? CountryId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Country")]
-    public string CountryName { get; set; }
+    public string? CountryName { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.StateProvince")]
-    public string StateProvinceId { get; set; }
+    public string? StateProvinceId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.StateProvince")]
-    public string StateProvinceName { get; set; }
+    public string? StateProvinceName { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.Zip")]
-    public string Zip { get; set; }
+    public string? Zip { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.ShippingMethod")]
-    public string ShippingMethodId { get; set; }
+    public string? ShippingMethodId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.ShippingMethod")]
-    public string ShippingMethodName { get; set; }
+    public string? ShippingMethodName { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.From")]
     public double From { get; set; }
@@ -58,10 +58,10 @@ public class ShippingByWeightModel : BaseEntityModel
     public double LowerWeightLimit { get; set; }
 
     [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.DataHtml")]
-    public string DataHtml { get; set; }
+    public string? DataHtml { get; set; }
 
-    public string PrimaryStoreCurrencyCode { get; set; }
-    public string BaseWeightIn { get; set; }
+    public string? PrimaryStoreCurrencyCode { get; set; }
+    public string? BaseWeightIn { get; set; }
 
 
     public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();

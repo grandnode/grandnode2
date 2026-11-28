@@ -18,8 +18,7 @@ public class PermissionAuthorizeAttributeTests
     private Mock<IRequestPermissionService> _permissionService;
     private Mock<IAuditEventRecorder> _recorder;
 
-    [TestInitialize]
-    public void Setup()
+    public PermissionAuthorizeAttributeTests()
     {
         _permissionService = new Mock<IRequestPermissionService>();
         _recorder = new Mock<IAuditEventRecorder>();

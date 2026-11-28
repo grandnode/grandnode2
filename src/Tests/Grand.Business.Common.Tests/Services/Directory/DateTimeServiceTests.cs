@@ -9,13 +9,13 @@ public class DateTimeServiceTests
 {
     private DateTimeService _dateTimeService;
     private DateTimeSettings _dateTimeSettings;
-    private TimeZoneInfo _timeZone;
+    private TimeZoneInfo? _timeZone;
 
-    [TestInitialize]
-    public void TestInitialize()
+    public DateTimeServiceTests()
     {
         _timeZone = TimeZoneInfo.GetSystemTimeZones().FirstOrDefault(x => x.BaseUtcOffset.Hours == 1);
 
+        Assert.IsNotNull(_timeZone);
         _dateTimeSettings = new DateTimeSettings {
             DefaultStoreTimeZoneId = _timeZone.Id
         };
@@ -25,6 +25,7 @@ public class DateTimeServiceTests
     [TestMethod]
     public void FindTimeZoneByIdTest()
     {
+        Assert.IsNotNull(_dateTimeSettings.DefaultStoreTimeZoneId);
         var timezone = _dateTimeService.FindTimeZoneById(_dateTimeSettings.DefaultStoreTimeZoneId);
         Assert.IsNotNull(timezone);
     }
@@ -49,6 +50,7 @@ public class DateTimeServiceTests
     [Ignore]
     public void ConvertToUtcTimeTest()
     {
+        Assert.IsNotNull(_timeZone);
         var usertime = _dateTimeService.ConvertToUtcTime(new DateTime(01, 01, 01, 02, 00, 00), _timeZone);
         Assert.AreNotEqual(0, usertime.Ticks);
         //TODO Assert.AreEqual(new DateTime(01, 01, 01, 01, 00, 00), usertime);
